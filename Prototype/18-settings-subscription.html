@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Подписка</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar('settings'));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Настройки'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="page-header">
+                <div>
+                    <h1>Настройки</h1>
+                    <p>Управление аккаунтом и предпочтениями</p>
+                </div>
+            </div>
+
+            <div class="tab-bar" style="margin-bottom:2rem;">
+                <a href="16-settings-profile.html" class="tab-bar-item">Профиль</a>
+                <a href="17-settings-ai.html" class="tab-bar-item">AI модель</a>
+                <a href="18-settings-subscription.html" class="tab-bar-item active">Подписка</a>
+                <a href="19-settings-security.html" class="tab-bar-item">Безопасность</a>
+            </div>
+
+            <!-- Current plan -->
+            <div class="card" style="max-width:720px;margin-bottom:2rem;">
+                <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                            <h3 style="font-size:1.1rem;font-weight:700;">Текущий план</h3>
+                            <span class="badge badge-gray">Free</span>
+                        </div>
+                        <p style="font-size:0.9rem;color:var(--text-secondary);">Бесплатный план с базовыми возможностями</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm">Обновить план</button>
+                </div>
+
+                <div style="margin-bottom:1.5rem;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;">
+                        <span style="font-weight:500;">Использование оптимизаций</span>
+                        <span style="font-weight:600;">2 / 5</span>
+                    </div>
+                    <div style="height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
+                        <div style="height:100%;width:40%;background:var(--primary-gradient);border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-top:0.5rem;">Обновляется 1 марта 2026</div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
+                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">AI модели</div>
+                        <div style="font-weight:600;">Llama 3</div>
+                    </div>
+                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
+                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">Экспорт</div>
+                        <div style="font-weight:600;">DOCX</div>
+                    </div>
+                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
+                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">Шаблоны</div>
+                        <div style="font-weight:600;">1 (Minimal)</div>
+                    </div>
+                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
+                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">Поддержка</div>
+                        <div style="font-weight:600;">Email</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compare plans -->
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Сравнение планов</h3>
+            <div class="pricing-grid" style="max-width:none;">
+                <div class="card pricing-card" style="border:2px solid var(--primary-light);">
+                    <div class="badge badge-gray" style="align-self:start;">Free</div>
+                    <div class="price">0 &#8381; <span>навсегда</span></div>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;">Текущий план</p>
+                    <ul>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 5 оптимизаций / месяц</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Llama 3</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> DOCX экспорт</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 1 шаблон</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Поиск hh.ru</li>
+                    </ul>
+                    <button class="btn btn-secondary btn-block" disabled>Текущий план</button>
+                </div>
+                <div class="card pricing-card featured">
+                    <div class="pricing-popular"><span class="badge badge-indigo">Популярный</span></div>
+                    <div class="badge badge-indigo" style="align-self:start;">Standard</div>
+                    <div class="price">490 &#8381; <span>/мес</span></div>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;">Для активного поиска</p>
+                    <ul>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 30 оптимизаций / месяц</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> GigaChat Pro + Llama 3</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> PDF + DOCX экспорт</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 3 шаблона</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Поиск hh.ru</li>
+                    </ul>
+                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;">или 3 990 &#8381;/год (−27%)</div>
+                    <button class="btn btn-primary btn-block">Обновить</button>
+                </div>
+                <div class="card pricing-card">
+                    <div class="badge badge-green" style="align-self:start;">Pro</div>
+                    <div class="price">1 490 &#8381; <span>/мес</span></div>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;">Безлимит + все модели</p>
+                    <ul>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Безлимит оптимизаций</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все AI модели + GPT-4o</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все форматы + hh.ru</li>
+                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все шаблоны + API</li>
+                    </ul>
+                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;">или 11 990 &#8381;/год (−33%)</div>
+                    <button class="btn btn-primary btn-block">Обновить</button>
+                </div>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav('settings'));</script>
+    </div>
+</div>
+<style>
+@media(max-width:768px) {
+    .tab-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+}
+</style>
+</body>
+</html>

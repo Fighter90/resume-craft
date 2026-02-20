@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Загрузка резюме</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar(''));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Загрузка'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="wizard-container">
+                <a href="06-dashboard.html" class="btn btn-secondary btn-sm" style="margin-bottom:1.5rem;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Назад
+                </a>
+                <div style="text-align:center;margin-bottom:3rem;">
+                    <h2 style="font-size:1.75rem;font-weight:700;margin-bottom:0.5rem;">Загрузите ваше резюме</h2>
+                    <p style="color:var(--text-secondary);">Мы поддерживаем форматы PDF и DOCX до 10 МБ</p>
+                </div>
+                <div class="card">
+                    <a href="09-vacancy.html" class="dropzone" style="display:block;">
+                        <div style="width:64px;height:64px;background:#F3F4F6;border-radius:16px;margin:0 auto 1.5rem;display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                            <svg class="icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">Перетащите файл сюда</h3>
+                        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">или нажмите для выбора файла</p>
+                        <span class="btn btn-secondary">Выбрать файл</span>
+                    </a>
+                </div>
+                <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:center;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-tertiary);">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        PDF
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-tertiary);">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        DOCX
+                    </div>
+                    <div style="font-size:0.85rem;color:var(--text-tertiary);">до 10 МБ</div>
+                </div>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav('upload'));</script>
+    </div>
+</div>
+</body>
+</html>

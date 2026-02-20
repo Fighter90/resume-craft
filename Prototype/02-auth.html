@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Вход / Регистрация</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+    <style>
+        body { overflow: hidden; height: 100vh; }
+
+        /* === Left panel animation === */
+        .auth-visual {
+            flex: 1;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.5;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 300px; height: 300px;
+            background: #7C3AED;
+            top: -50px; left: -50px;
+            animation-duration: 8s;
+        }
+        .orb-2 {
+            width: 250px; height: 250px;
+            background: #4F46E5;
+            bottom: -30px; right: -30px;
+            animation-duration: 10s;
+            animation-delay: -3s;
+        }
+        .orb-3 {
+            width: 180px; height: 180px;
+            background: #818CF8;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 12s;
+            animation-delay: -5s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -20px) scale(1.05); }
+            50% { transform: translate(-20px, 30px) scale(0.95); }
+            75% { transform: translate(20px, 20px) scale(1.02); }
+        }
+        .orb-3 {
+            animation-name: orbFloat3;
+        }
+        @keyframes orbFloat3 {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            25% { transform: translate(-40%, -60%) scale(1.08); }
+            50% { transform: translate(-60%, -40%) scale(0.92); }
+            75% { transform: translate(-45%, -55%) scale(1.05); }
+        }
+
+        /* Resume card */
+        .resume-card {
+            width: 280px;
+            height: 380px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(79,70,229,0.25);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            animation: cardFloat 6s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* Skeleton lines inside card */
+        .skel { border-radius: 4px; }
+        .skel-header { height: 10px; background: var(--primary); opacity: 0.7; margin-bottom: 0.5rem; }
+        .skel-sub { height: 7px; background: #C4B5FD; margin-bottom: 1.25rem; }
+        .skel-line { height: 6px; background: #E5E7EB; margin-bottom: 0.5rem; }
+        .skel-section { height: 8px; background: #A5B4FC; margin-top: 0.75rem; margin-bottom: 0.5rem; }
+
+        /* Shimmer animation */
+        .skel-line {
+            background: linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Sparkle dots */
+        .sparkle {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 3;
+            animation: sparkle 3s ease-in-out infinite;
+        }
+        .sparkle:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+        .sparkle:nth-child(2) { top: 30%; right: 15%; animation-delay: 0.8s; }
+        .sparkle:nth-child(3) { bottom: 25%; left: 25%; animation-delay: 1.6s; }
+        .sparkle:nth-child(4) { bottom: 15%; right: 20%; animation-delay: 2.2s; }
+        .sparkle:nth-child(5) { top: 50%; left: 10%; animation-delay: 0.4s; }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 0.8; transform: scale(1); }
+        }
+
+        /* === Phone input row === */
+        .phone-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+        .phone-prefix {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid #E5E7EB;
+            background: #F9FAFB;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+            cursor: default;
+            user-select: none;
+        }
+        .phone-prefix .flag {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        .phone-row .input-field {
+            flex: 1;
+        }
+
+        /* Method tabs inside form */
+        .method-tabs {
+            display: flex;
+            background: #F3F4F6;
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 1.5rem;
+        }
+        .method-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.6rem 1rem;
+            border-radius: calc(var(--radius-md) - 2px);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .method-tab.active {
+            background: white;
+            color: var(--text-main);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        /* Secondary link button */
+        .btn-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            background: #F3F4F6;
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+        }
+        .btn-link:hover { background: #E5E7EB; }
+
+        /* Agreement text */
+        .agreement {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            line-height: 1.5;
+            margin-top: 1.5rem;
+        }
+        .agreement a { color: var(--primary); }
+    </style>
+</head>
+<body>
+<div class="auth-split" style="display:flex;height:100vh;">
+    <!-- Left visual with animation -->
+    <div class="auth-visual">
+        <!-- Animated orbs -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <!-- Sparkle particles -->
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+
+        <!-- Floating resume card -->
+        <div class="resume-card">
+            <div class="skel skel-header" style="width:55%;"></div>
+            <div class="skel skel-sub" style="width:40%;"></div>
+
+            <div class="skel skel-section" style="width:35%;"></div>
+            <div class="skel skel-line" style="width:100%;animation-delay:0s;"></div>
+            <div class="skel skel-line" style="width:85%;animation-delay:0.15s;"></div>
+            <div class="skel skel-line" style="width:92%;animation-delay:0.3s;"></div>
+
+            <div class="skel skel-section" style="width:40%;"></div>
+            <div class="skel skel-line" style="width:100%;animation-delay:0.45s;"></div>
+            <div class="skel skel-line" style="width:78%;animation-delay:0.6s;"></div>
+            <div class="skel skel-line" style="width:90%;animation-delay:0.75s;"></div>
+            <div class="skel skel-line" style="width:65%;animation-delay:0.9s;"></div>
+
+            <div class="skel skel-section" style="width:30%;"></div>
+            <div class="skel skel-line" style="width:95%;animation-delay:1.05s;"></div>
+            <div class="skel skel-line" style="width:70%;animation-delay:1.2s;"></div>
+        </div>
+    </div>
+
+    <!-- Right form -->
+    <div class="auth-form-side" style="flex:1;background:white;display:flex;align-items:center;justify-content:center;padding:2rem;">
+        <div style="width:100%;max-width:400px;">
+            <a href="01-landing.html" style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-secondary);font-size:0.85rem;margin-bottom:2rem;">
+                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                На главную
+            </a>
+            <h2 id="auth-title" style="font-size:1.75rem;margin-bottom:1.5rem;font-weight:700;">Поиск работы</h2>
+
+            <!-- Main auth tabs -->
+            <div class="tab-bar" style="margin-bottom:1.5rem;">
+                <div class="tab-bar-item active" onclick="switchAuthTab(0)">Регистрация</div>
+                <div class="tab-bar-item" onclick="switchAuthTab(1)">Войти</div>
+            </div>
+
+            <!-- Register form -->
+            <div id="auth-register" class="tab-content active">
+                <!-- Method tabs: phone / email -->
+                <div class="method-tabs">
+                    <div class="method-tab active" onclick="switchMethod(0)">Телефон</div>
+                    <div class="method-tab" onclick="switchMethod(1)">Почта</div>
+                </div>
+
+                <!-- Phone method -->
+                <div id="method-phone" style="display:flex;flex-direction:column;gap:1rem;">
+                    <div class="phone-row">
+                        <div class="phone-prefix">
+                            <span class="flag">&#x1F1F7;&#x1F1FA;</span> +7
+                        </div>
+                        <input type="tel" class="input-field" placeholder="918 276-25-33">
+                    </div>
+                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Дальше</a>
+                    <button class="btn-link" onclick="switchMethod(1)">Войти с паролем</button>
+                </div>
+
+                <!-- Email method -->
+                <div id="method-email" style="display:none;flex-direction:column;gap:1rem;">
+                    <div class="input-group">
+                        <label class="input-label">Email</label>
+                        <input type="email" class="input-field" placeholder="alex@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Пароль</label>
+                        <input type="password" class="input-field" placeholder="Минимум 8 символов">
+                    </div>
+                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Продолжить</a>
+                </div>
+
+                <p class="agreement">Продолжая, вы принимаете <a href="#">политику конфиденциальности</a> и <a href="#">правила сервиса</a></p>
+            </div>
+
+            <!-- Login form -->
+            <div id="auth-login" class="tab-content">
+                <!-- Method tabs: phone / email -->
+                <div class="method-tabs">
+                    <div class="method-tab active" onclick="switchMethodLogin(0)">Телефон</div>
+                    <div class="method-tab" onclick="switchMethodLogin(1)">Почта</div>
+                </div>
+
+                <!-- Phone login -->
+                <div id="login-phone" style="display:flex;flex-direction:column;gap:1rem;">
+                    <div class="phone-row">
+                        <div class="phone-prefix">
+                            <span class="flag">&#x1F1F7;&#x1F1FA;</span> +7
+                        </div>
+                        <input type="tel" class="input-field" placeholder="918 276-25-33">
+                    </div>
+                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Дальше</a>
+                    <button class="btn-link" onclick="switchMethodLogin(1)">Войти с паролем</button>
+                </div>
+
+                <!-- Email login -->
+                <div id="login-email" style="display:none;flex-direction:column;gap:1rem;">
+                    <div class="input-group">
+                        <label class="input-label">Email</label>
+                        <input type="email" class="input-field" placeholder="alex@example.com">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Пароль</label>
+                        <input type="password" class="input-field" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
+                    </div>
+                    <div style="text-align:right;">
+                        <a href="03-password-recovery.html" style="font-size:0.85rem;color:var(--primary);font-weight:500;">Забыли пароль?</a>
+                    </div>
+                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Войти</a>
+                </div>
+
+                <p class="agreement">Продолжая, вы принимаете <a href="#">политику конфиденциальности</a> и <a href="#">правила сервиса</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchAuthTab(idx) {
+    document.querySelectorAll('.tab-bar-item').forEach((t,i) => t.classList.toggle('active', i===idx));
+    document.getElementById('auth-register').classList.toggle('active', idx===0);
+    document.getElementById('auth-login').classList.toggle('active', idx===1);
+    document.getElementById('auth-title').textContent = idx===0 ? 'Поиск работы' : 'Войти';
+}
+
+function switchMethod(idx) {
+    const tabs = document.querySelectorAll('#auth-register .method-tab');
+    tabs.forEach((t,i) => t.classList.toggle('active', i===idx));
+    document.getElementById('method-phone').style.display = idx===0 ? 'flex' : 'none';
+    document.getElementById('method-email').style.display = idx===1 ? 'flex' : 'none';
+}
+
+function switchMethodLogin(idx) {
+    const tabs = document.querySelectorAll('#auth-login .method-tab');
+    tabs.forEach((t,i) => t.classList.toggle('active', i===idx));
+    document.getElementById('login-phone').style.display = idx===0 ? 'flex' : 'none';
+    document.getElementById('login-email').style.display = idx===1 ? 'flex' : 'none';
+}
+</script>
+</body>
+</html>

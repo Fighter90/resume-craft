@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Обработка</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar(''));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Обработка'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="wizard-container" style="text-align:center;">
+                <div style="margin-bottom:2rem;">
+                    <div class="processing-spinner" style="margin:0 auto 2rem;">
+                        <svg viewBox="0 0 50 50" style="width:80px;height:80px;animation:spin 1.2s linear infinite;">
+                            <circle cx="25" cy="25" r="20" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+                            <circle cx="25" cy="25" r="20" fill="none" stroke="url(#grad)" stroke-width="4" stroke-dasharray="80,126" stroke-linecap="round"/>
+                            <defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#4F46E5"/><stop offset="100%" style="stop-color:#7C3AED"/>
+                            </linearGradient></defs>
+                        </svg>
+                    </div>
+                    <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;" id="proc-title">Оптимизируем ваше резюме...</h2>
+                    <p style="color:var(--text-secondary);" id="proc-subtitle">GigaChat Pro анализирует и адаптирует контент</p>
+                </div>
+
+                <!-- Progress bar -->
+                <div style="max-width:480px;margin:0 auto 2rem;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;">
+                        <span style="color:var(--text-secondary);">Прогресс</span>
+                        <span style="font-weight:600;color:var(--primary);" id="proc-percent">0%</span>
+                    </div>
+                    <div style="height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
+                        <div id="proc-bar" style="height:100%;width:0%;background:var(--primary-gradient);border-radius:4px;transition:width 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Steps -->
+                <div class="card" style="max-width:480px;margin:0 auto;text-align:left;">
+                    <div class="processing-steps">
+                        <div class="step active" id="step-0">
+                            <div class="step-indicator">
+                                <svg class="icon-sm" style="animation:spin 1s linear infinite;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">Загрузка документа</div>
+                                <div style="font-size:0.8rem;color:var(--text-secondary);">Парсинг и извлечение текста</div>
+                            </div>
+                        </div>
+                        <div class="step" id="step-1">
+                            <div class="step-indicator">
+                                <div style="width:8px;height:8px;background:#D1D5DB;border-radius:50%;"></div>
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">Анализ вакансии</div>
+                                <div style="font-size:0.8rem;color:var(--text-secondary);">Извлечение ключевых требований</div>
+                            </div>
+                        </div>
+                        <div class="step" id="step-2">
+                            <div class="step-indicator">
+                                <div style="width:8px;height:8px;background:#D1D5DB;border-radius:50%;"></div>
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">AI оптимизация</div>
+                                <div style="font-size:0.8rem;color:var(--text-secondary);">Адаптация контента под вакансию</div>
+                            </div>
+                        </div>
+                        <div class="step" id="step-3">
+                            <div class="step-indicator">
+                                <div style="width:8px;height:8px;background:#D1D5DB;border-radius:50%;"></div>
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:0.95rem;">Финализация</div>
+                                <div style="font-size:0.8rem;color:var(--text-secondary);">Проверка ATS и форматирование</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="color:var(--text-tertiary);font-size:0.8rem;margin-top:1.5rem;">Обычно процесс занимает 10-30 секунд</p>
+
+                <!-- Hidden: shown when done -->
+                <a href="12-results.html" id="proc-done-btn" class="btn btn-primary btn-block" style="max-width:480px;margin:1.5rem auto 0;display:none;height:52px;font-size:1rem;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Посмотреть результат
+                </a>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav(''));</script>
+    </div>
+</div>
+<script>
+(function() {
+    const steps = [
+        { pct: 25, title: 'Загрузка документа...', sub: 'Парсинг и извлечение текста' },
+        { pct: 50, title: 'Анализ вакансии...', sub: 'Извлечение ключевых требований' },
+        { pct: 80, title: 'AI оптимизация...', sub: 'GigaChat Pro адаптирует контент' },
+        { pct: 100, title: 'Готово!', sub: 'Резюме успешно оптимизировано' }
+    ];
+    let current = 0;
+    function advanceStep() {
+        if (current >= steps.length) return;
+        const s = steps[current];
+        document.getElementById('proc-bar').style.width = s.pct + '%';
+        document.getElementById('proc-percent').textContent = s.pct + '%';
+        document.getElementById('proc-title').textContent = s.title;
+        document.getElementById('proc-subtitle').textContent = s.sub;
+
+        // Update step indicators
+        for (let i = 0; i < 4; i++) {
+            const el = document.getElementById('step-' + i);
+            const indicator = el.querySelector('.step-indicator');
+            if (i < current) {
+                el.classList.remove('active');
+                el.classList.add('done');
+                indicator.innerHTML = '<svg class="icon-sm" style="color:var(--success);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            } else if (i === current) {
+                el.classList.add('active');
+                el.classList.remove('done');
+                if (current < 3) {
+                    indicator.innerHTML = '<svg class="icon-sm" style="animation:spin 1s linear infinite;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>';
+                } else {
+                    indicator.innerHTML = '<svg class="icon-sm" style="color:var(--success);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+                }
+            } else {
+                el.classList.remove('active', 'done');
+                indicator.innerHTML = '<div style="width:8px;height:8px;background:#D1D5DB;border-radius:50%;"></div>';
+            }
+        }
+
+        if (current === steps.length - 1) {
+            document.querySelector('.processing-spinner').style.display = 'none';
+            document.getElementById('proc-done-btn').style.display = 'flex';
+            document.getElementById('proc-percent').style.color = 'var(--success)';
+        }
+        current++;
+    }
+
+    advanceStep();
+    setTimeout(advanceStep, 2000);
+    setTimeout(advanceStep, 4500);
+    setTimeout(advanceStep, 7000);
+})();
+</script>
+<style>
+.processing-steps { display: flex; flex-direction: column; gap: 1.25rem; }
+.processing-steps .step { display: flex; align-items: center; gap: 1rem; opacity: 0.4; transition: opacity 0.3s; }
+.processing-steps .step.active, .processing-steps .step.done { opacity: 1; }
+.step-indicator { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+</body>
+</html>

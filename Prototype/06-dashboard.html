@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar('dashboard'));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Дашборд'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="page-header">
+                <div>
+                    <h1>Добрый день, Александр</h1>
+                    <p>Готовы получить оффер мечты сегодня?</p>
+                </div>
+                <a href="08-upload.html" class="btn btn-primary">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Оптимизировать резюме
+                </a>
+            </div>
+
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div>
+                        <div style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:0.25rem;">Загружено резюме</div>
+                        <div style="font-size:2rem;font-weight:700;">12</div>
+                    </div>
+                    <div class="stat-icon" style="background:#F3F4F6;color:var(--text-main);">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div>
+                        <div style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:0.25rem;">Оптимизаций</div>
+                        <div style="font-size:2rem;font-weight:700;">48</div>
+                    </div>
+                    <div class="stat-icon" style="background:var(--primary-light);color:var(--primary);">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div>
+                        <div style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:0.25rem;">Средний Match Score</div>
+                        <div style="font-size:2rem;font-weight:700;color:var(--success);">78%</div>
+                    </div>
+                    <div style="position:relative;width:48px;height:48px;">
+                        <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg);">
+                            <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                            <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="var(--success)" stroke-width="3" stroke-dasharray="78,100"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;">Недавние резюме</h3>
+            <div class="resume-grid">
+                <a href="12-results.html" class="card card-hover" style="display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:start;">
+                        <span class="badge badge-green">Optimized</span>
+                        <span style="color:var(--text-tertiary);font-size:0.8rem;">2ч назад</span>
+                    </div>
+                    <div style="font-weight:600;font-size:1.1rem;">Product Manager @ Yandex</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span class="badge badge-indigo">87%</span>
+                        <span style="font-size:0.8rem;color:var(--text-secondary);">Match Score</span>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;margin-top:auto;">
+                        <span class="badge badge-gray">Product</span>
+                        <span class="badge badge-gray">Agile</span>
+                        <span class="badge badge-gray">SQL</span>
+                    </div>
+                </a>
+                <div class="card card-hover" style="display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:start;">
+                        <span class="badge badge-gray">Draft</span>
+                        <span style="color:var(--text-tertiary);font-size:0.8rem;">Вчера</span>
+                    </div>
+                    <div style="font-weight:600;font-size:1.1rem;">Frontend Developer</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span class="badge badge-gray">--</span>
+                        <span style="font-size:0.8rem;color:var(--text-secondary);">Не оптимизировано</span>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;margin-top:auto;">
+                        <span class="badge badge-gray">React</span>
+                        <span class="badge badge-gray">TypeScript</span>
+                    </div>
+                </div>
+                <a href="08-upload.html" class="card" style="border:2px dashed #E5E7EB;background:transparent;box-shadow:none;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-secondary);gap:0.5rem;min-height:180px;">
+                    <div style="width:40px;height:40px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    Создать новое
+                </a>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav('dashboard'));</script>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Результаты</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar(''));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Результаты'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="page-header">
+                <div>
+                    <h1>Результаты оптимизации</h1>
+                    <p>Senior Product Manager @ Яндекс</p>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                    <a href="13-editor.html" class="btn btn-secondary">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Редактировать
+                    </a>
+                    <a href="14-export.html" class="btn btn-primary">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Экспорт
+                    </a>
+                </div>
+            </div>
+
+            <!-- Score cards -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">Match Score</div>
+                    <div style="position:relative;width:80px;height:80px;margin:0 auto 0.75rem;">
+                        <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg);">
+                            <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                            <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="var(--success)" stroke-width="3" stroke-dasharray="87,100"/>
+                        </svg>
+                        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:var(--success);">87%</div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:0.25rem;font-size:0.85rem;color:var(--success);font-weight:600;">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                        +34% улучшение
+                    </div>
+                </div>
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">ATS совместимость</div>
+                    <div style="font-size:2.5rem;font-weight:700;color:var(--success);margin-bottom:0.5rem;">A+</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">Все секции оптимальны</div>
+                </div>
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">Ключевые слова</div>
+                    <div style="font-size:2.5rem;font-weight:700;color:var(--primary);margin-bottom:0.5rem;">24</div>
+                    <div style="font-size:0.85rem;color:var(--success);font-weight:500;">+18 добавлено</div>
+                </div>
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">AI модель</div>
+                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#FF6B35,#F7931E);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;">
+                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </div>
+                    <div style="font-size:0.9rem;font-weight:600;">GigaChat Pro</div>
+                </div>
+            </div>
+
+            <!-- Diff comparison -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+                <h3 style="font-size:1.1rem;font-weight:600;">Сравнение: до и после</h3>
+                <div style="display:flex;gap:1rem;font-size:0.8rem;color:var(--text-secondary);">
+                    <span><span style="display:inline-block;width:12px;height:12px;background:#FEE2E2;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Слабые формулировки</span>
+                    <span><span style="display:inline-block;width:12px;height:12px;background:#DCFCE7;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Улучшения AI</span>
+                </div>
+            </div>
+            <div class="diff-container">
+                <div class="card diff-panel">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
+                        <span style="font-weight:600;color:var(--text-secondary);">Оригинал</span>
+                        <span class="badge badge-gray">53%</span>
+                    </div>
+                    <div style="font-size:0.9rem;line-height:1.8;">
+                        <p style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Александр Петров</p>
+                        <p style="margin-bottom:1rem;"><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;color:var(--text-secondary);">Product Manager</mark></p>
+
+                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">О себе</p>
+                        <p style="margin-bottom:1rem;"><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Опытный продакт-менеджер.</mark> Работал в нескольких компаниях. <mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Умею управлять командой и запускать продукты.</mark></p>
+
+                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Опыт работы</p>
+                        <p style="font-weight:600;">Product Manager — TechCorp</p>
+                        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">2021 — настоящее время</p>
+                        <p><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Управлял продуктом. Работал с командой разработки. Запускал новые функции.</mark></p>
+                    </div>
+                </div>
+                <div class="card diff-panel" style="border-left:3px solid var(--success);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
+                        <span style="font-weight:600;color:var(--success);">Оптимизировано</span>
+                        <span class="badge badge-green">87%</span>
+                    </div>
+                    <div style="font-size:0.9rem;line-height:1.8;">
+                        <p style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Александр Петров</p>
+                        <p style="color:var(--text-main);margin-bottom:1rem;"><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Senior Product Manager | B2C & B2B SaaS | Agile & Data-Driven</mark></p>
+
+                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">О себе</p>
+                        <p style="margin-bottom:1rem;"><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Product Manager с 5+ годами опыта в B2C и B2B SaaS. Руководил кросс-функциональными командами до 12 человек. Увеличил ключевые метрики продукта на 40% через A/B тестирование и data-driven подход. Опыт работы с SQL, Amplitude, Jira и методологиями Agile/Scrum.</mark></p>
+
+                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Опыт работы</p>
+                        <p style="font-weight:600;">Product Manager — TechCorp</p>
+                        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">2021 — настоящее время</p>
+                        <p><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Руководил разработкой B2C-платформы с MAU 500K+. Увеличил конверсию на 35% через оптимизацию воронки на основе A/B тестов. Управлял backlog из 200+ задач в Jira, обеспечивая delivery в срок 95% спринтов.</mark></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keywords -->
+            <h3 style="font-size:1.1rem;font-weight:600;margin:2rem 0 1rem;">Добавленные ключевые слова</h3>
+            <div class="card" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                <span class="badge" style="background:#DCFCE7;color:#166534;">A/B Testing</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Product Strategy</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">SQL</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Agile/Scrum</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">B2C SaaS</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Data-Driven</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Amplitude</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Cross-functional</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">KPI</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Jira</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Backlog</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">MAU</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Conversion</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Sprint Delivery</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">B2B</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Roadmap</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">User Research</span>
+                <span class="badge" style="background:#DCFCE7;color:#166534;">Metrics</span>
+            </div>
+
+            <div style="display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;">
+                <a href="13-editor.html" class="btn btn-secondary" style="flex:1;min-width:200px;justify-content:center;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Редактировать вручную
+                </a>
+                <a href="14-export.html" class="btn btn-primary" style="flex:1;min-width:200px;justify-content:center;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Экспортировать резюме
+                </a>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav(''));</script>
+    </div>
+</div>
+</body>
+</html>

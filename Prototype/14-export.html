@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Экспорт</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar(''));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Экспорт'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="wizard-container">
+                <a href="12-results.html" class="btn btn-secondary btn-sm" style="margin-bottom:1.5rem;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    К результатам
+                </a>
+                <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.25rem;">Экспорт резюме</h2>
+                <p style="color:var(--text-secondary);margin-bottom:2rem;">Выберите формат и шаблон для скачивания</p>
+
+                <!-- Format selection -->
+                <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;">Формат файла</h3>
+                <div class="export-grid" style="margin-bottom:2rem;">
+                    <div class="card export-card selected" onclick="selectExport(this,'format')">
+                        <div style="width:48px;height:48px;background:#FEE2E2;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+                            <svg class="icon-md" style="color:#DC2626;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div style="font-weight:600;margin-bottom:0.25rem;">PDF</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">Универсальный формат, подходит для большинства ATS</div>
+                    </div>
+                    <div class="card export-card" onclick="selectExport(this,'format')">
+                        <div style="width:48px;height:48px;background:#DBEAFE;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+                            <svg class="icon-md" style="color:#2563EB;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        </div>
+                        <div style="font-weight:600;margin-bottom:0.25rem;">DOCX</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">Word формат для дополнительного редактирования</div>
+                    </div>
+                    <div class="card export-card" onclick="selectExport(this,'format')">
+                        <div style="width:48px;height:48px;background:#FEF3C7;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;">
+                            <svg class="icon-md" style="color:#D97706;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        </div>
+                        <div style="font-weight:600;margin-bottom:0.25rem;">hh.ru</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">Прямая публикация на HeadHunter</div>
+                    </div>
+                </div>
+
+                <!-- Template selection -->
+                <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;">Шаблон оформления</h3>
+                <div class="export-grid" style="margin-bottom:2rem;">
+                    <div class="card export-card selected" onclick="selectExport(this,'template')">
+                        <div style="width:100%;height:120px;background:#F9FAFB;border-radius:var(--radius-sm);margin-bottom:0.75rem;border:1px solid #E5E7EB;padding:1rem;overflow:hidden;">
+                            <div style="width:30%;height:6px;background:#1F2937;border-radius:2px;margin-bottom:6px;"></div>
+                            <div style="width:50%;height:4px;background:#9CA3AF;border-radius:2px;margin-bottom:10px;"></div>
+                            <div style="width:100%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:4px;"></div>
+                            <div style="width:90%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:4px;"></div>
+                            <div style="width:95%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:8px;"></div>
+                            <div style="width:40%;height:5px;background:#1F2937;border-radius:2px;margin-bottom:4px;"></div>
+                            <div style="width:100%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:4px;"></div>
+                            <div style="width:85%;height:3px;background:#E5E7EB;border-radius:2px;"></div>
+                        </div>
+                        <div style="font-weight:600;margin-bottom:0.25rem;">Minimal</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">Чистый дизайн, фокус на контент</div>
+                    </div>
+                    <div class="card export-card" onclick="selectExport(this,'template')">
+                        <div style="width:100%;height:120px;background:#F9FAFB;border-radius:var(--radius-sm);margin-bottom:0.75rem;border:1px solid #E5E7EB;padding:1rem;overflow:hidden;display:grid;grid-template-columns:35% 1fr;gap:8px;">
+                            <div style="background:#4F46E5;border-radius:4px;padding:6px;">
+                                <div style="width:80%;height:4px;background:rgba(255,255,255,0.5);border-radius:2px;margin-bottom:4px;"></div>
+                                <div style="width:60%;height:3px;background:rgba(255,255,255,0.3);border-radius:2px;margin-bottom:8px;"></div>
+                                <div style="width:70%;height:3px;background:rgba(255,255,255,0.3);border-radius:2px;margin-bottom:3px;"></div>
+                                <div style="width:50%;height:3px;background:rgba(255,255,255,0.3);border-radius:2px;"></div>
+                            </div>
+                            <div>
+                                <div style="width:60%;height:5px;background:#1F2937;border-radius:2px;margin-bottom:4px;"></div>
+                                <div style="width:100%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:3px;"></div>
+                                <div style="width:90%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:6px;"></div>
+                                <div style="width:50%;height:4px;background:#1F2937;border-radius:2px;margin-bottom:3px;"></div>
+                                <div style="width:100%;height:3px;background:#E5E7EB;border-radius:2px;margin-bottom:3px;"></div>
+                                <div style="width:80%;height:3px;background:#E5E7EB;border-radius:2px;"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight:600;margin-bottom:0.25rem;">Professional</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">Двухколоночный, акцентный цвет</div>
+                    </div>
+                    <div class="card export-card" onclick="selectExport(this,'template')">
+                        <div style="width:100%;height:120px;background:linear-gradient(135deg,#F0FDFA,#ECFDF5);border-radius:var(--radius-sm);margin-bottom:0.75rem;border:1px solid #D1FAE5;padding:1rem;overflow:hidden;">
+                            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                                <div style="width:20px;height:20px;background:#10B981;border-radius:50%;"></div>
+                                <div style="width:40%;height:5px;background:#1F2937;border-radius:2px;"></div>
+                            </div>
+                            <div style="width:60%;height:3px;background:#6EE7B7;border-radius:2px;margin-bottom:8px;"></div>
+                            <div style="width:100%;height:3px;background:#D1FAE5;border-radius:2px;margin-bottom:3px;"></div>
+                            <div style="width:85%;height:3px;background:#D1FAE5;border-radius:2px;margin-bottom:6px;"></div>
+                            <div style="display:flex;gap:4px;">
+                                <div style="padding:2px 8px;background:#D1FAE5;border-radius:8px;height:12px;"></div>
+                                <div style="padding:2px 8px;background:#D1FAE5;border-radius:8px;height:12px;"></div>
+                                <div style="padding:2px 8px;background:#D1FAE5;border-radius:8px;height:12px;"></div>
+                            </div>
+                        </div>
+                        <div style="font-weight:600;margin-bottom:0.25rem;">Creative</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);">Современный дизайн с графикой</div>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="card" style="background:#F9FAFB;border:1px solid #E5E7EB;margin-bottom:1.5rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                        <div>
+                            <div style="font-weight:600;margin-bottom:0.25rem;">Готово к скачиванию</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_PM_Yandex.pdf &middot; Minimal &middot; 245 КБ</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span class="badge badge-green">87% Match</span>
+                            <span class="badge badge-green">ATS A+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="06-dashboard.html" class="btn btn-primary btn-block" style="height:52px;font-size:1rem;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Скачать резюме
+                </a>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav(''));</script>
+    </div>
+</div>
+<script>
+function selectExport(el, group) {
+    const parent = el.parentElement;
+    parent.querySelectorAll('.export-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+}
+</script>
+<style>
+.export-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.export-card { cursor: pointer; transition: all 0.15s; border: 2px solid transparent; }
+.export-card:hover { border-color: var(--primary-light); }
+.export-card.selected { border-color: var(--primary); background: var(--primary-light); }
+@media(max-width:768px) {
+    .export-grid { grid-template-columns: 1fr; }
+}
+</style>
+</body>
+</html>

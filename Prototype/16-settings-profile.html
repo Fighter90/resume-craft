@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Профиль</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar('settings'));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Настройки'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="page-header">
+                <div>
+                    <h1>Настройки</h1>
+                    <p>Управление аккаунтом и предпочтениями</p>
+                </div>
+            </div>
+
+            <div class="tab-bar" style="margin-bottom:2rem;">
+                <a href="16-settings-profile.html" class="tab-bar-item active">Профиль</a>
+                <a href="17-settings-ai.html" class="tab-bar-item">AI модель</a>
+                <a href="18-settings-subscription.html" class="tab-bar-item">Подписка</a>
+                <a href="19-settings-security.html" class="tab-bar-item">Безопасность</a>
+            </div>
+
+            <div class="card" style="max-width:720px;">
+                <!-- Avatar -->
+                <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #E5E7EB;">
+                    <div style="width:80px;height:80px;background:var(--primary-gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.75rem;font-weight:700;flex-shrink:0;">АП</div>
+                    <div>
+                        <div style="font-weight:600;font-size:1.1rem;margin-bottom:0.5rem;">Александр Петров</div>
+                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-sm">Загрузить фото</button>
+                            <button class="btn btn-ghost btn-sm" style="color:var(--danger);">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="input-group">
+                            <label class="input-label">Имя</label>
+                            <input class="input-field" value="Александр">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Фамилия</label>
+                            <input class="input-field" value="Петров">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Email</label>
+                        <input class="input-field" type="email" value="alex.petrov@email.com">
+                        <span style="font-size:0.8rem;color:var(--success);margin-top:0.25rem;">
+                            <svg class="icon-sm" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            Подтверждён
+                        </span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="input-group">
+                            <label class="input-label">Телефон</label>
+                            <input class="input-field" type="tel" value="+7 (999) 123-45-67">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Город</label>
+                            <select class="input-field select-field">
+                                <option selected>Москва</option>
+                                <option>Санкт-Петербург</option>
+                                <option>Новосибирск</option>
+                                <option>Екатеринбург</option>
+                                <option>Казань</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Текущая должность</label>
+                        <input class="input-field" value="Product Manager @ TechCorp">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">О себе</label>
+                        <textarea class="input-field" rows="3" placeholder="Коротко о себе для профиля...">Опытный Product Manager, ищу позицию Senior PM в IT-компании с продуктовой культурой.</textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #E5E7EB;">
+                    <button class="btn btn-secondary">Отмена</button>
+                    <button class="btn btn-primary">Сохранить изменения</button>
+                </div>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav('settings'));</script>
+    </div>
+</div>
+<style>
+@media(max-width:768px) {
+    .tab-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+}
+</style>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeCraft — Редактор</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared-styles.css">
+    <script src="shared-nav.js"></script>
+</head>
+<body>
+<div class="app-shell">
+    <script>document.write(buildSidebar(''));</script>
+    <div class="main-content">
+        <script>document.write(buildMobileHeader('Редактор'));</script>
+        <div class="view" style="animation:fadeIn .3s ease;">
+            <div class="page-header">
+                <div>
+                    <a href="12-results.html" class="btn btn-ghost btn-sm" style="margin-bottom:0.5rem;">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        К результатам
+                    </a>
+                    <h1>Редактирование резюме</h1>
+                </div>
+                <div style="display:flex;gap:0.75rem;">
+                    <button class="btn btn-secondary">Сохранить черновик</button>
+                    <a href="14-export.html" class="btn btn-primary">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Экспорт
+                    </a>
+                </div>
+            </div>
+
+            <div class="editor-layout">
+                <!-- Section nav -->
+                <div class="editor-sections card">
+                    <h4 style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:1rem;">Секции</h4>
+                    <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                        <button class="editor-section-btn active" onclick="switchEditorSection(this,0)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Заголовок
+                        </button>
+                        <button class="editor-section-btn" onclick="switchEditorSection(this,1)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            О себе
+                        </button>
+                        <button class="editor-section-btn" onclick="switchEditorSection(this,2)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                            Опыт работы
+                        </button>
+                        <button class="editor-section-btn" onclick="switchEditorSection(this,3)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 6.5 3 12 0v-5"/></svg>
+                            Образование
+                        </button>
+                        <button class="editor-section-btn" onclick="switchEditorSection(this,4)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            Навыки
+                        </button>
+                    </div>
+
+                    <!-- AI suggestions -->
+                    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #E5E7EB;">
+                        <h4 style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:1rem;">
+                            <svg class="icon-sm" style="vertical-align:middle;margin-right:0.25rem;color:var(--primary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            AI подсказки
+                        </h4>
+                        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                            <div style="padding:0.75rem;background:var(--primary-light);border-radius:var(--radius-sm);font-size:0.85rem;line-height:1.5;cursor:pointer;" onclick="this.style.opacity='0.5'">
+                                <div style="font-weight:600;color:var(--primary);margin-bottom:0.25rem;">Добавить метрики</div>
+                                <div style="color:var(--text-secondary);">Укажите конкретные цифры роста MAU и конверсии</div>
+                            </div>
+                            <div style="padding:0.75rem;background:#FEF3C7;border-radius:var(--radius-sm);font-size:0.85rem;line-height:1.5;cursor:pointer;" onclick="this.style.opacity='0.5'">
+                                <div style="font-weight:600;color:#92400E;margin-bottom:0.25rem;">Ключевое слово</div>
+                                <div style="color:var(--text-secondary);">Добавьте «Product Discovery» в раздел навыков</div>
+                            </div>
+                            <div style="padding:0.75rem;background:#DCFCE7;border-radius:var(--radius-sm);font-size:0.85rem;line-height:1.5;cursor:pointer;" onclick="this.style.opacity='0.5'">
+                                <div style="font-weight:600;color:#166534;margin-bottom:0.25rem;">Формат</div>
+                                <div style="color:var(--text-secondary);">Используйте формат «Действие + Результат + Метрика»</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor area -->
+                <div class="editor-content card">
+                    <!-- Section 0: Header -->
+                    <div class="editor-section-content active" id="editor-sec-0">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Заголовок резюме</h3>
+                        <div style="display:flex;flex-direction:column;gap:1rem;">
+                            <div class="input-group">
+                                <label class="input-label">Имя и фамилия</label>
+                                <input class="input-field" value="Александр Петров">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Должность</label>
+                                <input class="input-field" value="Senior Product Manager | B2C & B2B SaaS | Agile & Data-Driven">
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                <div class="input-group">
+                                    <label class="input-label">Email</label>
+                                    <input class="input-field" value="alex.petrov@email.com">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Телефон</label>
+                                    <input class="input-field" value="+7 (999) 123-45-67">
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                <div class="input-group">
+                                    <label class="input-label">Город</label>
+                                    <input class="input-field" value="Москва">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">LinkedIn / Telegram</label>
+                                    <input class="input-field" value="@alex_petrov">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 1: About -->
+                    <div class="editor-section-content" id="editor-sec-1">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">О себе</h3>
+                        <div class="input-group">
+                            <label class="input-label">Профессиональное резюме</label>
+                            <textarea class="input-field" rows="6" style="line-height:1.6;">Product Manager с 5+ годами опыта в B2C и B2B SaaS. Руководил кросс-функциональными командами до 12 человек. Увеличил ключевые метрики продукта на 40% через A/B тестирование и data-driven подход. Опыт работы с SQL, Amplitude, Jira и методологиями Agile/Scrum.</textarea>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+                            <span class="badge badge-green">Длина: отлично</span>
+                            <span style="font-size:0.8rem;color:var(--text-tertiary);">287 символов / рекомендуется 200-400</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Experience -->
+                    <div class="editor-section-content" id="editor-sec-2">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Опыт работы</h3>
+                        <div class="card" style="border:1px solid #E5E7EB;margin-bottom:1rem;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+                                <div>
+                                    <input class="input-field" value="Product Manager" style="font-weight:600;border:none;padding:0;font-size:1rem;background:transparent;margin-bottom:0.25rem;">
+                                    <input class="input-field" value="TechCorp" style="border:none;padding:0;font-size:0.9rem;color:var(--text-secondary);background:transparent;">
+                                </div>
+                                <input class="input-field" value="2021 — н.в." style="border:none;padding:0;font-size:0.85rem;color:var(--text-secondary);background:transparent;text-align:right;width:120px;">
+                            </div>
+                            <textarea class="input-field" rows="4" style="line-height:1.6;">Руководил разработкой B2C-платформы с MAU 500K+. Увеличил конверсию на 35% через оптимизацию воронки на основе A/B тестов. Управлял backlog из 200+ задач в Jira, обеспечивая delivery в срок 95% спринтов.</textarea>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" style="margin-top:0.5rem;">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Добавить место работы
+                        </button>
+                    </div>
+
+                    <!-- Section 3: Education -->
+                    <div class="editor-section-content" id="editor-sec-3">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Образование</h3>
+                        <div class="card" style="border:1px solid #E5E7EB;margin-bottom:1rem;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;">
+                                <div style="flex:1;">
+                                    <div class="input-group">
+                                        <label class="input-label">Учебное заведение</label>
+                                        <input class="input-field" value="МГУ им. М.В. Ломоносова">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label">Специальность</label>
+                                        <input class="input-field" value="Прикладная математика и информатика">
+                                    </div>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                        <div class="input-group">
+                                            <label class="input-label">Степень</label>
+                                            <select class="input-field select-field">
+                                                <option>Бакалавр</option><option selected>Магистр</option><option>Специалист</option><option>PhD</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-label">Год выпуска</label>
+                                            <input class="input-field" value="2019">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Добавить образование
+                        </button>
+                    </div>
+
+                    <!-- Section 4: Skills -->
+                    <div class="editor-section-content" id="editor-sec-4">
+                        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Навыки</h3>
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Product Strategy <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">A/B Testing <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">SQL <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Agile/Scrum <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Jira <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Amplitude <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Data Analysis <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge badge-indigo" style="padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">User Research <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge" style="padding:0.5rem 1rem;font-size:0.9rem;background:#DCFCE7;color:#166534;cursor:pointer;">Roadmap <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                            <span class="badge" style="padding:0.5rem 1rem;font-size:0.9rem;background:#DCFCE7;color:#166534;cursor:pointer;">KPI <span style="margin-left:0.5rem;opacity:0.6;">&times;</span></span>
+                        </div>
+                        <div style="display:flex;gap:0.75rem;">
+                            <input class="input-field" placeholder="Добавить навык..." style="flex:1;margin:0;">
+                            <button class="btn btn-secondary">Добавить</button>
+                        </div>
+                        <p style="font-size:0.8rem;color:var(--text-tertiary);margin-top:0.75rem;">
+                            <span style="color:var(--primary);">Синие</span> — существующие навыки &nbsp;|&nbsp;
+                            <span style="color:#166534;">Зелёные</span> — добавлены AI
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>document.write(buildBottomNav(''));</script>
+    </div>
+</div>
+<script>
+function switchEditorSection(btn, idx) {
+    document.querySelectorAll('.editor-section-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.editor-section-content').forEach((s, i) => s.classList.toggle('active', i === idx));
+}
+</script>
+<style>
+.editor-layout { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; }
+.editor-section-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem; border: none; background: transparent; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); transition: all 0.15s; text-align: left; }
+.editor-section-btn:hover { background: #F3F4F6; color: var(--text-main); }
+.editor-section-btn.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.editor-section-content { display: none; }
+.editor-section-content.active { display: block; }
+@media(max-width:768px) {
+    .editor-layout { grid-template-columns: 1fr; }
+    .editor-sections { order: 2; }
+    .editor-content { order: 1; }
+}
+</style>
+</body>
+</html>
