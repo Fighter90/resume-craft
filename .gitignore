@@ -205,3 +205,63 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ===================================================================
+# ResumeCraft — дополнительные исключения
+# ===================================================================
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# MinIO / uploads / storage
+uploads/
+storage/
+media/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Node.js (если frontend на React)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# OS Generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Secrets & Keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# PostgreSQL dumps
+*.sql.gz
+*.dump
+
+# Logs
+logs/
+log/
+
+# Temp
+*.bak
+*.tmp
+*.temp
+*.orig
+tmp/
+temp/
