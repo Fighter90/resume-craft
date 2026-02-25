@@ -747,8 +747,6 @@ Fallback автоматический с уведомлением пользов
 
 Причина: зависимость от [PyMuPDF](https://pymupdf.readthedocs.io/) (AGPL-3.0) обязывает распространять код под совместимой copyleft-лицензией.
 
-> Если нужна MIT-лицензия, замените PyMuPDF на `pdfplumber` (MIT) или `pypdf` (BSD).
-
 Полный текст: [LICENSE](LICENSE)
 
 ---
