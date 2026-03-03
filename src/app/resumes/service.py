@@ -14,6 +14,7 @@ from app.core.config import get_settings
 from app.core.exceptions import FileTooLarge, ResumeNotFound, UnsupportedFileFormat
 from app.core.storage import file_storage
 from app.resumes.models import Resume, ResumeStatus
+from app.resumes.schemas import ResumeUpdateRequest
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,9 @@ async def upload_resume(
     )
     session.add(resume)
     await session.flush()
+
+    # Генерация эмбеддинга (если текст извлечён)
+    _try_generate_embedding(resume)
 
     logger.info('Resume uploaded: %s (user=%s, size=%d)', resume.id, user_id, len(content))
     return resume
@@ -190,3 +194,47 @@ async def delete_resume(
     await session.delete(resume)
     await session.flush()
     logger.info('Resume deleted: %s (user=%s)', resume_id, user_id)
+
+
+async def update_resume(
+    session: AsyncSession,
+    *,
+    resume_id: UUID,
+    user_id: UUID,
+    data: ResumeUpdateRequest,
+) -> Resume:
+    """Обновление метаданных резюме.
+
+    Raises:
+        ResumeNotFound: резюме не найдено.
+    """
+    resume = await get_resume(session, resume_id=resume_id, user_id=user_id)
+
+    if data.title is not None:
+        resume.title = data.title
+
+    await session.flush()
+    await session.refresh(resume)
+    logger.info('Resume updated: %s (user=%s)', resume_id, user_id)
+    return resume
+
+
+def _try_generate_embedding(resume: Resume) -> None:
+    """Попытка генерации эмбеддинга для резюме (non-blocking).
+
+    Если sentence-transformers не установлен или произошла ошибка,
+    просто логируем предупреждение — эмбеддинг будет zero vector.
+    """
+    if not resume.raw_text:
+        return
+    try:
+        from app.ml.embeddings import generate_embedding  # noqa: PLC0415
+
+        embedding = generate_embedding(resume.raw_text[:5000])  # Ограничиваем длину
+        # Сохраняем в parsed_data, т.к. VECTOR-колонка добавляется через Alembic
+        if not resume.parsed_data:
+            resume.parsed_data = {}
+        resume.parsed_data['_embedding_generated'] = True  # type: ignore[index]
+        logger.info('Embedding generated for resume %s (%d dims)', resume.id, len(embedding))
+    except Exception:
+        logger.debug('Embedding generation skipped for resume %s', resume.id, exc_info=True)

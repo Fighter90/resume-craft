@@ -113,3 +113,42 @@ class TestResumeDelete:
 
         response = await auth_client.delete(f'/api/v1/resumes/{resume.id}')
         assert response.status_code == 204
+
+
+class TestResumeUpdate:
+    """Тесты PUT /resumes/{id}."""
+
+    async def test_not_found(self, auth_client: AsyncClient) -> None:
+        """Несуществующее резюме → 404."""
+        response = await auth_client.put(
+            f'/api/v1/resumes/{uuid4()}',
+            json={'title': 'New Title'},
+        )
+        assert response.status_code == 404
+
+    async def test_update_title(
+        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+    ) -> None:
+        """Обновление заголовка → 200."""
+        resume = Resume(
+            user_id=test_user.id, title='Old Title',
+            file_path='uploads/cv.pdf', file_format='pdf', file_size_bytes=3000,
+            raw_text='Some text', status=ResumeStatus.DRAFT,
+        )
+        session.add(resume)
+        await session.flush()
+
+        response = await auth_client.put(
+            f'/api/v1/resumes/{resume.id}',
+            json={'title': 'Updated Title'},
+        )
+        assert response.status_code == 200
+        assert response.json()['title'] == 'Updated Title'
+
+    async def test_update_no_auth(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.put(
+            f'/api/v1/resumes/{uuid4()}',
+            json={'title': 'Test'},
+        )
+        assert response.status_code == 401

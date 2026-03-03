@@ -11,7 +11,7 @@ from app.auth.models import User
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.resumes import service as resume_service
-from app.resumes.schemas import ResumeListResponse, ResumeResponse, ResumeUploadResponse
+from app.resumes.schemas import ResumeListResponse, ResumeResponse, ResumeUpdateRequest, ResumeUploadResponse
 
 router = APIRouter(prefix='/resumes', tags=['resumes'])
 
@@ -70,6 +70,24 @@ async def get_resume(
     """Получение детальной информации о резюме (включая parsed_data)."""
     resume = await resume_service.get_resume(
         session, resume_id=resume_id, user_id=current_user.id,
+    )
+    return ResumeResponse.model_validate(resume)
+
+
+@router.put(
+    '/{resume_id}',
+    response_model=ResumeResponse,
+    summary='Обновление резюме',
+)
+async def update_resume(
+    resume_id: UUID,
+    data: ResumeUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ResumeResponse:
+    """Обновление метаданных резюме."""
+    resume = await resume_service.update_resume(
+        session, resume_id=resume_id, user_id=current_user.id, data=data,
     )
     return ResumeResponse.model_validate(resume)
 

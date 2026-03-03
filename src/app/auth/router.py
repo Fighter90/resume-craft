@@ -10,9 +10,11 @@ from app.auth.models import User
 from app.auth.schemas import (
     LoginRequest,
     MessageResponse,
+    PasswordChangeRequest,
     RefreshRequest,
     RegisterRequest,
     TokenResponse,
+    UpdateUserRequest,
     UserResponse,
 )
 from app.core.database import get_session
@@ -86,3 +88,55 @@ async def me(
 ) -> UserResponse:
     """Получение профиля текущего пользователя."""
     return UserResponse.model_validate(current_user)
+
+
+@router.put(
+    '/me',
+    response_model=UserResponse,
+    summary='Обновление профиля',
+)
+async def update_me(
+    data: UpdateUserRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> UserResponse:
+    """Обновление данных профиля (имя, email)."""
+    updated = await auth_service.update_user(
+        session,
+        user=current_user,
+        full_name=data.full_name,
+        email=str(data.email) if data.email else None,
+    )
+    return UserResponse.model_validate(updated)
+
+
+@router.put(
+    '/me/password',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Смена пароля',
+)
+async def change_password(
+    data: PasswordChangeRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> None:
+    """Смена пароля текущего пользователя."""
+    await auth_service.change_password(
+        session,
+        user=current_user,
+        current_password=data.current_password,
+        new_password=data.new_password,
+    )
+
+
+@router.delete(
+    '/me',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Удаление аккаунта',
+)
+async def delete_me(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> None:
+    """Полное удаление аккаунта и всех данных (ФЗ-152)."""
+    await auth_service.delete_user_account(session, user=current_user)

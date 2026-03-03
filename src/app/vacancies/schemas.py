@@ -42,7 +42,7 @@ class VacancyResponse(BaseModel):
     hh_id: str | None
     title: str
     company: str | None
-    description: str | None
+    description: str
     requirements: dict[str, Any] | None
     key_skills: list[str] | None
     salary_from: int | None

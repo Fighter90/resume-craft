@@ -86,3 +86,19 @@ async def get_vacancy(
         session, vacancy_id=vacancy_id, user_id=current_user.id,
     )
     return VacancyResponse.model_validate(vacancy)
+
+
+@router.delete(
+    '/{vacancy_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Удаление вакансии',
+)
+async def delete_vacancy(
+    vacancy_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> None:
+    """Удаление вакансии."""
+    await vacancy_service.delete_vacancy(
+        session, vacancy_id=vacancy_id, user_id=current_user.id,
+    )

@@ -86,3 +86,36 @@ class MessageResponse(BaseModel):
     """Ответ с сообщением."""
 
     message: str
+
+
+class UpdateUserRequest(BaseModel):
+    """Обновление профиля пользователя."""
+
+    full_name: str | None = Field(None, max_length=255, description='Полное имя')
+    email: EmailStr | None = Field(None, description='Новый email')
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+
+class PasswordChangeRequest(BaseModel):
+    """Запрос на смену пароля."""
+
+    current_password: str = Field(min_length=1, description='Текущий пароль')
+    new_password: str = Field(
+        min_length=8, max_length=128,
+        description='Новый пароль (≥8 символов, минимум 1 цифра и 1 буква)',
+    )
+
+    @field_validator('new_password')
+    @classmethod
+    def validate_new_password_strength(cls, v: str) -> str:
+        """Проверка надёжности нового пароля."""
+        if not any(c.isdigit() for c in v):
+            msg = 'Пароль должен содержать хотя бы одну цифру'
+            raise ValueError(msg)
+        if not any(c.isalpha() for c in v):
+            msg = 'Пароль должен содержать хотя бы одну букву'
+            raise ValueError(msg)
+        return v
+
+    model_config = ConfigDict(str_strip_whitespace=True)

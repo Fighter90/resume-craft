@@ -72,6 +72,8 @@ async def create_from_url(
     session.add(vacancy)
     await session.flush()
 
+    _try_generate_vacancy_embedding(vacancy)
+
     logger.info('Vacancy created from hh.ru: %s (hh_id=%s)', vacancy.id, vacancy.hh_id)
     return vacancy
 
@@ -99,6 +101,8 @@ async def create_manual(
     session.add(vacancy)
     await session.flush()
 
+    _try_generate_vacancy_embedding(vacancy)
+
     logger.info('Vacancy created manually: %s', vacancy.id)
     return vacancy
 
@@ -120,3 +124,37 @@ async def get_vacancy(
     if not vacancy:
         raise VacancyNotFound()
     return vacancy
+
+
+async def delete_vacancy(
+    session: AsyncSession,
+    *,
+    vacancy_id: UUID,
+    user_id: UUID,
+) -> None:
+    """Удаление вакансии.
+
+    Raises:
+        VacancyNotFound: вакансия не найдена.
+    """
+    vacancy = await get_vacancy(session, vacancy_id=vacancy_id, user_id=user_id)
+    await session.delete(vacancy)
+    await session.flush()
+    logger.info('Vacancy deleted: %s (user=%s)', vacancy_id, user_id)
+
+
+def _try_generate_vacancy_embedding(vacancy: Vacancy) -> None:
+    """Попытка генерации эмбеддинга для вакансии (non-blocking).
+
+    Если sentence-transformers не установлен — просто пропускаем.
+    """
+    if not vacancy.description:
+        return
+    try:
+        from app.ml.embeddings import generate_embedding  # noqa: PLC0415
+
+        text = f'{vacancy.title or ""} {vacancy.description[:5000]}'
+        generate_embedding(text)
+        logger.info('Embedding generated for vacancy %s', vacancy.id)
+    except Exception:
+        logger.debug('Embedding generation skipped for vacancy %s', vacancy.id, exc_info=True)

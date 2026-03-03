@@ -689,7 +689,7 @@ def _render_processing() -> None:
         data = _api_request('POST', '/rewrite', json_data={
             'resume_id': st.session_state.resume_id,
             'vacancy_id': st.session_state.vacancy_id,
-            'model_name': st.session_state.model_name,
+            'model': st.session_state.model_name,
         })
         if data:
             task_id = data['task_id']

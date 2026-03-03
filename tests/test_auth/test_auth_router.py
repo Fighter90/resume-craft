@@ -105,6 +105,73 @@ class TestMe:
         assert response.status_code == 401
 
 
+class TestUpdateMe:
+    """Тесты PUT /auth/me."""
+
+    async def test_update_full_name(self, auth_client: AsyncClient) -> None:
+        """Обновление имени → 200."""
+        response = await auth_client.put('/api/v1/auth/me', json={
+            'full_name': 'Новое Имя',
+        })
+        assert response.status_code == 200
+        assert response.json()['full_name'] == 'Новое Имя'
+
+    async def test_update_no_auth(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.put('/api/v1/auth/me', json={'full_name': 'Test'})
+        assert response.status_code == 401
+
+
+class TestChangePassword:
+    """Тесты PUT /auth/me/password."""
+
+    async def test_change_password_success(self, auth_client: AsyncClient) -> None:
+        """Успешная смена пароля → 204."""
+        response = await auth_client.put('/api/v1/auth/me/password', json={
+            'current_password': 'TestPass123',
+            'new_password': 'NewSecure1',
+        })
+        assert response.status_code == 204
+
+    async def test_change_password_wrong_current(self, auth_client: AsyncClient) -> None:
+        """Неверный текущий пароль → 401."""
+        response = await auth_client.put('/api/v1/auth/me/password', json={
+            'current_password': 'WrongPass1',
+            'new_password': 'NewSecure1',
+        })
+        assert response.status_code == 401
+
+    async def test_change_password_weak_new(self, auth_client: AsyncClient) -> None:
+        """Слабый новый пароль → 422."""
+        response = await auth_client.put('/api/v1/auth/me/password', json={
+            'current_password': 'TestPass123',
+            'new_password': 'nodigits',
+        })
+        assert response.status_code == 422
+
+    async def test_change_password_no_auth(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.put('/api/v1/auth/me/password', json={
+            'current_password': 'TestPass123',
+            'new_password': 'NewSecure1',
+        })
+        assert response.status_code == 401
+
+
+class TestDeleteMe:
+    """Тесты DELETE /auth/me."""
+
+    async def test_delete_account_success(self, auth_client: AsyncClient) -> None:
+        """Удаление аккаунта → 204."""
+        response = await auth_client.delete('/api/v1/auth/me')
+        assert response.status_code == 204
+
+    async def test_delete_no_auth(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.delete('/api/v1/auth/me')
+        assert response.status_code == 401
+
+
 class TestRefresh:
     """Тесты POST /auth/refresh."""
 

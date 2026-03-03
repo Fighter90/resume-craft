@@ -156,10 +156,10 @@
 |---------|-------|----------|
 | **A+** | 90–100 | Отличная совместимость ✅ |
 | **A** | 80–89 | Хорошая, минимальные улучшения ✅ |
-| **B** | 70–79 | Удовлетворительная ⚠️ |
-| **C** | 60–69 | Средняя, пробелы ⚠️ |
-| **D** | 50–59 | Плохая ❌ |
-| **F** | < 50 | Неудовлетворительная ❌ |
+| **B+** | 70–79 | Хорошая, есть что улучшить ✅ |
+| **B** | 60–69 | Удовлетворительная ⚠️ |
+| **C** | 50–59 | Средняя, пробелы ⚠️ |
+| **D** | < 50 | Плохая ❌ |
 
 ### 3.5. Выбор AI-модели
 
@@ -544,7 +544,7 @@ Prototype/                 # 20 HTML-прототипов
 curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email": "user@example.com", "password": "SecurePass1"}'
-# → 201 Created {"id": "uuid", "email": "user@example.com", "plan": "free"}
+# → 201 Created {"access_token": "eyJ...", "refresh_token": "eyJ...", "token_type": "bearer"}
 ```
 
 **Загрузка резюме:**
@@ -560,7 +560,7 @@ curl -X POST http://localhost:8000/api/v1/resumes/upload \
 curl -X POST http://localhost:8000/api/v1/rewrite \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"resume_id": "uuid", "vacancy_id": "uuid", "model_name": "gigachat-pro"}'
+  -d '{"resume_id": "uuid", "vacancy_id": "uuid", "model": "gigachat-pro"}'
 # → 202 Accepted {"task_id": "uuid"}
 ```
 
@@ -831,7 +831,7 @@ curl http://localhost:8000/health
 
 ### 16.1. Сервисы Docker Compose
 
-6 контейнеров: `app` (FastAPI), `celery-worker`, `db` (pgvector/pgvector:pg16), `redis` (redis:7-alpine), `rabbitmq` (rabbitmq:3.13-management), `flower` (мониторинг Celery).
+7 контейнеров: `app` (FastAPI), `celery-worker`, `db` (pgvector/pgvector:pg16), `redis` (redis:7-alpine), `rabbitmq` (rabbitmq:3.13-management), `flower` (мониторинг Celery), `streamlit` (Demo UI).
 
 Файлы хранятся в Docker volume `/data/uploads`.
 
@@ -942,7 +942,7 @@ pip-audit
 | 08 | `08-upload.html` | Загрузка (drag & drop) |
 | 09 | `09-vacancy.html` | Выбор вакансии |
 | 10 | `10-models.html` | Выбор AI-модели |
-| 11 | `11-processing.html` | Обработка (8 шагов) |
+| 11 | `11-processing.html` | Обработка (4 визуальных шага / 8 шагов backend) |
 | 12 | `12-results.html` | Результаты (Match Score, diff) |
 | 13 | `13-editor.html` | WYSIWYG-редактор |
 | 14 | `14-export.html` | Экспорт (PDF/DOCX) |

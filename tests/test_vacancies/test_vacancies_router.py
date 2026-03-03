@@ -97,3 +97,27 @@ class TestGetVacancy:
         resp = await auth_client.get(f'/api/v1/vacancies/{vacancy.id}')
         assert resp.status_code == 200
         assert resp.json()['title'] == 'Test'
+
+
+class TestDeleteVacancy:
+    """DELETE /api/v1/vacancies/{id}."""
+
+    async def test_not_found(self, auth_client: AsyncClient) -> None:
+        resp = await auth_client.delete(f'/api/v1/vacancies/{uuid4()}')
+        assert resp.status_code == 404
+
+    async def test_success(
+        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+    ) -> None:
+        vacancy = Vacancy(
+            user_id=test_user.id, title='To Delete', description='D',
+        )
+        session.add(vacancy)
+        await session.flush()
+
+        resp = await auth_client.delete(f'/api/v1/vacancies/{vacancy.id}')
+        assert resp.status_code == 204
+
+    async def test_no_auth(self, client: AsyncClient) -> None:
+        resp = await client.delete(f'/api/v1/vacancies/{uuid4()}')
+        assert resp.status_code == 401

@@ -126,3 +126,58 @@ async def refresh_tokens(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
     )
+
+
+async def update_user(
+    session: AsyncSession,
+    *,
+    user: User,
+    full_name: str | None = None,
+    email: str | None = None,
+) -> User:
+    """Обновление профиля пользователя.
+
+    Raises:
+        UserAlreadyExists: если новый email уже занят.
+    """
+    if email is not None and email != user.email:
+        existing = await get_user_by_email(session, email=email)
+        if existing:
+            raise UserAlreadyExists(email)
+        user.email = email
+
+    if full_name is not None:
+        user.full_name = full_name
+
+    await session.flush()
+    await session.refresh(user)
+    return user
+
+
+async def change_password(
+    session: AsyncSession,
+    *,
+    user: User,
+    current_password: str,
+    new_password: str,
+) -> None:
+    """Смена пароля пользователя.
+
+    Raises:
+        InvalidCredentials: текущий пароль неверен.
+    """
+    if not verify_password(current_password, user.hashed_password):
+        raise InvalidCredentials()
+
+    user.hashed_password = hash_password(new_password)
+    await session.flush()
+
+
+async def delete_user_account(
+    session: AsyncSession,
+    *,
+    user: User,
+) -> None:
+    """Полное удаление аккаунта пользователя и всех связанных данных (ФЗ-152)."""
+    await session.delete(user)
+    await session.flush()
