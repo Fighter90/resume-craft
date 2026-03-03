@@ -178,7 +178,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **352** |
+| Тестов | — | **355** |
 
 ---
 
@@ -738,17 +738,49 @@ class LLMClientFactory:
 
 ## 11. Streamlit Demo UI
 
-### 11.1. Экраны
+### 11.1. Архитектура
 
 ```
-Page 1: 🏠 Главная — описание проекта
-Page 2: 📄 Загрузка — file uploader (PDF/DOCX)
-Page 3: 🎯 Вакансия — поиск hh.ru / URL / ручной ввод
-Page 4: 🤖 Оптимизация — выбор модели, прогресс, результат
-Page 5: 📥 Экспорт — download DOCX
+streamlit_app/
+├── app.py             # Роутер + навигация + session state
+├── styles.py          # Общие CSS-стили (скрытие Streamlit default menu)
+├── demo_data.py       # Демо-данные
+├── api_client.py      # HTTP-клиент для FastAPI
+└── pages/             # 11 модулей страниц
+    ├── landing.py     # Лендинг
+    ├── auth.py        # Вход / регистрация
+    ├── pricing.py     # Тарифы
+    ├── dashboard.py   # Дашборд
+    ├── resumes.py     # Мои резюме
+    ├── wizard.py      # 5-шаговый мастер оптимизации
+    ├── editor.py      # Редактор
+    ├── export.py      # Экспорт
+    ├── history.py     # История
+    ├── settings.py    # Настройки (4 вкладки)
+    └── error.py       # 404
 ```
 
-### 11.2. Преимущества для MVP
+### 11.2. Навигация
+
+- **Неавторизованный режим:** только Главная, Тарифы, Войти + быстрый вход в демо
+- **Авторизованный режим:** Дашборд, Мои резюме, Новая оптимизация, История, Тарифы, Настройки
+- Стандартное Streamlit-меню скрыто через CSS
+
+### 11.3. Демо-режим
+
+Полностью функциональный демо с тестовыми данными (без API):
+- 3 резюме, 2 вакансии, история оптимизаций
+- 5-шаговый мастер с 8-шаговым pipeline-анимацией
+- Экспорт, настройки, безопасность
+
+### 11.4. Seed-пользователь
+
+При первом развёртывании (development) автоматически создаётся тестовый пользователь:
+- Email: `test@example.com`
+- Пароль: `TestPass123`
+- Скрипт: `src/app/core/seed.py` (идемпотентный, вызывается в lifespan FastAPI)
+
+### 11.5. Преимущества для MVP
 
 - Полный UI за 1–2 дня (vs. 2–4 недели React)
 - Python-only, без JS
@@ -860,7 +892,7 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Всего тестов** | 353 |
+| **Всего тестов** | 355 |
 | **Покрытие кода** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворк** | pytest + pytest-asyncio |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
@@ -889,7 +921,7 @@ def validate_upload(file: UploadFile) -> None:
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
 | `test_ml/` | 62 | LLM-клиенты, фабрика, скоринг — 100% |
-| `test_core/` | 74 | config, security, database, storage, exceptions, deps — 100% |
+| `test_core/` | 76 | config, security, database, storage, exceptions, deps, **seed** — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
 | `test_health` | 1 | GET /health — 100% |
@@ -1047,7 +1079,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **352** |
+| Тестов всего | — | **355** |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1117,7 +1149,7 @@ Docker Desktop → docker compose up -d
 | Экспорт | DOCX |
 | UI | Streamlit Demo (20 прототипов, модульная архитектура) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Тестирование | Unit + Integration, 352 теста, 100% coverage |
+| Тестирование | Unit + Integration, 355 тестов, 100% coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 

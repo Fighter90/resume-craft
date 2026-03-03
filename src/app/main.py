@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 from app.auth.router import router as auth_router
 from app.core.config import get_settings
 from app.core.exceptions import AppError
+from app.core.seed import seed_test_user
 from app.export.router import router as export_router
 from app.resumes.router import router as resumes_router
 from app.rewriter.router import router as rewrite_router
@@ -25,6 +26,13 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Startup / shutdown lifecycle."""
     logger.info('Starting ResumeCraft API...')
+    # Сидирование тестового пользователя (development)
+    settings = get_settings()
+    if not settings.is_production:
+        try:
+            await seed_test_user()
+        except Exception:
+            logger.warning('Seed skipped (DB may not be ready)', exc_info=True)
     yield
     logger.info('Shutting down ResumeCraft API...')
 

@@ -253,11 +253,11 @@ def _render_security() -> None:
             st.write(f"{icon} **{session['device']}**{current}")
             st.caption(session.get('browser', ''))
         with c2:
-            st.write(session.get('ip', ''))
-            st.caption(session.get('location', ''))
+            st.write(session.get('location', ''))
+            st.caption(session.get('last_active', ''))
         with c3:
             if not session.get('current'):
-                if st.button('Завершить', key=f"sess_{session.get('id', '')}"):
+                if st.button('Завершить', key=f"sess_{session.get('device', '')}"):
                     st.toast('Сессия завершена (демо)')
             else:
                 st.write('✅')

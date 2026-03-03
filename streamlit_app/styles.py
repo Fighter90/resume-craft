@@ -60,6 +60,10 @@ def inject_css() -> None:
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     .stApp { font-family: 'Inter', sans-serif; }
+    /* Скрыть стандартное Streamlit меню и футер */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     .main-header {
         background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
         padding: 2rem; border-radius: 20px; color: white; margin-bottom: 1.5rem;

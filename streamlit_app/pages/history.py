@@ -62,7 +62,7 @@ def render() -> None:
             icon, _badge_cls = event_icons.get(event.get('type', 'account'), ('⚪', 'badge-gray'))
             time_str = event.get('time', '')
             title = event.get('title', '')
-            description = event.get('description', '')
+            description = event.get('detail', '')
             score = event.get('score')
 
             score_html = ''

@@ -28,6 +28,13 @@ def render() -> None:
             st.rerun()
 
     # ── Фильтры ──
+    status_map = {
+        'optimized': 'Оптимизировано',
+        'draft': 'Черновик',
+        'processing': 'В обработке',
+        'error': 'Ошибка',
+    }
+
     f1, f2 = st.columns(2)
     with f1:
         status_filter = st.selectbox(
@@ -43,7 +50,9 @@ def render() -> None:
         resumes = [r for r in resumes if search.lower() in r['title'].lower()]
 
     if status_filter != 'Все':
-        resumes = [r for r in resumes if r['status'] == status_filter]
+        reverse_map = {v: k for k, v in status_map.items()}
+        target_status = reverse_map.get(status_filter, status_filter)
+        resumes = [r for r in resumes if r['status'] == target_status]
 
     if sort_by == 'Дата (старые)':
         resumes.reverse()
@@ -60,12 +69,13 @@ def render() -> None:
 
     for i, resume in enumerate(resumes):
         status_badge = {
-            'Оптимизировано': ('badge-green', '✅'),
-            'Черновик': ('badge-gray', '📝'),
-            'В обработке': ('badge-indigo', '⏳'),
-            'Ошибка': ('badge-red', '❌'),
+            'optimized': ('badge-green', '✅', 'Оптимизировано'),
+            'draft': ('badge-gray', '📝', 'Черновик'),
+            'processing': ('badge-indigo', '⏳', 'В обработке'),
+            'error': ('badge-red', '❌', 'Ошибка'),
         }
-        badge_cls, badge_icon = status_badge.get(resume['status'], ('badge-gray', '⚪'))
+        badge_info = status_badge.get(resume['status'], ('badge-gray', '⚪', resume['status']))
+        badge_cls, badge_icon, badge_label = badge_info
 
         with st.container():
             c1, c2, c3, c4, c5 = st.columns([3, 2, 1.5, 1.5, 1])
@@ -74,11 +84,11 @@ def render() -> None:
                 st.caption(f"{resume.get('format', 'PDF').upper()} · {resume.get('date', '')}")
             with c2:
                 st.markdown(
-                    f'<span class="badge {badge_cls}">{badge_icon} {resume["status"]}</span>',
+                    f'<span class="badge {badge_cls}">{badge_icon} {badge_label}</span>',
                     unsafe_allow_html=True,
                 )
             with c3:
-                score = resume.get('score')
+                score = resume.get('match_score')
                 if score:
                     st.metric('Match', f'{score}%')
                 else:

@@ -82,16 +82,23 @@ def render() -> None:
             'В обработке': '🟡',
             'Ошибка': '🔴',
         }
-        icon = status_colors.get(resume['status'], '⚪')
+        status_ru = {
+            'optimized': 'Оптимизировано',
+            'draft': 'Черновик',
+            'processing': 'В обработке',
+            'error': 'Ошибка',
+        }
+        display_status = status_ru.get(resume['status'], resume['status'])
+        icon = status_colors.get(display_status, '⚪')
 
         col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
         with col1:
             st.write(f"**{resume['title']}**")
         with col2:
-            st.write(f"{icon} {resume['status']}")
+            st.write(f"{icon} {display_status}")
         with col3:
-            if resume.get('score'):
-                st.write(f"Match: {resume['score']}%")
+            if resume.get('match_score'):
+                st.write(f"Match: {resume['match_score']}%")
             else:
                 st.write('—')
         with col4:
