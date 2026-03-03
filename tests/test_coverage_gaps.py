@@ -140,6 +140,27 @@ class TestReadabilityScoreEdgeCases:
         # Повторы снижают uniqueness ratio, бонус 0.2 не даётся
         assert score < 0.5
 
+    def test_unique_sentences_bonus(self) -> None:
+        """Текст с >3 уникальных предложений (>80%) → бонус +0.2."""
+        text = (
+            'Реализовал микросервисную архитектуру. '
+            'Разработал REST API на FastAPI. '
+            'Внедрил CI/CD пайплайн. '
+            'Оптимизировал запросы к базе данных. '
+            'Увеличил производительность на 40%. '
+        )
+        score = _readability_score(text)
+        # Все предложения уникальны (100% > 80%) → бонус 0.2 выдан
+        assert score >= 0.2
+
+    def test_medium_word_count_bonus(self) -> None:
+        """Текст 200-499 слов → частичный бонус +0.1 за длину."""
+        # ~300 слов: попадаем в elif 200 <= word_count <= 3000
+        words = ' '.join(['слово'] * 300)
+        text = f'Реализовал систему. Разработал API. {words}'
+        score = _readability_score(text)
+        assert score >= 0.1
+
     def test_medium_metrics(self) -> None:
         """Текст с 1-2 метриками → частичный бонус."""
         text = 'Увеличил производительность на 40%. Работал в команде.'

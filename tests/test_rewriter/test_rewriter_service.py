@@ -220,6 +220,50 @@ class TestExecuteRewrite:
         assert result.status == RewriteStatus.FAILED
         assert 'LLM exploded' in (result.error_message or '')
 
+    @patch('app.rewriter.service.LLMClientFactory')
+    async def test_llm_retry_on_invalid_json(
+        self, mock_factory: MagicMock, session: AsyncSession, test_user: User,
+    ) -> None:
+        """Невалидный JSON на 1-й попытке → retry → валидный на 2-й."""
+        resume = Resume(
+            user_id=test_user.id, title='CV', file_path='p.pdf',
+            file_format='pdf', file_size_bytes=100,
+            raw_text='Python разработчик, опыт 5 лет',
+        )
+        vacancy = Vacancy(
+            user_id=test_user.id, title='Senior Python',
+            description='Python developer',
+        )
+        session.add_all([resume, vacancy])
+        await session.flush()
+
+        task = RewriteHistory(
+            user_id=test_user.id, resume_id=resume.id, vacancy_id=vacancy.id,
+            original_text=resume.raw_text, model_name='gigachat-pro',
+            status=RewriteStatus.PENDING,
+        )
+        session.add(task)
+        await session.flush()
+
+        valid_json = json.dumps({
+            'summary': 'Senior Python dev',
+            'skills': ['Python'],
+            'keywords_added': ['Python'],
+        })
+
+        mock_client = AsyncMock()
+        # Первая попытка — невалидный JSON, вторая — валидный
+        mock_client.complete = AsyncMock(
+            side_effect=['This is not valid JSON at all', valid_json],
+        )
+        mock_client.close = AsyncMock()
+        mock_factory.create.return_value = mock_client
+
+        result = await execute_rewrite(session, task_id=task.id)
+        assert result.status == RewriteStatus.COMPLETED
+        assert result.rewritten_data is not None
+        assert mock_client.complete.call_count == 2
+
 
 class TestGetTask:
     """Тесты get_task()."""
