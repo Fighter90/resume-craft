@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import service as auth_service
@@ -67,14 +67,15 @@ async def refresh(
 @router.post(
     '/logout',
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary='Выход из системы',
 )
 async def logout(
     _current_user: User = Depends(get_current_user),
-) -> None:
+) -> Response:
     """Выход (клиент должен удалить токены)."""
     # Stateless JWT — инвалидация через jti blacklist планируется в Phase 2
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(
@@ -112,13 +113,14 @@ async def update_me(
 @router.put(
     '/me/password',
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary='Смена пароля',
 )
 async def change_password(
     data: PasswordChangeRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> None:
+) -> Response:
     """Смена пароля текущего пользователя."""
     await auth_service.change_password(
         session,
@@ -126,16 +128,19 @@ async def change_password(
         current_password=data.current_password,
         new_password=data.new_password,
     )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete(
     '/me',
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary='Удаление аккаунта',
 )
 async def delete_me(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> None:
+) -> Response:
     """Полное удаление аккаунта и всех данных (ФЗ-152)."""
     await auth_service.delete_user_account(session, user=current_user)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

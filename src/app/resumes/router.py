@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, UploadFile, status
+from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
@@ -100,14 +100,16 @@ async def update_resume(
 @router.delete(
     '/{resume_id}',
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary='Удаление резюме',
 )
 async def delete_resume(
     resume_id: UUID,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> None:
+) -> Response:
     """Удаление резюме и связанного файла."""
     await resume_service.delete_resume(
         session, resume_id=resume_id, user_id=current_user.id,
     )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

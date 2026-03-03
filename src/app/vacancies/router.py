@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
@@ -91,14 +91,16 @@ async def get_vacancy(
 @router.delete(
     '/{vacancy_id}',
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary='Удаление вакансии',
 )
 async def delete_vacancy(
     vacancy_id: UUID,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> None:
+) -> Response:
     """Удаление вакансии."""
     await vacancy_service.delete_vacancy(
         session, vacancy_id=vacancy_id, user_id=current_user.id,
     )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
