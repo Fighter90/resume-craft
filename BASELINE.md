@@ -178,7 +178,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **355** |
+| Тестов | — | **356** |
 
 ---
 
@@ -892,7 +892,7 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Всего тестов** | 355 |
+| **Всего тестов** | 356 |
 | **Покрытие кода** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворк** | pytest + pytest-asyncio |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
@@ -921,7 +921,7 @@ def validate_upload(file: UploadFile) -> None:
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
 | `test_ml/` | 62 | LLM-клиенты, фабрика, скоринг — 100% |
-| `test_core/` | 76 | config, security, database, storage, exceptions, deps, **seed** — 100% |
+| `test_core/` | 77 | config, security, database, storage, exceptions, deps, **seed** — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
 | `test_health` | 1 | GET /health — 100% |
@@ -1079,7 +1079,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **355** |
+| Тестов всего | — | **356** |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1149,7 +1149,7 @@ Docker Desktop → docker compose up -d
 | Экспорт | DOCX |
 | UI | Streamlit Demo (20 прототипов, модульная архитектура) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Тестирование | Unit + Integration, 355 тестов, 100% coverage |
+| Тестирование | Unit + Integration, 356 тестов, 100% coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 

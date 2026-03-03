@@ -54,3 +54,18 @@ class TestSeedTestUser:
 
         mock_session.add.assert_not_called()
         mock_session.commit.assert_not_awaited()
+
+
+class TestRunSeed:
+    """Тесты run_seed() — CLI entry point."""
+
+    def test_run_seed_calls_seed_test_user(self) -> None:
+        """run_seed() вызывает asyncio.run(seed_test_user())."""
+        with (
+            patch('app.core.seed.asyncio.run') as mock_run,
+            patch('app.core.seed.logging.basicConfig'),
+        ):
+            from app.core.seed import run_seed
+
+            run_seed()
+            mock_run.assert_called_once()
