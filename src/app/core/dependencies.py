@@ -31,7 +31,7 @@ def get_cached_settings() -> Settings:
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(get_session),  # type: ignore[assignment]
+    session: AsyncSession = Depends(get_session),
 ) -> User:
     """Получение текущего пользователя из JWT-токена.
 

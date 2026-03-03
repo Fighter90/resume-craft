@@ -13,7 +13,7 @@ from app.rewriter import service as rewrite_service
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task(
+@celery_app.task(  # type: ignore[untyped-decorator]
     bind=True,
     name='rewriter.execute_rewrite',
     max_retries=2,
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
     time_limit=120,
     soft_time_limit=90,
 )
-def execute_rewrite_task(self: celery_app.Task, task_id: str) -> dict[str, str]:  # type: ignore[name-defined]
+def execute_rewrite_task(self: celery_app.Task, task_id: str) -> dict[str, str]:
     """Celery-задача оптимизации резюме.
 
     Args:

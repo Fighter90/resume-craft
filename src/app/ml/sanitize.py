@@ -57,6 +57,9 @@ def sanitize_for_llm(text: str) -> str:
 
     # Ограничение длины
     if len(sanitized) > MAX_LLM_INPUT_LENGTH:
-        sanitized = sanitized[:MAX_LLM_INPUT_LENGTH] + '\n\n[Текст обрезан из-за ограничения длины]'
+        sanitized = (
+            sanitized[:MAX_LLM_INPUT_LENGTH]
+            + '\n\n[Текст обрезан из-за ограничения длины]'
+        )
 
     return sanitized.strip()

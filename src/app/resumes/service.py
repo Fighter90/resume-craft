@@ -108,20 +108,20 @@ def _extract_text(content: bytes, *, ext: str) -> str | None:
 
 def _extract_from_pdf(content: bytes) -> str:
     """Извлечение текста из PDF через PyMuPDF."""
-    import fitz  # noqa: PLC0415 — lazy import
+    import fitz
 
     text_parts: list[str] = []
     with fitz.open(stream=content, filetype='pdf') as doc:
         for page in doc:
-            text_parts.append(page.get_text())  # type: ignore[union-attr]
+            text_parts.append(page.get_text())
     return '\n'.join(text_parts).strip()
 
 
 def _extract_from_docx(content: bytes) -> str:
     """Извлечение текста из DOCX через python-docx."""
-    import io  # noqa: PLC0415
+    import io
 
-    from docx import Document  # noqa: PLC0415 — lazy import
+    from docx import Document
 
     doc = Document(io.BytesIO(content))
     return '\n'.join(p.text for p in doc.paragraphs if p.text.strip())
@@ -228,13 +228,13 @@ def _try_generate_embedding(resume: Resume) -> None:
     if not resume.raw_text:
         return
     try:
-        from app.ml.embeddings import generate_embedding  # noqa: PLC0415
+        from app.ml.embeddings import generate_embedding
 
         embedding = generate_embedding(resume.raw_text[:5000])  # Ограничиваем длину
         # Сохраняем в parsed_data, т.к. VECTOR-колонка добавляется через Alembic
         if not resume.parsed_data:
             resume.parsed_data = {}
-        resume.parsed_data['_embedding_generated'] = True  # type: ignore[index]
+        resume.parsed_data['_embedding_generated'] = True
         logger.info('Embedding generated for resume %s (%d dims)', resume.id, len(embedding))
     except Exception:
         logger.debug('Embedding generation skipped for resume %s', resume.id, exc_info=True)

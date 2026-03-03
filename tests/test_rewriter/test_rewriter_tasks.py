@@ -37,7 +37,9 @@ class TestRunRewrite:
 
     @patch('app.rewriter.tasks.rewrite_service')
     @patch('app.rewriter.tasks.get_session_factory')
-    async def test_failure_rollback(self, mock_factory: MagicMock, mock_service: MagicMock) -> None:
+    async def test_failure_rollback(
+        self, mock_factory: MagicMock, mock_service: MagicMock,
+    ) -> None:
         """Ошибка → rollback."""
         task_id = uuid4()
 
@@ -89,5 +91,5 @@ class TestExecuteRewriteTask:
         # The task calls self.retry() which raises Retry exception
         # Since we're not in a real Celery context, self is the task obj
         # Just test that when _run_rewrite fails, the exception propagates
-        with pytest.raises(Exception):
+        with pytest.raises(RuntimeError, match='LLM timeout'):
             execute_rewrite_task(task_id)

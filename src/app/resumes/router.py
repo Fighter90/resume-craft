@@ -11,7 +11,12 @@ from app.auth.models import User
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.resumes import service as resume_service
-from app.resumes.schemas import ResumeListResponse, ResumeResponse, ResumeUpdateRequest, ResumeUploadResponse
+from app.resumes.schemas import (
+    ResumeListResponse,
+    ResumeResponse,
+    ResumeUpdateRequest,
+    ResumeUploadResponse,
+)
 
 router = APIRouter(prefix='/resumes', tags=['resumes'])
 

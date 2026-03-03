@@ -72,4 +72,4 @@ class Settings(BaseSettings):
 
 def get_settings() -> Settings:
     """Фабрика настроек (для кэширования через lru_cache в dependencies)."""
-    return Settings()  # type: ignore[call-arg]
+    return Settings()

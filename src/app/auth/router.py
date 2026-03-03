@@ -9,7 +9,6 @@ from app.auth import service as auth_service
 from app.auth.models import User
 from app.auth.schemas import (
     LoginRequest,
-    MessageResponse,
     PasswordChangeRequest,
     RefreshRequest,
     RegisterRequest,

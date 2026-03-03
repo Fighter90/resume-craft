@@ -47,6 +47,5 @@ class TestLLMClientFactory:
 
         with patch.object(
             LLMClientFactory, 'create', side_effect=RuntimeError('unavailable'),
-        ):
-            with pytest.raises(LLMProviderUnavailable):
-                await LLMClientFactory.create_with_fallback()
+        ), pytest.raises(LLMProviderUnavailable):
+            await LLMClientFactory.create_with_fallback()

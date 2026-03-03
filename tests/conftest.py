@@ -17,23 +17,23 @@ os.environ.setdefault('REDIS_URL', 'redis://localhost:6379/15')
 os.environ.setdefault('CELERY_BROKER_URL', 'memory://')
 os.environ.setdefault('CELERY_RESULT_BACKEND', 'cache+memory://')
 
-from collections.abc import AsyncIterator  # noqa: E402
-from uuid import uuid4  # noqa: E402
+from collections.abc import AsyncIterator
+from uuid import uuid4
 
-import pytest  # noqa: E402
-from httpx import ASGITransport, AsyncClient  # noqa: E402
-from sqlalchemy import JSON, event  # noqa: E402
-from sqlalchemy.dialects.postgresql import JSONB  # noqa: E402
-from sqlalchemy.ext.asyncio import (  # noqa: E402
+import pytest
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy import JSON, event
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
 
-from app.auth.models import User, UserPlan  # noqa: E402
-from app.core.database import Base, get_session  # noqa: E402
-from app.core.security import hash_password  # noqa: E402
-from app.main import create_app  # noqa: E402
+from app.auth.models import User, UserPlan
+from app.core.database import Base, get_session
+from app.core.security import hash_password
+from app.main import create_app
 
 # ── Тестовая БД (in-memory SQLite) ──────────────────────────────────────────
 TEST_DATABASE_URL = 'sqlite+aiosqlite://'

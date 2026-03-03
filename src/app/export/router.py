@@ -23,7 +23,9 @@ router = APIRouter(prefix='/export', tags=['export'])
     summary='Экспорт оптимизированного резюме в DOCX',
     responses={
         200: {
-            'content': {'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {}},
+            'content': {
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {},
+            },
             'description': 'DOCX-файл',
         },
     },

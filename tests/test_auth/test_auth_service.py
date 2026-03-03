@@ -9,11 +9,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User, UserPlan
 from app.auth.schemas import RegisterRequest
-from app.auth.service import authenticate, get_user_by_email, get_user_by_id, refresh_tokens, register
+from app.auth.service import (
+    authenticate,
+    get_user_by_email,
+    get_user_by_id,
+    refresh_tokens,
+    register,
+)
 from app.core.exceptions import (
     InactiveUser,
     InvalidCredentials,
-    TokenExpired,
     TokenInvalid,
     UserAlreadyExists,
     UserNotFound,

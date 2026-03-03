@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from app.vacancies.models import Vacancy
 
 
-class RewriteStatus(str, enum.Enum):
+class RewriteStatus(enum.StrEnum):
     """Статус задачи оптимизации."""
 
     PENDING = 'pending'

@@ -51,7 +51,11 @@ class TokenInvalid(AppError):
 
 class UserAlreadyExists(AppError):
     def __init__(self, email: str = '') -> None:
-        msg = f'Пользователь с email {email} уже существует' if email else 'Пользователь уже существует'
+        msg = (
+            f'Пользователь с email {email} уже существует'
+            if email
+            else 'Пользователь уже существует'
+        )
         super().__init__(
             message=msg,
             status_code=409,
@@ -148,7 +152,11 @@ class TariffLimitExceeded(AppError):
 
 class RewriteTaskNotFound(AppError):
     def __init__(self, task_id: str = '') -> None:
-        msg = f'Задача оптимизации {task_id} не найдена' if task_id else 'Задача оптимизации не найдена'
+        msg = (
+            f'Задача оптимизации {task_id} не найдена'
+            if task_id
+            else 'Задача оптимизации не найдена'
+        )
         super().__init__(
             message=msg,
             status_code=404,

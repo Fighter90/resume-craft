@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from app.vacancies.models import Vacancy
 
 
-class UserPlan(str, enum.Enum):
+class UserPlan(enum.StrEnum):
     """Тарифный план пользователя."""
 
     FREE = 'free'

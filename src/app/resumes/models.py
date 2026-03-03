@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from app.rewriter.models import RewriteHistory
 
 
-class ResumeStatus(str, enum.Enum):
+class ResumeStatus(enum.StrEnum):
     """Статус обработки резюме."""
 
     DRAFT = 'draft'

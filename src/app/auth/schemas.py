@@ -9,7 +9,6 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.auth.models import UserPlan
 
-
 # --- Requests ---
 
 class RegisterRequest(BaseModel):
@@ -37,7 +36,13 @@ class RegisterRequest(BaseModel):
     model_config = ConfigDict(
         str_strip_whitespace=True,
         json_schema_extra={
-            'examples': [{'email': 'user@example.com', 'password': 'SecurePass1', 'full_name': 'Иван Иванов'}],
+            'examples': [
+                {
+                    'email': 'user@example.com',
+                    'password': 'SecurePass1',
+                    'full_name': 'Иван Иванов',
+                },
+            ],
         },
     )
 
@@ -64,7 +69,7 @@ class TokenResponse(BaseModel):
 
     access_token: str
     refresh_token: str
-    token_type: str = 'bearer'
+    token_type: str = 'bearer'  # noqa: S105
 
 
 class UserResponse(BaseModel):

@@ -10,7 +10,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.rewriter.models import RewriteStatus
 
-
 # --- Requests ---
 
 class RewriteRequest(BaseModel):

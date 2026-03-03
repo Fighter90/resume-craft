@@ -61,7 +61,7 @@ class LLMClientFactory:
 
         model_name = _MODEL_NAMES.get(provider_name, provider_name)
         logger.info('Creating LLM client: %s (model=%s)', provider_name, model_name)
-        return provider_class(model=model_name)
+        return provider_class(model=model_name)  # type: ignore[call-arg]
 
     @staticmethod
     async def create_with_fallback() -> BaseLLMClient:

@@ -13,12 +13,12 @@ def extract_text_from_pdf(content: bytes) -> str:
 
     Fallback на OCR (pytesseract) если текст пустой.
     """
-    import fitz  # noqa: PLC0415
+    import fitz
 
     text_parts: list[str] = []
     with fitz.open(stream=content, filetype='pdf') as doc:
         for page in doc:
-            page_text = page.get_text()  # type: ignore[union-attr]
+            page_text = page.get_text()
             if page_text.strip():
                 text_parts.append(page_text)
 
@@ -34,7 +34,7 @@ def extract_text_from_pdf(content: bytes) -> str:
 
 def extract_text_from_docx(content: bytes) -> str:
     """Извлечение текста из DOCX через python-docx."""
-    from docx import Document  # noqa: PLC0415
+    from docx import Document
 
     doc = Document(io.BytesIO(content))
     paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
@@ -44,14 +44,14 @@ def extract_text_from_docx(content: bytes) -> str:
 def _ocr_from_pdf(content: bytes) -> str:
     """OCR fallback для сканированных PDF (pytesseract + Pillow)."""
     try:
-        import fitz  # noqa: PLC0415
-        import pytesseract  # noqa: PLC0415
-        from PIL import Image  # noqa: PLC0415
+        import fitz
+        import pytesseract
+        from PIL import Image
 
         text_parts: list[str] = []
         with fitz.open(stream=content, filetype='pdf') as doc:
             for page in doc:
-                pix = page.get_pixmap(dpi=300)  # type: ignore[union-attr]
+                pix = page.get_pixmap(dpi=300)
                 img = Image.frombytes('RGB', (pix.width, pix.height), pix.samples)
                 page_text = pytesseract.image_to_string(img, lang='rus+eng')
                 if page_text.strip():

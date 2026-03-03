@@ -11,7 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import VacancyNotFound
 from app.vacancies.hh_client import HHClient, extract_hh_vacancy_id, parse_hh_vacancy
 from app.vacancies.models import Vacancy
-from app.vacancies.schemas import HHSearchParams, HHSearchResponse, HHVacancyItem, VacancyManualRequest
+from app.vacancies.schemas import (
+    HHSearchParams,
+    HHSearchResponse,
+    HHVacancyItem,
+    VacancyManualRequest,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +156,7 @@ def _try_generate_vacancy_embedding(vacancy: Vacancy) -> None:
     if not vacancy.description:
         return
     try:
-        from app.ml.embeddings import generate_embedding  # noqa: PLC0415
+        from app.ml.embeddings import generate_embedding
 
         text = f'{vacancy.title or ""} {vacancy.description[:5000]}'
         generate_embedding(text)

@@ -43,7 +43,17 @@ select = [
     "ASYNC",       # async best practices
     "PT",          # pytest style
 ]
-ignore = ["S101"]  # assert в тестах допустим
+ignore = [
+    "S101",   # assert в тестах допустим
+    "B008",   # Depends() в аргументах — стандартный паттерн FastAPI
+    "RUF001", # Кириллица в строках — русскоязычный проект
+    "RUF002", # Кириллица в docstrings — русскоязычный проект
+    "RUF003", # Кириллица в комментариях — русскоязычный проект
+    "TC001", # TYPE_CHECKING imports (app) — не критично для runtime
+    "TC002", # TYPE_CHECKING imports (third-party) — не критично для runtime
+    "TC003", # TYPE_CHECKING imports (stdlib) — не критично для runtime
+    "N818",  # Exception suффикс Error — осознанное именование (VacancyNotFound и т.д.)
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S", "DTZ"]
@@ -79,6 +89,10 @@ module = [
     "kombu.*",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["app.export.service"]
+disable_error_code = ["valid-type", "attr-defined"]
 
 # =============================================================================
 # pytest

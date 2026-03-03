@@ -8,7 +8,7 @@ from typing import Any
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Inches, Pt
+from docx.shared import Pt
 
 logger = logging.getLogger(__name__)
 

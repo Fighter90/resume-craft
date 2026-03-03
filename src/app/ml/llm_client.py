@@ -52,7 +52,7 @@ class GigaChatClient(BaseLLMClient):
     def _get_client(self) -> Any:
         """Lazy-инициализация клиента GigaChat."""
         if self._client is None:
-            from gigachat import GigaChat  # noqa: PLC0415
+            from gigachat import GigaChat
 
             self._client = GigaChat(
                 credentials=settings.gigachat_credentials,
@@ -71,7 +71,7 @@ class GigaChatClient(BaseLLMClient):
         max_tokens: int = 4096,
     ) -> str:
         """Запрос к GigaChat API."""
-        from gigachat.models import Chat, Messages, MessagesRole  # noqa: PLC0415
+        from gigachat.models import Chat, Messages, MessagesRole
 
         client = self._get_client()
 
@@ -94,7 +94,7 @@ class GigaChatClient(BaseLLMClient):
             self._model,
             response.usage.total_tokens if response.usage else 'N/A',
         )
-        return content
+        return content  # type: ignore[no-any-return]
 
     async def close(self) -> None:
         """Закрытие GigaChat клиента."""
@@ -111,7 +111,7 @@ class GroqClient(BaseLLMClient):
     def _get_client(self) -> Any:
         """Lazy-инициализация Groq через openai SDK."""
         if self._client is None:
-            from openai import AsyncOpenAI  # noqa: PLC0415
+            from openai import AsyncOpenAI
 
             self._client = AsyncOpenAI(
                 api_key=settings.groq_api_key,
@@ -165,7 +165,7 @@ class OpenAIClient(BaseLLMClient):
     def _get_client(self) -> Any:
         """Lazy-инициализация OpenAI клиента."""
         if self._client is None:
-            from openai import AsyncOpenAI  # noqa: PLC0415
+            from openai import AsyncOpenAI
 
             self._client = AsyncOpenAI(api_key=settings.openai_api_key)
         return self._client

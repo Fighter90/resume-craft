@@ -30,7 +30,7 @@ def generate_embedding(text: str) -> list[float]:
 
 def _generate_with_sentence_transformers(text: str) -> list[float]:
     """Генерация через sentence-transformers."""
-    from sentence_transformers import SentenceTransformer  # noqa: PLC0415
+    from sentence_transformers import SentenceTransformer
 
     model = SentenceTransformer('all-MiniLM-L6-v2')
     embedding = model.encode(text, normalize_embeddings=True)
@@ -42,4 +42,4 @@ def _generate_with_sentence_transformers(text: str) -> list[float]:
     elif len(vec) > EMBEDDING_DIM:
         vec = vec[:EMBEDDING_DIM]
 
-    return vec
+    return vec  # type: ignore[no-any-return]

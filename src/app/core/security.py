@@ -61,7 +61,7 @@ def decode_token(token: str) -> dict[str, Any]:
         jwt.ExpiredSignatureError: токен истёк.
         jwt.InvalidTokenError: невалидный токен.
     """
-    return jwt.decode(  # type: ignore[no-any-return]
+    return jwt.decode(
         token,
         settings.secret_key,
         algorithms=[settings.jwt_algorithm],

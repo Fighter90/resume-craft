@@ -38,7 +38,7 @@ def _get_engine_kwargs() -> dict[str, Any]:
 
 def get_engine():  # type: ignore[no-untyped-def]
     """Получение (или создание) глобального async engine."""
-    global _engine  # noqa: PLW0603
+    global _engine
     if _engine is None:
         settings = get_settings()
         _engine = create_async_engine(settings.database_url, **_get_engine_kwargs())
@@ -47,10 +47,10 @@ def get_engine():  # type: ignore[no-untyped-def]
 
 def get_session_factory() -> async_sessionmaker[AsyncSession]:
     """Получение (или создание) глобальной фабрики сессий."""
-    global _session_factory  # noqa: PLW0603
+    global _session_factory
     if _session_factory is None:
         _session_factory = async_sessionmaker(
-            get_engine(), class_=AsyncSession, expire_on_commit=False,
+            get_engine(), class_=AsyncSession, expire_on_commit=False,  # type: ignore[no-untyped-call]
         )
     return _session_factory
 

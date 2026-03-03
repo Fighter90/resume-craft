@@ -10,7 +10,11 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import ResumeNotFound, RewriteTaskNotFound, TariffLimitExceeded, VacancyNotFound
+from app.core.exceptions import (
+    ResumeNotFound,
+    RewriteTaskNotFound,
+    VacancyNotFound,
+)
 from app.ml.llm_factory import LLMClientFactory
 from app.ml.prompts import REWRITE_SYSTEM_PROMPT
 from app.ml.sanitize import sanitize_for_llm
@@ -177,7 +181,7 @@ def _parse_llm_response(response: str, *, task: RewriteHistory) -> bool:
     Returns:
         True если JSON успешно распарсен, False иначе.
     """
-    import json  # noqa: PLC0415
+    import json
 
     try:
         # LLM может вернуть JSON в markdown code block

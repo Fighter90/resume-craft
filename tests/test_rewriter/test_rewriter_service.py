@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
 from app.core.exceptions import ResumeNotFound, RewriteTaskNotFound, VacancyNotFound
-from app.resumes.models import Resume, ResumeStatus
+from app.resumes.models import Resume
 from app.rewriter.models import RewriteHistory, RewriteStatus
 from app.rewriter.service import (
     _calculate_ats_rating,
@@ -252,7 +252,8 @@ class TestListHistory:
         for i in range(3):
             t = RewriteHistory(
                 user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
-                original_text=f'Original text {i}', model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
+                original_text=f'Original text {i}',
+                model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
             )
             session.add(t)
         await session.flush()
