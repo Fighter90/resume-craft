@@ -1,0 +1,158 @@
+# =============================================================================
+# Security Pipeline — SAST, Dependency Audit, Secret Scanning
+# =============================================================================
+
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Еженедельное сканирование по понедельникам в 08:00 MSK
+    - cron: "0 5 * * 1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Bandit — SAST для Python
+  # ---------------------------------------------------------------------------
+  bandit:
+    name: "🔒 Bandit SAST"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Bandit
+        run: pip install bandit[toml]
+
+      - name: Run Bandit
+        run: |
+          bandit -r . \
+            -x ./.venv,./.git,./tests,./Prototype \
+            -f json \
+            -o bandit-report.json \
+            --severity-level medium \
+            || true
+
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Bandit (console output)
+        run: |
+          bandit -r . \
+            -x ./.venv,./.git,./tests,./Prototype \
+            --severity-level medium \
+            || true
+
+  # ---------------------------------------------------------------------------
+  # pip-audit — аудит зависимостей на известные CVE
+  # ---------------------------------------------------------------------------
+  dependency-audit:
+    name: "📦 Dependency Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies & pip-audit
+        run: |
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pip-audit
+
+      - name: Run pip-audit
+        run: pip-audit --strict --desc || true
+
+  # ---------------------------------------------------------------------------
+  # Gitleaks — поиск утечек секретов в коде и истории
+  # ---------------------------------------------------------------------------
+  secrets-scan:
+    name: "🔑 Secret Scanning"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ---------------------------------------------------------------------------
+  # CodeQL — семантический анализ кода
+  # ---------------------------------------------------------------------------
+  codeql:
+    name: "🧬 CodeQL Analysis"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"
+
+  # ---------------------------------------------------------------------------
+  # Trivy — сканирование Docker-образа (если есть Dockerfile)
+  # ---------------------------------------------------------------------------
+  trivy:
+    name: "🐳 Trivy Container Scan"
+    runs-on: ubuntu-latest
+    if: hashFiles('Dockerfile') != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t resumecraft:scan .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "resumecraft:scan"
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results.sarif"

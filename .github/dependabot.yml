@@ -1,0 +1,80 @@
+# =============================================================================
+# Dependabot — автоматическое обновление зависимостей и security-патчей
+# https://docs.github.com/en/code-security/dependabot
+# =============================================================================
+
+version: 2
+
+updates:
+  # --- Python (pip) ---
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Moscow"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "sergejemelanov"
+    labels:
+      - "dependencies"
+      - "security"
+    # Группировка минорных/патч обновлений в один PR
+    groups:
+      production-dependencies:
+        patterns:
+          - "fastapi*"
+          - "uvicorn*"
+          - "sqlalchemy*"
+          - "alembic*"
+          - "pydantic*"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "ruff*"
+          - "mypy*"
+          - "bandit*"
+          - "pre-commit*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Автоматические security-обновления всегда приоритетны
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps(dev)"
+
+  # --- GitHub Actions ---
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Moscow"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "sergejemelanov"
+    labels:
+      - "ci/cd"
+      - "dependencies"
+    commit-message:
+      prefix: "ci"
+
+  # --- Docker (если используется) ---
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Moscow"
+    open-pull-requests-limit: 3
+    labels:
+      - "docker"
+      - "dependencies"
+    commit-message:
+      prefix: "docker"

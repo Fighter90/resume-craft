@@ -1,0 +1,35 @@
+# =============================================================================
+# Stale — автоматическое закрытие неактивных Issues и PR
+# =============================================================================
+
+name: Stale
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Каждый понедельник в 09:00 MSK
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: "🧹 Close Stale Issues/PRs"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
+          stale-issue-message: >
+            Этот Issue неактивен более 30 дней. Он будет автоматически закрыт
+            через 7 дней, если не будет новой активности.
+          stale-pr-message: >
+            Этот PR неактивен более 30 дней. Он будет автоматически закрыт
+            через 7 дней, если не будет новой активности.
+          close-issue-message: "Закрыт из-за неактивности. Переоткройте, если проблема актуальна."
+          close-pr-message: "Закрыт из-за неактивности. Переоткройте, если PR актуален."
+          exempt-issue-labels: "pinned,security,bug"
+          exempt-pr-labels: "pinned,security"

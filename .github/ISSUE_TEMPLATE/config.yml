@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "🔒 Уязвимость безопасности"
+    url: https://github.com/sergejemelanov/mvp/security/advisories/new
+    about: "НЕ создавайте публичный Issue для уязвимостей. Используйте Security Advisory."
+  - name: "💬 Вопросы и обсуждения"
+    url: https://github.com/sergejemelanov/mvp/discussions
+    about: "Задайте вопрос в Discussions вместо создания Issue."

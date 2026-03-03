@@ -1,0 +1,20 @@
+# =============================================================================
+# Конфигурация gitleaks — исключения для ложных срабатываний
+# =============================================================================
+
+title = "ResumeCraft gitleaks config"
+
+[allowlist]
+  description = "Allowlisted patterns"
+  paths = [
+    '''\.venv/''',
+    '''node_modules/''',
+    '''\.git/''',
+    '''Prototype/''',
+    '''\.github/workflows/''',
+  ]
+  regexes = [
+    # Тестовые/фейковые ключи в CI
+    '''test-secret-key-for-ci-only''',
+    '''POSTGRES_PASSWORD=test''',
+  ]

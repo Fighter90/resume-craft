@@ -265,3 +265,52 @@ log/
 *.orig
 tmp/
 temp/
+
+# ===================================================================
+# GitHub — локальные артефакты CI/Security (не коммитить отчёты)
+# ===================================================================
+
+# Отчёты безопасности (генерируются локально)
+bandit-report.json
+bandit-report.html
+trivy-results.sarif
+gitleaks-report.json
+pip-audit-report.json
+
+# Coverage-артефакты
+coverage.xml
+htmlcov/
+.coverage
+.coverage.*
+
+# GitHub Actions локальный runner (act)
+.actrc
+.act-secrets
+
+# ===================================================================
+# IDE и редакторы
+# ===================================================================
+.idea/
+*.swp
+*.swo
+*~
+.vscode/settings.json
+.vscode/launch.json
+
+# ===================================================================
+# Security — НИКОГДА не коммитить
+# ===================================================================
+.env.local
+.env.production
+.env.*.local
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+secrets/
+credentials/
+service-account*.json
+*-credentials.json
+*-serviceaccount.json

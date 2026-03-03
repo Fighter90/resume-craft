@@ -1,0 +1,148 @@
+"""Тесты модуля аутентификации."""
+
+from __future__ import annotations
+
+import pytest
+from httpx import AsyncClient
+
+from app.auth.models import User
+
+
+class TestRegister:
+    """Тесты POST /auth/register."""
+
+    async def test_register_success(self, client: AsyncClient) -> None:
+        """Успешная регистрация → 201."""
+        response = await client.post('/api/v1/auth/register', json={
+            'email': 'new@example.com',
+            'password': 'StrongPass1',
+            'full_name': 'Иван Иванов',
+        })
+        assert response.status_code == 201
+        data = response.json()
+        assert data['email'] == 'new@example.com'
+        assert data['full_name'] == 'Иван Иванов'
+        assert data['plan'] == 'free'
+        assert data['optimizations_used'] == 0
+
+    async def test_register_weak_password(self, client: AsyncClient) -> None:
+        """Слабый пароль (без цифр) → 422."""
+        response = await client.post('/api/v1/auth/register', json={
+            'email': 'weak@example.com',
+            'password': 'nodigitshere',
+        })
+        assert response.status_code == 422
+
+    async def test_register_short_password(self, client: AsyncClient) -> None:
+        """Короткий пароль → 422."""
+        response = await client.post('/api/v1/auth/register', json={
+            'email': 'short@example.com',
+            'password': 'Sh1',
+        })
+        assert response.status_code == 422
+
+    async def test_register_invalid_email(self, client: AsyncClient) -> None:
+        """Невалидный email → 422."""
+        response = await client.post('/api/v1/auth/register', json={
+            'email': 'not-an-email',
+            'password': 'TestPass123',
+        })
+        assert response.status_code == 422
+
+    async def test_register_duplicate_email(self, client: AsyncClient, test_user: User) -> None:
+        """Дублирующий email → 409."""
+        response = await client.post('/api/v1/auth/register', json={
+            'email': test_user.email,
+            'password': 'AnotherPass1',
+        })
+        assert response.status_code == 409
+
+
+class TestLogin:
+    """Тесты POST /auth/login."""
+
+    async def test_login_success(self, client: AsyncClient, test_user: User) -> None:
+        """Успешная авторизация → 200 + JWT."""
+        response = await client.post('/api/v1/auth/login', json={
+            'email': test_user.email,
+            'password': 'TestPass123',
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert 'access_token' in data
+        assert 'refresh_token' in data
+        assert data['token_type'] == 'bearer'
+
+    async def test_login_wrong_password(self, client: AsyncClient, test_user: User) -> None:
+        """Неверный пароль → 401."""
+        response = await client.post('/api/v1/auth/login', json={
+            'email': test_user.email,
+            'password': 'WrongPass1',
+        })
+        assert response.status_code == 401
+
+    async def test_login_nonexistent_email(self, client: AsyncClient) -> None:
+        """Несуществующий email → 401."""
+        response = await client.post('/api/v1/auth/login', json={
+            'email': 'nobody@example.com',
+            'password': 'TestPass123',
+        })
+        assert response.status_code == 401
+
+
+class TestMe:
+    """Тесты GET /auth/me."""
+
+    async def test_me_authorized(self, auth_client: AsyncClient, test_user: User) -> None:
+        """Авторизованный запрос → 200 + профиль."""
+        response = await auth_client.get('/api/v1/auth/me')
+        assert response.status_code == 200
+        data = response.json()
+        assert data['email'] == test_user.email
+
+    async def test_me_unauthorized(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.get('/api/v1/auth/me')
+        assert response.status_code == 401
+
+
+class TestRefresh:
+    """Тесты POST /auth/refresh."""
+
+    async def test_refresh_success(self, client: AsyncClient, test_user: User) -> None:
+        """Успешное обновление токенов."""
+        # Сначала логинимся, чтобы получить refresh_token
+        login_resp = await client.post('/api/v1/auth/login', json={
+            'email': test_user.email,
+            'password': 'TestPass123',
+        })
+        refresh_token = login_resp.json()['refresh_token']
+
+        response = await client.post('/api/v1/auth/refresh', json={
+            'refresh_token': refresh_token,
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert 'access_token' in data
+        assert 'refresh_token' in data
+
+    async def test_refresh_invalid_token(self, client: AsyncClient) -> None:
+        """Невалидный refresh-токен → 401."""
+        response = await client.post('/api/v1/auth/refresh', json={
+            'refresh_token': 'invalid.token.here',
+        })
+        assert response.status_code == 401
+
+
+class TestLogout:
+    """Тесты POST /auth/logout."""
+
+    async def test_logout_success(self, auth_client: AsyncClient) -> None:
+        """Успешный выход → 204."""
+        response = await auth_client.post('/api/v1/auth/logout')
+        assert response.status_code == 204
+
+    async def test_logout_no_auth(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.post('/api/v1/auth/logout')
+        assert response.status_code == 401

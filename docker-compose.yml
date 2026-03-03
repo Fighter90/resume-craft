@@ -1,0 +1,146 @@
+# ============================================
+# ResumeCraft — Docker Compose (6 сервисов)
+# ============================================
+# Запуск: docker compose up -d
+# Остановка: docker compose down
+# Логи: docker compose logs -f app
+
+services:
+  # --- FastAPI Application ---
+  app:
+    build:
+      context: .
+      target: production
+    container_name: resumecraft-app
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://resumecraft:${POSTGRES_PASSWORD:-devpassword}@db:5432/resumecraft
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - UPLOAD_DIR=/data/uploads
+    volumes:
+      - upload_data:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # --- Celery Worker ---
+  celery-worker:
+    build:
+      context: .
+      target: production
+    container_name: resumecraft-celery
+    command: celery -A app.core.celery_app:celery_app worker --loglevel=info --concurrency=2
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://resumecraft:${POSTGRES_PASSWORD:-devpassword}@db:5432/resumecraft
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - UPLOAD_DIR=/data/uploads
+    volumes:
+      - upload_data:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # --- PostgreSQL 16 + pgvector ---
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: resumecraft-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: resumecraft
+      POSTGRES_USER: resumecraft
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resumecraft -d resumecraft"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # --- Redis 7 ---
+  redis:
+    image: redis:7-alpine
+    container_name: resumecraft-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # --- RabbitMQ 3.13 ---
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: resumecraft-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # --- Flower (Celery мониторинг) ---
+  flower:
+    build:
+      context: .
+      target: production
+    container_name: resumecraft-flower
+    command: celery -A app.core.celery_app:celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    env_file: .env
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  upload_data:

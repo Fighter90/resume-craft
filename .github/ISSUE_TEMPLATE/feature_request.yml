@@ -1,0 +1,52 @@
+name: "✨ Запрос функции"
+description: "Предложить новую функциональность для ResumeCraft"
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees:
+  - sergejemelanov
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Спасибо за предложение! Опишите идею максимально подробно.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Проблема"
+      description: "Какую проблему решает предлагаемая функция?"
+      placeholder: "Сейчас нет возможности экспортировать резюме в формат DOCX..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Предлагаемое решение"
+      description: "Опишите желаемое поведение"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Альтернативы"
+      description: "Рассматривали ли вы альтернативные решения?"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Приоритет"
+      options:
+        - "🔴 Критично для MVP"
+        - "🟠 Важно (post-MVP)"
+        - "🟡 Желательно"
+        - "🟢 Nice-to-have"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Дополнительный контекст"
+      description: "Скриншоты, мокапы, ссылки на аналоги"

@@ -1,0 +1,116 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "resumecraft"
+version = "0.1.0"
+description = "AI-реврайтер резюме для российского рынка труда"
+readme = "README.md"
+license = {text = "GPL-3.0"}
+requires-python = ">=3.11"
+authors = [
+    {name = "ResumeCraft Team"},
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# =============================================================================
+# Ruff — линтер и форматтер
+# =============================================================================
+[tool.ruff]
+target-version = "py311"
+line-length = 99
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",     # pycodestyle
+    "F",           # pyflakes
+    "I",           # isort
+    "N",           # pep8-naming
+    "UP",          # pyupgrade
+    "S",           # bandit (security)
+    "B",           # bugbear
+    "A",           # builtins shadowing
+    "C4",          # comprehensions
+    "DTZ",         # datetime timezone
+    "T20",         # print statements
+    "SIM",         # simplify
+    "TCH",         # type-checking imports
+    "RUF",         # ruff-specific
+    "ASYNC",       # async best practices
+    "PT",          # pytest style
+]
+ignore = ["S101"]  # assert в тестах допустим
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "DTZ"]
+"alembic/**" = ["E501"]
+"streamlit_app/**" = ["T20"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+# =============================================================================
+# mypy — проверка типов
+# =============================================================================
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "gigachat.*",
+    "pymupdf.*",
+    "fitz.*",
+    "docx.*",
+    "sentence_transformers.*",
+    "pytesseract.*",
+    "passlib.*",
+    "kombu.*",
+]
+ignore_missing_imports = true
+
+# =============================================================================
+# pytest
+# =============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "-q",
+]
+markers = [
+    "slow: slow tests (LLM calls, etc.)",
+    "integration: integration tests requiring DB/Redis",
+]
+
+[tool.coverage.run]
+source = ["src/app"]
+omit = ["*/migrations/*", "*/alembic/*"]
+concurrency = ["greenlet", "thread"]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ ==",
+    "pass",
+    "\\.\\.\\.",
+]

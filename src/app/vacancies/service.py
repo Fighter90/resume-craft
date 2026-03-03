@@ -1,0 +1,122 @@
+"""Бизнес-логика управления вакансиями."""
+
+from __future__ import annotations
+
+import logging
+from uuid import UUID
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import VacancyNotFound
+from app.vacancies.hh_client import HHClient, extract_hh_vacancy_id, parse_hh_vacancy
+from app.vacancies.models import Vacancy
+from app.vacancies.schemas import HHSearchParams, HHSearchResponse, HHVacancyItem, VacancyManualRequest
+
+logger = logging.getLogger(__name__)
+
+
+async def search_hh(params: HHSearchParams) -> HHSearchResponse:
+    """Поиск вакансий через hh.ru API."""
+    client = HHClient()
+    try:
+        data = await client.search_vacancies(
+            params.text, area=params.area, per_page=params.per_page,
+        )
+    finally:
+        await client.close()
+
+    items = [
+        HHVacancyItem(
+            hh_id=str(item['id']),
+            title=item.get('name', ''),
+            company=item.get('employer', {}).get('name') if item.get('employer') else None,
+            city=item.get('area', {}).get('name') if item.get('area') else None,
+            salary_from=item.get('salary', {}).get('from') if item.get('salary') else None,
+            salary_to=item.get('salary', {}).get('to') if item.get('salary') else None,
+            url=item.get('alternate_url', ''),
+        )
+        for item in data.get('items', [])
+    ]
+
+    return HHSearchResponse(
+        items=items,
+        found=data.get('found', 0),
+        page=data.get('page', 0),
+        pages=data.get('pages', 0),
+    )
+
+
+async def create_from_url(
+    session: AsyncSession,
+    *,
+    user_id: UUID,
+    url: str,
+) -> Vacancy:
+    """Создание вакансии из URL hh.ru.
+
+    Raises:
+        ValueError: невалидный URL.
+        HHApiError: ошибка API hh.ru.
+    """
+    vacancy_id = extract_hh_vacancy_id(url)
+
+    client = HHClient()
+    try:
+        data = await client.get_vacancy(vacancy_id)
+    finally:
+        await client.close()
+
+    parsed = parse_hh_vacancy(data)
+    vacancy = Vacancy(user_id=user_id, **parsed)
+    session.add(vacancy)
+    await session.flush()
+
+    logger.info('Vacancy created from hh.ru: %s (hh_id=%s)', vacancy.id, vacancy.hh_id)
+    return vacancy
+
+
+async def create_manual(
+    session: AsyncSession,
+    *,
+    user_id: UUID,
+    data: VacancyManualRequest,
+) -> Vacancy:
+    """Ручное создание вакансии."""
+    vacancy = Vacancy(
+        user_id=user_id,
+        title=data.title,
+        company=data.company,
+        description=data.description,
+        requirements=data.requirements,
+        key_skills=data.key_skills,
+        salary_from=data.salary_from,
+        salary_to=data.salary_to,
+        experience=data.experience,
+        city=data.city,
+        source_url=data.source_url,
+    )
+    session.add(vacancy)
+    await session.flush()
+
+    logger.info('Vacancy created manually: %s', vacancy.id)
+    return vacancy
+
+
+async def get_vacancy(
+    session: AsyncSession,
+    *,
+    vacancy_id: UUID,
+    user_id: UUID,
+) -> Vacancy:
+    """Получение вакансии по ID.
+
+    Raises:
+        VacancyNotFound: вакансия не найдена.
+    """
+    stmt = select(Vacancy).where(Vacancy.id == vacancy_id, Vacancy.user_id == user_id)
+    result = await session.execute(stmt)
+    vacancy = result.scalar_one_or_none()
+    if not vacancy:
+        raise VacancyNotFound()
+    return vacancy

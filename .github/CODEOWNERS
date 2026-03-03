@@ -1,0 +1,22 @@
+# =============================================================================
+# CODEOWNERS — автоматическое назначение ревьюеров
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# =============================================================================
+
+# Глобальный владелец — все файлы
+*                       @sergejemelanov
+
+# Безопасность и CI/CD — обязательный ревью
+.github/                @sergejemelanov
+.github/workflows/      @sergejemelanov
+Dockerfile*             @sergejemelanov
+docker-compose*.yml     @sergejemelanov
+
+# Конфигурация и зависимости
+pyproject.toml          @sergejemelanov
+requirements*.txt       @sergejemelanov
+alembic/                @sergejemelanov
+
+# Документация
+*.md                    @sergejemelanov
+Docs/                   @sergejemelanov

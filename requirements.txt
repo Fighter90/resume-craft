@@ -1,0 +1,46 @@
+# =============================================================================
+# ResumeCraft — Production Dependencies
+# =============================================================================
+
+# --- Web Framework ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# --- Validation ---
+pydantic==2.10.5
+pydantic-settings==2.7.1
+email-validator==2.2.0
+
+# --- Database ---
+sqlalchemy[asyncio]==2.0.37
+asyncpg==0.30.0
+alembic==1.14.1
+pgvector==0.3.6
+
+# --- Task Queue ---
+celery[redis]==5.4.0
+redis==5.2.1
+
+# --- Auth ---
+PyJWT==2.10.1
+bcrypt==4.2.1
+
+# --- HTTP Client ---
+httpx==0.28.1
+tenacity==9.0.0
+
+# --- Document Parsing ---
+PyMuPDF==1.25.3
+python-docx==1.1.2
+
+# --- AI/ML ---
+openai==1.59.9
+gigachat==0.1.40
+sentence-transformers==3.3.1
+
+# --- Logging ---
+structlog==24.4.0
+
+# --- Demo UI ---
+streamlit==1.41.1
