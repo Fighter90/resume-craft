@@ -86,6 +86,7 @@ class TestGetRewriteStatus:
     ) -> None:
         task = RewriteHistory(
             user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
         )
         session.add(task)
@@ -103,6 +104,7 @@ class TestGetRewriteStatus:
         """Статус processing → progress=50, step='rewriting'."""
         task = RewriteHistory(
             user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro', status=RewriteStatus.PROCESSING,
         )
         session.add(task)
@@ -120,6 +122,7 @@ class TestGetRewriteStatus:
         """Статус failed → progress=0, step='failed'."""
         task = RewriteHistory(
             user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro', status=RewriteStatus.FAILED,
         )
         session.add(task)
@@ -137,6 +140,7 @@ class TestGetRewriteStatus:
         """Статус pending → progress=0, step='pending'."""
         task = RewriteHistory(
             user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro', status=RewriteStatus.PENDING,
         )
         session.add(task)
@@ -162,6 +166,7 @@ class TestGetRewriteResult:
         """Получение результата оптимизации."""
         task = RewriteHistory(
             user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
             rewritten_text='Optimized text',
             match_score_before=0.4,

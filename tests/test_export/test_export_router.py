@@ -30,6 +30,7 @@ class TestExportDocx:
             user_id=test_user.id,
             resume_id=uuid4(),
             vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro',
             status=RewriteStatus.COMPLETED,
             rewritten_text='Optimized resume text here',
@@ -50,6 +51,7 @@ class TestExportDocx:
             user_id=test_user.id,
             resume_id=uuid4(),
             vacancy_id=uuid4(),
+            original_text='Original resume text',
             model_name='gigachat-pro',
             status=RewriteStatus.PENDING,
         )

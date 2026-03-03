@@ -23,17 +23,16 @@ router = APIRouter(prefix='/auth', tags=['auth'])
 
 @router.post(
     '/register',
-    response_model=UserResponse,
+    response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
     summary='Регистрация нового пользователя',
 )
 async def register(
     data: RegisterRequest,
     session: AsyncSession = Depends(get_session),
-) -> UserResponse:
-    """Создание нового аккаунта."""
-    user = await auth_service.register(session, data=data)
-    return UserResponse.model_validate(user)
+) -> TokenResponse:
+    """Создание нового аккаунта → JWT-токены."""
+    return await auth_service.register(session, data=data)
 
 
 @router.post(

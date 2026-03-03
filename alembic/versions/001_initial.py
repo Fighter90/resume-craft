@@ -12,6 +12,13 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects.postgresql import JSONB
 
+try:
+    from pgvector.sqlalchemy import Vector  # noqa: F401
+
+    HAS_PGVECTOR = True
+except ImportError:
+    HAS_PGVECTOR = False
+
 # revision identifiers, used by Alembic.
 revision: str = '001_initial'
 down_revision: Union[str, None] = None
@@ -62,6 +69,14 @@ def upgrade() -> None:
     op.create_index('ix_resumes_user_id', 'resumes', ['user_id'])
     op.create_index('ix_resumes_status', 'resumes', ['status'])
 
+    # embedding VECTOR(1536) для resumes (pgvector)
+    if HAS_PGVECTOR:
+        op.add_column('resumes', sa.Column('embedding', Vector(1536), nullable=True))
+        op.execute(
+            'CREATE INDEX idx_resumes_embedding ON resumes '
+            'USING hnsw (embedding vector_cosine_ops)',
+        )
+
     # --- vacancies ---
     op.create_table(
         'vacancies',
@@ -70,7 +85,7 @@ def upgrade() -> None:
         sa.Column('hh_id', sa.String(20), nullable=True),
         sa.Column('title', sa.String(255), nullable=False),
         sa.Column('company', sa.String(255), nullable=True),
-        sa.Column('description', sa.Text(), nullable=True),
+        sa.Column('description', sa.Text(), nullable=False),
         sa.Column('requirements', JSONB(), nullable=True),
         sa.Column('key_skills', JSONB(), nullable=True),
         sa.Column('salary_from', sa.Integer(), nullable=True),
@@ -85,6 +100,14 @@ def upgrade() -> None:
     op.create_index('ix_vacancies_user_id', 'vacancies', ['user_id'])
     op.create_index('ix_vacancies_hh_id', 'vacancies', ['hh_id'])
 
+    # embedding VECTOR(1536) для vacancies (pgvector)
+    if HAS_PGVECTOR:
+        op.add_column('vacancies', sa.Column('embedding', Vector(1536), nullable=True))
+        op.execute(
+            'CREATE INDEX idx_vacancies_embedding ON vacancies '
+            'USING hnsw (embedding vector_cosine_ops)',
+        )
+
     # --- rewrite_history ---
     op.create_table(
         'rewrite_history',
@@ -92,10 +115,10 @@ def upgrade() -> None:
         sa.Column('user_id', sa.Uuid(), nullable=False),
         sa.Column('resume_id', sa.Uuid(), nullable=False),
         sa.Column('vacancy_id', sa.Uuid(), nullable=False),
-        sa.Column('original_text', sa.Text(), nullable=True),
+        sa.Column('original_text', sa.Text(), nullable=False),
         sa.Column('rewritten_text', sa.Text(), nullable=True),
         sa.Column('rewritten_data', JSONB(), nullable=True),
-        sa.Column('model_name', sa.String(50), nullable=True),
+        sa.Column('model_name', sa.String(50), nullable=False),
         sa.Column('status', sa.String(20), nullable=False, server_default='pending'),
         sa.Column('match_score_before', sa.Float(), nullable=True),
         sa.Column('match_score_after', sa.Float(), nullable=True),
@@ -114,6 +137,7 @@ def upgrade() -> None:
     op.create_index('ix_rewrite_history_resume_id', 'rewrite_history', ['resume_id'])
     op.create_index('ix_rewrite_history_vacancy_id', 'rewrite_history', ['vacancy_id'])
     op.create_index('ix_rewrite_history_status', 'rewrite_history', ['status'])
+    op.create_index('ix_rewrite_history_created_at', 'rewrite_history', [sa.text('created_at DESC')])
 
 
 def downgrade() -> None:

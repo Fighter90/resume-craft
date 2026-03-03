@@ -18,7 +18,7 @@ class RewriteRequest(BaseModel):
 
     resume_id: UUID = Field(description='ID резюме')
     vacancy_id: UUID = Field(description='ID целевой вакансии')
-    model_name: str = Field('gigachat-pro', description='Модель LLM для оптимизации')
+    model: str = Field('gigachat-pro', description='Модель LLM для оптимизации')
 
     model_config = ConfigDict(str_strip_whitespace=True)
 

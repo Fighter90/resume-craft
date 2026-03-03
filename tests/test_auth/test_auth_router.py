@@ -12,7 +12,7 @@ class TestRegister:
     """Тесты POST /auth/register."""
 
     async def test_register_success(self, client: AsyncClient) -> None:
-        """Успешная регистрация → 201."""
+        """Успешная регистрация → 201 + JWT-токены."""
         response = await client.post('/api/v1/auth/register', json={
             'email': 'new@example.com',
             'password': 'StrongPass1',
@@ -20,10 +20,9 @@ class TestRegister:
         })
         assert response.status_code == 201
         data = response.json()
-        assert data['email'] == 'new@example.com'
-        assert data['full_name'] == 'Иван Иванов'
-        assert data['plan'] == 'free'
-        assert data['optimizations_used'] == 0
+        assert 'access_token' in data
+        assert 'refresh_token' in data
+        assert data['token_type'] == 'bearer'
 
     async def test_register_weak_password(self, client: AsyncClient) -> None:
         """Слабый пароль (без цифр) → 422."""

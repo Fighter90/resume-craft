@@ -43,8 +43,8 @@ async def register(
     session: AsyncSession,
     *,
     data: RegisterRequest,
-) -> User:
-    """Регистрация нового пользователя.
+) -> TokenResponse:
+    """Регистрация нового пользователя → JWT-токены.
 
     Raises:
         UserAlreadyExists: если email уже занят.
@@ -60,7 +60,11 @@ async def register(
     )
     session.add(user)
     await session.flush()
-    return user
+
+    return TokenResponse(
+        access_token=create_access_token(user.id),
+        refresh_token=create_refresh_token(user.id),
+    )
 
 
 async def authenticate(

@@ -45,7 +45,7 @@ async def create_rewrite(
         user_id=current_user.id,
         resume_id=data.resume_id,
         vacancy_id=data.vacancy_id,
-        model_name=data.model_name,
+        model_name=data.model,
     )
 
     # Обновление счётчика оптимизаций

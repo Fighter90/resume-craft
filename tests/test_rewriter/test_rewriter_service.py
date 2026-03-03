@@ -56,26 +56,26 @@ class TestParseLlmResponse:
     """Тесты _parse_llm_response()."""
 
     def test_valid_json(self) -> None:
-        task = RewriteHistory()
+        task = RewriteHistory(original_text='', model_name='test')
         data = {'summary': 'Test', 'keywords_added': ['python', 'fastapi']}
         _parse_llm_response(json.dumps(data), task=task)
         assert task.rewritten_data == data
         assert task.keywords_added == ['python', 'fastapi']
 
     def test_json_in_markdown_block(self) -> None:
-        task = RewriteHistory()
+        task = RewriteHistory(original_text='', model_name='test')
         data = {'summary': 'Test', 'keywords_added': []}
         md = f'```json\n{json.dumps(data)}\n```'
         _parse_llm_response(md, task=task)
         assert task.rewritten_data == data
 
     def test_invalid_json(self) -> None:
-        task = RewriteHistory()
+        task = RewriteHistory(original_text='', model_name='test')
         _parse_llm_response('This is not JSON', task=task)
         assert task.rewritten_data is None
 
     def test_empty_keywords(self) -> None:
-        task = RewriteHistory()
+        task = RewriteHistory(original_text='', model_name='test')
         data = {'summary': 'Test'}
         _parse_llm_response(json.dumps(data), task=task)
         assert task.keywords_added == []
@@ -227,7 +227,7 @@ class TestGetTask:
     async def test_existing(self, session: AsyncSession, test_user: User) -> None:
         task = RewriteHistory(
             user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
-            model_name='gigachat-pro', status=RewriteStatus.PENDING,
+            original_text='Original text', model_name='gigachat-pro', status=RewriteStatus.PENDING,
         )
         session.add(task)
         await session.flush()
@@ -252,7 +252,7 @@ class TestListHistory:
         for i in range(3):
             t = RewriteHistory(
                 user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
-                model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
+                original_text=f'Original text {i}', model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
             )
             session.add(t)
         await session.flush()

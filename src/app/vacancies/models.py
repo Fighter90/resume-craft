@@ -28,7 +28,7 @@ class Vacancy(UUIDMixin, Base):
     hh_id: Mapped[str | None] = mapped_column(String(20), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     company: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
     requirements: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     key_skills: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
     salary_from: Mapped[int | None] = mapped_column(Integer, nullable=True)

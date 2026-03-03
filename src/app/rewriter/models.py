@@ -43,11 +43,11 @@ class RewriteHistory(UUIDMixin, Base):
         ForeignKey('vacancies.id', ondelete='CASCADE'), nullable=False, index=True,
     )
 
-    original_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    original_text: Mapped[str] = mapped_column(Text, nullable=False)
     rewritten_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     rewritten_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
-    model_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    model_name: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[RewriteStatus] = mapped_column(
         Enum(RewriteStatus, name='rewrite_status', native_enum=False),
         default=RewriteStatus.PENDING,

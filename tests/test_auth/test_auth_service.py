@@ -25,14 +25,20 @@ class TestRegisterService:
     """Тесты register()."""
 
     async def test_register_success(self, session: AsyncSession) -> None:
-        """Успешная регистрация."""
+        """Успешная регистрация → TokenResponse."""
         data = RegisterRequest(
             email='newuser@example.com',
             password='StrongPass1',
             full_name='Новый Пользователь',
         )
-        user = await register(session, data=data)
-        assert user.email == 'newuser@example.com'
+        result = await register(session, data=data)
+        assert result.access_token
+        assert result.refresh_token
+        assert result.token_type == 'bearer'
+
+        # Проверяем, что пользователь создан в БД
+        user = await get_user_by_email(session, email='newuser@example.com')
+        assert user is not None
         assert user.full_name == 'Новый Пользователь'
         assert user.plan == UserPlan.FREE
         assert user.optimizations_used == 0
