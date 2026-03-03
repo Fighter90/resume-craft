@@ -128,7 +128,13 @@ tests/                 # Зеркалирует src/app/
 └── test_ml/
 
 alembic/               # Миграции PostgreSQL
-streamlit_app/         # Streamlit Demo UI
+streamlit_app/         # Streamlit Demo UI (20/20 прототипов, модульная архитектура)
+├── app.py             # Роутер + навигация + session state
+├── styles.py          # Общие CSS-стили
+├── demo_data.py       # Демо-данные
+├── api_client.py      # HTTP-клиент для FastAPI
+└── pages/             # 11 модулей страниц (landing, auth, pricing, dashboard,
+                       #   resumes, wizard, editor, export, history, settings, error)
 ```
 
 ### Ключевые паттерны

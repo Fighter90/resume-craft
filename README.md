@@ -414,8 +414,26 @@ tests/                     # Зеркалирует src/app/
 └── test_core/             # 27 тестов
 
 alembic/                   # Миграции PostgreSQL
-streamlit_app/             # Streamlit Demo UI
-Prototype/                 # 20 HTML-прототипов
+
+streamlit_app/             # Streamlit Demo UI (20/20 прототипов)
+├── app.py                 # Роутер: навигация, session state, sidebar
+├── styles.py              # Общие CSS-стили и утилиты
+├── demo_data.py           # Демо-данные для работы без бэкенда
+├── api_client.py          # HTTP-клиент для FastAPI бэкенда
+└── pages/                 # Модули страниц
+    ├── landing.py         # Лендинг (01)
+    ├── auth.py            # Авторизация / регистрация / восстановление (02-04)
+    ├── pricing.py         # Тарифы (05)
+    ├── dashboard.py       # Дашборд (06)
+    ├── resumes.py         # Список резюме (07)
+    ├── wizard.py          # 5-шаговый мастер оптимизации (08-12)
+    ├── editor.py          # Редактор резюме (13)
+    ├── export.py          # Экспорт DOCX/PDF (14)
+    ├── history.py         # История оптимизаций (15)
+    ├── settings.py        # Настройки: профиль, AI, подписка, безопасность (16-19)
+    └── error.py           # Страница 404 (20)
+
+Prototype/                 # 20 HTML-прототипов (все реализованы в Streamlit)
 ```
 
 ### 7.2. Принципы организации кода

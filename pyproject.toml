@@ -87,6 +87,8 @@ module = [
     "pytesseract.*",
     "passlib.*",
     "kombu.*",
+    "PIL.*",
+    "openai.*",
 ]
 ignore_missing_imports = true
 
