@@ -119,6 +119,23 @@ services:
       start_period: 15s
     restart: unless-stopped
 
+  # --- Streamlit Demo UI ---
+  streamlit:
+    build:
+      context: .
+      target: production
+    container_name: resumecraft-streamlit
+    command: streamlit run streamlit_app/app.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
+    ports:
+      - "8501:8501"
+    env_file: .env
+    environment:
+      - API_BASE_URL=http://app:8000/api/v1
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
   # --- Flower (Celery мониторинг) ---
   flower:
     build:

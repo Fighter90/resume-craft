@@ -358,7 +358,65 @@ Export ←── Results ←── Processing ←── Vacancy
 
 ### 7.1. Дерево каталогов
 
-> *Исходный код будет добавлен на этапе разработки.*
+```
+src/app/
+├── __init__.py
+├── main.py                # FastAPI app factory, middleware, lifespan
+├── core/                  # Общие компоненты
+│   ├── config.py          # pydantic-settings, .env
+│   ├── security.py        # bcrypt, JWT, OAuth2PasswordBearer
+│   ├── database.py        # async engine, sessionmaker, Base
+│   ├── celery_app.py      # Celery конфигурация
+│   ├── storage.py         # Local FS / MinIO абстракция
+│   ├── dependencies.py    # FastAPI Depends()
+│   └── exceptions.py      # Кастомные HTTP-исключения
+├── auth/                  # Аутентификация
+│   ├── router.py          # POST /auth/register, /login, /refresh, /logout
+│   ├── schemas.py         # Pydantic-модели
+│   ├── models.py          # SQLAlchemy User
+│   └── service.py         # Бизнес-логика
+├── resumes/               # Управление резюме
+│   ├── router.py          # POST /resumes/upload, GET/DELETE /resumes/{id}
+│   ├── schemas.py         # ResumeUploadResponse, ParsedResume
+│   ├── models.py          # SQLAlchemy Resume
+│   └── service.py         # Парсинг, LLM-структуризация
+├── vacancies/             # Вакансии + hh.ru
+│   ├── router.py          # GET /vacancies/search, POST /vacancies/from-url
+│   ├── schemas.py         # VacancyResponse, HHSearchParams
+│   ├── models.py          # SQLAlchemy Vacancy
+│   ├── service.py         # CRUD + hh.ru клиент
+│   └── hh_client.py       # Async httpx-клиент для api.hh.ru
+├── rewriter/              # AI-оптимизация
+│   ├── router.py          # POST /rewrite, GET /rewrite/{task_id}/*
+│   ├── schemas.py         # RewriteRequest, RewriteResult
+│   ├── models.py          # SQLAlchemy RewriteHistory
+│   ├── service.py         # Оркестрация pipeline
+│   └── tasks.py           # Celery tasks
+├── export/                # Экспорт
+│   ├── router.py          # GET /export/{id}/docx
+│   └── service.py         # python-docx генерация
+└── ml/                    # ML-пакет
+    ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Groq, OpenAI
+    ├── llm_factory.py     # LLMClientFactory (Strategy Pattern)
+    ├── prompts.py         # Системные промпты
+    ├── embeddings.py      # sentence-transformers → VECTOR(1536)
+    ├── scoring.py         # Match Score (4 компонента)
+    └── parser.py          # PyMuPDF, python-docx, OCR fallback
+
+tests/                     # Зеркалирует src/app/
+├── conftest.py            # Fixtures: async client, test DB, factories
+├── test_auth/             # 18 тестов
+├── test_resumes/          # 28 тестов
+├── test_vacancies/        # 14 тестов
+├── test_rewriter/         # 31 тест
+├── test_export/           # 11 тестов
+├── test_ml/               # 50+ тестов
+└── test_core/             # 27 тестов
+
+alembic/                   # Миграции PostgreSQL
+streamlit_app/             # Streamlit Demo UI
+Prototype/                 # 20 HTML-прототипов
+```
 
 ### 7.2. Принципы организации кода
 
@@ -481,7 +539,37 @@ Export ←── Results ←── Processing ←── Vacancy
 
 ### 9.8. Примеры запросов и ответов
 
-> *Исходный код будет добавлен на этапе разработки.*
+**Регистрация:**
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "SecurePass1"}'
+# → 201 Created {"id": "uuid", "email": "user@example.com", "plan": "free"}
+```
+
+**Загрузка резюме:**
+```bash
+curl -X POST http://localhost:8000/api/v1/resumes/upload \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@resume.pdf"
+# → 201 Created {"id": "uuid", "file_format": "pdf", "status": "draft"}
+```
+
+**Запуск оптимизации:**
+```bash
+curl -X POST http://localhost:8000/api/v1/rewrite \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"resume_id": "uuid", "vacancy_id": "uuid", "model_name": "gigachat-pro"}'
+# → 202 Accepted {"task_id": "uuid"}
+```
+
+**Проверка статуса:**
+```bash
+curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
+  -H "Authorization: Bearer <token>"
+# → 200 OK {"step": "rewrite", "progress": 55, "status": "processing"}
+```
 
 ---
 
@@ -635,13 +723,83 @@ Fallback автоматический с уведомлением пользов
 | Docker | 24.0+ | 27.0+ |
 | Docker Compose | v2.20+ | v2.30+ |
 
-### 14.2. Установка
+### 14.2. Установка (локальная разработка)
 
-> *Исходный код будет добавлен на этапе разработки.*
+```bash
+# 1. Клонирование
+git clone https://github.com/your-org/resumecraft.git
+cd resumecraft
 
-### 14.3. Проверка
+# 2. Python виртуальное окружение
+python3.11 -m venv .venv
+source .venv/bin/activate      # Linux/macOS
+# .venv\Scripts\activate       # Windows
 
-> *Исходный код будет добавлен на этапе разработки.*
+# 3. Зависимости
+pip install -r requirements-dev.txt
+
+# 4. Переменные окружения
+cp .env.example .env
+# Отредактируйте .env — минимум SECRET_KEY и DATABASE_URL
+
+# 5. PostgreSQL + pgvector (если без Docker)
+createdb resumecraft
+psql resumecraft -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "vector";'
+
+# 6. Миграции БД
+alembic upgrade head
+
+# 7. Запуск FastAPI
+uvicorn app.main:app --app-dir src --reload --port 8000
+
+# 8. Запуск Celery worker (отдельный терминал)
+cd src && celery -A app.core.celery_app:celery_app worker --loglevel=info
+
+# 9. Streamlit Demo UI (отдельный терминал)
+streamlit run streamlit_app/app.py --server.port 8501
+```
+
+### 14.3. Быстрый старт с Docker
+
+```bash
+# 1. Скопировать .env
+cp .env.example .env
+# Отредактировать SECRET_KEY
+
+# 2. Запуск всех сервисов
+docker compose up -d
+
+# 3. Миграции
+docker compose exec app alembic upgrade head
+
+# 4. Проверка
+curl http://localhost:8000/health
+# → {"status": "healthy"}
+
+# Сервисы:
+#   API:      http://localhost:8000
+#   Flower:   http://localhost:5555
+#   RabbitMQ: http://localhost:15672 (guest/guest)
+```
+
+### 14.4. Проверка
+
+```bash
+# Тесты
+pytest --cov --cov-report=term-missing
+
+# Линтинг
+ruff check src/ tests/
+
+# Типы
+mypy src/
+
+# Безопасность
+bandit -r src/ -ll
+
+# Health check
+curl http://localhost:8000/health
+```
 
 ---
 
@@ -649,7 +807,23 @@ Fallback автоматический с уведомлением пользов
 
 Все настройки в `.env` (не коммитится), загрузка через `pydantic-settings`:
 
-> *Исходный код будет добавлен на этапе разработки.*
+| Переменная | Обязательна | По умолчанию | Описание |
+|-----------|:-----------:|-------------|----------|
+| `SECRET_KEY` | ✅ | — | Ключ для JWT (64+ символов) |
+| `DATABASE_URL` | ✅ | `postgresql+asyncpg://...` | PostgreSQL connection string |
+| `REDIS_URL` | ⚠️ | `redis://localhost:6379/0` | Redis для кэша |
+| `CELERY_BROKER_URL` | ⚠️ | `amqp://guest:guest@localhost:5672//` | RabbitMQ брокер |
+| `CELERY_RESULT_BACKEND` | ⚠️ | `redis://localhost:6379/1` | Celery result backend |
+| `GIGACHAT_CREDENTIALS` | ❌ | — | API-ключ GigaChat (Сбер) |
+| `GROQ_API_KEY` | ❌ | — | API-ключ Groq |
+| `OPENAI_API_KEY` | ❌ | — | API-ключ OpenAI |
+| `HH_USER_AGENT` | ❌ | `ResumeCraft/2.0 (...)` | User-Agent для hh.ru |
+| `UPLOAD_DIR` | ❌ | `./uploads` | Директория загрузок |
+| `CORS_ORIGINS` | ❌ | `["http://localhost:*"]` | CORS origins |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | ❌ | `30` | Время жизни access token |
+| `REFRESH_TOKEN_EXPIRE_DAYS` | ❌ | `30` | Время жизни refresh token |
+
+Пример: `.env.example` в корне проекта.
 
 ---
 
@@ -663,20 +837,92 @@ Fallback автоматический с уведомлением пользов
 
 ### 16.2. Запуск
 
-> *Исходный код будет добавлен на этапе разработки.*
+```bash
+# Запуск всех 6 сервисов
+docker compose up -d
+
+# Проверка статуса
+docker compose ps
+
+# Миграции БД
+docker compose exec app alembic upgrade head
+
+# Логи FastAPI
+docker compose logs -f app
+
+# Остановка
+docker compose down
+
+# Остановка + удаление данных
+docker compose down -v
+```
+
+**Порты:**
+
+| Сервис | URL |
+|--------|-----|
+| FastAPI | http://localhost:8000 |
+| Flower | http://localhost:5555 |
+| RabbitMQ Management | http://localhost:15672 |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
 
 ---
 
 ## 17. Тестирование
 
-| Уровень | Инструмент | Покрытие (цель) | Что тестируем |
-|---------|-----------|-----------------|---------------|
-| **Unit** | pytest + pytest-asyncio | ≥ 85% | Бизнес-логика, парсеры |
-| **Integration** | pytest + httpx | ≥ 70% | API-эндпоинты, БД |
-| **E2E** | Playwright | ≥ 50% | Критические user flows |
-| **Linting** | Ruff + mypy | 100% | Стиль + типы |
+### 17.1. Обзор
 
-> *Примеры тестов будут добавлены на этапе разработки.*
+| Метрика | Значение |
+|---------|----------|
+| **Всего тестов** | 272 |
+| **Покрытие** | 97.95% |
+| **Фреймворк** | pytest + pytest-asyncio |
+| **БД в тестах** | SQLite (aiosqlite, in-memory) |
+
+### 17.2. Запуск тестов
+
+```bash
+# Все тесты
+pytest
+
+# С покрытием
+pytest --cov --cov-report=term-missing
+
+# Конкретный модуль
+pytest tests/test_auth/ -v
+
+# Только быстрые
+pytest -m "not slow"
+```
+
+### 17.3. Структура тестов
+
+| Модуль | Тестов | Что покрывается |
+|--------|--------|----------------|
+| `test_auth/` | 18 | Регистрация, логин, refresh, logout, модели, схемы, сервис |
+| `test_resumes/` | 28 | Upload, CRUD, парсинг PDF/DOCX, валидация |
+| `test_vacancies/` | 14 | hh.ru клиент, from-url, manual, CRUD |
+| `test_rewriter/` | 31 | Celery tasks, pipeline, статусы, история |
+| `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
+| `test_ml/` | 50+ | LLM-клиенты, фабрика, парсер, скоринг, эмбеддинги |
+| `test_core/` | 27 | Config, security, database, storage, exceptions |
+
+### 17.4. Инструменты проверки качества
+
+```bash
+# Линтинг (0 warnings)
+ruff check src/ tests/
+
+# Типы (strict)
+mypy src/
+
+# Безопасность (0 HIGH/CRITICAL)
+bandit -r src/ -ll
+
+# Аудит зависимостей
+pip-audit
+```
 
 ---
 
@@ -753,5 +999,5 @@ Fallback автоматический с уведомлением пользов
 
 **ResumeCraft** — AI-оптимизация резюме для российского рынка труда
 
-[О проекте](#1-о-проекте) · [Быстрый старт](#14-установка-и-запуск) · [Лицензия](#21-лицензия)
+[О проекте](#1-о-проекте) · [Быстрый старт](#14-установка-и-запуск) · [Тестирование](#17-тестирование) · [Docker](#16-docker) · [Лицензия](#20-лицензия)
 
