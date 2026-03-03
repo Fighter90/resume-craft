@@ -172,12 +172,13 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 
 ### 4.4. Качество кода
 
-| Метрика | Требование |
-|---------|-----------|
-| Test coverage | ≥ 70% |
-| Ruff warnings | 0 |
-| mypy errors | 0 |
-| Type hints | Все public-функции |
+| Метрика | Требование | Факт |
+|---------|-----------|------|
+| Test coverage | ≥ 70% | **99.52%** |
+| Ruff warnings | 0 | **0** |
+| mypy errors | 0 | **0** |
+| Type hints | Все public-функции | **100%** |
+| Тестов | — | **342** |
 
 ---
 
@@ -827,7 +828,18 @@ def validate_upload(file: UploadFile) -> None:
 
 ## 14. Тестирование
 
-### 14.1. Стратегия
+### 14.1. Текущие метрики
+
+| Метрика | Значение |
+|---------|----------|
+| **Всего тестов** | 342 |
+| **Покрытие кода** | 99.52% (1466 statements, 7 uncovered) |
+| **Фреймворк** | pytest + pytest-asyncio |
+| **БД в тестах** | SQLite (aiosqlite, in-memory) |
+| **Ruff warnings** | 0 |
+| **mypy errors** | 0 (strict mode) |
+
+### 14.2. Стратегия
 
 ```
 ┌─────────────────────────────────────┐
@@ -839,7 +851,22 @@ def validate_upload(file: UploadFile) -> None:
 └─────────────────────────────────────┘
 ```
 
-### 14.2. Ключевые тесты
+### 14.3. Распределение тестов по модулям
+
+| Модуль | Тестов | Покрытие |
+|--------|--------|----------|
+| `test_auth/` | 55 | auth/models, schemas, router, service — 100% |
+| `test_resumes/` | 39 | upload, CRUD, парсинг, эмбеддинги — 100% |
+| `test_vacancies/` | 38 | hh.ru клиент, CRUD, retry, таймауты — 96–100% |
+| `test_rewriter/` | 38 | Celery tasks, pipeline, статусы — 98–100% |
+| `test_export/` | 11 | DOCX-генерация — 100% |
+| `test_ml/` | 62 | LLM-клиенты, фабрика, скоринг — 99–100% |
+| `test_core/` | 71 | config, security, database, storage, exceptions — 95–100% |
+| `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
+| `test_coverage_gaps` | 20 | edge-cases: embedding fallback, scoring, export |
+| `test_health` | 1 | GET /health — 100% |
+
+### 14.4. Ключевые тесты
 
 ```python
 class TestMatchScore:
@@ -865,7 +892,7 @@ class TestAuthAPI:
         assert response.status_code == 409
 ```
 
-### 14.3. CI Pipeline
+### 14.5. CI Pipeline
 
 ```yaml
 stages: [lint, test, build]
@@ -980,14 +1007,15 @@ Docker Desktop → docker compose up -d
 
 ### 16.2. Качественные
 
-| Критерий | Порог |
-|---------|-------|
-| Test coverage | ≥ 70% |
-| Ruff warnings | 0 |
-| mypy errors | 0 |
-| API response (CRUD) | < 200 мс |
-| Оптимизация (Llama 3) | < 15 сек |
-| Match Score improvement | +20%+ для 80% тестов |
+| Критерий | Порог | Факт |
+|---------|-------|------|
+| Test coverage | ≥ 70% | **99.52%** ✅ |
+| Ruff warnings | 0 | **0** ✅ |
+| mypy errors | 0 | **0** ✅ |
+| Тестов всего | — | **342** |
+| API response (CRUD) | < 200 мс | — |
+| Оптимизация (Llama 3) | < 15 сек | — |
+| Match Score improvement | +20%+ для 80% тестов | — |
 
 ---
 
@@ -1052,9 +1080,9 @@ Docker Desktop → docker compose up -d
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
 | AI-оптимизация | GigaChat Pro + Llama 3, Match Score, ATS |
 | Экспорт | DOCX |
-| UI | Streamlit Demo (5 экранов) |
+| UI | Streamlit Demo (20 прототипов, модульная архитектура) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Тестирование | Unit + Integration, 70%+ coverage |
+| Тестирование | Unit + Integration, 342 теста, 99.52% coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 

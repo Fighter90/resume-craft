@@ -405,13 +405,17 @@ src/app/
 
 tests/                     # Зеркалирует src/app/
 ├── conftest.py            # Fixtures: async client, test DB, factories
-├── test_auth/             # 18 тестов
-├── test_resumes/          # 28 тестов
-├── test_vacancies/        # 14 тестов
-├── test_rewriter/         # 31 тест
+├── test_auth/             # 55 тестов
+├── test_resumes/          # 39 тестов
+├── test_vacancies/        # 38 тестов
+├── test_rewriter/         # 38 тестов
 ├── test_export/           # 11 тестов
-├── test_ml/               # 50+ тестов
-└── test_core/             # 27 тестов
+├── test_ml/               # 62 теста
+├── test_core/             # 71 тест
+├── test_main.py           # 3 теста (middleware, health)
+├── test_main_extra.py     # 4 теста (error handlers, lifespan)
+├── test_health.py         # 1 тест
+└── test_coverage_gaps.py  # 20 тестов (edge-cases)
 
 alembic/                   # Миграции PostgreSQL
 
@@ -893,8 +897,8 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Всего тестов** | 272 |
-| **Покрытие** | 97.95% |
+| **Всего тестов** | 342 |
+| **Покрытие** | 99.52% |
 | **Фреймворк** | pytest + pytest-asyncio |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -918,13 +922,15 @@ pytest -m "not slow"
 
 | Модуль | Тестов | Что покрывается |
 |--------|--------|----------------|
-| `test_auth/` | 18 | Регистрация, логин, refresh, logout, модели, схемы, сервис |
-| `test_resumes/` | 28 | Upload, CRUD, парсинг PDF/DOCX, валидация |
-| `test_vacancies/` | 14 | hh.ru клиент, from-url, manual, CRUD |
-| `test_rewriter/` | 31 | Celery tasks, pipeline, статусы, история |
+| `test_auth/` | 55 | Регистрация, логин, refresh, logout, модели, схемы, сервис, edge-cases |
+| `test_resumes/` | 39 | Upload, CRUD, парсинг PDF/DOCX, валидация, эмбеддинги |
+| `test_vacancies/` | 38 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты |
+| `test_rewriter/` | 38 | Celery tasks, pipeline, статусы, история |
 | `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
-| `test_ml/` | 50+ | LLM-клиенты, фабрика, парсер, скоринг, эмбеддинги |
-| `test_core/` | 27 | Config, security, database, storage, exceptions |
+| `test_ml/` | 62 | LLM-клиенты, фабрика, парсер, скоринг, эмбеддинги, санитизация |
+| `test_core/` | 71 | Config, security, database, storage, exceptions, engine kwargs |
+| `test_main*` | 7 | Middleware, error handlers, lifespan, health |
+| `test_coverage_gaps` | 20 | Edge-cases: scoring, embedding fallback, export |
 
 ### 17.4. Инструменты проверки качества
 
