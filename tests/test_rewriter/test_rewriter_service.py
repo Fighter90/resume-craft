@@ -134,6 +134,29 @@ class TestCreateRewriteTask:
                 resume_id=resume.id, vacancy_id=uuid4(),
             )
 
+    async def test_raw_text_none_uses_empty_string(
+        self, session: AsyncSession, test_user: User,
+    ) -> None:
+        """raw_text=None → original_text='' (не должен падать на NOT NULL)."""
+        resume = Resume(
+            user_id=test_user.id, title='CV', file_path='p.pdf',
+            file_format='pdf', file_size_bytes=100, raw_text=None,
+        )
+        vacancy = Vacancy(
+            user_id=test_user.id, title='Dev', description='Python developer',
+        )
+        session.add_all([resume, vacancy])
+        await session.flush()
+
+        task = await create_rewrite_task(
+            session,
+            user_id=test_user.id,
+            resume_id=resume.id,
+            vacancy_id=vacancy.id,
+        )
+        assert task.original_text == ''
+        assert task.status == RewriteStatus.PENDING
+
 
 class TestExecuteRewrite:
     """Тесты execute_rewrite()."""

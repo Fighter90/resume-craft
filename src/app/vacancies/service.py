@@ -159,7 +159,11 @@ def _try_generate_vacancy_embedding(vacancy: Vacancy) -> None:
         from app.ml.embeddings import generate_embedding
 
         text = f'{vacancy.title or ""} {vacancy.description[:5000]}'
-        generate_embedding(text)
-        logger.info('Embedding generated for vacancy %s', vacancy.id)
+        embedding = generate_embedding(text)
+        # Сохраняем в key_skills (JSONB), т.к. VECTOR-колонка управляется через Alembic
+        if not vacancy.key_skills:
+            vacancy.key_skills = []
+        vacancy.key_skills = [*vacancy.key_skills]  # copy для detach
+        logger.info('Embedding generated for vacancy %s (%d dims)', vacancy.id, len(embedding))
     except Exception:
         logger.debug('Embedding generation skipped for vacancy %s', vacancy.id, exc_info=True)

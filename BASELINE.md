@@ -360,9 +360,10 @@ Streamlit ← 201 {id, title, status}
 ```
 Streamlit → POST /rewrite {resume_id, vacancy_id, model}
 FastAPI → check limits → create Celery task → 202 {task_id}
-Celery → 8 steps (extract → gap → strategy → rewrite → validate → score → diff → complete)
+Celery → упрощённый pipeline: rewrite (LLM с retry до 3) → score → complete
+  → Phase 2: полный 8-шаговый pipeline (extract → gap → strategy → rewrite → validate → score → diff → complete)
   → Save to rewrite_history
-Streamlit → GET /rewrite/{task_id}/status (polling, 2 сек)
+Streamlit → GET /rewrite/{task_id}/status (polling, прогресс: 0/50/100)
 Streamlit → GET /rewrite/{task_id}/result
 ```
 
@@ -439,7 +440,7 @@ mypy = "1.11.*"
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "vector";
 
--- Типы
+-- Типы (в коде используется String + native_enum=False для portability)
 CREATE TYPE user_plan AS ENUM ('free', 'standard', 'pro');
 CREATE TYPE resume_status AS ENUM ('draft', 'processing', 'optimized', 'error');
 CREATE TYPE rewrite_status AS ENUM ('pending', 'processing', 'completed', 'failed');
@@ -528,6 +529,12 @@ CREATE INDEX idx_vacancies_embedding ON vacancies
     USING hnsw (embedding vector_cosine_ops);
 ```
 
+> **Примечание (Phase 1):**
+> - Колонка `embedding VECTOR(1536)` добавляется через Alembic-миграцию, но **не включена в ORM-модели** SQLAlchemy (требуется pgvector + расширение).
+> - Эмбеддинги генерируются моделью `all-MiniLM-L6-v2` (384 dims), паддинг до 1536 нулями — для совместимости с будущей миграцией на OpenAI `text-embedding-3-small` (1536 dims) в Phase 2.
+> - В Phase 1 эмбеддинги сохраняются как метаданные в `parsed_data` (JSONB); миграция на VECTOR-колонку — Phase 2.
+> - ATS-рейтинг: шкала `A+, A, B+, B, C, D` (без `F` — минимум `D`).
+
 ### 8.2. Ключевые Pydantic-модели
 
 ```python
@@ -581,11 +588,16 @@ Auth:
   POST   /auth/login             → 200 OK
   POST   /auth/refresh           → 200 OK
   POST   /auth/logout            → 204 No Content
+  GET    /auth/me                → 200 OK (профиль текущего пользователя)
+  PUT    /auth/me                → 200 OK (обновление профиля)
+  PUT    /auth/me/password       → 200 OK (смена пароля)
+  DELETE /auth/me                → 204 No Content (удаление аккаунта, ФЗ-152)
 
 Resumes:
   POST   /resumes/upload         → 201 Created
   GET    /resumes                → 200 OK (list)
   GET    /resumes/{id}           → 200 OK
+  PUT    /resumes/{id}           → 200 OK (обновление метаданных)
   DELETE /resumes/{id}           → 204 No Content
 
 Vacancies:
@@ -593,11 +605,13 @@ Vacancies:
   POST   /vacancies/from-url     → 201 Created
   POST   /vacancies/manual       → 201 Created
   GET    /vacancies/{id}         → 200 OK
+  DELETE /vacancies/{id}         → 204 No Content
 
 Rewrite:
   POST   /rewrite                → 202 Accepted (task_id)
   GET    /rewrite/{task_id}/status → 200 OK
   GET    /rewrite/{task_id}/result → 200 OK
+  GET    /rewrite/history        → 200 OK (список оптимизаций пользователя)
 
 Export:
   GET    /export/{id}/docx       → 200 OK (binary)
@@ -673,18 +687,21 @@ REWRITE_SYSTEM_PROMPT = """Вы — эксперт по оптимизации �
 
 ```python
 def calculate_match_score(
-    resume_embedding, vacancy_embedding,
-    resume_skills, vacancy_skills,
-    resume_text, vacancy_text,
-) -> float:
+    resume_text: str,
+    vacancy_text: str,
+) -> MatchScoreResult:
     """Match Score (0–100). Компоненты совпадают с UI (12-results.html):
-    - Ключевые слова — 40%
-    - Опыт и релевантность — 25%
-    - Структура документа — 20%
-    - Читаемость — 15%
+    - Ключевые слова — 40%  (TF-IDF пересечение токенов)
+    - Опыт и релевантность — 25%  (token-based cosine similarity)
+    - Структура документа — 20%  (наличие секций, длина, формат)
+    - Читаемость — 15%  (метрики, формулировки, конкретика)
+
+    Примечание: experience_score реализован как token-based cosine
+    similarity (Counter-based), а не через pgvector embeddings.
+    Миграция на embedding cosine запланирована для Phase 2.
     """
     keyword_score = len(resume_tokens & vacancy_tokens) / max(len(vacancy_tokens), 1)
-    experience_score = skills_overlap * 0.6 + cosine_similarity(...) * 0.4
+    experience_score = _token_cosine_similarity(resume_text, vacancy_text)
     structure_score = evaluate_structure(resume_text)
     readability_score = evaluate_readability(resume_text)
 
@@ -787,14 +804,24 @@ class HHClient:
 ### 13.1. Аутентификация
 
 ```python
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
 
-def create_access_token(user_id: str, secret: str, expires_minutes: int = 30) -> str:
-    payload = {"sub": user_id, "exp": datetime.utcnow() + timedelta(minutes=expires_minutes), "type": "access"}
-    return jwt.encode(payload, secret, algorithm="HS256")
+_BCRYPT_ROUNDS = 12
 
-def create_refresh_token(user_id: str, secret: str, expires_days: int = 30) -> str:
-    payload = {"sub": user_id, "exp": datetime.utcnow() + timedelta(days=expires_days), "type": "refresh"}
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt(rounds=_BCRYPT_ROUNDS)
+    return bcrypt.hashpw(password.encode(), salt).decode()
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
+
+def create_access_token(user_id: UUID, *, secret: str, expires_minutes: int = 30) -> str:
+    payload = {
+        "sub": str(user_id),
+        "exp": datetime.now(tz=UTC) + timedelta(minutes=expires_minutes),
+        "type": "access",
+        "jti": str(uuid4()),  # уникальный ID токена для инвалидации
+    }
     return jwt.encode(payload, secret, algorithm="HS256")
 ```
 
@@ -819,10 +846,11 @@ def validate_upload(file: UploadFile) -> None:
 
 ### 13.3. Защита API
 
-- **CORS:** ограничение `allowed_origins`
-- **Rate Limiting:** Redis (10 req/сек на пользователя)
+- **CORS:** ограничение `allowed_origins`, `allow_methods` (GET/POST/PUT/DELETE/OPTIONS/PATCH), `allow_headers` (Authorization/Content-Type/Accept/X-Request-ID)
+- **Rate Limiting:** запланирован для Phase 2 (Redis, 10 req/сек на пользователя, 5 попыток/мин на login)
 - **Input Validation:** Pydantic-схемы на всех эндпоинтах
 - **Secrets:** .env + .gitignore
+- **AI Security:** санитизация пользовательского ввода перед отправкой в LLM (`sanitize_for_llm`)
 
 ---
 
@@ -832,8 +860,8 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Всего тестов** | 352 |
-| **Покрытие кода** | 100% (1466 statements, 0 uncovered) |
+| **Всего тестов** | 353 |
+| **Покрытие кода** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворк** | pytest + pytest-asyncio |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 | **Ruff warnings** | 0 |
@@ -858,7 +886,7 @@ def validate_upload(file: UploadFile) -> None:
 | `test_auth/` | 55 | auth/models, schemas, router, service — 100% |
 | `test_resumes/` | 39 | upload, CRUD, парсинг, эмбеддинги — 100% |
 | `test_vacancies/` | 42 | hh.ru клиент, CRUD, retry, таймауты, HTTP-ошибки — 100% |
-| `test_rewriter/` | 39 | Celery tasks, pipeline, статусы, LLM retry — 100% |
+| `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
 | `test_ml/` | 62 | LLM-клиенты, фабрика, скоринг — 100% |
 | `test_core/` | 74 | config, security, database, storage, exceptions, deps — 100% |
@@ -964,6 +992,13 @@ services:
     depends_on: [redis, rabbitmq]
     command: celery -A src.app.core.celery_app flower --port=5555
     ports: ["5555:5555"]
+
+  streamlit:
+    build: .
+    env_file: .env
+    depends_on: [app]
+    command: streamlit run streamlit_app/app.py --server.port=8501
+    ports: ["8501:8501"]
 
 volumes:
   pgdata:

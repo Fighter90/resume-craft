@@ -56,11 +56,16 @@ async def create_rewrite_task(
     if not vacancy:
         raise VacancyNotFound()
 
+    # Проверка наличия текста резюме (защита от NOT NULL constraint)
+    original_text = resume.raw_text or ''
+    if not original_text.strip():
+        logger.warning('Resume %s has no raw_text, using empty string', resume_id)
+
     task = RewriteHistory(
         user_id=user_id,
         resume_id=resume_id,
         vacancy_id=vacancy_id,
-        original_text=resume.raw_text,
+        original_text=original_text,
         model_name=model_name,
         status=RewriteStatus.PENDING,
     )

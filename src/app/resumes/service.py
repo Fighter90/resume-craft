@@ -235,6 +235,7 @@ def _try_generate_embedding(resume: Resume) -> None:
         if not resume.parsed_data:
             resume.parsed_data = {}
         resume.parsed_data['_embedding_generated'] = True
+        resume.parsed_data['_embedding_dims'] = len(embedding)
         logger.info('Embedding generated for resume %s (%d dims)', resume.id, len(embedding))
     except Exception:
         logger.debug('Embedding generation skipped for resume %s', resume.id, exc_info=True)
