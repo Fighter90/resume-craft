@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { LayoutGrid, FileText, Clock, Settings, File, Menu, X, Home, Plus, LogOut, User, ChevronUp } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
@@ -61,12 +61,12 @@ export default function AppLayout() {
 
       {/* Sidebar */}
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}`} id="sidebar">
-        <div className="sidebar-logo">
+        <Link to="/app/dashboard" className="sidebar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="sidebar-logo-icon">
             <File size={16} />
           </div>
           <span>ResumeCraft</span>
-        </div>
+        </Link>
 
         <nav className="sidebar-nav">
           {NAV_ITEMS.map(item => (
@@ -158,7 +158,7 @@ export default function AppLayout() {
           <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <span style={{ fontWeight: 700, fontSize: '1rem' }}>ResumeCraft</span>
+          <Link to="/app/dashboard" style={{ fontWeight: 700, fontSize: '1rem', textDecoration: 'none', color: 'inherit' }}>ResumeCraft</Link>
           <div style={{ width: 40 }} />
         </div>
 
