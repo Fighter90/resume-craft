@@ -85,6 +85,7 @@ export default function App() {
         <Route path="models" element={<ModelsPage />} />
         <Route path="processing" element={<ProcessingPage />} />
         <Route path="results" element={<ResultsPage />} />
+        <Route path="results/:id" element={<ResultsPage />} />
         <Route path="editor" element={<EditorPage />} />
         <Route path="export" element={<ExportPage />} />
         <Route path="history" element={<HistoryPage />} />

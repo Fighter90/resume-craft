@@ -88,9 +88,9 @@ export default function ResumesPage() {
                   <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{r.date}</td>
                   <td>
                     <div className="td-actions">
-                      <Link to="/app/results" className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
-                      <button className="btn btn-ghost btn-icon" title="Скачать"><Download size={16} /></button>
-                      <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }}><Trash2 size={16} /></button>
+                      <Link to={`/app/results/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
+                      <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => alert('Загрузка началась...')}><Download size={16} /></button>
+                      <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => alert(`Резюме "${r.title}" удалено`)}><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>

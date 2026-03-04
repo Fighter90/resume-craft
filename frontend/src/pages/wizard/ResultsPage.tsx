@@ -1,9 +1,11 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowRight, Download, TrendingUp, Target, Award, Tag, BookOpen, Cpu, Edit } from 'lucide-react'
-import { DEMO_SCORES, DEMO_KEYWORDS, DEMO_ORIGINAL_TEXT, DEMO_OPTIMIZED_TEXT } from '../../data/demo'
+import { DEMO_SCORES, DEMO_KEYWORDS, DEMO_ORIGINAL_TEXT, DEMO_OPTIMIZED_TEXT, DEMO_RESUMES } from '../../data/demo'
 
 export default function ResultsPage() {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+  const resume = id ? DEMO_RESUMES.find(r => r.id === id) : null
   const score = DEMO_SCORES.matchScore
   const radius = 54
   const circumference = 2 * Math.PI * radius
@@ -15,7 +17,7 @@ export default function ResultsPage() {
       <div className="page-header">
         <div>
           <h1>Результаты оптимизации</h1>
-          <p>Senior Product Manager @ Яндекс</p>
+          <p>{resume ? `${resume.title} — ${resume.vacancy || 'Черновик'}` : 'Senior Product Manager @ Яндекс'}</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/app/editor')} className="btn btn-secondary">

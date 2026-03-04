@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Camera, Save, Upload, Trash2, CheckCircle } from 'lucide-react'
 
 export default function SettingsProfilePage() {
@@ -11,24 +11,60 @@ export default function SettingsProfilePage() {
     position: 'Product Manager',
     bio: 'Product Manager с 6+ лет опыта в IT-продуктах. Специализация — Growth, монетизация SaaS, интеграция AI.',
   })
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [saveMsg, setSaveMsg] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const onChange = (key: string, value: string) => setForm({ ...form, [key]: value })
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file)
+      setAvatarUrl(url)
+    }
+  }
+
+  const handleRemovePhoto = () => {
+    setAvatarUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const handleSave = () => {
+    setSaveMsg('Изменения сохранены')
+    setTimeout(() => setSaveMsg(null), 2000)
+  }
+
   return (
     <div className="card" style={{ padding: '1.5rem', maxWidth: 640 }}>
+      {/* Hidden file input for photo */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handlePhotoUpload}
+        style={{ display: 'none' }}
+        data-testid="photo-upload-input"
+      />
+
       {/* Avatar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
         <div style={{
-          width: 72, height: 72, borderRadius: '50%', background: 'var(--primary-gradient)',
+          width: 72, height: 72, borderRadius: '50%',
+          background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : 'var(--primary-gradient)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontSize: '1.5rem', fontWeight: 700, position: 'relative',
+          overflow: 'hidden',
         }}>
-          АП
-          <button style={{
-            position: 'absolute', bottom: -2, right: -2, width: 26, height: 26, borderRadius: '50%',
-            background: 'var(--card-bg)', border: '2px solid var(--border)', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
-          }}>
+          {!avatarUrl && 'АП'}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              position: 'absolute', bottom: -2, right: -2, width: 26, height: 26, borderRadius: '50%',
+              background: 'var(--card-bg)', border: '2px solid var(--border)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
+            }}
+          >
             <Camera size={12} />
           </button>
         </div>
@@ -39,10 +75,12 @@ export default function SettingsProfilePage() {
             <CheckCircle size={14} style={{ color: 'var(--success)' }} title="Подтверждён" />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}>
+            <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+              onClick={() => fileInputRef.current?.click()}>
               <Upload size={12} /> Загрузить фото
             </button>
-            <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', color: 'var(--danger)' }}>
+            <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', color: 'var(--danger)' }}
+              onClick={handleRemovePhoto} disabled={!avatarUrl}>
               <Trash2 size={12} /> Удалить
             </button>
           </div>
@@ -92,9 +130,15 @@ export default function SettingsProfilePage() {
         </div>
       </div>
 
+      {saveMsg && (
+        <div style={{ padding: '0.75rem 1rem', borderRadius: 8, marginTop: '1rem', fontSize: '0.9rem',
+          background: 'var(--success-light, #D1FAE5)', color: 'var(--success, #059669)' }}>
+          {saveMsg}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
         <button className="btn btn-secondary">Отмена</button>
-        <button className="btn btn-primary">
+        <button className="btn btn-primary" onClick={handleSave}>
           <Save size={16} /> Сохранить изменения
         </button>
       </div>

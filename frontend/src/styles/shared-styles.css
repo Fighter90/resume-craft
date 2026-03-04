@@ -199,16 +199,26 @@ textarea.input-field { resize: vertical; min-height: 100px; }
 .toggle-info p { font-size: 0.85rem; color: var(--text-secondary); }
 .toggle-switch {
     position: relative;
+    display: inline-block;
     width: 44px;
     height: 24px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.toggle-slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
     background: #D1D5DB;
     border-radius: 12px;
-    cursor: pointer;
     transition: background 0.2s;
-    flex-shrink: 0;
 }
-.toggle-switch.on { background: var(--primary); }
-.toggle-switch::after {
+.toggle-slider::after {
     content: '';
     position: absolute;
     width: 20px; height: 20px;
@@ -218,6 +228,14 @@ textarea.input-field { resize: vertical; min-height: 100px; }
     transition: transform 0.2s;
     box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
+.toggle-switch input:checked + .toggle-slider {
+    background: var(--primary);
+}
+.toggle-switch input:checked + .toggle-slider::after {
+    transform: translateX(20px);
+}
+/* Legacy class-based toggle support */
+.toggle-switch.on { background: var(--primary); cursor: pointer; border-radius: 12px; }
 .toggle-switch.on::after { transform: translateX(20px); }
 
 /* --- Icons (SVG defaults) --- */

@@ -1194,16 +1194,17 @@ Docker Desktop → docker compose up -d
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
 | AI-оптимизация | GigaChat Pro + Llama 3 + OpenRouter, Match Score, ATS |
 | Экспорт | DOCX |
-| UI | React SPA (23 маршрута, модульная архитектура, 148 тестов) |
+| UI | React SPA (23 маршрута, модульная архитектура, 198 тестов) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Тестирование | Unit + Integration + Frontend, 513 тестов, 100% backend coverage |
+| Оплата | Робокасса (тестовый режим, URL-генерация + подпись) |
+| Тестирование | Unit + Integration + Frontend, 563 теста, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 
 | Компонент | Фаза |
 |-----------|------|
 | OAuth hh.ru | Phase 2 |
-| ЮKassa | Phase 2 |
+| ЮKassa | Заменено на Робокассу |
 | 2FA | Phase 2 |
 | GPT-4o | Phase 2 |
 | PDF export + шаблоны | Phase 2 |

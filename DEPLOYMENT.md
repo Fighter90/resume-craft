@@ -82,6 +82,11 @@ CELERY_RESULT_BACKEND=redis://localhost:6379/1
 UPLOAD_DIR=./uploads
 ENVIRONMENT=development
 DEBUG=true
+
+# Robokassa (оплата)
+VITE_ROBOKASSA_MERCHANT_LOGIN=demo_merchant
+VITE_ROBOKASSA_PASSWORD1=test_password1
+VITE_ROBOKASSA_TEST_MODE=true
 ```
 
 ### 2.3. Настройка PostgreSQL
@@ -391,6 +396,11 @@ DEBUG=false
 LOG_LEVEL=WARNING
 CORS_ORIGINS=["https://resumecraft.ru"]
 UPLOAD_DIR=/data/uploads
+
+# Robokassa (оплата)
+VITE_ROBOKASSA_MERCHANT_LOGIN=<ваш-логин-от-robokassa.ru>
+VITE_ROBOKASSA_PASSWORD1=<ваш-пароль1-от-robokassa.ru>
+VITE_ROBOKASSA_TEST_MODE=false
 ```
 
 ### 4.5. Запуск

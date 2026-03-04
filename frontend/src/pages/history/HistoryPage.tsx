@@ -1,12 +1,12 @@
-import { Clock, FileText, Download, Upload, UserCircle } from 'lucide-react'
+import { Clock, FileText, Download, Upload, UserCircle, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { DEMO_HISTORY } from '../../data/demo'
 
-const TYPE_MAP: Record<string, { icon: typeof FileText; color: string }> = {
-  optimization: { icon: FileText, color: 'var(--primary)' },
-  upload: { icon: Upload, color: 'var(--success)' },
-  export: { icon: Download, color: 'var(--info)' },
-  account: { icon: UserCircle, color: 'var(--warning)' },
+const TYPE_MAP: Record<string, { icon: typeof FileText; color: string; link: string }> = {
+  optimization: { icon: FileText, color: 'var(--primary)', link: '/app/results/1' },
+  upload: { icon: Upload, color: 'var(--success)', link: '/app/resumes' },
+  export: { icon: Download, color: 'var(--info)', link: '/app/export' },
+  account: { icon: UserCircle, color: 'var(--warning)', link: '/app/settings/profile' },
 }
 
 export default function HistoryPage() {
@@ -34,12 +34,9 @@ export default function HistoryPage() {
               {group.date}
             </div>
             {group.items.map((item, i) => {
-              const { icon: Icon, color } = TYPE_MAP[item.type] || TYPE_MAP.account
-              const isClickable = item.type === 'optimization'
-              const Wrapper = isClickable ? Link : 'div'
-              const wrapperProps = isClickable ? { to: '/app/results' } : {}
+              const { icon: Icon, color, link } = TYPE_MAP[item.type] || TYPE_MAP.account
               return (
-                <Wrapper key={i} {...wrapperProps as any} className="session-item" style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start', padding: '0.85rem 1rem', marginBottom: '0.5rem', borderRadius: 'var(--radius-sm)', background: 'var(--card-bg)', border: '1px solid var(--border)', textDecoration: 'none', color: 'inherit', cursor: isClickable ? 'pointer' : 'default' }}>
+                <Link key={i} to={link} className="session-item" style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start', padding: '0.85rem 1rem', marginBottom: '0.5rem', borderRadius: 'var(--radius-sm)', background: 'var(--card-bg)', border: '1px solid var(--border)', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${color}18`, flexShrink: 0 }}>
                     <Icon size={16} style={{ color }} />
                   </div>
@@ -47,8 +44,11 @@ export default function HistoryPage() {
                     <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.title}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{item.desc}</div>
                   </div>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{item.time}</span>
-                </Wrapper>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{item.time}</span>
+                    <ExternalLink size={14} style={{ color: 'var(--text-tertiary)', flexShrink: 0 }} />
+                  </div>
+                </Link>
               )
             })}
           </div>

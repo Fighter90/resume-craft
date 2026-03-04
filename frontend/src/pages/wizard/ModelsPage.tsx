@@ -68,7 +68,7 @@ export default function ModelsPage() {
             key={m.id}
             className={`card model-card${selected === m.id ? ' selected' : ''}`}
             onClick={() => setSelected(m.id)}
-            style={{ cursor: 'pointer', padding: '1.25rem' }}
+            style={{ cursor: 'pointer', padding: '1.25rem', position: 'relative' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <div>

@@ -350,7 +350,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (148 тестов) |
+| **Vitest + Testing Library** | Тесты frontend (198 тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitLab CI** | CI/CD pipeline |
@@ -437,7 +437,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 23 page components (+PrivacyPage, TermsPage, AboutPage)
-    └── test/              # 148 тестов (Vitest + Testing Library)
+    └── test/              # 198 тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -902,8 +902,8 @@ docker compose down -v
 | Метрика | Значение |
 |---------|----------|
 | **Backend тестов** | 365 (pytest + pytest-asyncio) |
-| **Frontend тестов** | 148 (Vitest + @testing-library/react) |
-| **Всего тестов** | 513 |
+| **Frontend тестов** | 198 (Vitest + @testing-library/react) |
+| **Всего тестов** | 563 |
 | **Backend покрытие** | 100% |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 

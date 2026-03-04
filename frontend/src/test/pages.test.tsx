@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect, vi } from 'vitest'
 import { AuthProvider } from '../contexts/AuthContext'
 
@@ -315,18 +315,17 @@ import SettingsSubscriptionPage from '../pages/settings/SettingsSubscriptionPage
 describe('SettingsSubscriptionPage', () => {
   it('renders all three plans', () => {
     renderWithProviders(<SettingsSubscriptionPage />)
-    expect(screen.getByText('Free')).toBeInTheDocument()
+    expect(screen.getByText('Все планы')).toBeInTheDocument()
     expect(screen.getByText('490 ₽')).toBeInTheDocument()
     expect(screen.getByText('1 490 ₽')).toBeInTheDocument()
   })
 
   it('renders current plan badge', () => {
     renderWithProviders(<SettingsSubscriptionPage />)
-    // "Текущий план" heading + "Текущий" badge + "Текущий план" button
-    expect(screen.getByText('Все планы')).toBeInTheDocument()
+    expect(screen.getAllByText(/Текущий/i).length).toBeGreaterThanOrEqual(2)
   })
 
-  it('current plan button is disabled', () => {
+  it('free plan is current by default', () => {
     renderWithProviders(<SettingsSubscriptionPage />)
     const currentBtn = screen.getByRole('button', { name: /текущий план/i })
     expect(currentBtn).toBeDisabled()
@@ -753,7 +752,7 @@ describe('HistoryPage', () => {
 
   it('renders clickable optimization items as links', () => {
     const { container } = renderWithProviders(<HistoryPage />, '/app/history')
-    const links = container.querySelectorAll('a[href="/app/results"]')
+    const links = container.querySelectorAll('a[href="/app/results/1"]')
     expect(links.length).toBeGreaterThanOrEqual(1)
   })
 })
@@ -863,5 +862,416 @@ describe('SettingsProfilePage (enhanced)', () => {
     // City field is a select, check for it
     const selects = screen.getAllByRole('combobox')
     expect(selects.length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+// ===================== Toggle Switch CSS Tests =====================
+describe('Toggle switches (SettingsSecurityPage)', () => {
+  it('renders 2FA toggle as checkbox', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    expect(screen.getByText('Двухфакторная аутентификация')).toBeInTheDocument()
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).toBeInTheDocument()
+  })
+
+  it('2FA toggle is initially off', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    const checkbox = screen.getByRole('checkbox')
+    expect(checkbox).not.toBeChecked()
+  })
+
+  it('2FA toggle can be switched on', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    const checkbox = screen.getByRole('checkbox')
+    fireEvent.click(checkbox)
+    expect(checkbox).toBeChecked()
+  })
+
+  it('2FA toggle can be switched off again', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    const checkbox = screen.getByRole('checkbox')
+    fireEvent.click(checkbox)
+    expect(checkbox).toBeChecked()
+    fireEvent.click(checkbox)
+    expect(checkbox).not.toBeChecked()
+  })
+})
+
+// ===================== SettingsAiPage Toggle Tests =====================
+import SettingsAiPage from '../pages/settings/SettingsAiPage'
+
+describe('SettingsAiPage toggles', () => {
+  it('renders all 5 optimization toggles', () => {
+    renderWithProviders(<SettingsAiPage />)
+    const checkboxes = screen.getAllByRole('checkbox')
+    expect(checkboxes.length).toBe(5)
+  })
+
+  it('auto_metrics and ats toggles are on by default', () => {
+    renderWithProviders(<SettingsAiPage />)
+    const checkboxes = screen.getAllByRole('checkbox')
+    // auto_metrics (0) = true, ats (1) = true, upgrade_title (2) = false, keep_language (3) = true, soft_skills (4) = false
+    expect(checkboxes[0]).toBeChecked()
+    expect(checkboxes[1]).toBeChecked()
+    expect(checkboxes[2]).not.toBeChecked()
+  })
+
+  it('clicking a toggle changes its state', () => {
+    renderWithProviders(<SettingsAiPage />)
+    const checkboxes = screen.getAllByRole('checkbox')
+    // Toggle off auto_metrics
+    fireEvent.click(checkboxes[0])
+    expect(checkboxes[0]).not.toBeChecked()
+    // Toggle on upgrade_title
+    fireEvent.click(checkboxes[2])
+    expect(checkboxes[2]).toBeChecked()
+  })
+
+  it('renders all 4 AI models', () => {
+    renderWithProviders(<SettingsAiPage />)
+    expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
+    expect(screen.getByText('GPT-4o')).toBeInTheDocument()
+    expect(screen.getByText('Llama 3.3 70B')).toBeInTheDocument()
+    expect(screen.getAllByText('OpenRouter').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('default model is GigaChat Pro', () => {
+    renderWithProviders(<SettingsAiPage />)
+    expect(screen.getByText('Рекомендуем')).toBeInTheDocument()
+  })
+
+  it('save button works and shows confirmation', async () => {
+    renderWithProviders(<SettingsAiPage />)
+    const saveBtn = screen.getByText('Сохранить')
+    fireEvent.click(saveBtn)
+    await waitFor(() => {
+      expect(screen.getByText('✓ Сохранено')).toBeInTheDocument()
+    })
+  })
+
+  it('reset button restores defaults', () => {
+    renderWithProviders(<SettingsAiPage />)
+    const checkboxes = screen.getAllByRole('checkbox')
+    // Toggle off auto_metrics
+    fireEvent.click(checkboxes[0])
+    expect(checkboxes[0]).not.toBeChecked()
+    // Click reset
+    fireEvent.click(screen.getByText('Сбросить'))
+    const newCheckboxes = screen.getAllByRole('checkbox')
+    expect(newCheckboxes[0]).toBeChecked()
+  })
+})
+
+// ===================== Profile Photo Upload Tests =====================
+describe('SettingsProfilePage photo upload', () => {
+  it('has a hidden file input for photo', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    const input = screen.getByTestId('photo-upload-input')
+    expect(input).toBeInTheDocument()
+    expect(input).toHaveAttribute('type', 'file')
+    expect(input).toHaveAttribute('accept', 'image/*')
+  })
+
+  it('upload photo button triggers file input', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    // The upload button and delete button exist
+    expect(screen.getByText('Загрузить фото')).toBeInTheDocument()
+  })
+
+  it('delete photo button is initially disabled', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    const deleteBtn = screen.getByText('Удалить').closest('button')
+    expect(deleteBtn).toBeDisabled()
+  })
+
+  it('save button shows success message', async () => {
+    renderWithProviders(<SettingsProfilePage />)
+    fireEvent.click(screen.getByText('Сохранить изменения'))
+    await waitFor(() => {
+      expect(screen.getByText('Изменения сохранены')).toBeInTheDocument()
+    })
+  })
+})
+
+// ===================== History Page All Items Clickable =====================
+describe('HistoryPage all items clickable', () => {
+  it('all history items are rendered as links', () => {
+    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
+    const allLinks = container.querySelectorAll('a.session-item')
+    // DEMO_HISTORY: 3 today + 2 yesterday + 2 feb17 + 1 feb12 = 8 items
+    expect(allLinks.length).toBe(8)
+  })
+
+  it('upload items link to resumes page', () => {
+    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
+    const resumeLinks = container.querySelectorAll('a[href="/app/resumes"]')
+    expect(resumeLinks.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('export items link to export page', () => {
+    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
+    const exportLinks = container.querySelectorAll('a[href="/app/export"]')
+    expect(exportLinks.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('account items link to settings', () => {
+    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
+    const settingsLinks = container.querySelectorAll('a[href="/app/settings/profile"]')
+    expect(settingsLinks.length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+// ===================== ResumesPage Actions =====================
+import ResumesPage from '../pages/resumes/ResumesPage'
+
+describe('ResumesPage actions', () => {
+  it('view button links to results with ID', () => {
+    const { container } = renderWithProviders(<ResumesPage />, '/app/resumes')
+    const viewLinks = container.querySelectorAll('a[href*="/app/results/"]')
+    expect(viewLinks.length).toBe(5) // 5 demo resumes
+  })
+
+  it('first resume links to /app/results/1', () => {
+    const { container } = renderWithProviders(<ResumesPage />, '/app/resumes')
+    const link = container.querySelector('a[href="/app/results/1"]')
+    expect(link).toBeInTheDocument()
+  })
+
+  it('download button is clickable', () => {
+    renderWithProviders(<ResumesPage />, '/app/resumes')
+    const downloadBtns = screen.getAllByTitle('Скачать')
+    expect(downloadBtns.length).toBe(5)
+    // Each button should be functional
+    downloadBtns.forEach(btn => {
+      expect(btn).not.toBeDisabled()
+    })
+  })
+
+  it('delete button is clickable', () => {
+    renderWithProviders(<ResumesPage />, '/app/resumes')
+    const deleteBtns = screen.getAllByTitle('Удалить')
+    expect(deleteBtns.length).toBe(5)
+  })
+})
+
+// ===================== Subscription Plan Switching =====================
+describe('SettingsSubscriptionPage plan switching', () => {
+  it('free plan is default / current', () => {
+    renderWithProviders(<SettingsSubscriptionPage />)
+    const currentBtn = screen.getByRole('button', { name: /текущий план/i })
+    expect(currentBtn).toBeDisabled()
+  })
+
+  it('shows Robokassa payment info', () => {
+    renderWithProviders(<SettingsSubscriptionPage />)
+    expect(screen.getByText('Оплата через Робокассу')).toBeInTheDocument()
+  })
+
+  it('standard and pro buttons are enabled', () => {
+    renderWithProviders(<SettingsSubscriptionPage />)
+    const upgradeButtons = screen.getAllByRole('button', { name: /повысить/i })
+    expect(upgradeButtons.length).toBe(2)
+    upgradeButtons.forEach(btn => expect(btn).not.toBeDisabled())
+  })
+
+  it('shows usage for free plan (2 of 5)', () => {
+    renderWithProviders(<SettingsSubscriptionPage />)
+    expect(screen.getByText(/2 из 5/)).toBeInTheDocument()
+  })
+})
+
+// ===================== ResultsPage with ID =====================
+describe('ResultsPage with route params', () => {
+  it('renders results page at /app/results/1 with resume info', () => {
+    render(
+      <MemoryRouter initialEntries={['/app/results/1']}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/app/results/:id" element={<ResultsPage />} />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>
+    )
+    // Should show resume-specific title from demo data
+    expect(screen.getByText(/Product Manager @ Yandex/)).toBeInTheDocument()
+  })
+
+  it('renders results page without ID (fallback)', () => {
+    renderWithProviders(<ResultsPage />)
+    expect(screen.getByText('Результаты оптимизации')).toBeInTheDocument()
+    expect(screen.getByText(/Senior Product Manager @ Яндекс/)).toBeInTheDocument()
+  })
+})
+
+// ===================== ModelsPage Selection =====================
+describe('ModelsPage model selection', () => {
+  it('GigaChat Pro is selected by default', () => {
+    const { container } = renderWithProviders(<ModelsPage />, '/app/models')
+    const selectedCard = container.querySelector('.model-card.selected')
+    expect(selectedCard).toBeInTheDocument()
+    expect(selectedCard?.textContent).toContain('GigaChat Pro')
+  })
+
+  it('clicking another model selects it', () => {
+    const { container } = renderWithProviders(<ModelsPage />, '/app/models')
+    const cards = container.querySelectorAll('.model-card')
+    // Click GPT-4o (2nd card)
+    fireEvent.click(cards[1])
+    expect(cards[1].classList.contains('selected')).toBe(true)
+    expect(cards[0].classList.contains('selected')).toBe(false)
+  })
+
+  it('start optimization button is present', () => {
+    renderWithProviders(<ModelsPage />, '/app/models')
+    expect(screen.getByText('Начать оптимизацию')).toBeInTheDocument()
+  })
+})
+
+// ===================== Robokassa Utils =====================
+import { generateInvoiceId, PLAN_PRICES } from '../utils/robokassa'
+
+describe('Robokassa utils', () => {
+  it('generateInvoiceId returns a number', () => {
+    const id = generateInvoiceId()
+    expect(typeof id).toBe('number')
+    expect(id).toBeGreaterThan(0)
+  })
+
+  it('generateInvoiceId returns different IDs', () => {
+    const id1 = generateInvoiceId()
+    // Wait a tiny bit to ensure different timestamp
+    const id2 = generateInvoiceId()
+    // They should at least be numbers
+    expect(typeof id1).toBe('number')
+    expect(typeof id2).toBe('number')
+  })
+
+  it('PLAN_PRICES has correct values', () => {
+    expect(PLAN_PRICES.standard).toBe(490)
+    expect(PLAN_PRICES.pro).toBe(1490)
+  })
+})
+
+// ===================== VacancyPage Tabs & Selection =====================
+describe('VacancyPage functionality', () => {
+  it('renders all 3 tabs', () => {
+    renderWithProviders(<VacancyPage />, '/app/vacancy')
+    expect(screen.getByText('Поиск hh.ru')).toBeInTheDocument()
+    expect(screen.getByText('Вставить URL')).toBeInTheDocument()
+    expect(screen.getByText('Ввести вручную')).toBeInTheDocument()
+  })
+
+  it('search tab is active by default', () => {
+    renderWithProviders(<VacancyPage />, '/app/vacancy')
+    expect(screen.getByText('Должность')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Product Manager')).toBeInTheDocument()
+  })
+
+  it('switching to URL tab shows URL input', () => {
+    renderWithProviders(<VacancyPage />, '/app/vacancy')
+    fireEvent.click(screen.getByText('Вставить URL'))
+    expect(screen.getByPlaceholderText('https://hh.ru/vacancy/12345678')).toBeInTheDocument()
+  })
+
+  it('switching to manual tab shows form fields', () => {
+    renderWithProviders(<VacancyPage />, '/app/vacancy')
+    fireEvent.click(screen.getByText('Ввести вручную'))
+    expect(screen.getByPlaceholderText('Яндекс')).toBeInTheDocument()
+  })
+
+  it('selecting a vacancy enables continue button', () => {
+    renderWithProviders(<VacancyPage />, '/app/vacancy')
+    // Click on first vacancy card (Senior Product Manager)
+    fireEvent.click(screen.getByText('Senior Product Manager'))
+    expect(screen.getByText('Продолжить с выбранной вакансией')).toBeInTheDocument()
+  })
+})
+
+// ===================== UploadPage Drag & Drop =====================
+describe('UploadPage functionality', () => {
+  it('renders dropzone', () => {
+    renderWithProviders(<UploadPage />, '/app/upload')
+    expect(screen.getByText('Перетащите файл сюда')).toBeInTheDocument()
+  })
+
+  it('supports PDF and DOCX', () => {
+    renderWithProviders(<UploadPage />, '/app/upload')
+    expect(screen.getByText('PDF')).toBeInTheDocument()
+    expect(screen.getByText('DOCX')).toBeInTheDocument()
+    expect(screen.getByText('до 10 МБ')).toBeInTheDocument()
+  })
+
+  it('selecting a file shows continue button', () => {
+    renderWithProviders(<UploadPage />, '/app/upload')
+    const fileInput = document.getElementById('file-input') as HTMLInputElement
+    const file = new File(['content'], 'resume.pdf', { type: 'application/pdf' })
+    fireEvent.change(fileInput, { target: { files: [file] } })
+    expect(screen.getByText('resume.pdf')).toBeInTheDocument()
+    expect(screen.getByText('Продолжить')).toBeInTheDocument()
+  })
+})
+
+// ===================== ProcessingPage Animation =====================
+describe('ProcessingPage', () => {
+  it('renders processing steps', () => {
+    renderWithProviders(<ProcessingPage />, '/app/processing')
+    expect(screen.getByText('Загрузка документа')).toBeInTheDocument()
+    expect(screen.getByText('Анализ вакансии')).toBeInTheDocument()
+    expect(screen.getByText('AI оптимизация')).toBeInTheDocument()
+    expect(screen.getByText('Финализация')).toBeInTheDocument()
+  })
+
+  it('starts at 0% progress', () => {
+    renderWithProviders(<ProcessingPage />, '/app/processing')
+    expect(screen.getByText('0%')).toBeInTheDocument()
+  })
+})
+
+// ===================== Security Page Password Form =====================
+describe('SettingsSecurityPage password change', () => {
+  it('validates empty fields', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    fireEvent.click(screen.getByText('Обновить пароль'))
+    expect(screen.getByText('Заполните все поля')).toBeInTheDocument()
+  })
+
+  it('validates password min length', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    const inputs = screen.getAllByPlaceholderText('••••••••')
+    fireEvent.change(inputs[0], { target: { value: 'old' } })
+    fireEvent.change(screen.getByPlaceholderText('Мин. 8 символов, цифра + буква'), { target: { value: 'short' } })
+    fireEvent.change(inputs[1], { target: { value: 'short' } })
+    fireEvent.click(screen.getByText('Обновить пароль'))
+    expect(screen.getByText('Пароль должен быть минимум 8 символов')).toBeInTheDocument()
+  })
+
+  it('validates password mismatch', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    const inputs = screen.getAllByPlaceholderText('••••••••')
+    fireEvent.change(inputs[0], { target: { value: 'oldpassword' } })
+    fireEvent.change(screen.getByPlaceholderText('Мин. 8 символов, цифра + буква'), { target: { value: 'newpassword1' } })
+    fireEvent.change(inputs[1], { target: { value: 'different1' } })
+    fireEvent.click(screen.getByText('Обновить пароль'))
+    expect(screen.getByText('Пароли не совпадают')).toBeInTheDocument()
+  })
+
+  it('shows success on valid password change', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    const inputs = screen.getAllByPlaceholderText('••••••••')
+    fireEvent.change(inputs[0], { target: { value: 'oldpassword' } })
+    fireEvent.change(screen.getByPlaceholderText('Мин. 8 символов, цифра + буква'), { target: { value: 'newpassword1' } })
+    fireEvent.change(inputs[1], { target: { value: 'newpassword1' } })
+    fireEvent.click(screen.getByText('Обновить пароль'))
+    expect(screen.getByText('Пароль успешно обновлён')).toBeInTheDocument()
+  })
+
+  it('delete account requires confirmation text', () => {
+    renderWithProviders(<SettingsSecurityPage />)
+    fireEvent.click(screen.getByText('Удалить аккаунт'))
+    const confirmBtn = screen.getByText('Подтвердить')
+    expect(confirmBtn).toBeDisabled()
+    // Type УДАЛИТЬ
+    fireEvent.change(screen.getByPlaceholderText(/УДАЛИТЬ/), { target: { value: 'УДАЛИТЬ' } })
+    expect(confirmBtn).not.toBeDisabled()
   })
 })

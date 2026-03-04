@@ -16,7 +16,7 @@ export default function PricingPage() {
           Начните бесплатно, обновите когда будете готовы
         </p>
         <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem', marginBottom: '2.5rem' }}>
-          Годовая подписка экономит до 33%. Оплата картой или через ЮKassa.
+          Годовая подписка экономит до 33%. Оплата картой или через Робокассу.
         </p>
         <div className="pricing-grid">
           {plans.map(p => (
