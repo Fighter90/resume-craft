@@ -19,42 +19,60 @@ class TestCreateRewrite:
 
     async def test_no_auth(self, client: AsyncClient) -> None:
         """Без JWT → 401."""
-        resp = await client.post('/api/v1/rewrite', json={
-            'resume_id': str(uuid4()),
-            'vacancy_id': str(uuid4()),
-        })
+        resp = await client.post(
+            '/api/v1/rewrite',
+            json={
+                'resume_id': str(uuid4()),
+                'vacancy_id': str(uuid4()),
+            },
+        )
         assert resp.status_code == 401
 
     @patch('app.rewriter.router.execute_rewrite_task')
     async def test_success(
-        self, mock_celery: AsyncMock,
-        auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        mock_celery: AsyncMock,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Успешный запуск оптимизации."""
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100, raw_text='text',
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
+            raw_text='text',
         )
         vacancy = Vacancy(
-            user_id=test_user.id, title='Dev', description='desc',
+            user_id=test_user.id,
+            title='Dev',
+            description='desc',
         )
         session.add_all([resume, vacancy])
         await session.flush()
 
         mock_celery.delay = lambda *a: None
 
-        resp = await auth_client.post('/api/v1/rewrite', json={
-            'resume_id': str(resume.id),
-            'vacancy_id': str(vacancy.id),
-        })
+        resp = await auth_client.post(
+            '/api/v1/rewrite',
+            json={
+                'resume_id': str(resume.id),
+                'vacancy_id': str(vacancy.id),
+            },
+        )
         assert resp.status_code == 202
         data = resp.json()
         assert 'task_id' in data
 
     @patch('app.rewriter.router.execute_rewrite_task')
     async def test_exhausted_user(
-        self, mock_celery: AsyncMock,
-        client: AsyncClient, session: AsyncSession, exhausted_user: User,
+        self,
+        mock_celery: AsyncMock,
+        client: AsyncClient,
+        session: AsyncSession,
+        exhausted_user: User,
     ) -> None:
         """Исчерпанный лимит → 429."""
         from app.core.security import create_access_token
@@ -62,10 +80,14 @@ class TestCreateRewrite:
         token = create_access_token(exhausted_user.id)
         headers = {'Authorization': f'Bearer {token}'}
 
-        resp = await client.post('/api/v1/rewrite', json={
-            'resume_id': str(uuid4()),
-            'vacancy_id': str(uuid4()),
-        }, headers=headers)
+        resp = await client.post(
+            '/api/v1/rewrite',
+            json={
+                'resume_id': str(uuid4()),
+                'vacancy_id': str(uuid4()),
+            },
+            headers=headers,
+        )
         assert resp.status_code == 429
 
 
@@ -81,12 +103,18 @@ class TestGetRewriteStatus:
         assert resp.status_code == 404
 
     async def test_completed_status(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            user_id=test_user.id,
+            resume_id=uuid4(),
+            vacancy_id=uuid4(),
             original_text='Original resume text',
-            model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
+            model_name='gigachat-pro',
+            status=RewriteStatus.COMPLETED,
         )
         session.add(task)
         await session.flush()
@@ -98,13 +126,19 @@ class TestGetRewriteStatus:
         assert data['step'] == 'completed'
 
     async def test_processing_status(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Статус processing → progress=50, step='rewriting'."""
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            user_id=test_user.id,
+            resume_id=uuid4(),
+            vacancy_id=uuid4(),
             original_text='Original resume text',
-            model_name='gigachat-pro', status=RewriteStatus.PROCESSING,
+            model_name='gigachat-pro',
+            status=RewriteStatus.PROCESSING,
         )
         session.add(task)
         await session.flush()
@@ -116,13 +150,19 @@ class TestGetRewriteStatus:
         assert data['step'] == 'rewriting'
 
     async def test_failed_status(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Статус failed → progress=0, step='failed'."""
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            user_id=test_user.id,
+            resume_id=uuid4(),
+            vacancy_id=uuid4(),
             original_text='Original resume text',
-            model_name='gigachat-pro', status=RewriteStatus.FAILED,
+            model_name='gigachat-pro',
+            status=RewriteStatus.FAILED,
         )
         session.add(task)
         await session.flush()
@@ -134,13 +174,19 @@ class TestGetRewriteStatus:
         assert data['step'] == 'failed'
 
     async def test_pending_status(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Статус pending → progress=0, step='pending'."""
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            user_id=test_user.id,
+            resume_id=uuid4(),
+            vacancy_id=uuid4(),
             original_text='Original resume text',
-            model_name='gigachat-pro', status=RewriteStatus.PENDING,
+            model_name='gigachat-pro',
+            status=RewriteStatus.PENDING,
         )
         session.add(task)
         await session.flush()
@@ -160,13 +206,19 @@ class TestGetRewriteResult:
         assert resp.status_code == 404
 
     async def test_success(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Получение результата оптимизации."""
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+            user_id=test_user.id,
+            resume_id=uuid4(),
+            vacancy_id=uuid4(),
             original_text='Original resume text',
-            model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
+            model_name='gigachat-pro',
+            status=RewriteStatus.COMPLETED,
             rewritten_text='Optimized text',
             match_score_before=0.4,
             match_score_after=0.85,

@@ -23,7 +23,9 @@ class Vacancy(UUIDMixin, Base):
     __tablename__ = 'vacancies'
 
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True,
+        ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
     )
     hh_id: Mapped[str | None] = mapped_column(String(20), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -42,5 +44,7 @@ class Vacancy(UUIDMixin, Base):
     # Relationships
     user: Mapped[User] = relationship(back_populates='vacancies')
     rewrite_history: Mapped[list[RewriteHistory]] = relationship(
-        back_populates='vacancy', cascade='all, delete-orphan', lazy='selectin',
+        back_populates='vacancy',
+        cascade='all, delete-orphan',
+        lazy='selectin',
     )

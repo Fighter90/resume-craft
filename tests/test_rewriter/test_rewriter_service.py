@@ -87,11 +87,17 @@ class TestCreateRewriteTask:
     async def test_success(self, session: AsyncSession, test_user: User) -> None:
         """Успешное создание задачи."""
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100, raw_text='My resume text',
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
+            raw_text='My resume text',
         )
         vacancy = Vacancy(
-            user_id=test_user.id, title='Dev', description='Python developer',
+            user_id=test_user.id,
+            title='Dev',
+            description='Python developer',
         )
         session.add_all([resume, vacancy])
         await session.flush()
@@ -115,35 +121,50 @@ class TestCreateRewriteTask:
 
         with pytest.raises(ResumeNotFound):
             await create_rewrite_task(
-                session, user_id=test_user.id,
-                resume_id=uuid4(), vacancy_id=vacancy.id,
+                session,
+                user_id=test_user.id,
+                resume_id=uuid4(),
+                vacancy_id=vacancy.id,
             )
 
     async def test_vacancy_not_found(self, session: AsyncSession, test_user: User) -> None:
         """Нет вакансии → VacancyNotFound."""
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100,
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
         )
         session.add(resume)
         await session.flush()
 
         with pytest.raises(VacancyNotFound):
             await create_rewrite_task(
-                session, user_id=test_user.id,
-                resume_id=resume.id, vacancy_id=uuid4(),
+                session,
+                user_id=test_user.id,
+                resume_id=resume.id,
+                vacancy_id=uuid4(),
             )
 
     async def test_raw_text_none_uses_empty_string(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """raw_text=None → original_text='' (не должен падать на NOT NULL)."""
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100, raw_text=None,
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
+            raw_text=None,
         )
         vacancy = Vacancy(
-            user_id=test_user.id, title='Dev', description='Python developer',
+            user_id=test_user.id,
+            title='Dev',
+            description='Python developer',
         )
         session.add_all([resume, vacancy])
         await session.flush()
@@ -163,37 +184,49 @@ class TestExecuteRewrite:
 
     @patch('app.rewriter.service.LLMClientFactory')
     async def test_success(
-        self, mock_factory: MagicMock, session: AsyncSession, test_user: User,
+        self,
+        mock_factory: MagicMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Успешная оптимизация."""
         # Подготовка данных
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100,
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
             raw_text='Опыт работы Python разработчик, управлял командой из 5 человек',
         )
         vacancy = Vacancy(
-            user_id=test_user.id, title='Senior Python',
+            user_id=test_user.id,
+            title='Senior Python',
             description='Требуется senior Python developer с опытом FastAPI',
         )
         session.add_all([resume, vacancy])
         await session.flush()
 
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=resume.id, vacancy_id=vacancy.id,
-            original_text=resume.raw_text, model_name='gigachat-pro',
+            user_id=test_user.id,
+            resume_id=resume.id,
+            vacancy_id=vacancy.id,
+            original_text=resume.raw_text,
+            model_name='gigachat-pro',
             status=RewriteStatus.PENDING,
         )
         session.add(task)
         await session.flush()
 
         # Mock LLM
-        llm_response = json.dumps({
-            'summary': 'Senior Python разработчик',
-            'experience': [],
-            'skills': ['Python', 'FastAPI'],
-            'keywords_added': ['FastAPI'],
-        })
+        llm_response = json.dumps(
+            {
+                'summary': 'Senior Python разработчик',
+                'experience': [],
+                'skills': ['Python', 'FastAPI'],
+                'keywords_added': ['FastAPI'],
+            }
+        )
         mock_client = AsyncMock()
         mock_client.complete.return_value = llm_response
         mock_client.close = AsyncMock()
@@ -213,22 +246,34 @@ class TestExecuteRewrite:
 
     @patch('app.rewriter.service.LLMClientFactory')
     async def test_llm_failure(
-        self, mock_factory: MagicMock, session: AsyncSession, test_user: User,
+        self,
+        mock_factory: MagicMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Ошибка LLM → статус FAILED."""
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100, raw_text='text',
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
+            raw_text='text',
         )
         vacancy = Vacancy(
-            user_id=test_user.id, title='Dev', description='desc',
+            user_id=test_user.id,
+            title='Dev',
+            description='desc',
         )
         session.add_all([resume, vacancy])
         await session.flush()
 
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=resume.id, vacancy_id=vacancy.id,
-            original_text='text', model_name='gigachat-pro',
+            user_id=test_user.id,
+            resume_id=resume.id,
+            vacancy_id=vacancy.id,
+            original_text='text',
+            model_name='gigachat-pro',
             status=RewriteStatus.PENDING,
         )
         session.add(task)
@@ -245,34 +290,46 @@ class TestExecuteRewrite:
 
     @patch('app.rewriter.service.LLMClientFactory')
     async def test_llm_retry_on_invalid_json(
-        self, mock_factory: MagicMock, session: AsyncSession, test_user: User,
+        self,
+        mock_factory: MagicMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Невалидный JSON на 1-й попытке → retry → валидный на 2-й."""
         resume = Resume(
-            user_id=test_user.id, title='CV', file_path='p.pdf',
-            file_format='pdf', file_size_bytes=100,
+            user_id=test_user.id,
+            title='CV',
+            file_path='p.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
             raw_text='Python разработчик, опыт 5 лет',
         )
         vacancy = Vacancy(
-            user_id=test_user.id, title='Senior Python',
+            user_id=test_user.id,
+            title='Senior Python',
             description='Python developer',
         )
         session.add_all([resume, vacancy])
         await session.flush()
 
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=resume.id, vacancy_id=vacancy.id,
-            original_text=resume.raw_text, model_name='gigachat-pro',
+            user_id=test_user.id,
+            resume_id=resume.id,
+            vacancy_id=vacancy.id,
+            original_text=resume.raw_text,
+            model_name='gigachat-pro',
             status=RewriteStatus.PENDING,
         )
         session.add(task)
         await session.flush()
 
-        valid_json = json.dumps({
-            'summary': 'Senior Python dev',
-            'skills': ['Python'],
-            'keywords_added': ['Python'],
-        })
+        valid_json = json.dumps(
+            {
+                'summary': 'Senior Python dev',
+                'skills': ['Python'],
+                'keywords_added': ['Python'],
+            }
+        )
 
         mock_client = AsyncMock()
         # Первая попытка — невалидный JSON, вторая — валидный
@@ -293,8 +350,12 @@ class TestGetTask:
 
     async def test_existing(self, session: AsyncSession, test_user: User) -> None:
         task = RewriteHistory(
-            user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
-            original_text='Original text', model_name='gigachat-pro', status=RewriteStatus.PENDING,
+            user_id=test_user.id,
+            resume_id=uuid4(),
+            vacancy_id=uuid4(),
+            original_text='Original text',
+            model_name='gigachat-pro',
+            status=RewriteStatus.PENDING,
         )
         session.add(task)
         await session.flush()
@@ -318,9 +379,12 @@ class TestListHistory:
     async def test_with_items(self, session: AsyncSession, test_user: User) -> None:
         for i in range(3):
             t = RewriteHistory(
-                user_id=test_user.id, resume_id=uuid4(), vacancy_id=uuid4(),
+                user_id=test_user.id,
+                resume_id=uuid4(),
+                vacancy_id=uuid4(),
                 original_text=f'Original text {i}',
-                model_name='gigachat-pro', status=RewriteStatus.COMPLETED,
+                model_name='gigachat-pro',
+                status=RewriteStatus.COMPLETED,
             )
             session.add(t)
         await session.flush()

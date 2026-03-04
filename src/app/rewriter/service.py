@@ -138,7 +138,8 @@ async def execute_rewrite(
                 if attempt < MAX_LLM_RETRIES:
                     logger.warning(
                         'LLM response not valid JSON (attempt %d/%d), retrying...',
-                        attempt, MAX_LLM_RETRIES,
+                        attempt,
+                        MAX_LLM_RETRIES,
                     )
                     user_prompt += '\n\nВАЖНО: Ответ ДОЛЖЕН быть строго в JSON-формате!'
 
@@ -251,9 +252,7 @@ async def list_history(
 ) -> tuple[Sequence[RewriteHistory], int]:
     """Список оптимизаций пользователя."""
     count_stmt = (
-        select(func.count())
-        .select_from(RewriteHistory)
-        .where(RewriteHistory.user_id == user_id)
+        select(func.count()).select_from(RewriteHistory).where(RewriteHistory.user_id == user_id)
     )
     total = (await session.execute(count_stmt)).scalar_one()
 

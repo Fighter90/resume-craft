@@ -34,13 +34,19 @@ class RewriteHistory(UUIDMixin, Base):
     __tablename__ = 'rewrite_history'
 
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True,
+        ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
     )
     resume_id: Mapped[UUID] = mapped_column(
-        ForeignKey('resumes.id', ondelete='CASCADE'), nullable=False, index=True,
+        ForeignKey('resumes.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
     )
     vacancy_id: Mapped[UUID] = mapped_column(
-        ForeignKey('vacancies.id', ondelete='CASCADE'), nullable=False, index=True,
+        ForeignKey('vacancies.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
     )
 
     original_text: Mapped[str] = mapped_column(Text, nullable=False)

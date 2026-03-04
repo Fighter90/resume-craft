@@ -47,7 +47,9 @@ async def login(
 ) -> TokenResponse:
     """Получение JWT-токенов."""
     return await auth_service.authenticate(
-        session, email=data.email, password=data.password,
+        session,
+        email=data.email,
+        password=data.password,
     )
 
 

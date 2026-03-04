@@ -65,7 +65,9 @@ async def test_engine():
 async def session(test_engine) -> AsyncIterator[AsyncSession]:  # type: ignore[no-untyped-def]
     """Тестовая async-сессия с rollback после каждого теста."""
     factory = async_sessionmaker(
-        test_engine, class_=AsyncSession, expire_on_commit=False,
+        test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
     )
     async with factory() as sess:
         yield sess
@@ -153,7 +155,8 @@ def pro_auth_headers(pro_user: User) -> dict[str, str]:
 
 @pytest.fixture
 async def auth_client(
-    client: AsyncClient, auth_headers: dict[str, str],
+    client: AsyncClient,
+    auth_headers: dict[str, str],
 ) -> AsyncClient:
     """HTTP-клиент с JWT-авторизацией."""
     client.headers.update(auth_headers)

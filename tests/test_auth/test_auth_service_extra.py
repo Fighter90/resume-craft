@@ -100,7 +100,10 @@ class TestUpdateUser:
         """Обновление имени и email одновременно."""
         new_email = f'both-{uuid4().hex[:8]}@example.com'
         result = await update_user(
-            session, user=test_user, full_name='Оба Поля', email=new_email,
+            session,
+            user=test_user,
+            full_name='Оба Поля',
+            email=new_email,
         )
         assert result.full_name == 'Оба Поля'
         assert result.email == new_email
@@ -110,7 +113,9 @@ class TestChangePassword:
     """Тесты change_password()."""
 
     async def test_change_password_success(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Смена пароля с правильным текущим."""
         await change_password(
@@ -122,7 +127,9 @@ class TestChangePassword:
         assert verify_password('NewPass456', test_user.hashed_password)
 
     async def test_change_password_wrong_current(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Неверный текущий пароль → InvalidCredentials."""
         with pytest.raises(InvalidCredentials):

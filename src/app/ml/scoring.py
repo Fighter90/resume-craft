@@ -58,9 +58,42 @@ def _keywords_score(resume_text: str, vacancy_text: str) -> float:
 
     # Фильтрация стоп-слов (упрощённый список)
     stop_words = {
-        'и', 'в', 'на', 'с', 'по', 'для', 'от', 'из', 'к', 'за', 'не', 'но', 'а',
-        'или', 'как', 'это', 'что', 'все', 'при', 'так', 'бы', 'же', 'его', 'мы',
-        'the', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'of', 'is', 'are', 'was',
+        'и',
+        'в',
+        'на',
+        'с',
+        'по',
+        'для',
+        'от',
+        'из',
+        'к',
+        'за',
+        'не',
+        'но',
+        'а',
+        'или',
+        'как',
+        'это',
+        'что',
+        'все',
+        'при',
+        'так',
+        'бы',
+        'же',
+        'его',
+        'мы',
+        'the',
+        'and',
+        'or',
+        'in',
+        'on',
+        'at',
+        'to',
+        'for',
+        'of',
+        'is',
+        'are',
+        'was',
     }
 
     resume_tokens -= stop_words
@@ -82,8 +115,8 @@ def _experience_score(resume_text: str, vacancy_text: str) -> float:
     common_tokens = set(resume_counter.keys()) & set(vacancy_counter.keys())
 
     dot_product = sum(resume_counter[t] * vacancy_counter[t] for t in common_tokens)
-    norm_resume = math.sqrt(sum(c ** 2 for c in resume_counter.values()))
-    norm_vacancy = math.sqrt(sum(c ** 2 for c in vacancy_counter.values()))
+    norm_resume = math.sqrt(sum(c**2 for c in resume_counter.values()))
+    norm_vacancy = math.sqrt(sum(c**2 for c in vacancy_counter.values()))
 
     if norm_resume == 0 or norm_vacancy == 0:
         return 0.0
@@ -135,9 +168,22 @@ def _readability_score(resume_text: str) -> float:
 
     # Глаголы действия
     action_verbs = [
-        'реализовал', 'разработал', 'внедрил', 'оптимизировал', 'увеличил',
-        'сократил', 'автоматизировал', 'управлял', 'координировал', 'обеспечил',
-        'implemented', 'developed', 'optimized', 'increased', 'reduced', 'managed',
+        'реализовал',
+        'разработал',
+        'внедрил',
+        'оптимизировал',
+        'увеличил',
+        'сократил',
+        'автоматизировал',
+        'управлял',
+        'координировал',
+        'обеспечил',
+        'implemented',
+        'developed',
+        'optimized',
+        'increased',
+        'reduced',
+        'managed',
     ]
     verb_count = sum(1 for v in action_verbs if v in text_lower)
     if verb_count >= 5:

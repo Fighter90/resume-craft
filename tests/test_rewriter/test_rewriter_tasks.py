@@ -38,7 +38,9 @@ class TestRunRewrite:
     @patch('app.rewriter.tasks.rewrite_service')
     @patch('app.rewriter.tasks.get_session_factory')
     async def test_failure_rollback(
-        self, mock_factory: MagicMock, mock_service: MagicMock,
+        self,
+        mock_factory: MagicMock,
+        mock_service: MagicMock,
     ) -> None:
         """Ошибка → rollback."""
         task_id = uuid4()

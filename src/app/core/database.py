@@ -50,9 +50,12 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     global _session_factory
     if _session_factory is None:
         _session_factory = async_sessionmaker(
-            get_engine(), class_=AsyncSession, expire_on_commit=False,  # type: ignore[no-untyped-call]
+            get_engine(),
+            class_=AsyncSession,
+            expire_on_commit=False,  # type: ignore[no-untyped-call]
         )
     return _session_factory
+
 
 class Base(DeclarativeBase):
     """Базовый класс для всех SQLAlchemy-моделей."""

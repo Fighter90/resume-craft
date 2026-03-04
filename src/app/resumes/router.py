@@ -34,7 +34,9 @@ async def upload_resume(
 ) -> ResumeUploadResponse:
     """Загрузка файла резюме с автоматическим извлечением текста."""
     resume = await resume_service.upload_resume(
-        session, user_id=current_user.id, file=file,
+        session,
+        user_id=current_user.id,
+        file=file,
     )
     return ResumeUploadResponse.model_validate(resume)
 
@@ -52,7 +54,10 @@ async def list_resumes(
 ) -> ResumeListResponse:
     """Список загруженных резюме с пагинацией."""
     items, total = await resume_service.list_resumes(
-        session, user_id=current_user.id, limit=limit, offset=offset,
+        session,
+        user_id=current_user.id,
+        limit=limit,
+        offset=offset,
     )
     return ResumeListResponse(
         items=[ResumeResponse.model_validate(r) for r in items],
@@ -74,7 +79,9 @@ async def get_resume(
 ) -> ResumeResponse:
     """Получение детальной информации о резюме (включая parsed_data)."""
     resume = await resume_service.get_resume(
-        session, resume_id=resume_id, user_id=current_user.id,
+        session,
+        resume_id=resume_id,
+        user_id=current_user.id,
     )
     return ResumeResponse.model_validate(resume)
 
@@ -92,7 +99,10 @@ async def update_resume(
 ) -> ResumeResponse:
     """Обновление метаданных резюме."""
     resume = await resume_service.update_resume(
-        session, resume_id=resume_id, user_id=current_user.id, data=data,
+        session,
+        resume_id=resume_id,
+        user_id=current_user.id,
+        data=data,
     )
     return ResumeResponse.model_validate(resume)
 
@@ -110,6 +120,8 @@ async def delete_resume(
 ) -> Response:
     """Удаление резюме и связанного файла."""
     await resume_service.delete_resume(
-        session, resume_id=resume_id, user_id=current_user.id,
+        session,
+        resume_id=resume_id,
+        user_id=current_user.id,
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

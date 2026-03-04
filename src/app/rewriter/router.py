@@ -119,7 +119,10 @@ async def list_history(
 ) -> RewriteHistoryResponse:
     """Список всех оптимизаций пользователя."""
     items, total = await rewrite_service.list_history(
-        session, user_id=current_user.id, limit=limit, offset=offset,
+        session,
+        user_id=current_user.id,
+        limit=limit,
+        offset=offset,
     )
     return RewriteHistoryResponse(
         items=[RewriteResultResponse.model_validate(i) for i in items],

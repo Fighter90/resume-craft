@@ -153,6 +153,7 @@ class TestOcrFromPdf:
 
         # Force ImportError by using a module that raises it
         import builtins
+
         real_import = builtins.__import__
 
         def _mock_import(name, *args, **kwargs):  # type: ignore[no-untyped-def]

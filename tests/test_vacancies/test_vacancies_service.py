@@ -18,6 +18,7 @@ from app.vacancies.service import create_from_url, create_manual, get_vacancy, s
 
 # ── HHClient ──────────────────────────────────────────────────────────────────
 
+
 class TestExtractHHVacancyId:
     """Тесты extract_hh_vacancy_id()."""
 
@@ -97,7 +98,10 @@ class TestHHClient:
 
         client = HHClient(user_agent='Test/1.0')
         with patch.object(
-            client._client, 'get', new_callable=AsyncMock, return_value=mock_response,
+            client._client,
+            'get',
+            new_callable=AsyncMock,
+            return_value=mock_response,
         ):
             result = await client.search_vacancies('python')
             assert result['items'][0]['id'] == '1'
@@ -114,7 +118,10 @@ class TestHHClient:
         client = HHClient(user_agent='Test/1.0')
         with (
             patch.object(
-                client._client, 'get', new_callable=AsyncMock, return_value=mock_response,
+                client._client,
+                'get',
+                new_callable=AsyncMock,
+                return_value=mock_response,
             ),
             pytest.raises(HHApiError),
         ):
@@ -129,7 +136,10 @@ class TestHHClient:
 
         client = HHClient(user_agent='Test/1.0')
         with patch.object(
-            client._client, 'get', new_callable=AsyncMock, return_value=mock_response,
+            client._client,
+            'get',
+            new_callable=AsyncMock,
+            return_value=mock_response,
         ):
             result = await client.get_vacancy('123')
             assert result['id'] == '123'
@@ -141,7 +151,10 @@ class TestHHClient:
         error = httpx.RequestError('connection failed', request=MagicMock())
         with (
             patch.object(
-                client._client, 'get', new_callable=AsyncMock, side_effect=error,
+                client._client,
+                'get',
+                new_callable=AsyncMock,
+                side_effect=error,
             ),
             pytest.raises(HHApiError),
         ):
@@ -150,6 +163,7 @@ class TestHHClient:
 
 
 # ── VacancyService ────────────────────────────────────────────────────────────
+
 
 class TestSearchHH:
     """Тесты search_hh()."""
@@ -188,7 +202,10 @@ class TestCreateFromUrl:
 
     @patch('app.vacancies.service.HHClient')
     async def test_success(
-        self, mock_hh_cls: MagicMock, session: AsyncSession, test_user: User,
+        self,
+        mock_hh_cls: MagicMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Создание вакансии из URL."""
         mock_client = AsyncMock()
@@ -207,7 +224,9 @@ class TestCreateFromUrl:
         mock_hh_cls.return_value = mock_client
 
         vacancy = await create_from_url(
-            session, user_id=test_user.id, url='https://hh.ru/vacancy/12345',
+            session,
+            user_id=test_user.id,
+            url='https://hh.ru/vacancy/12345',
         )
         assert vacancy.hh_id == '12345'
         assert vacancy.title == 'Python Dev'

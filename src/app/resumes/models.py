@@ -32,7 +32,9 @@ class Resume(UUIDMixin, TimestampMixin, Base):
     __tablename__ = 'resumes'
 
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True,
+        ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
     )
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
     file_path: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -50,5 +52,7 @@ class Resume(UUIDMixin, TimestampMixin, Base):
     # Relationships
     user: Mapped[User] = relationship(back_populates='resumes')
     rewrite_history: Mapped[list[RewriteHistory]] = relationship(
-        back_populates='resume', cascade='all, delete-orphan', lazy='selectin',
+        back_populates='resume',
+        cascade='all, delete-orphan',
+        lazy='selectin',
     )

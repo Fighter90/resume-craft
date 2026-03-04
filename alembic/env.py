@@ -14,12 +14,12 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 # Добавление src/ в sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
-from app.auth.models import User  # noqa: E402, F401
-from app.core.config import get_settings  # noqa: E402
-from app.core.database import Base  # noqa: E402
-from app.resumes.models import Resume  # noqa: E402, F401
-from app.rewriter.models import RewriteHistory  # noqa: E402, F401
-from app.vacancies.models import Vacancy  # noqa: E402, F401
+from app.auth.models import User  # noqa: F401
+from app.core.config import get_settings
+from app.core.database import Base
+from app.resumes.models import Resume  # noqa: F401
+from app.rewriter.models import RewriteHistory  # noqa: F401
+from app.vacancies.models import Vacancy  # noqa: F401
 
 # Alembic Config
 config = context.config

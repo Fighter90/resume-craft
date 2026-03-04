@@ -37,7 +37,9 @@ class TestInactiveUserDependency:
     """Тест: деактивированный пользователь → 403 InactiveUser."""
 
     async def test_inactive_user_rejected(
-        self, session: AsyncSession, test_engine: object,
+        self,
+        session: AsyncSession,
+        test_engine: object,
     ) -> None:
         """Запрос от is_active=False → HTTPException 403."""
         # Создаём неактивного пользователя
@@ -63,7 +65,8 @@ class TestInactiveUserDependency:
 
         transport = ASGITransport(app=app)
         async with AsyncClient(
-            transport=transport, base_url='http://test',
+            transport=transport,
+            base_url='http://test',
         ) as ac:
             response = await ac.get(
                 '/api/v1/resumes',

@@ -172,7 +172,10 @@ class TestUploadResume:
 
     @patch('app.resumes.service.file_storage')
     async def test_upload_success(
-        self, mock_storage: AsyncMock, session: AsyncSession, test_user: User,
+        self,
+        mock_storage: AsyncMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Успешная загрузка PDF."""
         mock_storage.save = AsyncMock(return_value=f'{test_user.id}/test.pdf')
@@ -241,8 +244,11 @@ class TestListResumes:
         """Пагинация работает."""
         for i in range(3):
             r = Resume(
-                user_id=test_user.id, title=f'Resume {i}',
-                file_path=f'path/{i}.pdf', file_format='pdf', file_size_bytes=100,
+                user_id=test_user.id,
+                title=f'Resume {i}',
+                file_path=f'path/{i}.pdf',
+                file_format='pdf',
+                file_size_bytes=100,
             )
             session.add(r)
         await session.flush()
@@ -257,13 +263,19 @@ class TestDeleteResume:
 
     @patch('app.resumes.service.file_storage')
     async def test_delete_success(
-        self, mock_storage: AsyncMock, session: AsyncSession, test_user: User,
+        self,
+        mock_storage: AsyncMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Удаление существующего резюме."""
         mock_storage.delete = AsyncMock()
         resume = Resume(
-            user_id=test_user.id, title='To Delete',
-            file_path='del/path.pdf', file_format='pdf', file_size_bytes=100,
+            user_id=test_user.id,
+            title='To Delete',
+            file_path='del/path.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
         )
         session.add(resume)
         await session.flush()
@@ -278,13 +290,19 @@ class TestDeleteResume:
 
     @patch('app.resumes.service.file_storage')
     async def test_delete_file_not_found(
-        self, mock_storage: AsyncMock, session: AsyncSession, test_user: User,
+        self,
+        mock_storage: AsyncMock,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Удаление резюме когда файл уже удалён → не крашится."""
         mock_storage.delete = AsyncMock(side_effect=FileNotFoundError('not found'))
         resume = Resume(
-            user_id=test_user.id, title='Missing File',
-            file_path='gone/path.pdf', file_format='pdf', file_size_bytes=100,
+            user_id=test_user.id,
+            title='Missing File',
+            file_path='gone/path.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
         )
         session.add(resume)
         await session.flush()

@@ -26,7 +26,9 @@ async def search_hh(params: HHSearchParams) -> HHSearchResponse:
     client = HHClient()
     try:
         data = await client.search_vacancies(
-            params.text, area=params.area, per_page=params.per_page,
+            params.text,
+            area=params.area,
+            per_page=params.per_page,
         )
     finally:
         await client.close()

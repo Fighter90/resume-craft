@@ -59,7 +59,12 @@ class TestLLMClientFactory:
         """Все провайдеры недоступны → LLMProviderUnavailable."""
         from unittest.mock import patch
 
-        with patch.object(
-            LLMClientFactory, 'create', side_effect=RuntimeError('unavailable'),
-        ), pytest.raises(LLMProviderUnavailable):
+        with (
+            patch.object(
+                LLMClientFactory,
+                'create',
+                side_effect=RuntimeError('unavailable'),
+            ),
+            pytest.raises(LLMProviderUnavailable),
+        ):
             await LLMClientFactory.create_with_fallback()

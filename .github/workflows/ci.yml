@@ -123,6 +123,7 @@ jobs:
       REDIS_URL: redis://localhost:6379/0
       ENVIRONMENT: test
       SECRET_KEY: test-secret-key-for-ci-only
+      PYTHONPATH: src
 
     steps:
       - uses: actions/checkout@v4
@@ -149,12 +150,11 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ \
-            --cov=app \
+            --cov=src/app \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing \
             --tb=short \
-            -q \
-            || true
+            -q
 
       - name: Upload coverage
         if: matrix.python-version == '3.11'

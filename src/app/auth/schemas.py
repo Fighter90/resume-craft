@@ -11,12 +11,14 @@ from app.auth.models import UserPlan
 
 # --- Requests ---
 
+
 class RegisterRequest(BaseModel):
     """Запрос на регистрацию."""
 
     email: EmailStr
     password: str = Field(
-        min_length=8, max_length=128,
+        min_length=8,
+        max_length=128,
         description='Пароль (≥8 символов, минимум 1 цифра и 1 буква)',
     )
     full_name: str | None = Field(None, max_length=255, description='Полное имя')
@@ -64,6 +66,7 @@ class RefreshRequest(BaseModel):
 
 # --- Responses ---
 
+
 class TokenResponse(BaseModel):
     """Ответ с JWT-токенами."""
 
@@ -107,7 +110,8 @@ class PasswordChangeRequest(BaseModel):
 
     current_password: str = Field(min_length=1, description='Текущий пароль')
     new_password: str = Field(
-        min_length=8, max_length=128,
+        min_length=8,
+        max_length=128,
         description='Новый пароль (≥8 символов, минимум 1 цифра и 1 буква)',
     )
 

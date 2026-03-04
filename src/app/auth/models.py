@@ -38,7 +38,10 @@ class User(UUIDMixin, TimestampMixin, Base):
     __tablename__ = 'users'
 
     email: Mapped[str] = mapped_column(
-        String(255), unique=True, nullable=False, index=True,
+        String(255),
+        unique=True,
+        nullable=False,
+        index=True,
     )
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -52,13 +55,19 @@ class User(UUIDMixin, TimestampMixin, Base):
 
     # Relationships
     resumes: Mapped[list[Resume]] = relationship(
-        back_populates='user', cascade='all, delete-orphan', lazy='selectin',
+        back_populates='user',
+        cascade='all, delete-orphan',
+        lazy='selectin',
     )
     vacancies: Mapped[list[Vacancy]] = relationship(
-        back_populates='user', cascade='all, delete-orphan', lazy='selectin',
+        back_populates='user',
+        cascade='all, delete-orphan',
+        lazy='selectin',
     )
     rewrite_history: Mapped[list[RewriteHistory]] = relationship(
-        back_populates='user', cascade='all, delete-orphan', lazy='selectin',
+        back_populates='user',
+        cascade='all, delete-orphan',
+        lazy='selectin',
     )
 
     @property

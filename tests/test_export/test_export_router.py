@@ -23,7 +23,10 @@ class TestExportDocx:
         assert resp.status_code == 404
 
     async def test_success(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Экспорт с текстом → DOCX."""
         task = RewriteHistory(
@@ -44,7 +47,10 @@ class TestExportDocx:
         assert resp.content[:2] == b'PK'
 
     async def test_no_data(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Нет данных для экспорта → 404."""
         task = RewriteHistory(

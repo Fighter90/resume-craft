@@ -4,16 +4,17 @@ Revision ID: 001_initial
 Revises: None
 Create Date: 2025-01-01 00:00:00.000000
 """
+
 from __future__ import annotations
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects.postgresql import JSONB
 
 try:
-    from pgvector.sqlalchemy import Vector  # noqa: F401
+    from pgvector.sqlalchemy import Vector
 
     HAS_PGVECTOR = True
 except ImportError:
@@ -21,9 +22,9 @@ except ImportError:
 
 # revision identifiers, used by Alembic.
 revision: str = '001_initial'
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -42,8 +43,12 @@ def upgrade() -> None:
         sa.Column('plan', sa.String(10), nullable=False, server_default='free'),
         sa.Column('optimizations_used', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default='true'),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            'created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            'updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint('id', name='pk_users'),
         sa.UniqueConstraint('email', name='uq_users_email'),
     )
@@ -61,10 +66,16 @@ def upgrade() -> None:
         sa.Column('raw_text', sa.Text(), nullable=True),
         sa.Column('parsed_data', JSONB(), nullable=True),
         sa.Column('status', sa.String(20), nullable=False, server_default='draft'),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            'created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            'updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint('id', name='pk_resumes'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_resumes_user_id_users', ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], name='fk_resumes_user_id_users', ondelete='CASCADE'
+        ),
     )
     op.create_index('ix_resumes_user_id', 'resumes', ['user_id'])
     op.create_index('ix_resumes_status', 'resumes', ['status'])
@@ -93,9 +104,13 @@ def upgrade() -> None:
         sa.Column('experience', sa.String(50), nullable=True),
         sa.Column('city', sa.String(100), nullable=True),
         sa.Column('source_url', sa.String(500), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            'created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint('id', name='pk_vacancies'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_vacancies_user_id_users', ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], name='fk_vacancies_user_id_users', ondelete='CASCADE'
+        ),
     )
     op.create_index('ix_vacancies_user_id', 'vacancies', ['user_id'])
     op.create_index('ix_vacancies_hh_id', 'vacancies', ['hh_id'])
@@ -127,17 +142,33 @@ def upgrade() -> None:
         sa.Column('tokens_used', sa.Integer(), nullable=True),
         sa.Column('processing_time_ms', sa.Integer(), nullable=True),
         sa.Column('error_message', sa.Text(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            'created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint('id', name='pk_rewrite_history'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_rewrite_history_user_id_users', ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['resume_id'], ['resumes.id'], name='fk_rewrite_history_resume_id_resumes', ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['vacancy_id'], ['vacancies.id'], name='fk_rewrite_history_vacancy_id_vacancies', ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], name='fk_rewrite_history_user_id_users', ondelete='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['resume_id'],
+            ['resumes.id'],
+            name='fk_rewrite_history_resume_id_resumes',
+            ondelete='CASCADE',
+        ),
+        sa.ForeignKeyConstraint(
+            ['vacancy_id'],
+            ['vacancies.id'],
+            name='fk_rewrite_history_vacancy_id_vacancies',
+            ondelete='CASCADE',
+        ),
     )
     op.create_index('ix_rewrite_history_user_id', 'rewrite_history', ['user_id'])
     op.create_index('ix_rewrite_history_resume_id', 'rewrite_history', ['resume_id'])
     op.create_index('ix_rewrite_history_vacancy_id', 'rewrite_history', ['vacancy_id'])
     op.create_index('ix_rewrite_history_status', 'rewrite_history', ['status'])
-    op.create_index('ix_rewrite_history_created_at', 'rewrite_history', [sa.text('created_at DESC')])
+    op.create_index(
+        'ix_rewrite_history_created_at', 'rewrite_history', [sa.text('created_at DESC')]
+    )
 
 
 def downgrade() -> None:

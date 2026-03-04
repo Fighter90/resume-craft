@@ -48,7 +48,9 @@ async def create_from_url(
 ) -> VacancyResponse:
     """Парсинг вакансии по ссылке hh.ru."""
     vacancy = await vacancy_service.create_from_url(
-        session, user_id=current_user.id, url=str(data.url),
+        session,
+        user_id=current_user.id,
+        url=str(data.url),
     )
     return VacancyResponse.model_validate(vacancy)
 
@@ -66,7 +68,9 @@ async def create_manual(
 ) -> VacancyResponse:
     """Создание вакансии вручную (без hh.ru)."""
     vacancy = await vacancy_service.create_manual(
-        session, user_id=current_user.id, data=data,
+        session,
+        user_id=current_user.id,
+        data=data,
     )
     return VacancyResponse.model_validate(vacancy)
 
@@ -83,7 +87,9 @@ async def get_vacancy(
 ) -> VacancyResponse:
     """Получение полной информации о вакансии."""
     vacancy = await vacancy_service.get_vacancy(
-        session, vacancy_id=vacancy_id, user_id=current_user.id,
+        session,
+        vacancy_id=vacancy_id,
+        user_id=current_user.id,
     )
     return VacancyResponse.model_validate(vacancy)
 
@@ -101,6 +107,8 @@ async def delete_vacancy(
 ) -> Response:
     """Удаление вакансии."""
     await vacancy_service.delete_vacancy(
-        session, vacancy_id=vacancy_id, user_id=current_user.id,
+        session,
+        vacancy_id=vacancy_id,
+        user_id=current_user.id,
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

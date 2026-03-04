@@ -12,6 +12,7 @@ from app.rewriter.models import RewriteStatus
 
 # --- Requests ---
 
+
 class RewriteRequest(BaseModel):
     """Запрос на оптимизацию резюме."""
 
@@ -23,6 +24,7 @@ class RewriteRequest(BaseModel):
 
 
 # --- Responses ---
+
 
 class RewriteTaskResponse(BaseModel):
     """Ответ после создания задачи оптимизации."""

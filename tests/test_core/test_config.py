@@ -44,7 +44,10 @@ class TestSettings:
     def test_llm_keys_default_empty(self) -> None:
         """LLM API ключи по умолчанию пустые строки."""
         settings = get_settings()
-        assert settings.gigachat_credentials == '' or isinstance(settings.gigachat_credentials, str)
+        assert settings.gigachat_credentials == '' or isinstance(
+            settings.gigachat_credentials,
+            str,
+        )
         assert settings.groq_api_key == '' or isinstance(settings.groq_api_key, str)
         assert settings.openai_api_key == '' or isinstance(settings.openai_api_key, str)
         assert settings.openrouter_api_key == '' or isinstance(settings.openrouter_api_key, str)

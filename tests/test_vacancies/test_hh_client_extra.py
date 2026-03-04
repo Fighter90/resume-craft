@@ -179,4 +179,3 @@ class TestGetVacancyErrors:
         with pytest.raises(HHApiError):
             await client.get_vacancy(vacancy_id='99999')
         await client.close()
-

@@ -30,7 +30,9 @@ class TestResumeUpload:
 
     @patch('app.resumes.service.file_storage')
     async def test_upload_success(
-        self, mock_storage: AsyncMock, auth_client: AsyncClient,
+        self,
+        mock_storage: AsyncMock,
+        auth_client: AsyncClient,
     ) -> None:
         """Успешная загрузка PDF → 201."""
         mock_storage.save = AsyncMock(return_value='uploads/resume.pdf')
@@ -71,13 +73,20 @@ class TestResumeGetById:
         assert response.status_code == 404
 
     async def test_success(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Получение резюме → 200."""
         resume = Resume(
-            user_id=test_user.id, title='My CV',
-            file_path='uploads/cv.pdf', file_format='pdf', file_size_bytes=5000,
-            raw_text='My experience', status=ResumeStatus.DRAFT,
+            user_id=test_user.id,
+            title='My CV',
+            file_path='uploads/cv.pdf',
+            file_format='pdf',
+            file_size_bytes=5000,
+            raw_text='My experience',
+            status=ResumeStatus.DRAFT,
         )
         session.add(resume)
         await session.flush()
@@ -98,14 +107,20 @@ class TestResumeDelete:
 
     @patch('app.resumes.service.file_storage')
     async def test_success(
-        self, mock_storage: AsyncMock,
-        auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        mock_storage: AsyncMock,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Удаление резюме → 204."""
         mock_storage.delete = AsyncMock()
         resume = Resume(
-            user_id=test_user.id, title='To Delete',
-            file_path='uploads/del.pdf', file_format='pdf', file_size_bytes=100,
+            user_id=test_user.id,
+            title='To Delete',
+            file_path='uploads/del.pdf',
+            file_format='pdf',
+            file_size_bytes=100,
         )
         session.add(resume)
         await session.flush()
@@ -126,13 +141,20 @@ class TestResumeUpdate:
         assert response.status_code == 404
 
     async def test_update_title(
-        self, auth_client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        auth_client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Обновление заголовка → 200."""
         resume = Resume(
-            user_id=test_user.id, title='Old Title',
-            file_path='uploads/cv.pdf', file_format='pdf', file_size_bytes=3000,
-            raw_text='Some text', status=ResumeStatus.DRAFT,
+            user_id=test_user.id,
+            title='Old Title',
+            file_path='uploads/cv.pdf',
+            file_format='pdf',
+            file_size_bytes=3000,
+            raw_text='Some text',
+            status=ResumeStatus.DRAFT,
         )
         session.add(resume)
         await session.flush()
