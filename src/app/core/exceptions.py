@@ -173,6 +173,32 @@ class LLMProviderUnavailable(AppError):
         )
 
 
+class LLMAuthError(AppError):
+    """API-ключ не настроен или невалиден."""
+
+    def __init__(self, provider: str) -> None:
+        provider_names: dict[str, str] = {
+            'gigachat-pro': 'GigaChat',
+            'gigachat-lite': 'GigaChat',
+            'groq': 'Groq (Llama)',
+            'llama-3-70b': 'Groq (Llama)',
+            'openai': 'OpenAI',
+            'gpt-4o': 'OpenAI',
+            'gpt-4o-mini': 'OpenAI',
+            'openrouter': 'OpenRouter',
+        }
+        name = provider_names.get(provider, provider)
+        super().__init__(
+            message=f'API-ключ для {name} не настроен',
+            status_code=400,
+            error_code='LLM_AUTH_ERROR',
+            detail=(
+                f'Для использования {name} необходимо указать API-ключ '
+                'в настройках или выбрать другую модель (например OpenRouter).'
+            ),
+        )
+
+
 class LLMResponseError(AppError):
     def __init__(self, detail: str | None = None) -> None:
         super().__init__(

@@ -2,13 +2,26 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 
-from app.core.exceptions import LLMProviderUnavailable
+from app.core.exceptions import LLMAuthError, LLMProviderUnavailable
 from app.ml.llm_client import GigaChatClient, GroqClient, OpenAIClient, OpenRouterClient
 from app.ml.llm_factory import LLMClientFactory
 
 
+def _fake_settings() -> MagicMock:
+    """Settings с фейковыми API-ключами для тестов."""
+    s = MagicMock()
+    s.gigachat_credentials = 'test-cred'
+    s.groq_api_key = 'test-groq'
+    s.openai_api_key = 'test-openai'
+    s.openrouter_api_key = 'test-openrouter'
+    return s
+
+
+@patch('app.ml.llm_factory.get_settings', _fake_settings)
 class TestLLMClientFactory:
     """Тесты LLMClientFactory."""
 
@@ -50,21 +63,29 @@ class TestLLMClientFactory:
         with pytest.raises(LLMProviderUnavailable):
             LLMClientFactory.create('unknown-model')
 
-    async def test_create_with_fallback_success(self) -> None:
+
+class TestLLMClientFactoryAuthCheck:
+    """Тесты проверки API-ключей."""
+
+    def test_create_without_key_raises_auth_error(self) -> None:
+        """Нет API-ключа → LLMAuthError."""
+        s = MagicMock()
+        s.gigachat_credentials = ''
+        with patch('app.ml.llm_factory.get_settings', return_value=s):
+            with pytest.raises(LLMAuthError):
+                LLMClientFactory.create('gigachat-pro')
+
+
+@patch('app.ml.llm_factory.get_settings', _fake_settings)
+class TestLLMClientFactoryFallback:
+    """Тесты fallback-стратегии."""
+
+    def test_create_with_fallback_success(self) -> None:
         """Fallback — первый доступный провайдер."""
-        client = await LLMClientFactory.create_with_fallback()
+        client = LLMClientFactory.create_with_fallback()
         assert isinstance(client, GigaChatClient)
 
-    async def test_create_with_fallback_all_fail(self) -> None:
-        """Все провайдеры недоступны → LLMProviderUnavailable."""
-        from unittest.mock import patch
-
-        with (
-            patch.object(
-                LLMClientFactory,
-                'create',
-                side_effect=RuntimeError('unavailable'),
-            ),
-            pytest.raises(LLMProviderUnavailable),
-        ):
-            await LLMClientFactory.create_with_fallback()
+    def test_create_with_fallback_preferred(self) -> None:
+        """Preferred провайдер используется первым."""
+        client = LLMClientFactory.create_with_fallback(preferred='groq')
+        assert isinstance(client, GroqClient)

@@ -87,14 +87,19 @@ export class ApiClient {
     return this.request<unknown>('POST', '/vacancies/manual', data)
   }
 
-  async startRewrite(resumeId: string, vacancyId: string, model: string) {
+  async getModels() {
+    return this.request<{ models: Array<{ id: string; name: string; provider: string; available: boolean; description: string; sub_models?: Array<{ id: string; name: string; provider: string }> }> }>('GET', '/models')
+  }
+
+  async startRewrite(resumeId: string, vacancyId: string, model: string, openrouterModel?: string) {
     return this.request<{ task_id: string }>('POST', '/rewrite', {
       resume_id: resumeId, vacancy_id: vacancyId, model,
+      ...(openrouterModel ? { openrouter_model: openrouterModel } : {}),
     })
   }
 
   async getRewriteStatus(taskId: string) {
-    return this.request<{ status: string; step: string; progress: number }>('GET', `/rewrite/${taskId}/status`)
+    return this.request<{ status: string; step: string; progress: number; error_message?: string }>('GET', `/rewrite/${taskId}/status`)
   }
 
   async getRewriteResult(taskId: string) {

@@ -1,6 +1,10 @@
-import { useState } from 'react'
-import { Save, RotateCcw, Eye, EyeOff, Zap, Brain, Globe, Cpu } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Save, RotateCcw, Eye, EyeOff, Zap, Brain, Globe, Cpu, AlertTriangle, CheckCircle } from 'lucide-react'
+import { api } from '../../services/api'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+interface SubModel { id: string; name: string; provider: string }
 interface ModelOption {
   id: string
   name: string
@@ -11,6 +15,7 @@ interface ModelOption {
   icon: typeof Cpu
   apiKeyField: string
   apiKeyPlaceholder: string
+  available?: boolean
 }
 
 const MODELS: ModelOption[] = [
@@ -61,11 +66,36 @@ export default function SettingsAiPage() {
     savedSettings.toggles || Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
   )
   const [saved, setSaved] = useState(false)
+  const [serverModels, setServerModels] = useState<ModelOption[]>([])
+  const [openrouterSubModels, setOpenrouterSubModels] = useState<SubModel[]>([])
+  const [selectedOrModel, setSelectedOrModel] = useState<string>(savedSettings.openrouterModel || '')
+
+  // Fetch server-side model availability
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.getModels()
+        const list = res.models || []
+        setServerModels(list.map((m: any) => ({ ...m, icon: Cpu, apiKeyField: '', apiKeyPlaceholder: '' })))
+        const or = list.find((m: any) => m.id === 'openrouter')
+        if (or?.sub_models?.length) {
+          setOpenrouterSubModels(or.sub_models)
+          if (!selectedOrModel) setSelectedOrModel(or.sub_models[0].id)
+        }
+      } catch { /* server unavailable, continue with local settings */ }
+    }
+    load()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const getServerAvailability = (modelId: string): boolean | null => {
+    const m = serverModels.find((s: any) => s.id === modelId)
+    return m ? m.available ?? null : null
+  }
 
   const toggle = (id: string) => setToggles({ ...toggles, [id]: !toggles[id] })
 
   const handleSave = () => {
-    localStorage.setItem('ai_settings', JSON.stringify({ model, apiKeys, toggles }))
+    localStorage.setItem('ai_settings', JSON.stringify({ model, apiKeys, toggles, openrouterModel: selectedOrModel }))
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -74,6 +104,7 @@ export default function SettingsAiPage() {
     setModel('gigachat-pro')
     setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
     setApiKeys({ gigachat: '', openai: '', groq: '', openrouter: '' })
+    setSelectedOrModel('')
     localStorage.removeItem('ai_settings')
   }
 
@@ -114,6 +145,12 @@ export default function SettingsAiPage() {
                     background: m.badgeColor, color: '#fff',
                   }}>{m.badge}</span>
                 )}
+                {getServerAvailability(m.id) === true && (
+                  <span title="Ключ настроен на сервере"><CheckCircle size={14} color="#059669" /></span>
+                )}
+                {getServerAvailability(m.id) === false && (
+                  <span title="Ключ не настроен на сервере"><AlertTriangle size={14} color="#D97706" /></span>
+                )}
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{m.desc}</div>
             </div>
@@ -127,6 +164,26 @@ export default function SettingsAiPage() {
           </div>
         ))}
       </div>
+
+      {/* OpenRouter sub-model picker */}
+      {model === 'openrouter' && openrouterSubModels.length > 0 && (
+        <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid var(--primary, #4F46E5)', background: 'var(--primary-bg, #EEF2FF)' }}>
+          <h4 style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem' }}>Модель OpenRouter</h4>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+            Выберите конкретную модель из каталога OpenRouter
+          </p>
+          <select
+            className="input-field"
+            value={selectedOrModel}
+            onChange={e => setSelectedOrModel(e.target.value)}
+            style={{ width: '100%' }}
+          >
+            {openrouterSubModels.map(sm => (
+              <option key={sm.id} value={sm.id}>{sm.name} — {sm.provider}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* API Keys */}
       <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>

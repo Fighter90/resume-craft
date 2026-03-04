@@ -36,6 +36,7 @@ async def create_rewrite_task(
     resume_id: UUID,
     vacancy_id: UUID,
     model_name: str = 'gigachat-pro',
+    openrouter_model: str | None = None,
 ) -> RewriteHistory:
     """Создание задачи оптимизации.
 
@@ -61,18 +62,23 @@ async def create_rewrite_task(
     if not original_text.strip():
         logger.warning('Resume %s has no raw_text, using empty string', resume_id)
 
+    # Сохраняем openrouter sub-model в model_name (openrouter:model_id)
+    effective_model = model_name
+    if model_name == 'openrouter' and openrouter_model:
+        effective_model = f'openrouter:{openrouter_model}'
+
     task = RewriteHistory(
         user_id=user_id,
         resume_id=resume_id,
         vacancy_id=vacancy_id,
         original_text=original_text,
-        model_name=model_name,
+        model_name=effective_model[:50],  # VARCHAR(50) limit
         status=RewriteStatus.PENDING,
     )
     session.add(task)
     await session.flush()
 
-    logger.info('Rewrite task created: %s (model=%s)', task.id, model_name)
+    logger.info('Rewrite task created: %s (model=%s)', task.id, effective_model)
     return task
 
 
@@ -119,7 +125,17 @@ async def execute_rewrite(
             )
 
         # Step 4: Rewrite через LLM (с retry при невалидном JSON)
-        llm_client = LLMClientFactory.create(task.model_name or 'gigachat-pro')
+        # Парсим openrouter sub-model если сохранено как 'openrouter:model_id'
+        provider_name = task.model_name or 'gigachat-pro'
+        openrouter_sub: str | None = None
+        if provider_name.startswith('openrouter:'):
+            openrouter_sub = provider_name.split(':', 1)[1]
+            provider_name = 'openrouter'
+
+        llm_client = LLMClientFactory.create_with_fallback(
+            preferred=provider_name,
+            openrouter_model=openrouter_sub,
+        )
         try:
             user_prompt = f'РЕЗЮМЕ:\n{sanitized_resume}\n\nВАКАНСИЯ:\n{sanitized_vacancy}'
             response: str | None = None
@@ -170,7 +186,16 @@ async def execute_rewrite(
 
     except Exception as exc:
         task.status = RewriteStatus.FAILED
-        task.error_message = str(exc)[:500]
+        # Формируем понятное сообщение об ошибке для пользователя
+        from app.core.exceptions import AppError
+
+        if isinstance(exc, AppError):
+            error_msg = exc.message
+            if exc.detail:
+                error_msg = f'{exc.message}. {exc.detail}'
+        else:
+            error_msg = str(exc)[:500]
+        task.error_message = error_msg
         logger.exception('Rewrite task failed: %s', task_id)
 
     finally:

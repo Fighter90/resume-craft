@@ -46,6 +46,7 @@ async def create_rewrite(
         resume_id=data.resume_id,
         vacancy_id=data.vacancy_id,
         model_name=data.model,
+        openrouter_model=data.openrouter_model,
     )
 
     # Обновление счётчика оптимизаций

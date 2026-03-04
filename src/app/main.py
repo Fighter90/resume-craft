@@ -15,6 +15,7 @@ from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.core.seed import seed_test_user
 from app.export.router import router as export_router
+from app.ml.router import router as models_router
 from app.resumes.router import router as resumes_router
 from app.rewriter.router import router as rewrite_router
 from app.vacancies.router import router as vacancies_router
@@ -91,6 +92,7 @@ def create_app() -> FastAPI:
     app.include_router(vacancies_router, prefix=api_prefix)
     app.include_router(rewrite_router, prefix=api_prefix)
     app.include_router(export_router, prefix=api_prefix)
+    app.include_router(models_router, prefix=api_prefix)
 
     # --- Health Check ---
     @app.get('/health', tags=['system'], summary='Health Check')

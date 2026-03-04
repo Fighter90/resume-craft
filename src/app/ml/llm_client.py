@@ -1,4 +1,4 @@
-"""Базовый LLM-клиент и реализации для GigaChat, Groq, OpenAI."""
+"""Базовый LLM-клиент и реализации для GigaChat, Groq, OpenAI, OpenRouter."""
 
 from __future__ import annotations
 
@@ -11,6 +11,39 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
+
+
+def _handle_llm_error(exc: Exception, *, provider: str) -> None:
+    """Обработка ошибок LLM-провайдеров → понятные исключения."""
+    from app.core.exceptions import LLMAuthError, LLMProviderUnavailable
+
+    err_str = str(exc)
+    status_code: int | None = getattr(exc, 'status_code', None)
+
+    # 401 — невалидный ключ
+    if status_code == 401 or '401' in err_str or 'Unauthorized' in err_str:
+        raise LLMAuthError(provider) from exc
+
+    # 429 — rate limit
+    if status_code == 429 or '429' in err_str or 'rate' in err_str.lower():
+        raise LLMProviderUnavailable(
+            f'{provider} — превышен лимит запросов, попробуйте позже'
+        ) from exc
+
+    # 5xx — сервер провайдера
+    if status_code and status_code >= 500:
+        raise LLMProviderUnavailable(
+            f'{provider} — сервер провайдера временно недоступен'
+        ) from exc
+
+    # Timeout
+    if 'timeout' in err_str.lower() or 'timed out' in err_str.lower():
+        raise LLMProviderUnavailable(
+            f'{provider} — таймаут запроса, попробуйте позже'
+        ) from exc
+
+    # Другая ошибка — пробросим с контекстом
+    raise LLMProviderUnavailable(f'{provider}: {err_str[:200]}') from exc
 
 
 class BaseLLMClient(ABC):
@@ -86,7 +119,11 @@ class GigaChatClient(BaseLLMClient):
             max_tokens=max_tokens,
         )
 
-        response = client.chat(payload)
+        try:
+            response = client.chat(payload)
+        except Exception as exc:
+            _handle_llm_error(exc, provider='gigachat-pro')
+
         content = response.choices[0].message.content
 
         logger.info(
@@ -130,15 +167,18 @@ class GroqClient(BaseLLMClient):
         """Запрос к Groq API."""
         client = self._get_client()
 
-        response = await client.chat.completions.create(
-            model=self._model,
-            messages=[
-                {'role': 'system', 'content': system},
-                {'role': 'user', 'content': user},
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        try:
+            response = await client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {'role': 'system', 'content': system},
+                    {'role': 'user', 'content': user},
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except Exception as exc:
+            _handle_llm_error(exc, provider='groq')
 
         content = response.choices[0].message.content or ''
         logger.info(
@@ -181,15 +221,18 @@ class OpenAIClient(BaseLLMClient):
         """Запрос к OpenAI API."""
         client = self._get_client()
 
-        response = await client.chat.completions.create(
-            model=self._model,
-            messages=[
-                {'role': 'system', 'content': system},
-                {'role': 'user', 'content': user},
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        try:
+            response = await client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {'role': 'system', 'content': system},
+                    {'role': 'user', 'content': user},
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except Exception as exc:
+            _handle_llm_error(exc, provider='openai')
 
         content = response.choices[0].message.content or ''
         logger.info('OpenAI response: model=%s', self._model)
@@ -235,15 +278,18 @@ class OpenRouterClient(BaseLLMClient):
         """Запрос к OpenRouter API."""
         client = self._get_client()
 
-        response = await client.chat.completions.create(
-            model=self._model,
-            messages=[
-                {'role': 'system', 'content': system},
-                {'role': 'user', 'content': user},
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        try:
+            response = await client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {'role': 'system', 'content': system},
+                    {'role': 'user', 'content': user},
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except Exception as exc:
+            _handle_llm_error(exc, provider='openrouter')
 
         content = response.choices[0].message.content or ''
         logger.info(

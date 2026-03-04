@@ -230,7 +230,7 @@ class TestExecuteRewrite:
         mock_client = AsyncMock()
         mock_client.complete.return_value = llm_response
         mock_client.close = AsyncMock()
-        mock_factory.create.return_value = mock_client
+        mock_factory.create_with_fallback.return_value = mock_client
 
         result = await execute_rewrite(session, task_id=task.id)
         assert result.status == RewriteStatus.COMPLETED
@@ -282,7 +282,7 @@ class TestExecuteRewrite:
         mock_client = AsyncMock()
         mock_client.complete.side_effect = RuntimeError('LLM exploded')
         mock_client.close = AsyncMock()
-        mock_factory.create.return_value = mock_client
+        mock_factory.create_with_fallback.return_value = mock_client
 
         result = await execute_rewrite(session, task_id=task.id)
         assert result.status == RewriteStatus.FAILED
@@ -337,7 +337,7 @@ class TestExecuteRewrite:
             side_effect=['This is not valid JSON at all', valid_json],
         )
         mock_client.close = AsyncMock()
-        mock_factory.create.return_value = mock_client
+        mock_factory.create_with_fallback.return_value = mock_client
 
         result = await execute_rewrite(session, task_id=task.id)
         assert result.status == RewriteStatus.COMPLETED
