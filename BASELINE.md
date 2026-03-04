@@ -69,7 +69,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 - 2FA (→ Phase 2)
 - Email verification (→ Phase 2)
 - Интерактивный редактор (→ Phase 2)
-- GPT-4o (→ Phase 2, только GigaChat Pro + Llama 3)
+- GPT-4o (подключен через alias, основные: GigaChat Pro + Llama 3)
 
 ---
 
@@ -177,7 +177,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **563** |
+| Тестов | — | **565** |
 
 ---
 
@@ -729,8 +729,17 @@ class GroqClient(BaseLLMClient): ...
 class LLMClientFactory:
     _clients = {
         "gigachat-pro": GigaChatClient,
-        "llama-3": GroqClient,
+        "gigachat-lite": GigaChatClient,
+        "groq": GroqClient,
+        "llama-3.3-70b": GroqClient,
+        "llama-3-70b": GroqClient,
+        "openrouter": OpenRouterClient,
+        "openai": OpenAIClient,
+        "gpt-4o-mini": OpenAIClient,
+        "gpt-4o": OpenAIClient,
     }
+
+    FALLBACK_ORDER = ["gigachat-pro", "groq", "openrouter", "openai"]
 
     @classmethod
     def create(cls, model: str) -> BaseLLMClient:
@@ -937,9 +946,9 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов** | 365 (pytest + pytest-asyncio) |
+| **Backend тестов** | 367 (pytest + pytest-asyncio) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 563 |
+| **Всего тестов** | 565 |
 | **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
@@ -967,8 +976,8 @@ def validate_upload(file: UploadFile) -> None:
 | `test_vacancies/` | 42 | hh.ru клиент, CRUD, retry, таймауты, HTTP-ошибки — 100% |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
-| `test_ml/` | 62 | LLM-клиенты, фабрика, скоринг — 100% |
-| `test_core/` | 77 | config, security, database, storage, exceptions, deps, **seed** — 100% |
+| `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация — 100% |
+| `test_core/` | 79 | config, security, database, storage, exceptions, deps, **seed** — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
 | `test_health` | 1 | GET /health — 100% |
@@ -1126,7 +1135,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **563** (365 backend + 198 frontend) |
+| Тестов всего | — | **565** (367 backend + 198 frontend) |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1197,7 +1206,7 @@ Docker Desktop → docker compose up -d
 | UI | React SPA (23 маршрута, модульная архитектура, 198 тестов) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
 | Оплата | Робокасса (тестовый режим, URL-генерация + подпись) |
-| Тестирование | Unit + Integration + Frontend, 563 теста, 100% backend coverage |
+| Тестирование | Unit + Integration + Frontend, 565 тестов, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 
@@ -1206,7 +1215,7 @@ Docker Desktop → docker compose up -d
 | OAuth hh.ru | Phase 2 |
 | ЮKassa | Заменено на Робокассу |
 | 2FA | Phase 2 |
-| GPT-4o | Phase 2 |
+| GPT-4o | Подключен в MVP (alias в LLMClientFactory) |
 | PDF export + шаблоны | Phase 2 |
 | WYSIWYG-редактор | Phase 2 |
 | Email verification | Phase 2 |

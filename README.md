@@ -728,7 +728,7 @@ Fallback автоматический с уведомлением пользов
 | **Экспорт** | DOCX | PDF + DOCX | Все + hh.ru |
 | **Шаблоны** | 1 (Minimal) | 3 | Все + кастом |
 
-> ¹ GPT-4o подключается в Phase 2. В MVP доступны GigaChat Pro и Llama 3.
+> ¹ GPT-4o подключен в MVP через alias в LLMClientFactory. Основные модели: GigaChat Pro и Llama 3.
 
 **Позиционирование:** в 5–9x дешевле глобальных аналогов (Rezi $29, Jobscan $49) с нативной интеграцией hh.ru.
 
@@ -901,9 +901,9 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов** | 365 (pytest + pytest-asyncio) |
+| **Backend тестов** | 367 (pytest + pytest-asyncio) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 563 |
+| **Всего тестов** | 565 |
 | **Backend покрытие** | 100% |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -933,10 +933,10 @@ cd frontend && npm run test:watch
 | `test_auth/` | 55 | Регистрация, логин, refresh, logout, модели, схемы, сервис, edge-cases |
 | `test_resumes/` | 39 | Upload, CRUD, парсинг PDF/DOCX, валидация, эмбеддинги |
 | `test_vacancies/` | 42 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки |
-| `test_rewriter/` | 39 | Celery tasks, pipeline, статусы, история, LLM retry |
+| `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, история, LLM retry |
 | `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
 | `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация |
-| `test_core/` | 76 | Config, security, database, storage, exceptions, dependencies |
+| `test_core/` | 79 | Config, security, database, storage, exceptions, dependencies |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
 | `test_coverage_gaps` | 22 | Edge-cases: scoring, embedding fallback, export |
 
