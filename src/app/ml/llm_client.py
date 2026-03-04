@@ -38,9 +38,7 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
 
     # Timeout
     if 'timeout' in err_str.lower() or 'timed out' in err_str.lower():
-        raise LLMProviderUnavailable(
-            f'{provider} — таймаут запроса, попробуйте позже'
-        ) from exc
+        raise LLMProviderUnavailable(f'{provider} — таймаут запроса, попробуйте позже') from exc
 
     # Другая ошибка — пробросим с контекстом
     raise LLMProviderUnavailable(f'{provider}: {err_str[:200]}') from exc
