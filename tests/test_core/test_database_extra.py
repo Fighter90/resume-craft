@@ -13,8 +13,16 @@ class TestEngineKwargs:
 
     def test_sqlite_kwargs(self) -> None:
         """SQLite → без pool_size/max_overflow."""
-        kwargs = _get_engine_kwargs()
-        # В тестах используется SQLite
+        from app.core.config import Settings
+
+        mock_settings = Settings(
+            secret_key='test-key',
+            database_url='sqlite+aiosqlite://',
+            database_echo=False,
+        )
+        with patch('app.core.database.get_settings', return_value=mock_settings):
+            kwargs = _get_engine_kwargs()
+
         assert 'pool_size' not in kwargs
         assert 'max_overflow' not in kwargs
 
