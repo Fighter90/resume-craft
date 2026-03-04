@@ -36,6 +36,16 @@ class TestLLMClientFactory:
         client = LLMClientFactory.create('openrouter')
         assert isinstance(client, OpenRouterClient)
 
+    def test_create_gpt4o_alias(self) -> None:
+        """Frontend alias gpt-4o → OpenAIClient."""
+        client = LLMClientFactory.create('gpt-4o')
+        assert isinstance(client, OpenAIClient)
+
+    def test_create_llama_short_alias(self) -> None:
+        """Frontend alias llama-3-70b → GroqClient."""
+        client = LLMClientFactory.create('llama-3-70b')
+        assert isinstance(client, GroqClient)
+
     def test_create_unknown(self) -> None:
         with pytest.raises(LLMProviderUnavailable):
             LLMClientFactory.create('unknown-model')

@@ -21,8 +21,10 @@ _PROVIDERS: dict[str, type[BaseLLMClient]] = {
     'gigachat-lite': GigaChatClient,
     'groq': GroqClient,
     'llama-3.3-70b': GroqClient,
+    'llama-3-70b': GroqClient,
     'openai': OpenAIClient,
     'gpt-4o-mini': OpenAIClient,
+    'gpt-4o': OpenAIClient,
     'openrouter': OpenRouterClient,
 }
 
@@ -32,8 +34,10 @@ _MODEL_NAMES: dict[str, str] = {
     'gigachat-lite': 'GigaChat',
     'groq': 'llama-3.3-70b-versatile',
     'llama-3.3-70b': 'llama-3.3-70b-versatile',
+    'llama-3-70b': 'llama-3.3-70b-versatile',
     'openai': 'gpt-4o-mini',
     'gpt-4o-mini': 'gpt-4o-mini',
+    'gpt-4o': 'gpt-4o',
     'openrouter': 'anthropic/claude-3.5-sonnet',
 }
 
