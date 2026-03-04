@@ -46,6 +46,21 @@ describe('App Router', () => {
     expect(screen.getByText('Страница не найдена')).toBeInTheDocument()
   })
 
+  it('renders privacy page at /privacy', () => {
+    renderApp('/privacy')
+    expect(screen.getByText('Политика конфиденциальности')).toBeInTheDocument()
+  })
+
+  it('renders terms page at /terms', () => {
+    renderApp('/terms')
+    expect(screen.getByText('Правила сервиса')).toBeInTheDocument()
+  })
+
+  it('renders about page at /about', () => {
+    renderApp('/about')
+    expect(screen.getByText('О сервисе ResumeCraft')).toBeInTheDocument()
+  })
+
   it('renders dashboard at /app/dashboard', () => {
     renderApp('/app/dashboard')
     expect(screen.getByRole('heading', { name: /добрый день/i })).toBeInTheDocument()

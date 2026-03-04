@@ -36,6 +36,17 @@ const MODELS = [
     speed: 95,
     tags: ['Скорость', 'Бесплатно', 'Open Source'],
   },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    provider: 'OpenRouter',
+    badge: 'Гибкая',
+    badgeClass: 'badge-indigo',
+    description: '100+ моделей через единый API. Claude, Gemini, Mistral и другие — выбирайте лучшую.',
+    quality: 90,
+    speed: 80,
+    tags: ['Мультимодель', 'Гибкость', '100+ моделей'],
+  },
 ]
 
 export default function ModelsPage() {

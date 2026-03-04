@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FileText, BarChart3, TrendingUp, Plus } from 'lucide-react'
+import { FileText, BarChart3, TrendingUp, Plus, Clock } from 'lucide-react'
 import { DEMO_RESUMES } from '../../data/demo'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -12,16 +12,16 @@ export default function DashboardPage() {
       <div className="page-header">
         <div>
           <h1>Добрый день, {displayName}</h1>
-          <p>Управляйте резюме и отслеживайте результаты</p>
+          <p>Готовы получить оффер мечты сегодня?</p>
         </div>
-        <Link to="/app/upload" className="btn btn-primary">Оптимизировать резюме</Link>
+        <Link to="/app/upload" className="btn btn-primary"><Plus size={16} /> Оптимизировать резюме</Link>
       </div>
 
       {/* Stats */}
       <div className="stats-grid">
         <div className="card stat-card">
           <div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Всего резюме</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Загружено резюме</div>
             <div style={{ fontSize: '2rem', fontWeight: 700 }}>12</div>
           </div>
           <div className="stat-icon" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
@@ -40,7 +40,13 @@ export default function DashboardPage() {
         <div className="card stat-card">
           <div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Средний Match Score</div>
-            <div style={{ fontSize: '2rem', fontWeight: 700 }}>78%</div>
+            <div style={{ position: 'relative', width: 56, height: 56, margin: '0.25rem 0' }}>
+              <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#E5E7EB" strokeWidth="3" />
+                <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#D97706" strokeWidth="3" strokeDasharray="78,100" />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#D97706' }}>78%</div>
+            </div>
           </div>
           <div className="stat-icon" style={{ background: '#FEF3C7', color: '#D97706' }}>
             <BarChart3 size={24} />
@@ -56,7 +62,7 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{r.title}</h3>
               <span className={`badge ${r.status === 'optimized' ? 'badge-green' : 'badge-gray'}`}>
-                {r.status === 'optimized' ? 'Optimized' : 'Draft'}
+                {r.status === 'optimized' ? 'Оптимизировано' : 'Черновик'}
               </span>
             </div>
             {r.match_score && (

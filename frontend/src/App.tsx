@@ -12,6 +12,9 @@ import AuthPage from './pages/auth/AuthPage'
 import PasswordRecoveryPage from './pages/auth/PasswordRecoveryPage'
 import EmailVerifyPage from './pages/auth/EmailVerifyPage'
 import PricingPage from './pages/PricingPage'
+import PrivacyPage from './pages/PrivacyPage'
+import TermsPage from './pages/TermsPage'
+import AboutPage from './pages/AboutPage'
 import ErrorPage from './pages/ErrorPage'
 
 // App pages
@@ -53,6 +56,9 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/about" element={<AboutPage />} />
       </Route>
 
       {/* Centered routes */}

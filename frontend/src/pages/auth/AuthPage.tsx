@@ -213,8 +213,8 @@ export default function AuthPage() {
 
             <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.5 }}>
               Продолжая, вы принимаете{' '}
-              <a href="#" style={{ color: 'var(--primary)' }}>политику конфиденциальности</a> и{' '}
-              <a href="#" style={{ color: 'var(--primary)' }}>правила сервиса</a>
+              <Link to="/privacy" style={{ color: 'var(--primary)' }}>политику конфиденциальности</Link> и{' '}
+              <Link to="/terms" style={{ color: 'var(--primary)' }}>правила сервиса</Link>
             </p>
           </div>
         </div>

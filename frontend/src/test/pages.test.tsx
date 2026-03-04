@@ -282,7 +282,8 @@ import SettingsProfilePage from '../pages/settings/SettingsProfilePage'
 describe('SettingsProfilePage', () => {
   it('renders profile form fields', () => {
     renderWithProviders(<SettingsProfilePage />)
-    expect(screen.getByText('Имя и фамилия')).toBeInTheDocument()
+    expect(screen.getByText('Имя')).toBeInTheDocument()
+    expect(screen.getByText('Фамилия')).toBeInTheDocument()
     expect(screen.getByText('Email')).toBeInTheDocument()
     expect(screen.getByText('Телефон')).toBeInTheDocument()
     expect(screen.getByText('Город')).toBeInTheDocument()
@@ -292,9 +293,9 @@ describe('SettingsProfilePage', () => {
 
   it('form inputs are editable', () => {
     renderWithProviders(<SettingsProfilePage />)
-    const nameInput = screen.getByDisplayValue('Алексей Петров')
-    fireEvent.change(nameInput, { target: { value: 'Иван Иванов' } })
-    expect(nameInput).toHaveValue('Иван Иванов')
+    const nameInput = screen.getByDisplayValue('Алексей')
+    fireEvent.change(nameInput, { target: { value: 'Иван' } })
+    expect(nameInput).toHaveValue('Иван')
   })
 
   it('renders avatar with initials', () => {
@@ -304,7 +305,7 @@ describe('SettingsProfilePage', () => {
 
   it('renders save button', () => {
     renderWithProviders(<SettingsProfilePage />)
-    expect(screen.getByText('Сохранить')).toBeInTheDocument()
+    expect(screen.getByText('Сохранить изменения')).toBeInTheDocument()
   })
 })
 
@@ -343,7 +344,7 @@ describe('DashboardPage', () => {
 
   it('renders stats grid', () => {
     renderWithProviders(<DashboardPage />, '/app/dashboard')
-    expect(screen.getByText('Всего резюме')).toBeInTheDocument()
+    expect(screen.getByText('Загружено резюме')).toBeInTheDocument()
     expect(screen.getByText('Оптимизаций')).toBeInTheDocument()
     expect(screen.getByText('Средний Match Score')).toBeInTheDocument()
   })
@@ -472,7 +473,395 @@ describe('ResultsPage', () => {
 
   it('renders action buttons', () => {
     renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Редактировать')).toBeInTheDocument()
-    expect(screen.getByText('Экспорт')).toBeInTheDocument()
+    expect(screen.getAllByText('Редактировать').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Экспорт').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders readability metric', () => {
+    renderWithProviders(<ResultsPage />, '/app/results')
+    expect(screen.getByText('Читаемость')).toBeInTheDocument()
+  })
+
+  it('renders ATS compatibility', () => {
+    renderWithProviders(<ResultsPage />, '/app/results')
+    expect(screen.getByText('ATS совместимость')).toBeInTheDocument()
+  })
+
+  it('renders page header with title', () => {
+    renderWithProviders(<ResultsPage />, '/app/results')
+    expect(screen.getByText('Результаты оптимизации')).toBeInTheDocument()
+  })
+
+  it('renders AI model info', () => {
+    renderWithProviders(<ResultsPage />, '/app/results')
+    expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
+  })
+})
+
+// ===================== PrivacyPage =====================
+import PrivacyPage from '../pages/PrivacyPage'
+
+describe('PrivacyPage', () => {
+  it('renders privacy policy title', () => {
+    renderWithProviders(<PrivacyPage />)
+    expect(screen.getByText('Политика конфиденциальности')).toBeInTheDocument()
+  })
+
+  it('renders all 8 sections', () => {
+    renderWithProviders(<PrivacyPage />)
+    expect(screen.getByText('1. Общие положения')).toBeInTheDocument()
+    expect(screen.getByText('2. Какие данные мы собираем')).toBeInTheDocument()
+    expect(screen.getByText('3. Цели обработки')).toBeInTheDocument()
+    expect(screen.getByText('4. Хранение данных')).toBeInTheDocument()
+    expect(screen.getByText('5. AI-обработка данных')).toBeInTheDocument()
+    expect(screen.getByText('6. Права пользователя')).toBeInTheDocument()
+    expect(screen.getByText('7. Cookies')).toBeInTheDocument()
+    expect(screen.getByText('8. Контакты')).toBeInTheDocument()
+  })
+
+  it('renders back-to-home link', () => {
+    renderWithProviders(<PrivacyPage />)
+    expect(screen.getByText('На главную')).toBeInTheDocument()
+  })
+
+  it('mentions FZ-152 compliance', () => {
+    renderWithProviders(<PrivacyPage />)
+    expect(screen.getByText(/152-ФЗ/)).toBeInTheDocument()
+  })
+
+  it('renders contact email', () => {
+    renderWithProviders(<PrivacyPage />)
+    expect(screen.getByText('privacy@resumecraft.ru')).toBeInTheDocument()
+  })
+})
+
+// ===================== TermsPage =====================
+import TermsPage from '../pages/TermsPage'
+
+describe('TermsPage', () => {
+  it('renders terms title', () => {
+    renderWithProviders(<TermsPage />)
+    expect(screen.getByText('Правила сервиса')).toBeInTheDocument()
+  })
+
+  it('renders all 8 sections', () => {
+    renderWithProviders(<TermsPage />)
+    expect(screen.getByText('1. Предмет соглашения')).toBeInTheDocument()
+    expect(screen.getByText('2. Описание сервиса')).toBeInTheDocument()
+    expect(screen.getByText('3. Регистрация и аккаунт')).toBeInTheDocument()
+    expect(screen.getByText('4. Тарифные планы')).toBeInTheDocument()
+    expect(screen.getByText('5. Ограничения AI')).toBeInTheDocument()
+    expect(screen.getByText('6. Загрузка файлов')).toBeInTheDocument()
+    expect(screen.getByText('7. Ответственность')).toBeInTheDocument()
+    expect(screen.getByText('8. Контакты')).toBeInTheDocument()
+  })
+
+  it('renders back-to-home link', () => {
+    renderWithProviders(<TermsPage />)
+    expect(screen.getByText('На главную')).toBeInTheDocument()
+  })
+
+  it('renders tariff info', () => {
+    renderWithProviders(<TermsPage />)
+    expect(screen.getAllByText(/490 ₽/).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText(/1 490 ₽/)).toBeInTheDocument()
+  })
+
+  it('renders contact email', () => {
+    renderWithProviders(<TermsPage />)
+    expect(screen.getByText('support@resumecraft.ru')).toBeInTheDocument()
+  })
+})
+
+// ===================== AboutPage =====================
+import AboutPage from '../pages/AboutPage'
+
+describe('AboutPage', () => {
+  it('renders about page title', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('О сервисе ResumeCraft')).toBeInTheDocument()
+  })
+
+  it('renders mission section', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('Наша миссия')).toBeInTheDocument()
+  })
+
+  it('renders capabilities section', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('Что мы делаем')).toBeInTheDocument()
+  })
+
+  it('renders technologies section', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('Технологии')).toBeInTheDocument()
+  })
+
+  it('renders contacts section', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('Контакты')).toBeInTheDocument()
+    expect(screen.getByText('support@resumecraft.ru')).toBeInTheDocument()
+    expect(screen.getByText('@resumecraft_support')).toBeInTheDocument()
+    expect(screen.getByText('Москва, Россия')).toBeInTheDocument()
+  })
+
+  it('renders back-to-home link', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('На главную')).toBeInTheDocument()
+  })
+
+  it('links to privacy policy', () => {
+    renderWithProviders(<AboutPage />)
+    expect(screen.getByText('Политика конфиденциальности')).toBeInTheDocument()
+  })
+})
+
+// ===================== EditorPage (enhanced) =====================
+import EditorPage from '../pages/wizard/EditorPage'
+
+describe('EditorPage', () => {
+  it('renders all section tabs', () => {
+    renderWithProviders(<EditorPage />, '/app/editor')
+    expect(screen.getAllByText('Заголовок').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Опыт работы')).toBeInTheDocument()
+    expect(screen.getByText('Образование')).toBeInTheDocument()
+    expect(screen.getByText('Навыки')).toBeInTheDocument()
+    expect(screen.getByText('О себе')).toBeInTheDocument()
+  })
+
+  it('renders header form with structured fields', () => {
+    renderWithProviders(<EditorPage />, '/app/editor')
+    expect(screen.getByDisplayValue('Алексей Петров')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Senior Product Manager')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('aleksey@example.com')).toBeInTheDocument()
+  })
+
+  it('renders AI hints panel', () => {
+    renderWithProviders(<EditorPage />, '/app/editor')
+    expect(screen.getByText('AI-подсказки')).toBeInTheDocument()
+    expect(screen.getByText('Добавьте метрики')).toBeInTheDocument()
+  })
+
+  it('renders save draft button', () => {
+    renderWithProviders(<EditorPage />, '/app/editor')
+    expect(screen.getByText('Сохранить черновик')).toBeInTheDocument()
+  })
+
+  it('renders character counter', () => {
+    renderWithProviders(<EditorPage />, '/app/editor')
+    expect(screen.getByText(/символов/)).toBeInTheDocument()
+  })
+
+  it('switches to skills section and shows tags', () => {
+    renderWithProviders(<EditorPage />, '/app/editor')
+    fireEvent.click(screen.getByText('Навыки'))
+    expect(screen.getByText('Agile')).toBeInTheDocument()
+    expect(screen.getByText('Python')).toBeInTheDocument()
+  })
+})
+
+// ===================== ProcessingPage (enhanced) =====================
+import ProcessingPage from '../pages/wizard/ProcessingPage'
+
+describe('ProcessingPage', () => {
+  it('renders processing steps', () => {
+    renderWithProviders(<ProcessingPage />, '/app/processing')
+    expect(screen.getByText('Загрузка документа')).toBeInTheDocument()
+    expect(screen.getByText('Анализ вакансии')).toBeInTheDocument()
+    expect(screen.getByText('AI оптимизация')).toBeInTheDocument()
+    expect(screen.getByText('Финализация')).toBeInTheDocument()
+  })
+
+  it('renders initial title', () => {
+    renderWithProviders(<ProcessingPage />, '/app/processing')
+    expect(screen.getByText('Оптимизируем ваше резюме...')).toBeInTheDocument()
+  })
+
+  it('renders estimated time text', () => {
+    renderWithProviders(<ProcessingPage />, '/app/processing')
+    expect(screen.getByText(/10–30 секунд/)).toBeInTheDocument()
+  })
+
+  it('renders progress bar', () => {
+    const { container } = renderWithProviders(<ProcessingPage />, '/app/processing')
+    expect(container.querySelector('.progress-bar')).toBeInTheDocument()
+  })
+
+  it('shows result button when done', async () => {
+    vi.useFakeTimers()
+    renderWithProviders(<ProcessingPage />, '/app/processing')
+    // Advance timers to 100% — need act() for state updates
+    const { act } = await import('@testing-library/react')
+    await act(async () => {
+      vi.advanceTimersByTime(10000)
+    })
+    expect(screen.getByText('Оптимизация завершена!')).toBeInTheDocument()
+    expect(screen.getByText('Посмотреть результат')).toBeInTheDocument()
+    vi.useRealTimers()
+  })
+})
+
+// ===================== ExportPage (enhanced) =====================
+import ExportPage from '../pages/wizard/ExportPage'
+
+describe('ExportPage', () => {
+  it('renders format options', () => {
+    renderWithProviders(<ExportPage />, '/app/export')
+    expect(screen.getByText('DOCX')).toBeInTheDocument()
+    expect(screen.getByText('PDF')).toBeInTheDocument()
+    expect(screen.getByText('hh.ru')).toBeInTheDocument()
+  })
+
+  it('renders template options', () => {
+    renderWithProviders(<ExportPage />, '/app/export')
+    expect(screen.getByText('Минималистичный')).toBeInTheDocument()
+    expect(screen.getAllByText('Профессиональный').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Креативный')).toBeInTheDocument()
+  })
+
+  it('renders ready to download section', () => {
+    renderWithProviders(<ExportPage />, '/app/export')
+    expect(screen.getByText('Готово к скачиванию')).toBeInTheDocument()
+    expect(screen.getByText('Match 87%')).toBeInTheDocument()
+    expect(screen.getByText('ATS A+')).toBeInTheDocument()
+  })
+
+  it('renders download button', () => {
+    renderWithProviders(<ExportPage />, '/app/export')
+    expect(screen.getByText(/Скачать DOCX/)).toBeInTheDocument()
+  })
+})
+
+// ===================== HistoryPage (enhanced) =====================
+import HistoryPage from '../pages/history/HistoryPage'
+
+describe('HistoryPage', () => {
+  it('renders page title', () => {
+    renderWithProviders(<HistoryPage />, '/app/history')
+    expect(screen.getByText('История оптимизаций')).toBeInTheDocument()
+  })
+
+  it('renders filter dropdown', () => {
+    renderWithProviders(<HistoryPage />, '/app/history')
+    expect(screen.getByText('Все типы')).toBeInTheDocument()
+  })
+
+  it('renders timeline items', () => {
+    renderWithProviders(<HistoryPage />, '/app/history')
+    expect(screen.getByText('Сегодня')).toBeInTheDocument()
+  })
+
+  it('renders clickable optimization items as links', () => {
+    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
+    const links = container.querySelectorAll('a[href="/app/results"]')
+    expect(links.length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+// ===================== DashboardPage (enhanced) =====================
+describe('DashboardPage (enhanced)', () => {
+  it('renders subtitle with dream offer text', () => {
+    renderWithProviders(<DashboardPage />, '/app/dashboard')
+    expect(screen.getByText(/оффер мечты/)).toBeInTheDocument()
+  })
+
+  it('renders optimize button with icon', () => {
+    renderWithProviders(<DashboardPage />, '/app/dashboard')
+    expect(screen.getByText('Оптимизировать резюме')).toBeInTheDocument()
+  })
+
+  it('renders SVG match score circle', () => {
+    const { container } = renderWithProviders(<DashboardPage />, '/app/dashboard')
+    const svgs = container.querySelectorAll('svg')
+    expect(svgs.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders localized resume statuses', () => {
+    renderWithProviders(<DashboardPage />, '/app/dashboard')
+    // Demo data has both optimized and draft statuses rendered
+    const foundOpt = screen.queryAllByText('Оптимизировано')
+    const foundDraft = screen.queryAllByText('Черновик')
+    expect(foundOpt.length + foundDraft.length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+// ===================== ModelsPage (enhanced: 4th model) =====================
+describe('ModelsPage (enhanced)', () => {
+  it('renders OpenRouter as fourth model', () => {
+    renderWithProviders(<ModelsPage />, '/app/models')
+    expect(screen.getAllByText('OpenRouter').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders all four model cards', () => {
+    renderWithProviders(<ModelsPage />, '/app/models')
+    expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
+    expect(screen.getByText('GPT-4o')).toBeInTheDocument()
+    expect(screen.getByText('Llama 3.3 70B')).toBeInTheDocument()
+    expect(screen.getAllByText('OpenRouter').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('renders quality and speed for all 4 models', () => {
+    renderWithProviders(<ModelsPage />, '/app/models')
+    const qualityTexts = screen.getAllByText('Качество')
+    const speedTexts = screen.getAllByText('Скорость')
+    expect(qualityTexts.length).toBeGreaterThanOrEqual(4)
+    expect(speedTexts.length).toBeGreaterThanOrEqual(4)
+  })
+})
+
+// ===================== LandingPage sections =====================
+import LandingPage from '../pages/LandingPage'
+
+describe('LandingPage (new sections)', () => {
+  it('renders before/after section', () => {
+    renderWithProviders(<LandingPage />)
+    expect(screen.getByText('До и после оптимизации')).toBeInTheDocument()
+  })
+
+  it('renders target audience section', () => {
+    renderWithProviders(<LandingPage />)
+    expect(screen.getByText('Для кого ResumeCraft')).toBeInTheDocument()
+  })
+
+  it('renders USP section', () => {
+    renderWithProviders(<LandingPage />)
+    expect(screen.getByText('Почему именно ResumeCraft')).toBeInTheDocument()
+  })
+
+  it('renders stats section', () => {
+    renderWithProviders(<LandingPage />)
+    expect(screen.getByText('Цифры говорят сами')).toBeInTheDocument()
+  })
+
+  it('renders ATS compatibility badges', () => {
+    renderWithProviders(<LandingPage />)
+    expect(screen.getByText('Huntflow')).toBeInTheDocument()
+    expect(screen.getByText('Skillaz')).toBeInTheDocument()
+  })
+})
+
+// ===================== SettingsProfilePage (enhanced) =====================
+describe('SettingsProfilePage (enhanced)', () => {
+  it('renders verified email badge', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    expect(screen.getByTitle('Подтверждён')).toBeInTheDocument()
+  })
+
+  it('renders upload and delete photo buttons', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    expect(screen.getByText('Загрузить фото')).toBeInTheDocument()
+    expect(screen.getByText('Удалить')).toBeInTheDocument()
+  })
+
+  it('renders cancel button', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    expect(screen.getByText('Отмена')).toBeInTheDocument()
+  })
+
+  it('renders city as dropdown', () => {
+    renderWithProviders(<SettingsProfilePage />)
+    // City field is a select, check for it
+    const selects = screen.getAllByRole('combobox')
+    expect(selects.length).toBeGreaterThanOrEqual(1)
   })
 })

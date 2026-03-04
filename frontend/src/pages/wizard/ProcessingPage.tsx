@@ -3,30 +3,31 @@ import { useNavigate } from 'react-router-dom'
 import { Loader, FileText, Search, Sparkles, CheckCircle } from 'lucide-react'
 
 const STEPS = [
-  { icon: FileText, label: 'Анализ резюме', desc: 'Извлечение ключевых навыков и опыта' },
-  { icon: Search, label: 'Сравнение с вакансией', desc: 'Определение пробелов и точек роста' },
-  { icon: Sparkles, label: 'AI-оптимизация', desc: 'Генерация улучшенного текста' },
-  { icon: CheckCircle, label: 'Проверка качества', desc: 'Скоринг и финальная оценка' },
+  { icon: FileText, label: 'Загрузка документа', desc: 'Парсинг и извлечение текста' },
+  { icon: Search, label: 'Анализ вакансии', desc: 'Определение требований и ключевых слов' },
+  { icon: Sparkles, label: 'AI оптимизация', desc: 'Генерация улучшенного текста резюме' },
+  { icon: CheckCircle, label: 'Финализация', desc: 'Скоринг, проверка качества, ATS-рейтинг' },
 ]
 
 export default function ProcessingPage() {
   const navigate = useNavigate()
   const [current, setCurrent] = useState(0)
   const [progress, setProgress] = useState(0)
+  const [done, setDone] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress(p => {
         if (p >= 100) {
           clearInterval(timer)
-          setTimeout(() => navigate('/app/results'), 600)
+          setDone(true)
           return 100
         }
         return p + 1
       })
     }, 80)
     return () => clearInterval(timer)
-  }, [navigate])
+  }, [])
 
   useEffect(() => {
     if (progress < 25) setCurrent(0)
@@ -44,8 +45,12 @@ export default function ProcessingPage() {
         </div>
       </div>
 
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Оптимизация резюме</h2>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>GigaChat Pro анализирует и улучшает ваше резюме</p>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+        {done ? 'Оптимизация завершена!' : 'Оптимизируем ваше резюме...'}
+      </h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+        {done ? 'Ваше резюме готово к просмотру' : 'GigaChat Pro анализирует и улучшает ваше резюме · Обычно 10–30 секунд'}
+      </p>
 
       {/* Progress bar */}
       <div style={{ width: '100%', maxWidth: 400, marginBottom: '2rem' }}>
@@ -82,6 +87,12 @@ export default function ProcessingPage() {
           )
         })}
       </div>
+
+      {done && (
+        <button onClick={() => navigate('/app/results')} className="btn btn-primary" style={{ marginTop: '2rem' }}>
+          Посмотреть результат
+        </button>
+      )}
     </div>
   )
 }

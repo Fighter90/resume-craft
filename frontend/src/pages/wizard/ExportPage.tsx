@@ -83,6 +83,29 @@ export default function ExportPage() {
       <button className="btn btn-primary btn-block" style={{ height: 52 }}>
         <Download size={18} /> Скачать {format.toUpperCase()}
       </button>
+
+      {/* Ready to download — matches prototype */}
+      <div className="card" style={{ padding: '1.25rem', marginTop: '1.5rem' }}>
+        <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Готово к скачиванию</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
+          <div>
+            <span style={{ color: 'var(--text-secondary)' }}>Файл:</span>{' '}
+            <span style={{ fontWeight: 500 }}>resume_optimized.{format}</span>
+          </div>
+          <div>
+            <span style={{ color: 'var(--text-secondary)' }}>Шаблон:</span>{' '}
+            <span style={{ fontWeight: 500 }}>{TEMPLATES.find(t => t.id === template)?.label}</span>
+          </div>
+          <div>
+            <span style={{ color: 'var(--text-secondary)' }}>Размер:</span>{' '}
+            <span style={{ fontWeight: 500 }}>~48 КБ</span>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <span className="badge badge-green">Match 87%</span>
+            <span className="badge badge-green">ATS A+</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

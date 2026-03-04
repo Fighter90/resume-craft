@@ -298,6 +298,10 @@ upstream fastapi {
     server 127.0.0.1:8000;
 }
 
+upstream frontend {
+    server 127.0.0.1:3000;
+}
+
 server {
     listen 80;
     server_name resumecraft.ru www.resumecraft.ru;
@@ -320,7 +324,8 @@ server {
 
     client_max_body_size 10M;
 
-    location / {
+    # API — все запросы /api/ и /health проксируются на FastAPI
+    location /api/ {
         proxy_pass http://fastapi;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -332,6 +337,23 @@ server {
     location /health {
         proxy_pass http://fastapi;
         access_log off;
+    }
+
+    location /docs {
+        proxy_pass http://fastapi;
+    }
+
+    location /openapi.json {
+        proxy_pass http://fastapi;
+    }
+
+    # Frontend — React SPA (обслуживается nginx в контейнере frontend)
+    location / {
+        proxy_pass http://frontend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```

@@ -47,13 +47,19 @@ export default function VacancyPage() {
                   <option>Любая</option><option>от 150 000 ₽</option><option>от 200 000 ₽</option><option>от 300 000 ₽</option>
                 </select>
               </div>
+              <div className="input-group">
+                <label className="input-label">Занятость</label>
+                <select className="input-field select-field">
+                  <option>Любая</option><option>Полная</option><option>Частичная</option><option>Удалённая</option>
+                </select>
+              </div>
             </div>
             <button className="btn btn-primary" style={{ marginTop: '1rem', height: 48 }}>
               <Search size={16} /> Найти
             </button>
           </div>
 
-          <div className="vacancy-results">
+          <div className="vacancy-results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             {DEMO_VACANCIES.map(v => (
               <div
                 key={v.id}
