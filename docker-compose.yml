@@ -135,6 +135,7 @@ services:
       - "8501:8501"
     env_file: .env
     environment:
+      - PYTHONPATH=/app
       - API_BASE_URL=http://app:8000/api/v1
     depends_on:
       app:
