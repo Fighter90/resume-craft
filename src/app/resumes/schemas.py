@@ -56,7 +56,9 @@ class ResumeFromTextRequest(BaseModel):
     text: str = Field(min_length=50, max_length=50000, description='Текст резюме')
     title: str | None = Field(None, max_length=255, description='Заголовок (необязательно)')
     source_url: str | None = Field(
-        None, max_length=500, description='URL-источник (например hh.ru)',
+        None,
+        max_length=500,
+        description='URL-источник (например hh.ru)',
     )
 
     model_config = ConfigDict(str_strip_whitespace=True)
