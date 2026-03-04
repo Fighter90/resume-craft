@@ -43,7 +43,7 @@ def _load_all_models(**_kwargs: object) -> None:
     (например Resume → User) вызывает InvalidRequestError,
     т.к. mapper не может найти связанный класс.
     """
-    import app.auth.models  # noqa: F401
-    import app.resumes.models  # noqa: F401
-    import app.rewriter.models  # noqa: F401
-    import app.vacancies.models  # noqa: F401
+    import app.auth.models
+    import app.resumes.models
+    import app.rewriter.models
+    import app.vacancies.models  # noqa: F401  # side-effect: регистрация mapper
