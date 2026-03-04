@@ -61,19 +61,25 @@ def http() -> httpx.Client:
 def tokens(http: httpx.Client) -> dict[str, str]:
     """Регистрация/логин тестового пользователя → токены."""
     # Пробуем зарегистрировать
-    resp = http.post(f'{API}/auth/register', json={
-        'email': TEST_EMAIL,
-        'password': TEST_PASS,
-    })
+    resp = http.post(
+        f'{API}/auth/register',
+        json={
+            'email': TEST_EMAIL,
+            'password': TEST_PASS,
+        },
+    )
     if resp.status_code == 201:
         return resp.json()
 
     # Если уже существует — логинимся
     assert resp.status_code == 409, f'Unexpected register status: {resp.status_code} {resp.text}'
-    resp = http.post(f'{API}/auth/login', json={
-        'email': TEST_EMAIL,
-        'password': TEST_PASS,
-    })
+    resp = http.post(
+        f'{API}/auth/login',
+        json={
+            'email': TEST_EMAIL,
+            'password': TEST_PASS,
+        },
+    )
     assert resp.status_code == 200, f'Login failed: {resp.status_code} {resp.text}'
     return resp.json()
 
@@ -159,6 +165,7 @@ def rewrite_task_id(
 # Хелперы
 # ---------------------------------------------------------------------------
 
+
 def _assert_json(
     resp: httpx.Response,
     status: int,
@@ -209,26 +216,35 @@ class TestAuthRegister:
     """POST /auth/register"""
 
     def test_register_or_exists(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/auth/register', json={
-            'email': TEST_EMAIL,
-            'password': TEST_PASS,
-        })
+        resp = http.post(
+            f'{API}/auth/register',
+            json={
+                'email': TEST_EMAIL,
+                'password': TEST_PASS,
+            },
+        )
         assert resp.status_code in (201, 409)
         if resp.status_code == 201:
             _assert_json(resp, 201, ['access_token', 'refresh_token', 'token_type'])
 
     def test_register_weak_password(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/auth/register', json={
-            'email': 'weak@test.resumecraft.ru',
-            'password': 'short',
-        })
+        resp = http.post(
+            f'{API}/auth/register',
+            json={
+                'email': 'weak@test.resumecraft.ru',
+                'password': 'short',
+            },
+        )
         assert resp.status_code == 422
 
     def test_register_invalid_email(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/auth/register', json={
-            'email': 'not-an-email',
-            'password': TEST_PASS,
-        })
+        resp = http.post(
+            f'{API}/auth/register',
+            json={
+                'email': 'not-an-email',
+                'password': TEST_PASS,
+            },
+        )
         assert resp.status_code == 422
 
 
@@ -241,17 +257,23 @@ class TestAuthLogin:
         assert tokens['token_type'] == 'bearer'
 
     def test_login_wrong_password(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/auth/login', json={
-            'email': TEST_EMAIL,
-            'password': 'WrongPassword1',
-        })
+        resp = http.post(
+            f'{API}/auth/login',
+            json={
+                'email': TEST_EMAIL,
+                'password': 'WrongPassword1',
+            },
+        )
         assert resp.status_code == 401
 
     def test_login_nonexistent_user(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/auth/login', json={
-            'email': 'nobody@test.resumecraft.ru',
-            'password': TEST_PASS,
-        })
+        resp = http.post(
+            f'{API}/auth/login',
+            json={
+                'email': 'nobody@test.resumecraft.ru',
+                'password': TEST_PASS,
+            },
+        )
         assert resp.status_code in (401, 404)
 
 
@@ -304,12 +326,18 @@ class TestAuthChangePassword:
     """PUT /auth/me/password"""
 
     def test_change_password_wrong_current(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
-        resp = http.put(f'{API}/auth/me/password', headers=auth_headers, json={
-            'current_password': 'WrongCurrent1',
-            'new_password': 'NewSecure1',
-        })
+        resp = http.put(
+            f'{API}/auth/me/password',
+            headers=auth_headers,
+            json={
+                'current_password': 'WrongCurrent1',
+                'new_password': 'NewSecure1',
+            },
+        )
         assert resp.status_code in (400, 401, 403)
 
 
@@ -334,13 +362,18 @@ class TestResumeUpload:
         assert len(resume_id) == 36  # UUID формат
 
     def test_upload_no_auth(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/resumes/upload', files={
-            'file': ('test.pdf', b'%PDF-fake', 'application/pdf'),
-        })
+        resp = http.post(
+            f'{API}/resumes/upload',
+            files={
+                'file': ('test.pdf', b'%PDF-fake', 'application/pdf'),
+            },
+        )
         assert resp.status_code == 401
 
     def test_upload_unsupported_format(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         resp = http.post(
             f'{API}/resumes/upload',
@@ -354,7 +387,10 @@ class TestResumeList:
     """GET /resumes"""
 
     def test_list_resumes(
-        self, http: httpx.Client, auth_headers: dict[str, str], resume_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        resume_id: str,
     ) -> None:
         data = _assert_json(
             http.get(f'{API}/resumes', headers=auth_headers),
@@ -377,7 +413,10 @@ class TestResumeGet:
     """GET /resumes/{id}"""
 
     def test_get_resume(
-        self, http: httpx.Client, auth_headers: dict[str, str], resume_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        resume_id: str,
     ) -> None:
         data = _assert_json(
             http.get(f'{API}/resumes/{resume_id}', headers=auth_headers),
@@ -388,7 +427,9 @@ class TestResumeGet:
         assert data['file_format'] == 'pdf'
 
     def test_get_resume_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.get(f'{API}/resumes/{fake_id}', headers=auth_headers)
@@ -399,7 +440,10 @@ class TestResumeUpdate:
     """PUT /resumes/{id}"""
 
     def test_update_title(
-        self, http: httpx.Client, auth_headers: dict[str, str], resume_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        resume_id: str,
     ) -> None:
         data = _assert_json(
             http.put(
@@ -417,7 +461,9 @@ class TestResumeDelete:
     """DELETE /resumes/{id} — проверяется в cleanup."""
 
     def test_delete_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.delete(f'{API}/resumes/{fake_id}', headers=auth_headers)
@@ -485,7 +531,9 @@ class TestVacancyManual:
         assert len(vacancy_id) == 36
 
     def test_manual_missing_fields(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         resp = http.post(
             f'{API}/vacancies/manual',
@@ -499,7 +547,10 @@ class TestVacancyGet:
     """GET /vacancies/{id}"""
 
     def test_get_vacancy(
-        self, http: httpx.Client, auth_headers: dict[str, str], vacancy_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        vacancy_id: str,
     ) -> None:
         data = _assert_json(
             http.get(f'{API}/vacancies/{vacancy_id}', headers=auth_headers),
@@ -509,7 +560,9 @@ class TestVacancyGet:
         assert data['id'] == vacancy_id
 
     def test_get_vacancy_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.get(f'{API}/vacancies/{fake_id}', headers=auth_headers)
@@ -520,7 +573,9 @@ class TestVacancyDelete:
     """DELETE /vacancies/{id}"""
 
     def test_delete_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.delete(f'{API}/vacancies/{fake_id}', headers=auth_headers)
@@ -540,14 +595,20 @@ class TestRewriteCreate:
         assert len(rewrite_task_id) == 36
 
     def test_create_no_auth(self, http: httpx.Client) -> None:
-        resp = http.post(f'{API}/rewrite', json={
-            'resume_id': str(uuid.uuid4()),
-            'vacancy_id': str(uuid.uuid4()),
-        })
+        resp = http.post(
+            f'{API}/rewrite',
+            json={
+                'resume_id': str(uuid.uuid4()),
+                'vacancy_id': str(uuid.uuid4()),
+            },
+        )
         assert resp.status_code == 401
 
     def test_create_nonexistent_resume(
-        self, http: httpx.Client, auth_headers: dict[str, str], vacancy_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        vacancy_id: str,
     ) -> None:
         resp = http.post(
             f'{API}/rewrite',
@@ -579,7 +640,9 @@ class TestRewriteStatus:
         assert 0 <= data['progress'] <= 100
 
     def test_status_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.get(f'{API}/rewrite/{fake_id}/status', headers=auth_headers)
@@ -603,7 +666,9 @@ class TestRewriteResult:
         assert data['id'] == rewrite_task_id
 
     def test_result_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.get(f'{API}/rewrite/{fake_id}/result', headers=auth_headers)
@@ -656,7 +721,9 @@ class TestExportDocx:
         assert resp.status_code in (200, 400, 404)
 
     def test_export_not_found(
-        self, http: httpx.Client, auth_headers: dict[str, str],
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
     ) -> None:
         fake_id = str(uuid.uuid4())
         resp = http.get(f'{API}/export/{fake_id}/docx', headers=auth_headers)
@@ -677,13 +744,19 @@ class TestCleanup:
     """Удаление тестовых данных (должен идти последним)."""
 
     def test_delete_vacancy(
-        self, http: httpx.Client, auth_headers: dict[str, str], vacancy_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        vacancy_id: str,
     ) -> None:
         resp = http.delete(f'{API}/vacancies/{vacancy_id}', headers=auth_headers)
         assert resp.status_code == 204
 
     def test_delete_resume(
-        self, http: httpx.Client, auth_headers: dict[str, str], resume_id: str,
+        self,
+        http: httpx.Client,
+        auth_headers: dict[str, str],
+        resume_id: str,
     ) -> None:
         resp = http.delete(f'{API}/resumes/{resume_id}', headers=auth_headers)
         assert resp.status_code == 204
@@ -694,10 +767,13 @@ class TestCleanup:
 
     def test_delete_account(self, http: httpx.Client) -> None:
         """Удаление тестового аккаунта (логинимся заново после logout)."""
-        resp = http.post(f'{API}/auth/login', json={
-            'email': TEST_EMAIL,
-            'password': TEST_PASS,
-        })
+        resp = http.post(
+            f'{API}/auth/login',
+            json={
+                'email': TEST_EMAIL,
+                'password': TEST_PASS,
+            },
+        )
         if resp.status_code != 200:
             pytest.skip('Cannot login for account deletion')
         token = resp.json()['access_token']
