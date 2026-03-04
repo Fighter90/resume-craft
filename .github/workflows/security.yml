@@ -6,9 +6,9 @@ name: Security
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main, develop]
+    branches: [master, develop]
   schedule:
     # Еженедельное сканирование по понедельникам в 08:00 MSK
     - cron: "0 5 * * 1"
