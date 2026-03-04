@@ -71,9 +71,8 @@ class TestLLMClientFactoryAuthCheck:
         """Нет API-ключа → LLMAuthError."""
         s = MagicMock()
         s.gigachat_credentials = ''
-        with patch('app.ml.llm_factory.get_settings', return_value=s):
-            with pytest.raises(LLMAuthError):
-                LLMClientFactory.create('gigachat-pro')
+        with patch('app.ml.llm_factory.get_settings', return_value=s), pytest.raises(LLMAuthError):
+            LLMClientFactory.create('gigachat-pro')
 
 
 @patch('app.ml.llm_factory.get_settings', _fake_settings)
