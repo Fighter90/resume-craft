@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     gigachat_scope: str = 'GIGACHAT_API_PERS'
     groq_api_key: str = ''
     openai_api_key: str = ''
+    openrouter_api_key: str = ''
 
     # --- hh.ru ---
     hh_user_agent: str = 'ResumeCraft/2.0 (contact@resumecraft.ru)'

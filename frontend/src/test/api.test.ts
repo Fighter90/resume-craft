@@ -15,13 +15,13 @@ describe('ApiClient', () => {
 
   it('sets token in localStorage on setToken', () => {
     client.setToken('test-token-123')
-    expect(localStorage.getItem('token')).toBe('test-token-123')
+    expect(localStorage.getItem('access_token')).toBe('test-token-123')
   })
 
   it('clears token on clearToken', () => {
-    localStorage.setItem('token', 'some-token')
+    localStorage.setItem('access_token', 'some-token')
     client.clearToken()
-    expect(localStorage.getItem('token')).toBeNull()
+    expect(localStorage.getItem('access_token')).toBeNull()
   })
 
   it('sends authorization header when token is set', async () => {
@@ -31,7 +31,7 @@ describe('ApiClient', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    localStorage.setItem('token', 'bearer-test')
+    localStorage.setItem('access_token', 'bearer-test')
     await client.healthCheck()
 
     expect(mockFetch).toHaveBeenCalledWith(

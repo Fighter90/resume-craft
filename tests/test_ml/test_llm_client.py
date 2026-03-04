@@ -12,6 +12,7 @@ from app.ml.llm_client import (
     GigaChatClient,
     GroqClient,
     OpenAIClient,
+    OpenRouterClient,
 )
 
 
@@ -185,3 +186,63 @@ class TestOpenAIClient:
         client._client = mock_sdk
         await client.close()
         assert client._client is None
+
+
+class TestOpenRouterClient:
+    """Тесты OpenRouterClient."""
+
+    def test_init_default(self) -> None:
+        client = OpenRouterClient()
+        assert client._model == 'anthropic/claude-3.5-sonnet'
+
+    def test_init_custom_model(self) -> None:
+        client = OpenRouterClient(model='google/gemini-pro')
+        assert client._model == 'google/gemini-pro'
+
+    def test_get_client_lazy_init(self) -> None:
+        """Lazy-инициализация OpenRouter клиента через openai SDK."""
+        mock_async_openai = MagicMock()
+        mock_openai_mod = MagicMock()
+        mock_openai_mod.AsyncOpenAI = mock_async_openai
+
+        sys.modules['openai'] = mock_openai_mod
+        try:
+            client = OpenRouterClient()
+            assert client._client is None
+            result = client._get_client()
+            assert result is not None
+            mock_async_openai.assert_called_once()
+            # Verify base_url is OpenRouter
+            call_kwargs = mock_async_openai.call_args[1]
+            assert call_kwargs['base_url'] == 'https://openrouter.ai/api/v1'
+            assert 'HTTP-Referer' in call_kwargs['default_headers']
+            assert call_kwargs['default_headers']['X-Title'] == 'ResumeCraft'
+        finally:
+            sys.modules.pop('openai', None)
+
+    @patch('app.ml.llm_client.OpenRouterClient._get_client')
+    async def test_complete(self, mock_get: MagicMock) -> None:
+        """Успешный запрос к OpenRouter."""
+        mock_completion = MagicMock()
+        mock_completion.choices = [MagicMock(message=MagicMock(content='OpenRouter response'))]
+        mock_completion.usage = MagicMock(total_tokens=75)
+
+        mock_sdk = AsyncMock()
+        mock_sdk.chat.completions.create = AsyncMock(return_value=mock_completion)
+        mock_get.return_value = mock_sdk
+
+        client = OpenRouterClient()
+        result = await client.complete(system='sys', user='usr')
+        assert result == 'OpenRouter response'
+
+    async def test_close_with_client(self) -> None:
+        client = OpenRouterClient()
+        mock_sdk = AsyncMock()
+        client._client = mock_sdk
+        await client.close()
+        mock_sdk.close.assert_called_once()
+        assert client._client is None
+
+    async def test_close_without_client(self) -> None:
+        client = OpenRouterClient()
+        await client.close()  # no error

@@ -5,17 +5,17 @@ export class ApiClient {
 
   setToken(token: string | null) {
     this.token = token
-    if (token) localStorage.setItem('token', token)
+    if (token) localStorage.setItem('access_token', token)
   }
 
   clearToken() {
     this.token = null
-    localStorage.removeItem('token')
+    localStorage.removeItem('access_token')
   }
 
   private headers(): Record<string, string> {
     const h: Record<string, string> = { 'Content-Type': 'application/json' }
-    const tok = this.token || localStorage.getItem('token')
+    const tok = this.token || localStorage.getItem('access_token')
     if (tok) h['Authorization'] = `Bearer ${tok}`
     return h
   }

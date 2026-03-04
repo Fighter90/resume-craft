@@ -200,3 +200,61 @@ class OpenAIClient(BaseLLMClient):
         if self._client:
             await self._client.close()
             self._client = None
+
+
+class OpenRouterClient(BaseLLMClient):
+    """Клиент OpenRouter — доступ к 100+ моделям через единый API."""
+
+    def __init__(self, model: str = 'anthropic/claude-3.5-sonnet') -> None:
+        self._model = model
+        self._client: Any = None
+
+    def _get_client(self) -> Any:
+        """Lazy-инициализация OpenRouter через openai SDK."""
+        if self._client is None:
+            from openai import AsyncOpenAI
+
+            self._client = AsyncOpenAI(
+                api_key=settings.openrouter_api_key,
+                base_url='https://openrouter.ai/api/v1',
+                default_headers={
+                    'HTTP-Referer': 'https://resumecraft.ru',
+                    'X-Title': 'ResumeCraft',
+                },
+            )
+        return self._client
+
+    async def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        temperature: float = 0.3,
+        max_tokens: int = 4096,
+    ) -> str:
+        """Запрос к OpenRouter API."""
+        client = self._get_client()
+
+        response = await client.chat.completions.create(
+            model=self._model,
+            messages=[
+                {'role': 'system', 'content': system},
+                {'role': 'user', 'content': user},
+            ],
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        content = response.choices[0].message.content or ''
+        logger.info(
+            'OpenRouter response: model=%s, tokens=%s',
+            self._model,
+            response.usage.total_tokens if response.usage else 'N/A',
+        )
+        return content
+
+    async def close(self) -> None:
+        """Закрытие OpenRouter клиента."""
+        if self._client:
+            await self._client.close()
+            self._client = None

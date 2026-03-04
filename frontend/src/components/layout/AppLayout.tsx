@@ -1,7 +1,7 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { LayoutGrid, FileText, Clock, Settings, File, Menu, X, Home, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { LayoutGrid, FileText, Clock, Settings, File, Menu, X, Home, Plus, LogOut, User, ChevronUp } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
 
 const NAV_ITEMS = [
   { to: '/app/dashboard', icon: LayoutGrid, label: 'Дашборд', id: 'dashboard' },
@@ -19,9 +19,12 @@ const BOTTOM_NAV = [
 ]
 
 export default function AppLayout() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const profileRef = useRef<HTMLDivElement>(null)
 
   const isActive = (id: string) => {
     if (id === 'settings') return location.pathname.startsWith('/app/settings')
@@ -31,6 +34,23 @@ export default function AppLayout() {
   const initials = user?.full_name
     ? user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : user?.email?.[0]?.toUpperCase() || 'U'
+
+  // Close profile menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileMenuOpen(false)
+      }
+    }
+    if (profileMenuOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [profileMenuOpen])
+
+  const handleLogout = () => {
+    logout()
+    setProfileMenuOpen(false)
+    navigate('/auth')
+  }
 
   return (
     <div className="app-shell">
@@ -73,11 +93,59 @@ export default function AppLayout() {
             <div className="plan-usage">{user?.optimizations_used || 0} / 5 оптимизаций</div>
             <NavLink to="/app/settings/subscription" className="plan-upgrade">Обновить до Pro →</NavLink>
           </div>
-          <div className="user-profile">
-            <div className="user-avatar">{initials}</div>
-            <div className="user-info">
-              <div className="user-name">{user?.full_name || 'Пользователь'}</div>
-              <div className="user-email">{user?.email}</div>
+
+          {/* User profile with dropdown */}
+          <div ref={profileRef} style={{ position: 'relative' }}>
+            {profileMenuOpen && (
+              <div style={{
+                position: 'absolute', bottom: '100%', left: 0, right: 0,
+                marginBottom: 8, background: 'var(--card-bg, #fff)',
+                borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+                border: '1px solid var(--border)', overflow: 'hidden', zIndex: 100,
+              }}>
+                <button
+                  onClick={() => { setProfileMenuOpen(false); navigate('/app/settings/profile'); setSidebarOpen(false) }}
+                  className="profile-menu-btn"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%',
+                    padding: '0.75rem 1rem', background: 'none', border: 'none',
+                    cursor: 'pointer', fontSize: '0.875rem', color: 'var(--text-primary)',
+                  }}
+                >
+                  <User size={16} /> Профиль
+                </button>
+                <div style={{ height: 1, background: 'var(--border)' }} />
+                <button
+                  onClick={handleLogout}
+                  className="profile-menu-btn"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%',
+                    padding: '0.75rem 1rem', background: 'none', border: 'none',
+                    cursor: 'pointer', fontSize: '0.875rem', color: '#EF4444',
+                  }}
+                >
+                  <LogOut size={16} /> Выйти
+                </button>
+              </div>
+            )}
+            <div
+              className="user-profile"
+              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              style={{ cursor: 'pointer' }}
+              role="button"
+              tabIndex={0}
+              aria-label="Меню профиля"
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setProfileMenuOpen(!profileMenuOpen) }}
+            >
+              <div className="user-avatar">{initials}</div>
+              <div className="user-info">
+                <div className="user-name">{user?.full_name || 'Пользователь'}</div>
+                <div className="user-email">{user?.email || 'demo@resumecraft.ru'}</div>
+              </div>
+              <ChevronUp size={16} style={{
+                marginLeft: 'auto', color: 'var(--text-secondary)', transition: 'transform 0.2s',
+                transform: profileMenuOpen ? 'rotate(0deg)' : 'rotate(180deg)',
+              }} />
             </div>
           </div>
         </div>

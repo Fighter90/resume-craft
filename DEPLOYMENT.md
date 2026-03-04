@@ -41,6 +41,7 @@
 | GigaChat API | ❌ | LLM (основная) | [developers.sber.ru](https://developers.sber.ru) |
 | Groq API | ❌ | LLM (бесплатная) | [console.groq.com](https://console.groq.com) |
 | OpenAI API | ❌ | LLM (резервная) | [platform.openai.com](https://platform.openai.com) |
+| OpenRouter API | ❌ | LLM (мульти-провайдер) | [openrouter.ai](https://openrouter.ai) |
 
 > ⚠️ Redis и RabbitMQ нужны для Celery. Для разработки без фоновых задач можно пропустить.
 
@@ -128,8 +129,8 @@ uvicorn app.main:app --app-dir src --reload --port 8000
 # Терминал 2 — Celery Worker (требует Redis + RabbitMQ)
 cd src && celery -A app.core.celery_app:celery_app worker --loglevel=info --concurrency=2
 
-# Терминал 3 — Streamlit Demo UI
-streamlit run streamlit_app/app.py --server.port 8501
+# Терминал 3 — React Frontend (dev mode)
+cd frontend && npm run dev -- --port 3000
 ```
 
 ### 2.7. Проверка
@@ -168,7 +169,7 @@ cp .env.example .env
 ### 3.2. Запуск
 
 ```bash
-# Сборка и запуск всех 6 сервисов
+# Сборка и запуск всех 7 сервисов
 docker compose up -d --build
 
 # Проверка статуса
@@ -195,6 +196,7 @@ docker compose exec app alembic upgrade head
 | Redis | `resumecraft-redis` | localhost:6379 | Кэш + results |
 | RabbitMQ | `resumecraft-rabbitmq` | http://localhost:15672 | Брокер (UI: guest/guest) |
 | Flower | `resumecraft-flower` | http://localhost:5555 | Мониторинг Celery |
+| Frontend | `resumecraft-frontend` | http://localhost:3000 | React SPA (nginx) |
 
 ### 3.5. Полезные команды
 
@@ -359,6 +361,7 @@ CELERY_RESULT_BACKEND=redis://redis:6379/1
 # LLM
 GIGACHAT_CREDENTIALS=<ваш-ключ-от-developers.sber.ru>
 GROQ_API_KEY=<ваш-ключ-от-console.groq.com>
+OPENROUTER_API_KEY=<ваш-ключ-от-openrouter.ai>
 
 # Production
 ENVIRONMENT=production

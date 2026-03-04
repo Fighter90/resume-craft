@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from app.core.exceptions import LLMProviderUnavailable
-from app.ml.llm_client import GigaChatClient, GroqClient, OpenAIClient
+from app.ml.llm_client import GigaChatClient, GroqClient, OpenAIClient, OpenRouterClient
 from app.ml.llm_factory import LLMClientFactory
 
 
@@ -31,6 +31,10 @@ class TestLLMClientFactory:
     def test_create_llama(self) -> None:
         client = LLMClientFactory.create('llama-3.3-70b')
         assert isinstance(client, GroqClient)
+
+    def test_create_openrouter(self) -> None:
+        client = LLMClientFactory.create('openrouter')
+        assert isinstance(client, OpenRouterClient)
 
     def test_create_unknown(self) -> None:
         with pytest.raises(LLMProviderUnavailable):

@@ -52,7 +52,7 @@ export default function DashboardPage() {
       <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>Недавние резюме</h2>
       <div className="resume-grid">
         {DEMO_RESUMES.slice(0, 2).map(r => (
-          <Link to={`/app/results/${r.id}`} key={r.id} className="card card-hover" style={{ padding: '1.5rem' }}>
+          <Link to="/app/results" key={r.id} className="card card-hover" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{r.title}</h3>
               <span className={`badge ${r.status === 'optimized' ? 'badge-green' : 'badge-gray'}`}>

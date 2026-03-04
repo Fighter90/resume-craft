@@ -1,36 +1,159 @@
 import { useState } from 'react'
-import { Save } from 'lucide-react'
+import { Save, RotateCcw, Eye, EyeOff, Zap, Brain, Globe, Cpu } from 'lucide-react'
+
+interface ModelOption {
+  id: string
+  name: string
+  provider: string
+  desc: string
+  badge?: string
+  badgeColor?: string
+  icon: typeof Cpu
+  apiKeyField: string
+  apiKeyPlaceholder: string
+}
+
+const MODELS: ModelOption[] = [
+  {
+    id: 'gigachat-pro', name: 'GigaChat Pro', provider: 'Сбер',
+    desc: '#1 русский язык (MERA), данные в РФ, ФЗ-152 compliant',
+    badge: 'Рекомендуем', badgeColor: '#4F46E5',
+    icon: Zap, apiKeyField: 'gigachat', apiKeyPlaceholder: 'Credentials (Base64)',
+  },
+  {
+    id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI',
+    desc: 'Топ-модель OpenAI, мультиязычность, 128K контекст',
+    icon: Brain, apiKeyField: 'openai', apiKeyPlaceholder: 'sk-...',
+  },
+  {
+    id: 'llama-3-70b', name: 'Llama 3.3 70B', provider: 'Groq',
+    desc: 'Бесплатно 14 400 запросов/день, быстрый inference',
+    badge: 'Бесплатно', badgeColor: '#059669',
+    icon: Cpu, apiKeyField: 'groq', apiKeyPlaceholder: 'gsk_...',
+  },
+  {
+    id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter',
+    desc: 'Доступ к 100+ моделям через единый API (Claude, Gemini, Mixtral...)',
+    badge: 'Новое', badgeColor: '#D97706',
+    icon: Globe, apiKeyField: 'openrouter', apiKeyPlaceholder: 'sk-or-v1-...',
+  },
+]
 
 const TOGGLES = [
-  { id: 'ats', label: 'ATS-оптимизация', desc: 'Адаптировать текст под ATS-фильтры', default: true },
-  { id: 'keywords', label: 'Добавление ключевых слов', desc: 'Автоматически добавлять релевантные keywords', default: true },
-  { id: 'metrics', label: 'Метрики достижений', desc: 'Генерировать количественные метрики', default: true },
-  { id: 'structure', label: 'Реструктуризация', desc: 'Оптимизировать порядок секций', default: false },
-  { id: 'creative', label: 'Креативные формулировки', desc: 'Нестандартные фразы и обороты', default: false },
+  { id: 'auto_metrics', label: 'Автоматические метрики', desc: 'Генерировать количественные достижения', default: true },
+  { id: 'ats', label: 'ATS оптимизация', desc: 'Адаптировать текст под ATS-фильтры', default: true },
+  { id: 'upgrade_title', label: 'Апгрейд должности', desc: 'Предложить более сильные формулировки позиций', default: false },
+  { id: 'keep_language', label: 'Сохранять язык', desc: 'Не менять язык оригинального резюме', default: true },
+  { id: 'soft_skills', label: 'Soft skills', desc: 'Добавлять soft skills из описания вакансии', default: false },
 ]
 
 export default function SettingsAiPage() {
   const [model, setModel] = useState('gigachat-pro')
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({
+    gigachat: '', openai: '', groq: '', openrouter: '',
+  })
+  const [showKeys, setShowKeys] = useState<Record<string, boolean>>({})
   const [toggles, setToggles] = useState<Record<string, boolean>>(
     Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
   )
+  const [saved, setSaved] = useState(false)
 
   const toggle = (id: string) => setToggles({ ...toggles, [id]: !toggles[id] })
 
+  const handleSave = () => {
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handleReset = () => {
+    setModel('gigachat-pro')
+    setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
+    setApiKeys({ gigachat: '', openai: '', groq: '', openrouter: '' })
+  }
+
   return (
     <div style={{ maxWidth: 640 }}>
-      {/* Model selection */}
+      {/* Model selection cards */}
+      <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>AI-модель по умолчанию</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        {MODELS.map(m => (
+          <div
+            key={m.id}
+            onClick={() => setModel(m.id)}
+            style={{
+              padding: '1rem 1.25rem', borderRadius: 12, cursor: 'pointer',
+              border: model === m.id ? '2px solid var(--primary, #4F46E5)' : '1px solid var(--border, #E5E7EB)',
+              background: model === m.id ? 'var(--primary-bg, #EEF2FF)' : 'var(--card-bg, #fff)',
+              transition: 'all 0.2s', display: 'flex', alignItems: 'flex-start', gap: '1rem',
+            }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setModel(m.id) }}
+          >
+            <div style={{
+              width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: model === m.id ? 'var(--primary, #4F46E5)' : '#F3F4F6',
+              color: model === m.id ? '#fff' : 'var(--text-secondary)',
+              flexShrink: 0, transition: 'all 0.2s',
+            }}>
+              <m.icon size={20} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{m.name}</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>({m.provider})</span>
+                {m.badge && (
+                  <span style={{
+                    fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 99,
+                    background: m.badgeColor, color: '#fff',
+                  }}>{m.badge}</span>
+                )}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{m.desc}</div>
+            </div>
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%', border: '2px solid',
+              borderColor: model === m.id ? 'var(--primary, #4F46E5)' : '#D1D5DB',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2,
+            }}>
+              {model === m.id && <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--primary, #4F46E5)' }} />}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* API Keys */}
       <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>AI-модель по умолчанию</h3>
-        <select
-          className="input-field select-field"
-          value={model}
-          onChange={e => setModel(e.target.value)}
-        >
-          <option value="gigachat-pro">GigaChat Pro (рекомендуем)</option>
-          <option value="gpt-4o">GPT-4o</option>
-          <option value="llama-3-70b">Llama 3.3 70B (Groq)</option>
-        </select>
+        <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>API-ключи</h3>
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          Подключите свои ключи для использования моделей. Ключи хранятся в зашифрованном виде.
+        </p>
+        {MODELS.map(m => (
+          <div key={m.apiKeyField} className="input-group" style={{ marginBottom: '1rem' }}>
+            <label className="input-label">{m.name} ({m.provider})</label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                className="input-field"
+                type={showKeys[m.apiKeyField] ? 'text' : 'password'}
+                placeholder={m.apiKeyPlaceholder}
+                value={apiKeys[m.apiKeyField]}
+                onChange={e => setApiKeys({ ...apiKeys, [m.apiKeyField]: e.target.value })}
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowKeys({ ...showKeys, [m.apiKeyField]: !showKeys[m.apiKeyField] })}
+                style={{
+                  padding: '0.75rem', borderRadius: 12, border: '1px solid var(--border)',
+                  background: 'var(--card-bg, #fff)', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                }}
+                title={showKeys[m.apiKeyField] ? 'Скрыть' : 'Показать'}
+              >
+                {showKeys[m.apiKeyField] ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Toggles */}
@@ -53,9 +176,15 @@ export default function SettingsAiPage() {
         ))}
       </div>
 
-      <button className="btn btn-primary" style={{ marginTop: '1.25rem' }}>
-        <Save size={16} /> Сохранить
-      </button>
+      {/* Buttons */}
+      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+        <button className="btn btn-primary" onClick={handleSave}>
+          <Save size={16} /> {saved ? '✓ Сохранено' : 'Сохранить'}
+        </button>
+        <button className="btn btn-secondary" onClick={handleReset}>
+          <RotateCcw size={16} /> Сбросить
+        </button>
+      </div>
     </div>
   )
 }

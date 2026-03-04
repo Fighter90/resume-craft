@@ -126,7 +126,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | RW-07 | Must | Celery task с прогрессом (polling) |
 | RW-08 | Must | Сохранение в rewrite_history |
 | RW-09 | Must | Проверка лимитов тарифа |
-| RW-10 | Should | Fallback GigaChat → Groq → OpenAI |
+| RW-10 | Should | Fallback GigaChat → Groq → OpenRouter → OpenAI |
 | RW-11 | Should | Pydantic-валидация LLM-ответа + retry (до 3) |
 
 ### 3.5. Export — Экспорт
@@ -177,7 +177,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **356** |
+| Тестов | — | **454** |
 
 ---
 
@@ -937,9 +937,9 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов** | 356 (pytest + pytest-asyncio) |
-| **Frontend тестов** | 33 (Vitest + @testing-library/react) |
-| **Всего тестов** | 389 |
+| **Backend тестов** | 365 (pytest + pytest-asyncio) |
+| **Frontend тестов** | 89 (Vitest + @testing-library/react) |
+| **Всего тестов** | 454 |
 | **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
@@ -1126,7 +1126,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **389** (356 backend + 33 frontend) |
+| Тестов всего | — | **454** (365 backend + 89 frontend) |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1169,7 +1169,7 @@ Docker Desktop → docker compose up -d
 
 | Риск | Вероятность | Влияние | Митигация |
 |------|-----------|---------|-----------|
-| GigaChat API недоступен | Средняя | Высокое | Fallback на Llama 3 (Groq) |
+| GigaChat API недоступен | Средняя | Высокое | Fallback на Llama 3 (Groq) → OpenRouter |
 | Groq rate limit исчерпан | Средняя | Среднее | 14 400 req/день. При исчерпании → GigaChat |
 | hh.ru API блокирует | Низкая | Среднее | User-Agent + ручной ввод как fallback |
 | LLM-ответы нестабильны | Средняя | Высокое | Pydantic-валидация + retry (до 3) |
@@ -1192,11 +1192,11 @@ Docker Desktop → docker compose up -d
 | Аутентификация | Email + пароль, JWT |
 | Резюме | PDF/DOCX, парсинг, LLM-структуризация |
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
-| AI-оптимизация | GigaChat Pro + Llama 3, Match Score, ATS |
+| AI-оптимизация | GigaChat Pro + Llama 3 + OpenRouter, Match Score, ATS |
 | Экспорт | DOCX |
-| UI | React SPA (20 прототипов, модульная архитектура, 33 теста) |
+| UI | React SPA (20 прототипов, модульная архитектура, 89 тестов) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Тестирование | Unit + Integration + Frontend, 389 тестов, 100% backend coverage |
+| Тестирование | Unit + Integration + Frontend, 454 теста, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 

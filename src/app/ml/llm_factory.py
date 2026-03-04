@@ -5,7 +5,13 @@ from __future__ import annotations
 import logging
 
 from app.core.exceptions import LLMProviderUnavailable
-from app.ml.llm_client import BaseLLMClient, GigaChatClient, GroqClient, OpenAIClient
+from app.ml.llm_client import (
+    BaseLLMClient,
+    GigaChatClient,
+    GroqClient,
+    OpenAIClient,
+    OpenRouterClient,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +23,7 @@ _PROVIDERS: dict[str, type[BaseLLMClient]] = {
     'llama-3.3-70b': GroqClient,
     'openai': OpenAIClient,
     'gpt-4o-mini': OpenAIClient,
+    'openrouter': OpenRouterClient,
 }
 
 # Модели по умолчанию для каждого класса
@@ -27,10 +34,11 @@ _MODEL_NAMES: dict[str, str] = {
     'llama-3.3-70b': 'llama-3.3-70b-versatile',
     'openai': 'gpt-4o-mini',
     'gpt-4o-mini': 'gpt-4o-mini',
+    'openrouter': 'anthropic/claude-3.5-sonnet',
 }
 
 # Порядок fallback
-FALLBACK_ORDER: list[str] = ['gigachat-pro', 'groq', 'openai']
+FALLBACK_ORDER: list[str] = ['gigachat-pro', 'groq', 'openrouter', 'openai']
 
 
 class LLMClientFactory:

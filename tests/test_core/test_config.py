@@ -40,3 +40,16 @@ class TestSettings:
         settings = get_settings()
         assert isinstance(settings.cors_origins, list)
         assert all(isinstance(o, str) for o in settings.cors_origins)
+
+    def test_llm_keys_default_empty(self) -> None:
+        """LLM API ключи по умолчанию пустые строки."""
+        settings = get_settings()
+        assert settings.gigachat_credentials == '' or isinstance(settings.gigachat_credentials, str)
+        assert settings.groq_api_key == '' or isinstance(settings.groq_api_key, str)
+        assert settings.openai_api_key == '' or isinstance(settings.openai_api_key, str)
+        assert settings.openrouter_api_key == '' or isinstance(settings.openrouter_api_key, str)
+
+    def test_gigachat_scope_default(self) -> None:
+        """GigaChat scope по умолчанию — GIGACHAT_API_PERS."""
+        settings = get_settings()
+        assert settings.gigachat_scope == 'GIGACHAT_API_PERS'

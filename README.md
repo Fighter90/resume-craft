@@ -168,10 +168,12 @@
 | **GigaChat Pro** | 95% | ~12 сек | Standard+ |
 | **GPT-4o** ¹ | 98% | ~18 сек | Pro |
 | **Llama 3** (Groq) | 82% | ~8 сек | Free |
+| **OpenRouter** ² | 90–98% | ~15 сек | Standard+ |
 
 GigaChat Pro — рекомендованная модель: #1 на MERA для русского языка, данные в РФ, оплата в рублях.
 
-> ¹ GPT-4o подключается в Phase 2. В MVP доступны GigaChat Pro и Llama 3.
+> ¹ GPT-4o подключается в Phase 2. В MVP доступны GigaChat Pro, Llama 3 и OpenRouter.
+> ² OpenRouter — мульти-провайдер, доступ к Claude, Gemini, Mistral и др. через единый API.
 
 ### 3.6. Экспорт и редактор
 
@@ -273,6 +275,7 @@ Export ←── Results ←── Processing ←── Vacancy
 │                              │   LLM APIs     │      │
 │                              │   GigaChat     │      │
 │                              │   Groq/Llama3  │      │
+│                              │   OpenRouter   │      │
 │                              │   OpenAI       │      │
 │                              └────────────────┘      │
 │                  СЕРВЕРНЫЙ УРОВЕНЬ                   │
@@ -288,7 +291,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **Celery + RabbitMQ** | Асинхронная обработка LLM-задач (8–30 сек). RabbitMQ — брокер, 3 очереди: default, hh_api, export |
 | **Redis 7.x** | Кэш (справочники hh.ru, TTL 1–24ч) + Celery result backend |
 | **Local FS** | Docker volume `/data/uploads` для PDF/DOCX файлов. Миграция на MinIO/S3 в продакшене |
-| **LLM API Layer** | Strategy Pattern: GigaChat / Groq / OpenAI с автоматическим fallback |
+| **LLM API Layer** | Strategy Pattern: GigaChat / Groq / OpenRouter / OpenAI с автоматическим fallback |
 
 ### 5.3. Ключевые паттерны
 
@@ -333,7 +336,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | Технология | Назначение |
 |-----------|------------|
 | **GigaChat SDK** | Интеграция с GigaChat API (Сбер) |
-| **openai** (SDK) | OpenAI, Groq, DeepSeek — единый SDK |
+| **openai** (SDK) | OpenAI, Groq, OpenRouter, DeepSeek — единый SDK |
 | **PyMuPDF** (fitz) | Извлечение текста из PDF (AGPL 3.0) |
 | **python-docx** | Чтение и создание DOCX |
 | **LibreOffice headless** | Конвертация DOCX → PDF |
@@ -347,7 +350,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (33 теста) |
+| **Vitest + Testing Library** | Тесты frontend (89 тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitLab CI** | CI/CD pipeline |
@@ -397,7 +400,7 @@ src/app/
 │   ├── router.py          # GET /export/{id}/docx
 │   └── service.py         # python-docx генерация
 └── ml/                    # ML-пакет
-    ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Groq, OpenAI
+    ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Groq, OpenRouter, OpenAI
     ├── llm_factory.py     # LLMClientFactory (Strategy Pattern)
     ├── prompts.py         # Системные промпты
     ├── embeddings.py      # sentence-transformers → VECTOR(1536)
@@ -434,7 +437,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 20 page components
-    └── test/              # 33 теста (Vitest + Testing Library)
+    └── test/              # 89 тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -838,6 +841,7 @@ curl http://localhost:8000/health
 | `GIGACHAT_CREDENTIALS` | ❌ | — | API-ключ GigaChat (Сбер) |
 | `GROQ_API_KEY` | ❌ | — | API-ключ Groq |
 | `OPENAI_API_KEY` | ❌ | — | API-ключ OpenAI |
+| `OPENROUTER_API_KEY` | ❌ | — | API-ключ OpenRouter |
 | `HH_USER_AGENT` | ❌ | `ResumeCraft/2.0 (...)` | User-Agent для hh.ru |
 | `UPLOAD_DIR` | ❌ | `./uploads` | Директория загрузок |
 | `CORS_ORIGINS` | ❌ | `["http://localhost:*"]` | CORS origins |
@@ -859,7 +863,7 @@ curl http://localhost:8000/health
 ### 16.2. Запуск
 
 ```bash
-# Запуск всех 6 сервисов
+# Запуск всех 7 сервисов
 docker compose up -d
 
 # Проверка статуса
@@ -897,9 +901,9 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов** | 356 (pytest + pytest-asyncio) |
-| **Frontend тестов** | 33 (Vitest + @testing-library/react) |
-| **Всего тестов** | 389 |
+| **Backend тестов** | 365 (pytest + pytest-asyncio) |
+| **Frontend тестов** | 89 (Vitest + @testing-library/react) |
+| **Всего тестов** | 454 |
 | **Backend покрытие** | 100% |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -931,8 +935,8 @@ cd frontend && npm run test:watch
 | `test_vacancies/` | 42 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки |
 | `test_rewriter/` | 39 | Celery tasks, pipeline, статусы, история, LLM retry |
 | `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
-| `test_ml/` | 62 | LLM-клиенты, фабрика, парсер, скоринг, эмбеддинги, санитизация |
-| `test_core/` | 74 | Config, security, database, storage, exceptions, dependencies |
+| `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация |
+| `test_core/` | 76 | Config, security, database, storage, exceptions, dependencies |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
 | `test_coverage_gaps` | 22 | Edge-cases: scoring, embedding fallback, export |
 

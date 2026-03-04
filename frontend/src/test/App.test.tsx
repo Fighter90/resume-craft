@@ -22,7 +22,7 @@ describe('App Router', () => {
 
   it('renders auth page at /auth', () => {
     renderApp('/auth')
-    expect(screen.getByRole('heading', { name: /вход/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /войти/i })).toBeInTheDocument()
   })
 
   it('renders pricing page at /pricing', () => {
