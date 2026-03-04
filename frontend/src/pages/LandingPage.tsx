@@ -48,16 +48,31 @@ export default function LandingPage() {
       {/* Problem */}
       <section className="landing-section-alt">
         <div className="landing-section-inner">
-          <h2 style={{ fontSize: '2rem', fontWeight: 700, textAlign: 'center', marginBottom: '2.5rem' }}>Проблема</h2>
-          <div className="problem-stats-grid" style={{ maxWidth: 600, margin: '0 auto' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 700, textAlign: 'center', marginBottom: '0.5rem' }}>Почему ваши отклики остаются без ответа?</h2>
+          <p className="section-subtitle" style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: '2.5rem' }}>
+            Конкуренция на рынке труда растёт с каждым годом. Без оптимизации резюме вы систематически теряете возможности.
+          </p>
+          <div className="problem-stats-grid" style={{ maxWidth: 600, margin: '0 auto', marginBottom: '2rem' }}>
             <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
               <div style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--danger)', lineHeight: 1 }}>75%</div>
-              <div style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>резюме отсеиваются ATS-фильтрами автоматически</div>
+              <div style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>резюме отсеиваются ATS-фильтрами<br/>ещё до того, как их увидит рекрутер</div>
             </div>
             <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
               <div style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--warning)', lineHeight: 1 }}>5.9</div>
-              <div style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>конкурентов на одну вакансию (индекс hh.ru)</div>
+              <div style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>конкурентов в среднем<br/>на каждую вакансию на hh.ru</div>
             </div>
+          </div>
+          <div className="card" style={{ maxWidth: 800, margin: '0 auto', padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', textAlign: 'center' }}>Что происходит с вашим резюме на самом деле</h3>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
+              Большинство крупных компаний в России — Яндекс, Сбер, Тинькофф, VK, Ozon — используют автоматизированные системы отбора кандидатов (ATS). Это такие платформы, как Huntflow, Потоk, Талантикс и Skillaz. Когда вы отправляете резюме, оно сначала проходит через алгоритм, который ищет совпадения с описанием вакансии.
+            </p>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
+              Если алгоритм не находит достаточно совпадений, ваше резюме попросту не доходит до живого рекрутера. Вы можете быть идеальным кандидатом, но если в вашем резюме написано «управлял проектами» вместо «руководил портфелем из 5 проектов с бюджетом 12 млн рублей», ATS оценит вас ниже конкурента.
+            </p>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+              ResumeCraft решает именно эту проблему. Наш AI анализирует требования конкретной вакансии, сопоставляет их с вашим опытом и переписывает формулировки так, чтобы они максимально совпадали с тем, что ищет работодатель — при этом сохраняя полную достоверность информации.
+            </p>
           </div>
         </div>
       </section>
@@ -299,7 +314,7 @@ export default function LandingPage() {
               Совместимо с ATS-системами:
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['Huntflow', 'Поток', 'Талантикс', 'Skillaz', 'E-Staff'].map(name => (
+              {['Huntflow', 'Потоk', 'Талантикс', 'Skillaz', 'hh.ru'].map(name => (
                 <span key={name} className="badge badge-gray">{name}</span>
               ))}
             </div>

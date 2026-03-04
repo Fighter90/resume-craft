@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Home, ArrowLeft } from 'lucide-react'
+import { Home, ArrowLeft, Mail } from 'lucide-react'
 
 export default function ErrorPage() {
   return (
@@ -16,11 +16,11 @@ export default function ErrorPage() {
       </div>
       <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Страница не найдена</h2>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: 400 }}>
-        Возможно, она была перемещена или удалена. Проверьте URL или вернитесь на главную.
+        Возможно, она была перемещена или удалена. Проверьте правильность ссылки.
       </p>
       <div style={{ display: 'flex', gap: '0.75rem' }}>
-        <Link to="/" className="btn btn-primary"><Home size={16} /> На главную</Link>
-        <button onClick={() => window.history.back()} className="btn btn-secondary"><ArrowLeft size={16} /> Назад</button>
+        <Link to="/app/dashboard" className="btn btn-primary"><Home size={16} /> Вернуться на главную</Link>
+        <a href="mailto:support@resumecraft.ru" className="btn btn-secondary"><Mail size={16} /> Связаться с поддержкой</a>
       </div>
     </div>
   )
