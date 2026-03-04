@@ -47,6 +47,13 @@ jobs:
             echo "=== Restarting services ==="
             docker compose up -d --remove-orphans
 
+            echo "=== Running database migrations ==="
+            docker compose exec -T app alembic upgrade head 2>&1 || {
+              echo "⚠️ Migration failed, checking if DB is ready..."
+              sleep 5
+              docker compose exec -T app alembic upgrade head 2>&1
+            }
+
             echo "=== Waiting for health check ==="
             sleep 10
             for i in $(seq 1 30); do

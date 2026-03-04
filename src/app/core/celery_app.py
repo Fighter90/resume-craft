@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from celery import Celery
+from celery.signals import worker_init
 
 from app.core.config import get_settings
 
@@ -32,3 +33,17 @@ celery_app.conf.update(
 )
 
 celery_app.autodiscover_tasks(['app.rewriter'])
+
+
+@worker_init.connect
+def _load_all_models(**_kwargs: object) -> None:
+    """Загрузка всех SQLAlchemy-моделей при старте worker.
+
+    Без этого relationship() между моделями из разных доменов
+    (например Resume → User) вызывает InvalidRequestError,
+    т.к. mapper не может найти связанный класс.
+    """
+    import app.auth.models  # noqa: F401
+    import app.resumes.models  # noqa: F401
+    import app.rewriter.models  # noqa: F401
+    import app.vacancies.models  # noqa: F401
