@@ -42,7 +42,6 @@ RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuse
 COPY src/ ./src/
 COPY alembic/ ./alembic/
 COPY alembic.ini ./
-COPY streamlit_app/ ./streamlit_app/
 
 # Создание директории для загрузок
 RUN mkdir -p /data/uploads && chown -R appuser:appuser /data /app

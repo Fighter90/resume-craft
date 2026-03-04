@@ -240,7 +240,7 @@ Export ←── Results ←── Processing ←── Vacancy
 ┌──────────────────────────────────────────────────────┐
 │                 КЛИЕНТСКИЙ УРОВЕНЬ                   │
 │                                                      │
-│  Streamlit UI (demo)     React SPA (production)      │
+│              React SPA (Vite + TypeScript)            │
 │                                                      │
 └──────────────────────┬───────────────────────────────┘
                        │ HTTPS
@@ -304,7 +304,7 @@ Export ←── Results ←── Processing ←── Vacancy
 **Архитектурные решения:**
 - **Монолит** (не микросервисы) — скорость разработки, простота отладки, доменная организация позволяет выделить модули позже
 - **Celery** (не BackgroundTasks) — отдельный процесс, горизонтальное масштабирование, retry-логика, Flower мониторинг
-- **Streamlit** (не React) для Demo UI — полный UI за 1–2 дня; React SPA → Фаза 2
+- **React SPA** (Vite + TypeScript) — типизированный фронтенд, nginx-прокси к API
 
 ---
 
@@ -345,10 +345,11 @@ Export ←── Results ←── Processing ←── Vacancy
 | Технология | Назначение |
 |-----------|------------|
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
-| **Streamlit** | Demo UI для защиты |
-| **React + TypeScript** | Production SPA (Фаза 2) |
-| **Docker + Compose** | Контейнеризация, 6 сервисов |
-| **Nginx** 1.25+ | Reverse proxy, SSL |
+| **React 19 + TypeScript** | SPA Frontend |
+| **Vite 6** | Сборка frontend |
+| **Vitest + Testing Library** | Тесты frontend (33 теста) |
+| **Docker + Compose** | Контейнеризация, 7 сервисов |
+| **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitLab CI** | CI/CD pipeline |
 | **pytest + Ruff + mypy** | Тестирование + линтинг |
 
@@ -419,25 +420,23 @@ tests/                     # Зеркалирует src/app/
 
 alembic/                   # Миграции PostgreSQL
 
-streamlit_app/             # Streamlit Demo UI (20/20 прототипов)
-├── app.py                 # Роутер: навигация, session state, sidebar
-├── styles.py              # Общие CSS-стили и утилиты
-├── demo_data.py           # Демо-данные для работы без бэкенда
-├── api_client.py          # HTTP-клиент для FastAPI бэкенда
-└── pages/                 # Модули страниц
-    ├── landing.py         # Лендинг (01)
-    ├── auth.py            # Авторизация / регистрация / восстановление (02-04)
-    ├── pricing.py         # Тарифы (05)
-    ├── dashboard.py       # Дашборд (06)
-    ├── resumes.py         # Список резюме (07)
-    ├── wizard.py          # 5-шаговый мастер оптимизации (08-12)
-    ├── editor.py          # Редактор резюме (13)
-    ├── export.py          # Экспорт DOCX/PDF (14)
-    ├── history.py         # История оптимизаций (15)
-    ├── settings.py        # Настройки: профиль, AI, подписка, безопасность (16-19)
-    └── error.py           # Страница 404 (20)
+frontend/                  # React SPA Frontend
+├── Dockerfile             # node:20 build → nginx:1.27 serve
+├── nginx.conf             # SPA routing + API proxy → app:8000
+├── package.json           # Vite 6 + React 19 + TypeScript
+├── index.html             # Entry point
+└── src/
+    ├── main.tsx           # BrowserRouter + AuthProvider
+    ├── App.tsx            # Маршрутизация (20 routes)
+    ├── contexts/          # AuthContext (JWT + localStorage)
+    ├── services/          # API-клиент (fetch + Bearer)
+    ├── data/              # Демо-данные
+    ├── styles/            # CSS из Prototype/ + app.css
+    ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
+    ├── pages/             # 20 page components
+    └── test/              # 33 теста (Vitest + Testing Library)
 
-Prototype/                 # 20 HTML-прототипов (все реализованы в Streamlit)
+Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
 
 ### 7.2. Принципы организации кода
@@ -777,8 +776,8 @@ uvicorn app.main:app --app-dir src --reload --port 8000
 # 8. Запуск Celery worker (отдельный терминал)
 cd src && celery -A app.core.celery_app:celery_app worker --loglevel=info
 
-# 9. Streamlit Demo UI (отдельный терминал)
-streamlit run streamlit_app/app.py --server.port 8501
+# 9. Frontend (отдельный терминал)
+cd frontend && npm install && npm run dev
 ```
 
 ### 14.3. Быстрый старт с Docker
@@ -853,7 +852,7 @@ curl http://localhost:8000/health
 
 ### 16.1. Сервисы Docker Compose
 
-7 контейнеров: `app` (FastAPI), `celery-worker`, `db` (pgvector/pgvector:pg16), `redis` (redis:7-alpine), `rabbitmq` (rabbitmq:3.13-management), `flower` (мониторинг Celery), `streamlit` (Demo UI).
+7 контейнеров: `app` (FastAPI), `celery-worker`, `db` (pgvector/pgvector:pg16), `redis` (redis:7-alpine), `rabbitmq` (rabbitmq:3.13-management), `flower` (мониторинг Celery), `frontend` (React SPA, nginx).
 
 Файлы хранятся в Docker volume `/data/uploads`.
 
@@ -883,6 +882,7 @@ docker compose down -v
 
 | Сервис | URL |
 |--------|-----|
+| React SPA | http://localhost:3000 |
 | FastAPI | http://localhost:8000 |
 | Flower | http://localhost:5555 |
 | RabbitMQ Management | http://localhost:15672 |
@@ -897,25 +897,29 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Всего тестов** | 352 |
-| **Покрытие** | 100% |
-| **Фреймворк** | pytest + pytest-asyncio |
+| **Backend тестов** | 356 (pytest + pytest-asyncio) |
+| **Frontend тестов** | 33 (Vitest + @testing-library/react) |
+| **Всего тестов** | 389 |
+| **Backend покрытие** | 100% |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
 ### 17.2. Запуск тестов
 
 ```bash
-# Все тесты
+# Backend — все тесты
 pytest
 
-# С покрытием
+# Backend — с покрытием
 pytest --cov --cov-report=term-missing
 
-# Конкретный модуль
+# Backend — конкретный модуль
 pytest tests/test_auth/ -v
 
-# Только быстрые
-pytest -m "not slow"
+# Frontend — все тесты
+cd frontend && npm test
+
+# Frontend — watch mode
+cd frontend && npm run test:watch
 ```
 
 ### 17.3. Структура тестов

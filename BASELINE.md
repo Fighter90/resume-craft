@@ -19,7 +19,7 @@
 8. [Схема данных](#8-схема-данных)
 9. [API-спецификация](#9-api-спецификация)
 10. [AI/ML Pipeline](#10-aiml-pipeline)
-11. [Streamlit Demo UI](#11-streamlit-demo-ui)
+11. [React SPA Frontend](#11-react-spa-frontend)
 12. [Интеграция с hh.ru API](#12-интеграция-с-hhru-api)
 13. [Безопасность](#13-безопасность)
 14. [Тестирование](#14-тестирование)
@@ -45,7 +45,7 @@
 ### 1.2. Принципы MVP
 
 1. **YAGNI** — реализуем только то, что нужно для demo и первых пользователей
-2. **API-first** — backend API не зависит от UI; Streamlit → React без переписывания backend
+2. **API-first** — backend API не зависит от UI; React SPA вызывает те же REST-эндпоинты
 3. **Fail-safe** — при недоступности LLM → fallback, при ошибке парсинга → graceful degradation
 4. **Data-driven** — решения основаны на данных рынка (ANALYSIS.md) и источниках (REFERENCES.md)
 5. **Ship fast** — MVP за 8 недель, один full-stack разработчик
@@ -63,7 +63,6 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 ```
 
 **Что НЕ входит в MVP:**
-- React SPA (→ Phase 2, используем Streamlit)
 - OAuth hh.ru для соискателей (→ Phase 2, используем анонимный API)
 - ЮKassa платежи (→ Phase 2)
 - PDF export с шаблонами (→ Phase 2, только DOCX)
@@ -314,9 +313,9 @@ Then:  200 OK, binary DOCX file
 
 ```
 ┌──────────────┐     ┌──────────────┐
-│  Streamlit   │────→│   FastAPI    │
-│  Demo UI     │     │   (async)    │
-│  :8501       │     │   :8000      │
+│  React SPA   │────→│   FastAPI    │
+│  (nginx)     │     │   (async)    │
+│  :3000       │     │   :8000      │
 └──────────────┘     └──────┬───────┘
                             │
               ┌─────────────┼─────────────┐
@@ -342,7 +341,7 @@ Then:  200 OK, binary DOCX file
 ### 6.2. Принципы
 
 1. **Монолит** — один репозиторий, один деплой, доменная организация (auth/, resumes/, vacancies/, rewriter/, ml/)
-2. **API-first** — Streamlit вызывает те же эндпоинты, что будущий React SPA
+2. **API-first** — React SPA вызывает REST API через nginx-прокси (/api/ → FastAPI)
 3. **Async everywhere** — FastAPI + asyncpg + httpx (async hh.ru клиент)
 4. **Celery для long-running** — LLM-задачи 8–30 сек → фоновая обработка
 5. **Single DB** — PostgreSQL для реляционных данных + JSONB + pgvector
@@ -351,20 +350,20 @@ Then:  200 OK, binary DOCX file
 
 **Upload flow:**
 ```
-Streamlit → POST /resumes/upload (multipart)
+React → POST /api/v1/resumes/upload (multipart)
 FastAPI → validate → save to /data/uploads → PyMuPDF/python-docx → LLM structurize → embedding → save to DB
-Streamlit ← 201 {id, title, status}
+React ← 201 {id, title, status}
 ```
 
 **Rewrite flow:**
 ```
-Streamlit → POST /rewrite {resume_id, vacancy_id, model}
+React → POST /api/v1/rewrite {resume_id, vacancy_id, model}
 FastAPI → check limits → create Celery task → 202 {task_id}
 Celery → упрощённый pipeline: rewrite (LLM с retry до 3) → score → complete
   → Phase 2: полный 8-шаговый pipeline (extract → gap → strategy → rewrite → validate → score → diff → complete)
   → Save to rewrite_history
-Streamlit → GET /rewrite/{task_id}/status (polling, прогресс: 0/50/100)
-Streamlit → GET /rewrite/{task_id}/result
+React → GET /api/v1/rewrite/{task_id}/status (polling, прогресс: 0/50/100)
+React → GET /api/v1/rewrite/{task_id}/result
 ```
 
 ---
@@ -382,7 +381,7 @@ Streamlit → GET /rewrite/{task_id}/result
 | **Llama 3 (Groq)** | Ollama | 14 400 бесплатных req/день |
 | **Local FS** | MinIO, S3 | Docker volume /data/uploads, миграция на S3 в продакшене |
 | **PyMuPDF** | pdfplumber | 10x быстрее альтернатив |
-| **Streamlit** | Gradio, Flask | Минимум кода для функционального UI |
+| **React + Vite** | Gradio, Next.js | Production SPA, TypeScript, быстрый HMR, nginx serving |
 
 ### 7.2. Версии зависимостей
 
@@ -419,14 +418,18 @@ openai = "1.40.*"
 gigachat = "0.1.*"
 sentence-transformers = "3.0.*"
 
-# Demo UI
-streamlit = "1.38.*"
-
 # Testing & Quality
 pytest = "8.3.*"
 pytest-asyncio = "0.23.*"
 ruff = "0.6.*"
 mypy = "1.11.*"
+
+# Frontend
+vite = "6.x"
+react = "19.x"
+react-router-dom = "6.x"
+typescript = "5.x"
+vitest = "3.x"
 ```
 
 ---
@@ -736,42 +739,78 @@ class LLMClientFactory:
 
 ---
 
-## 11. Streamlit Demo UI
+## 11. React SPA Frontend
 
 ### 11.1. Архитектура
 
 ```
-streamlit_app/
-├── app.py             # Роутер + навигация + session state
-├── styles.py          # Общие CSS-стили (скрытие Streamlit default menu)
-├── demo_data.py       # Демо-данные
-├── api_client.py      # HTTP-клиент для FastAPI
-└── pages/             # 11 модулей страниц
-    ├── landing.py     # Лендинг
-    ├── auth.py        # Вход / регистрация
-    ├── pricing.py     # Тарифы
-    ├── dashboard.py   # Дашборд
-    ├── resumes.py     # Мои резюме
-    ├── wizard.py      # 5-шаговый мастер оптимизации
-    ├── editor.py      # Редактор
-    ├── export.py      # Экспорт
-    ├── history.py     # История
-    ├── settings.py    # Настройки (4 вкладки)
-    └── error.py       # 404
+frontend/
+├── Dockerfile         # node:20 build → nginx:1.27 serve
+├── nginx.conf         # SPA routing + API proxy → app:8000
+├── package.json       # Vite 6 + React 19 + TypeScript
+├── index.html         # Entry point (lang="ru", Inter font)
+└── src/
+    ├── main.tsx           # BrowserRouter + AuthProvider
+    ├── App.tsx            # Маршрутизация (react-router-dom v6)
+    ├── contexts/
+    │   └── AuthContext.tsx # JWT auth state + localStorage
+    ├── services/
+    │   └── api.ts         # HTTP-клиент (fetch + Bearer token)
+    ├── data/
+    │   └── demo.ts        # Демо-данные (резюме, вакансии, скоры)
+    ├── styles/
+    │   ├── shared-styles.css  # Дизайн-система из Prototype/
+    │   └── app.css            # Дополнительные стили React
+    ├── components/layout/
+    │   ├── AppLayout.tsx      # Sidebar + main (авторизованные)
+    │   ├── PublicLayout.tsx   # Navbar (публичные)
+    │   └── CenteredLayout.tsx # Центрированный (auth/recovery/404)
+    ├── pages/
+    │   ├── LandingPage.tsx    # Лендинг (hero, features, FAQ, CTA)
+    │   ├── PricingPage.tsx    # Тарифные планы
+    │   ├── ErrorPage.tsx      # 404
+    │   ├── auth/              # AuthPage, PasswordRecovery, EmailVerify
+    │   ├── dashboard/         # DashboardPage (статистика)
+    │   ├── resumes/           # ResumesPage (таблица + фильтры)
+    │   ├── wizard/            # Upload→Vacancy→Models→Processing→Results→Editor→Export
+    │   ├── history/           # HistoryPage (timeline)
+    │   └── settings/          # SettingsLayout + 4 вкладки (Profile, AI, Subscription, Security)
+    └── test/
+        ├── setup.ts           # jest-dom setup
+        ├── App.test.tsx       # 19 route tests
+        ├── api.test.ts        # 7 API client tests
+        └── demo.test.ts       # 7 demo data tests
 ```
 
-### 11.2. Навигация
+### 11.2. Маршрутизация
 
-- **Неавторизованный режим:** только Главная, Тарифы, Войти + быстрый вход в демо
-- **Авторизованный режим:** Дашборд, Мои резюме, Новая оптимизация, История, Тарифы, Настройки
-- Стандартное Streamlit-меню скрыто через CSS
+| Путь | Layout | Компонент |
+|------|--------|-----------|
+| `/` | PublicLayout | LandingPage |
+| `/pricing` | PublicLayout | PricingPage |
+| `/auth` | CenteredLayout | AuthPage |
+| `/password-recovery` | CenteredLayout | PasswordRecoveryPage |
+| `/email-verify` | CenteredLayout | EmailVerifyPage |
+| `/app/dashboard` | AppLayout | DashboardPage |
+| `/app/resumes` | AppLayout | ResumesPage |
+| `/app/upload` | AppLayout | UploadPage |
+| `/app/vacancy` | AppLayout | VacancyPage |
+| `/app/models` | AppLayout | ModelsPage |
+| `/app/processing` | AppLayout | ProcessingPage |
+| `/app/results` | AppLayout | ResultsPage |
+| `/app/editor` | AppLayout | EditorPage |
+| `/app/export` | AppLayout | ExportPage |
+| `/app/history` | AppLayout | HistoryPage |
+| `/app/settings/*` | AppLayout | SettingsLayout + 4 вкладки |
+| `*` | — | ErrorPage (404) |
 
 ### 11.3. Демо-режим
 
-Полностью функциональный демо с тестовыми данными (без API):
-- 3 резюме, 2 вакансии, история оптимизаций
-- 5-шаговый мастер с 8-шаговым pipeline-анимацией
-- Экспорт, настройки, безопасность
+Полностью функциональный UI с тестовыми данными (demo.ts):
+- 5 резюме, 3 вакансии, 4 группы истории
+- 5-шаговый wizard с анимацией прогресса
+- Match Score circle (87%), ATS-рейтинг, diff comparison
+- Экспорт (DOCX/PDF/hh.ru), настройки, безопасность
 
 ### 11.4. Seed-пользователь
 
@@ -780,11 +819,17 @@ streamlit_app/
 - Пароль: `TestPass123`
 - Скрипт: `src/app/core/seed.py` (идемпотентный, вызывается в lifespan FastAPI)
 
-### 11.5. Преимущества для MVP
+### 11.5. Технический стек Frontend
 
-- Полный UI за 1–2 дня (vs. 2–4 недели React)
-- Python-only, без JS
-- API-first: те же эндпоинты, что будущий React SPA
+| Технология | Версия | Назначение |
+|-----------|--------|------------|
+| Vite | 6.x | Сборщик (HMR, ESBuild) |
+| React | 19.x | UI-библиотека |
+| TypeScript | 5.x | Типизация |
+| react-router-dom | 6.x | Клиентская маршрутизация |
+| lucide-react | 0.576+ | Иконки |
+| Vitest | 3.x | Тесты |
+| nginx | 1.27 | Serving (production) |
 
 ---
 
@@ -892,9 +937,11 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Всего тестов** | 356 |
-| **Покрытие кода** | 100% (1473 statements, 0 uncovered) |
-| **Фреймворк** | pytest + pytest-asyncio |
+| **Backend тестов** | 356 (pytest + pytest-asyncio) |
+| **Frontend тестов** | 33 (Vitest + @testing-library/react) |
+| **Всего тестов** | 389 |
+| **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
+| **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 | **Ruff warnings** | 0 |
 | **mypy errors** | 0 (strict mode) |
@@ -903,11 +950,11 @@ def validate_upload(file: UploadFile) -> None:
 
 ```
 ┌─────────────────────────────────────┐
-│         E2E Tests (Streamlit)       │  ← 5% (ручные)
+│      Frontend Tests (Vitest)        │  ← 10% (33 tests)
 ├─────────────────────────────────────┤
 │       Integration Tests (API)       │  ← 25%
 ├─────────────────────────────────────┤
-│          Unit Tests (Logic)         │  ← 70%
+│          Unit Tests (Logic)         │  ← 65%
 └─────────────────────────────────────┘
 ```
 
@@ -1025,12 +1072,12 @@ services:
     command: celery -A src.app.core.celery_app flower --port=5555
     ports: ["5555:5555"]
 
-  streamlit:
-    build: .
-    env_file: .env
-    depends_on: [app]
-    command: streamlit run streamlit_app/app.py --server.port=8501
-    ports: ["8501:8501"]
+  frontend:
+    build: ./frontend
+    depends_on:
+      app: {condition: service_healthy}
+    ports: ["3000:80"]
+    restart: unless-stopped
 
 volumes:
   pgdata:
@@ -1041,7 +1088,7 @@ volumes:
 
 ```
 Docker Desktop → docker compose up -d
-→ FastAPI :8000     → Streamlit :8501
+→ FastAPI :8000     → React SPA :3000
 → PostgreSQL :5432  → Redis :6379
 → RabbitMQ :5672    → Flower :5555
 → Local FS (Docker volume /data/uploads)
@@ -1069,7 +1116,7 @@ Docker Desktop → docker compose up -d
 | 12 | ATS-рейтинг (A+–F) | Should |
 | 13 | Diff (список изменений) | Must |
 | 14 | Экспорт DOCX | Must |
-| 15 | Streamlit demo (полный workflow) | Must |
+| 15 | React SPA (полный workflow) | Must |
 | 16 | Docker Compose (одна команда) | Must |
 
 ### 16.2. Качественные
@@ -1079,7 +1126,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **356** |
+| Тестов всего | — | **389** (356 backend + 33 frontend) |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1100,8 +1147,8 @@ Docker Desktop → docker compose up -d
 Неделя 5–6: AI Rewriting
   Celery pipeline, GigaChat + Groq, Match Score, ATS, Diff
 
-Неделя 7: Export + Streamlit
-  DOCX export, Streamlit UI, E2E testing
+Неделя 7: Export + React SPA
+  DOCX export, React SPA UI, E2E testing
 
 Неделя 8: Polish
   Bug fixes, coverage 70%+, docs, demo preparation
@@ -1147,9 +1194,9 @@ Docker Desktop → docker compose up -d
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
 | AI-оптимизация | GigaChat Pro + Llama 3, Match Score, ATS |
 | Экспорт | DOCX |
-| UI | Streamlit Demo (20 прототипов, модульная архитектура) |
+| UI | React SPA (20 прототипов, модульная архитектура, 33 теста) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Тестирование | Unit + Integration, 356 тестов, 100% coverage |
+| Тестирование | Unit + Integration + Frontend, 389 тестов, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 
