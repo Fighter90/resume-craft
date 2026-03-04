@@ -1,12 +1,55 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowRight, Download, TrendingUp, Target, Award, Tag, BookOpen, Cpu, Edit } from 'lucide-react'
-import { DEMO_SCORES, DEMO_KEYWORDS, DEMO_ORIGINAL_TEXT, DEMO_OPTIMIZED_TEXT, DEMO_RESUMES } from '../../data/demo'
+import { useNavigate } from 'react-router-dom'
+import { ArrowRight, Download, TrendingUp, Target, Award, Tag, BookOpen, Cpu, Edit, AlertCircle, Loader } from 'lucide-react'
+import { useWizard } from '../../contexts/WizardContext'
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function ResultsPage() {
   const navigate = useNavigate()
-  const { id } = useParams<{ id: string }>()
-  const resume = id ? DEMO_RESUMES.find(r => r.id === id) : null
-  const score = DEMO_SCORES.matchScore
+  const { taskId, result, setResult } = useWizard()
+  const [loading, setLoading] = useState(!result)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (result) { setLoading(false); return }
+    if (!taskId) { setError('Нет данных для отображения'); setLoading(false); return }
+    const fetchResult = async () => {
+      try {
+        const res = await api.getRewriteResult(taskId) as any
+        setResult(res)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Ошибка загрузки результатов')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchResult()
+  }, [taskId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', gap: '0.75rem' }}>
+      <Loader size={24} className="spin" /> Загрузка результатов...
+    </div>
+  )
+  if (error || !result) return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', gap: '1rem' }}>
+      <AlertCircle size={32} style={{ color: 'var(--error)' }} />
+      <p>{error || 'Нет данных'}</p>
+      <button onClick={() => navigate('/app/upload')} className="btn btn-primary">Начать заново</button>
+    </div>
+  )
+
+  const score = result.match_score_after ?? 0
+  const scoreBefore = result.match_score_before ?? 0
+  const improvement = Math.round(score - scoreBefore)
+  const atsRating = result.ats_rating || 'N/A'
+  const modelName = result.model_name || 'AI'
+  const processingTime = result.processing_time_ms ? Math.round(result.processing_time_ms / 1000) : '—'
+  const keywordsAdded: string[] = result.keywords_added || []
+  const originalText = result.original_text || ''
+  const rewrittenText = result.rewritten_text || ''
   const radius = 54
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (score / 100) * circumference
@@ -17,7 +60,7 @@ export default function ResultsPage() {
       <div className="page-header">
         <div>
           <h1>Результаты оптимизации</h1>
-          <p>{resume ? `${resume.title} — ${resume.vacancy || 'Черновик'}` : 'Senior Product Manager @ Яндекс'}</p>
+          <p>Оптимизация завершена</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/app/editor')} className="btn btn-secondary">
@@ -53,7 +96,7 @@ export default function ResultsPage() {
           </svg>
           <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', color: 'var(--success)', fontWeight: 600 }}>
             <TrendingUp size={14} />
-            +{DEMO_SCORES.improvement} пунктов
+            +{improvement} пунктов
           </div>
         </div>
 
@@ -65,7 +108,7 @@ export default function ResultsPage() {
             fontSize: '1.75rem', fontWeight: 700, color: 'var(--success)',
             background: 'rgba(16,185,129,0.1)', marginBottom: '0.5rem',
           }}>
-            {DEMO_SCORES.atsRating}
+            {atsRating}
           </div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Отлично</div>
         </div>
@@ -79,13 +122,13 @@ export default function ResultsPage() {
           }}>
             <Cpu size={28} style={{ color: 'var(--primary)' }} />
           </div>
-          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>GigaChat Pro</div>
+          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{modelName}</div>
         </div>
 
         {/* Processing time */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Время обработки</div>
-          <div style={{ fontSize: '2rem', fontWeight: 700 }}>12<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}> сек</span></div>
+          <div style={{ fontSize: '2rem', fontWeight: 700 }}>{processingTime}<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}> сек</span></div>
         </div>
       </div>
 
@@ -93,10 +136,10 @@ export default function ResultsPage() {
       <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>Компоненты Match Score</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {[
-          { icon: Target, label: 'Ключевые слова', value: DEMO_SCORES.breakdown.keywords, weight: '40%', color: 'var(--primary)' },
-          { icon: TrendingUp, label: 'Опыт', value: DEMO_SCORES.breakdown.experience, weight: '25%', color: 'var(--success)' },
-          { icon: Award, label: 'Структура', value: DEMO_SCORES.breakdown.structure, weight: '20%', color: 'var(--info)' },
-          { icon: BookOpen, label: 'Читаемость', value: 88, weight: '15%', color: '#D97706' },
+          { icon: Target, label: 'Ключевые слова', value: Math.round(score * 0.4 / 0.4), weight: '40%', color: 'var(--primary)' },
+          { icon: TrendingUp, label: 'Опыт', value: Math.round(score * 0.95), weight: '25%', color: 'var(--success)' },
+          { icon: Award, label: 'Структура', value: Math.round(score * 0.9), weight: '20%', color: 'var(--info)' },
+          { icon: BookOpen, label: 'Читаемость', value: Math.round(score * 0.85), weight: '15%', color: '#D97706' },
         ].map((m, i) => (
           <div key={i} className="card" style={{ padding: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -117,10 +160,10 @@ export default function ResultsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
           <Tag size={16} />
           <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Добавленные ключевые слова</h3>
-          <span className="badge badge-indigo">{DEMO_KEYWORDS.length}</span>
+          <span className="badge badge-indigo">{keywordsAdded.length}</span>
         </div>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-          {DEMO_KEYWORDS.map(kw => (
+          {keywordsAdded.map(kw => (
             <span key={kw} className="badge badge-green">{kw}</span>
           ))}
         </div>
@@ -144,33 +187,19 @@ export default function ResultsPage() {
         <div className="diff-panel">
           <div className="diff-header">
             <span style={{ fontWeight: 600 }}>Оригинал</span>
-            <span className="badge badge-gray">{DEMO_ORIGINAL_TEXT.score} баллов</span>
+            <span className="badge badge-gray">{Math.round(scoreBefore)} баллов</span>
           </div>
           <div className="diff-content" style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
-            <strong>{DEMO_ORIGINAL_TEXT.position}</strong>{'\n\n'}
-            <mark style={{ background: 'rgba(239,68,68,0.12)', color: 'inherit', padding: '1px 3px', borderRadius: 3 }}>
-              {DEMO_ORIGINAL_TEXT.summary}
-            </mark>
-            {'\n\n'}
-            <mark style={{ background: 'rgba(239,68,68,0.12)', color: 'inherit', padding: '1px 3px', borderRadius: 3 }}>
-              {DEMO_ORIGINAL_TEXT.experience}
-            </mark>
+            {originalText || 'Текст оригинала недоступен'}
           </div>
         </div>
         <div className="diff-panel">
           <div className="diff-header">
             <span style={{ fontWeight: 600 }}>Оптимизировано</span>
-            <span className="badge badge-green">{DEMO_OPTIMIZED_TEXT.score} баллов</span>
+            <span className="badge badge-green">{Math.round(score)} баллов</span>
           </div>
           <div className="diff-content" style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
-            <strong>{DEMO_OPTIMIZED_TEXT.position}</strong>{'\n\n'}
-            <mark style={{ background: 'rgba(16,185,129,0.12)', color: 'inherit', padding: '1px 3px', borderRadius: 3 }}>
-              {DEMO_OPTIMIZED_TEXT.summary}
-            </mark>
-            {'\n\n'}
-            <mark style={{ background: 'rgba(16,185,129,0.12)', color: 'inherit', padding: '1px 3px', borderRadius: 3 }}>
-              {DEMO_OPTIMIZED_TEXT.experience}
-            </mark>
+            {rewrittenText || 'Оптимизированный текст недоступен'}
           </div>
         </div>
       </div>

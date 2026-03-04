@@ -1,11 +1,39 @@
 import { Link } from 'react-router-dom'
-import { FileText, BarChart3, TrendingUp, Plus } from 'lucide-react'
-import { DEMO_RESUMES } from '../../data/demo'
+import { FileText, BarChart3, TrendingUp, Plus, Loader } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const displayName = user?.full_name?.split(' ')[0] || 'Пользователь'
+  const [resumes, setResumes] = useState<any[]>([])
+  const [history, setHistory] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [resumeRes, historyRes] = await Promise.all([
+          api.getResumes().catch(() => []),
+          api.getRewriteHistory().catch(() => []),
+        ])
+        setResumes(Array.isArray(resumeRes) ? resumeRes : [])
+        setHistory(Array.isArray(historyRes) ? historyRes : [])
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  const totalResumes = resumes.length
+  const totalOptimizations = history.length
+  const avgScore = history.length > 0
+    ? Math.round(history.filter((h: any) => h.match_score_after).reduce((acc: number, h: any) => acc + (h.match_score_after || 0), 0) / history.filter((h: any) => h.match_score_after).length)
+    : 0
 
   return (
     <>
@@ -22,7 +50,7 @@ export default function DashboardPage() {
         <div className="card stat-card">
           <div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Загружено резюме</div>
-            <div style={{ fontSize: '2rem', fontWeight: 700 }}>12</div>
+            <div style={{ fontSize: '2rem', fontWeight: 700 }}>{loading ? '—' : totalResumes}</div>
           </div>
           <div className="stat-icon" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
             <FileText size={24} />
@@ -31,7 +59,7 @@ export default function DashboardPage() {
         <div className="card stat-card">
           <div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Оптимизаций</div>
-            <div style={{ fontSize: '2rem', fontWeight: 700 }}>48</div>
+            <div style={{ fontSize: '2rem', fontWeight: 700 }}>{loading ? '—' : totalOptimizations}</div>
           </div>
           <div className="stat-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}>
             <TrendingUp size={24} />
@@ -43,9 +71,9 @@ export default function DashboardPage() {
             <div style={{ position: 'relative', width: 56, height: 56, margin: '0.25rem 0' }}>
               <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
                 <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#E5E7EB" strokeWidth="3" />
-                <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#D97706" strokeWidth="3" strokeDasharray="78,100" />
+                <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#D97706" strokeWidth="3" strokeDasharray={`${avgScore},100`} />
               </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#D97706' }}>78%</div>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: '#D97706' }}>{loading ? '—' : `${avgScore}%`}</div>
             </div>
           </div>
           <div className="stat-icon" style={{ background: '#FEF3C7', color: '#D97706' }}>
@@ -57,21 +85,18 @@ export default function DashboardPage() {
       {/* Recent Resumes */}
       <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem' }}>Недавние резюме</h2>
       <div className="resume-grid">
-        {DEMO_RESUMES.slice(0, 2).map(r => (
-          <Link to="/app/results" key={r.id} className="card card-hover" style={{ padding: '1.5rem' }}>
+        {loading ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}><Loader size={16} className="spin" /> Загрузка...</div>
+        ) : resumes.slice(0, 2).map((r: any) => (
+          <Link to="/app/resumes" key={r.id} className="card card-hover" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{r.title}</h3>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{r.title || 'Резюме'}</h3>
               <span className={`badge ${r.status === 'optimized' ? 'badge-green' : 'badge-gray'}`}>
-                {r.status === 'optimized' ? 'Оптимизировано' : 'Черновик'}
+                {r.status === 'optimized' ? 'Оптимизировано' : r.status === 'processing' ? 'В обработке' : 'Черновик'}
               </span>
             </div>
-            {r.match_score && (
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--success)', marginBottom: '0.5rem' }}>
-                {r.match_score}% <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 400 }}>Match Score</span>
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {r.tags.map(t => <span key={t} className="badge badge-indigo">{t}</span>)}
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {r.file_format?.toUpperCase()} · {r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : ''}
             </div>
           </Link>
         ))}

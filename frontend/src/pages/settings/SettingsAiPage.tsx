@@ -48,19 +48,24 @@ const TOGGLES = [
 ]
 
 export default function SettingsAiPage() {
-  const [model, setModel] = useState('gigachat-pro')
-  const [apiKeys, setApiKeys] = useState<Record<string, string>>({
+  // Load from localStorage
+  const savedSettings = (() => {
+    try { return JSON.parse(localStorage.getItem('ai_settings') || '{}') } catch { return {} }
+  })()
+  const [model, setModel] = useState(savedSettings.model || 'gigachat-pro')
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>(savedSettings.apiKeys || {
     gigachat: '', openai: '', groq: '', openrouter: '',
   })
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({})
   const [toggles, setToggles] = useState<Record<string, boolean>>(
-    Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
+    savedSettings.toggles || Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
   )
   const [saved, setSaved] = useState(false)
 
   const toggle = (id: string) => setToggles({ ...toggles, [id]: !toggles[id] })
 
   const handleSave = () => {
+    localStorage.setItem('ai_settings', JSON.stringify({ model, apiKeys, toggles }))
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -69,6 +74,7 @@ export default function SettingsAiPage() {
     setModel('gigachat-pro')
     setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
     setApiKeys({ gigachat: '', openai: '', groq: '', openrouter: '' })
+    localStorage.removeItem('ai_settings')
   }
 
   return (

@@ -1,6 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft, Check, AlertCircle, Loader } from 'lucide-react'
 import { useState } from 'react'
+import { api } from '../../services/api'
+import { useWizard } from '../../contexts/WizardContext'
 
 const MODELS = [
   {
@@ -54,7 +56,29 @@ const MODELS = [
 
 export default function ModelsPage() {
   const navigate = useNavigate()
+  const { resumeId, vacancyId, setModel, setTaskId } = useWizard()
   const [selected, setSelected] = useState('gigachat-pro')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleStart = async () => {
+    if (!resumeId || !vacancyId) {
+      setError('Сначала загрузите резюме и выберите вакансию')
+      return
+    }
+    setLoading(true)
+    setError(null)
+    try {
+      setModel(selected)
+      const res = await api.startRewrite(resumeId, vacancyId, selected) as { task_id: string }
+      setTaskId(res.task_id)
+      navigate('/app/processing')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка запуска оптимизации')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="wizard-container">
@@ -122,9 +146,14 @@ export default function ModelsPage() {
         ))}
       </div>
 
-      <button onClick={() => navigate('/app/processing')} className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }}>
-        Начать оптимизацию
+      <button onClick={handleStart} className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }} disabled={loading}>
+        {loading ? <><Loader size={16} className="spin" /> Запуск...</> : 'Начать оптимизацию'}
       </button>
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginTop: '0.75rem', fontSize: '0.875rem' }}>
+          <AlertCircle size={16} /> {error}
+        </div>
+      )}
     </div>
   )
 }

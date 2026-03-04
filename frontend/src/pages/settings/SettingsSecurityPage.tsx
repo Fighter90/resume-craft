@@ -1,22 +1,17 @@
 import { useState } from 'react'
-import { Shield, Smartphone, Monitor, AlertTriangle, Save } from 'lucide-react'
-
-const SESSIONS = [
-  { device: 'Chrome — macOS', location: 'Москва, Россия', time: 'Сейчас', current: true },
-  { device: 'Safari — iPhone', location: 'Москва, Россия', time: '2 часа назад', current: false },
-  { device: 'Firefox — Windows', location: 'Санкт-Петербург, Россия', time: 'Вчера', current: false },
-]
+import { Shield, AlertTriangle, Save, Loader } from 'lucide-react'
+import { api } from '../../services/api'
 
 export default function SettingsSecurityPage() {
-  const [twofa, setTwofa] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' })
   const [pwMessage, setPwMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [pwLoading, setPwLoading] = useState(false)
 
   const handlePwChange = (key: string, value: string) => setPwForm({ ...pwForm, [key]: value })
 
-  const handlePwSubmit = () => {
+  const handlePwSubmit = async () => {
     setPwMessage(null)
     if (!pwForm.current || !pwForm.newPw || !pwForm.confirm) {
       setPwMessage({ type: 'error', text: 'Заполните все поля' })
@@ -30,8 +25,16 @@ export default function SettingsSecurityPage() {
       setPwMessage({ type: 'error', text: 'Пароли не совпадают' })
       return
     }
-    setPwMessage({ type: 'success', text: 'Пароль успешно обновлён' })
-    setPwForm({ current: '', newPw: '', confirm: '' })
+    setPwLoading(true)
+    try {
+      await api.changePassword({ current_password: pwForm.current, new_password: pwForm.newPw })
+      setPwMessage({ type: 'success', text: 'Пароль успешно обновлён' })
+      setPwForm({ current: '', newPw: '', confirm: '' })
+    } catch (err) {
+      setPwMessage({ type: 'error', text: err instanceof Error ? err.message : 'Ошибка смены пароля' })
+    } finally {
+      setPwLoading(false)
+    }
   }
 
   return (
@@ -62,48 +65,29 @@ export default function SettingsSecurityPage() {
           <input className="input-field" type="password" placeholder="••••••••"
             value={pwForm.confirm} onChange={e => handlePwChange('confirm', e.target.value)} />
         </div>
-        <button className="btn btn-primary" onClick={handlePwSubmit}><Save size={16} /> Обновить пароль</button>
+        <button className="btn btn-primary" onClick={handlePwSubmit} disabled={pwLoading}>
+          {pwLoading ? <><Loader size={16} className="spin" /> Обновление...</> : <><Save size={16} /> Обновить пароль</>}
+        </button>
       </div>
 
       {/* 2FA */}
-      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', opacity: 0.6 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Shield size={20} style={{ color: 'var(--primary)' }} />
             <div>
               <div style={{ fontWeight: 600 }}>Двухфакторная аутентификация</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>SMS или приложение-аутентификатор</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Будет доступно в следующем обновлении</div>
             </div>
           </div>
-          <label className="toggle-switch">
-            <input type="checkbox" checked={twofa} onChange={() => setTwofa(!twofa)} />
-            <span className="toggle-slider" />
-          </label>
+          <span className="badge badge-gray">Скоро</span>
         </div>
       </div>
 
-      {/* Active sessions */}
-      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Активные сессии</h3>
-        {SESSIONS.map((s, i) => (
-          <div key={i} className="session-item" style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '0.75rem 0', borderBottom: i < SESSIONS.length - 1 ? '1px solid var(--border)' : 'none',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {s.device.includes('iPhone') ? <Smartphone size={18} /> : <Monitor size={18} />}
-              <div>
-                <div style={{ fontWeight: 500, fontSize: '0.9rem' }}>
-                  {s.device} {s.current && <span className="badge badge-green" style={{ marginLeft: '0.5rem' }}>Текущая</span>}
-                </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{s.location} · {s.time}</div>
-              </div>
-            </div>
-            {!s.current && (
-              <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.78rem' }}>Завершить</button>
-            )}
-          </div>
-        ))}
+      {/* Active sessions — placeholder */}
+      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', opacity: 0.6 }}>
+        <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Активные сессии</h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Управление сессиями будет доступно в следующем обновлении</p>
       </div>
 
       {/* Danger zone */}

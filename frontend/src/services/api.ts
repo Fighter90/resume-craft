@@ -105,11 +105,55 @@ export class ApiClient {
   }
 
   async exportDocx(id: string) {
+    const tok = this.token || localStorage.getItem('access_token')
     const res = await fetch(`${API_BASE}/export/${id}/docx`, {
-      headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {},
+      headers: tok ? { 'Authorization': `Bearer ${tok}` } : {},
     })
     if (!res.ok) throw new Error('Export failed')
     return res.blob()
+  }
+
+  // --- Missing methods ---
+
+  async refreshToken(refreshToken: string) {
+    return this.request<{ access_token: string; refresh_token: string; token_type: string }>(
+      'POST', '/auth/refresh', { refresh_token: refreshToken }
+    )
+  }
+
+  async serverLogout(refreshToken: string) {
+    return this.request<void>('POST', '/auth/logout', { refresh_token: refreshToken })
+  }
+
+  async updateProfile(data: { full_name?: string; email?: string }) {
+    return this.request<{
+      id: string; email: string; full_name: string | null;
+      plan: 'free' | 'standard' | 'pro'; optimizations_used: number; is_active: boolean
+    }>('PUT', '/auth/me', data)
+  }
+
+  async changePassword(data: { current_password: string; new_password: string }) {
+    return this.request<{ message: string }>('PUT', '/auth/me/password', data)
+  }
+
+  async getResume(id: string) {
+    return this.request<Record<string, unknown>>('GET', `/resumes/${id}`)
+  }
+
+  async updateResume(id: string, data: Record<string, unknown>) {
+    return this.request<Record<string, unknown>>('PUT', `/resumes/${id}`, data)
+  }
+
+  async deleteResume(id: string) {
+    return this.request<void>('DELETE', `/resumes/${id}`)
+  }
+
+  async getVacancy(id: string) {
+    return this.request<Record<string, unknown>>('GET', `/vacancies/${id}`)
+  }
+
+  async deleteVacancy(id: string) {
+    return this.request<void>('DELETE', `/vacancies/${id}`)
   }
 }
 

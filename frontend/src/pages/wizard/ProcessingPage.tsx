@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader, FileText, Search, Sparkles, CheckCircle } from 'lucide-react'
+import { Loader, FileText, Search, Sparkles, CheckCircle, AlertCircle } from 'lucide-react'
+import { api } from '../../services/api'
+import { useWizard } from '../../contexts/WizardContext'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const STEPS = [
   { icon: FileText, label: 'Загрузка документа', desc: 'Парсинг и извлечение текста' },
@@ -9,32 +13,64 @@ const STEPS = [
   { icon: CheckCircle, label: 'Финализация', desc: 'Скоринг, проверка качества, ATS-рейтинг' },
 ]
 
+const STEP_MAP: Record<string, number> = {
+  'extracting': 0, 'parsing': 0,
+  'analyzing': 1, 'matching': 1,
+  'rewriting': 2, 'optimizing': 2, 'generating': 2,
+  'scoring': 3, 'finalizing': 3, 'validating': 3,
+}
+
 export default function ProcessingPage() {
   const navigate = useNavigate()
+  const { taskId, setResult } = useWizard()
   const [current, setCurrent] = useState(0)
   const [progress, setProgress] = useState(0)
   const [done, setDone] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) {
-          clearInterval(timer)
-          setDone(true)
-          return 100
+    if (!taskId) {
+      setError('Нет задачи для отслеживания. Вернитесь к выбору модели.')
+      return
+    }
+
+    const poll = async () => {
+      try {
+        const status = await api.getRewriteStatus(taskId) as any
+        // Update progress and step
+        if (status.progress !== undefined) {
+          setProgress(Math.min(status.progress, 100))
         }
-        return p + 1
-      })
-    }, 80)
-    return () => clearInterval(timer)
-  }, [])
+        if (status.step) {
+          const stepIdx = STEP_MAP[status.step.toLowerCase()] ?? current
+          setCurrent(stepIdx)
+        }
+        // Check if done
+        if (status.status === 'completed') {
+          setProgress(100)
+          setCurrent(3)
+          if (pollingRef.current) clearInterval(pollingRef.current)
+          // Fetch result
+          try {
+            const result = await api.getRewriteResult(taskId) as any
+            setResult(result)
+          } catch { /* result will be fetched on results page */ }
+          setDone(true)
+        } else if (status.status === 'failed') {
+          if (pollingRef.current) clearInterval(pollingRef.current)
+          setError(status.error_message || 'Ошибка обработки')
+        }
+      } catch (err) {
+        // Don't stop on transient errors, keep polling
+        console.warn('Polling error:', err)
+      }
+    }
 
-  useEffect(() => {
-    if (progress < 25) setCurrent(0)
-    else if (progress < 50) setCurrent(1)
-    else if (progress < 75) setCurrent(2)
-    else setCurrent(3)
-  }, [progress])
+    poll() // initial call
+    pollingRef.current = setInterval(poll, 3000)
+    return () => { if (pollingRef.current) clearInterval(pollingRef.current) }
+  }, [taskId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: '2rem', textAlign: 'center' }}>
@@ -46,11 +82,17 @@ export default function ProcessingPage() {
       </div>
 
       <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-        {done ? 'Оптимизация завершена!' : 'Оптимизируем ваше резюме...'}
+        {error ? 'Ошибка обработки' : done ? 'Оптимизация завершена!' : 'Оптимизируем ваше резюме...'}
       </h2>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-        {done ? 'Ваше резюме готово к просмотру' : 'GigaChat Pro анализирует и улучшает ваше резюме · Обычно 10–30 секунд'}
+        {error ? '' : done ? 'Ваше резюме готово к просмотру' : 'AI анализирует и улучшает ваше резюме · Обычно 10–30 секунд'}
       </p>
+
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          <AlertCircle size={18} /> {error}
+        </div>
+      )}
 
       {/* Progress bar */}
       <div style={{ width: '100%', maxWidth: 400, marginBottom: '2rem' }}>

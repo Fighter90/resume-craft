@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check, CreditCard, ExternalLink } from 'lucide-react'
 import { generatePaymentUrl, PLAN_PRICES, generateInvoiceId } from '../../utils/robokassa'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface Plan {
   id: string
@@ -28,8 +29,9 @@ const PLANS: Plan[] = [
 const PLAN_LIMITS: Record<string, number> = { free: 5, standard: 30, pro: 999 }
 
 export default function SettingsSubscriptionPage() {
-  const [currentPlan, setCurrentPlan] = useState('free')
-  const [optimizationsUsed] = useState(2)
+  const { user } = useAuth()
+  const [currentPlan, setCurrentPlan] = useState<string>(user?.plan || 'free')
+  const optimizationsUsed = user?.optimizations_used ?? 0
   const [paymentLoading, setPaymentLoading] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
 

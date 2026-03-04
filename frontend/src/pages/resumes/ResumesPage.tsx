@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
-import { Search, Plus, FileText, Download, Trash2, Eye } from 'lucide-react'
-import { DEMO_RESUMES } from '../../data/demo'
+import { Search, Plus, FileText, Download, Trash2, Eye, Loader } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const statusLabel = (s: string) => {
   switch (s) {
@@ -12,6 +15,50 @@ const statusLabel = (s: string) => {
 }
 
 export default function ResumesPage() {
+  const [resumes, setResumes] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.getResumes()
+        setResumes(Array.isArray(res) ? res : [])
+      } catch { /* empty */ }
+      finally { setLoading(false) }
+    }
+    load()
+  }, [])
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Удалить резюме "${title}"?`)) return
+    try {
+      await api.deleteResume(id)
+      setResumes(prev => prev.filter(r => r.id !== id))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Ошибка удаления')
+    }
+  }
+
+  const handleDownload = async (id: string) => {
+    try {
+      const blob = await api.exportDocx(id)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'resume.docx'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Ошибка скачивания')
+    }
+  }
+
+  const filtered = resumes.filter(r =>
+    !searchQuery || (r.title || '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
   return (
     <>
       <div className="page-header">
@@ -27,7 +74,7 @@ export default function ResumesPage() {
         <div className="input-group" style={{ flex: 1, maxWidth: 300 }}>
           <div style={{ position: 'relative' }}>
             <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
-            <input className="input-field" placeholder="Поиск резюме..." style={{ paddingLeft: '2.5rem' }} />
+            <input className="input-field" placeholder="Поиск резюме..." style={{ paddingLeft: '2.5rem' }} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
           </div>
         </div>
         <select className="input-field select-field" style={{ maxWidth: 200 }}>
@@ -45,20 +92,27 @@ export default function ResumesPage() {
 
       {/* Desktop Table */}
       <div className="card resumes-desktop-table" style={{ overflow: 'auto' }}>
+        {loading ? (
+          <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <Loader size={16} className="spin" /> Загрузка...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            {searchQuery ? 'Ничего не найдено' : 'Нет загруженных резюме'}
+          </div>
+        ) : (
         <table className="data-table">
           <thead>
             <tr>
               <th>Название</th>
-              <th>Вакансия</th>
               <th>Статус</th>
-              <th>Match Score</th>
-              <th>AI модель</th>
+              <th>Формат</th>
               <th>Дата</th>
               <th>Действия</th>
             </tr>
           </thead>
           <tbody>
-            {DEMO_RESUMES.map(r => {
+            {filtered.map((r: any) => {
               const st = statusLabel(r.status)
               return (
                 <tr key={r.id}>
@@ -68,29 +122,19 @@ export default function ResumesPage() {
                         <FileText size={16} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>.{r.file_format}</div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title || 'Резюме'}</div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>.{r.file_format || '?'}</div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ color: r.vacancy ? 'var(--text-main)' : 'var(--text-tertiary)' }}>
-                    {r.vacancy || '—'}
-                  </td>
                   <td><span className={`badge ${st.cls}`}>{st.text}</span></td>
-                  <td>
-                    {r.match_score ? (
-                      <span style={{ fontWeight: 600, color: r.match_score >= 80 ? 'var(--success)' : r.match_score >= 60 ? '#D97706' : 'var(--text-secondary)' }}>
-                        {r.match_score}%
-                      </span>
-                    ) : '—'}
-                  </td>
-                  <td>{r.model || '—'}</td>
-                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{r.date}</td>
+                  <td>{r.file_format?.toUpperCase() || '—'}</td>
+                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '—'}</td>
                   <td>
                     <div className="td-actions">
                       <Link to={`/app/results/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
-                      <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => alert('Загрузка началась...')}><Download size={16} /></button>
-                      <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => alert(`Резюме "${r.title}" удалено`)}><Trash2 size={16} /></button>
+                      <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => handleDownload(r.id)}><Download size={16} /></button>
+                      <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
@@ -98,11 +142,12 @@ export default function ResumesPage() {
             })}
           </tbody>
         </table>
+        )}
       </div>
 
       {/* Mobile Cards */}
       <div className="resumes-mobile-cards">
-        {DEMO_RESUMES.map(r => {
+        {filtered.map((r: any) => {
           const st = statusLabel(r.status)
           return (
             <div key={r.id} className="card" style={{ padding: '1rem' }}>
@@ -112,40 +157,28 @@ export default function ResumesPage() {
                     <FileText size={16} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>{r.vacancy || 'Без вакансии'}</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title || 'Резюме'}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>{r.file_format?.toUpperCase() || ''}</div>
                   </div>
                 </div>
                 <span className={`badge ${st.cls}`}>{st.text}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-                <span>
-                  {r.match_score ? (
-                    <span style={{ fontWeight: 600, color: r.match_score >= 80 ? 'var(--success)' : r.match_score >= 60 ? '#D97706' : 'inherit' }}>
-                      Match: {r.match_score}%
-                    </span>
-                  ) : 'Match: —'}
-                </span>
-                <span>{r.model || '—'}</span>
-                <span>{r.date}</span>
+                <span>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '—'}</span>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link to={`/app/results/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
-                <button className="btn btn-ghost btn-sm" onClick={() => alert('Загрузка началась...')}><Download size={14} /></button>
-                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => alert(`Резюме "${r.title}" удалено`)}><Trash2 size={14} /></button>
+                <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(r.id)}><Download size={14} /></button>
+                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={14} /></button>
               </div>
             </div>
           )
         })}
       </div>
 
-      {/* Pagination */}
+      {/* Count */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Показано 5 из 12</span>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn btn-secondary btn-sm" disabled>← Назад</button>
-          <button className="btn btn-secondary btn-sm">Далее →</button>
-        </div>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Показано {filtered.length} из {resumes.length}</span>
       </div>
     </>
   )

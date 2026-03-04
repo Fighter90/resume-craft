@@ -1,18 +1,19 @@
 import { useState, useRef } from 'react'
-import { Camera, Save, Upload, Trash2, CheckCircle } from 'lucide-react'
+import { Camera, Save, Upload, Trash2, CheckCircle, Loader } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
+import { api } from '../../services/api'
 
 export default function SettingsProfilePage() {
+  const { user, refreshUser } = useAuth()
+  const nameParts = (user?.full_name || '').split(' ')
   const [form, setForm] = useState({
-    firstName: 'Алексей',
-    lastName: 'Петров',
-    email: 'aleksey@example.com',
-    phone: '+7 (999) 123-45-67',
-    city: 'Москва',
-    position: 'Product Manager',
-    bio: 'Product Manager с 6+ лет опыта в IT-продуктах. Специализация — Growth, монетизация SaaS, интеграция AI.',
+    firstName: nameParts[0] || '',
+    lastName: nameParts.slice(1).join(' ') || '',
+    email: user?.email || '',
   })
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const onChange = (key: string, value: string) => setForm({ ...form, [key]: value })
@@ -30,9 +31,20 @@ export default function SettingsProfilePage() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const handleSave = () => {
-    setSaveMsg('Изменения сохранены')
-    setTimeout(() => setSaveMsg(null), 2000)
+  const handleSave = async () => {
+    setSaving(true)
+    setSaveMsg(null)
+    try {
+      const fullName = `${form.firstName} ${form.lastName}`.trim()
+      await api.updateProfile({ full_name: fullName || undefined, email: form.email || undefined })
+      await refreshUser()
+      setSaveMsg('Изменения сохранены')
+      setTimeout(() => setSaveMsg(null), 3000)
+    } catch (err) {
+      setSaveMsg(err instanceof Error ? err.message : 'Ошибка сохранения')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -107,11 +119,11 @@ export default function SettingsProfilePage() {
         </div>
         <div className="input-group">
           <label className="input-label">Телефон</label>
-          <input className="input-field" value={form.phone} onChange={e => onChange('phone', e.target.value)} />
+          <input className="input-field" placeholder="Скоро" disabled style={{ opacity: 0.6 }} />
         </div>
         <div className="input-group">
           <label className="input-label">Город</label>
-          <select className="input-field select-field" value={form.city} onChange={e => onChange('city', e.target.value)}>
+          <select className="input-field select-field" disabled style={{ opacity: 0.6 }}>
             <option>Москва</option>
             <option>Санкт-Петербург</option>
             <option>Новосибирск</option>
@@ -122,24 +134,24 @@ export default function SettingsProfilePage() {
         </div>
         <div className="input-group">
           <label className="input-label">Текущая должность</label>
-          <input className="input-field" value={form.position} onChange={e => onChange('position', e.target.value)} />
+          <input className="input-field" placeholder="Скоро" disabled style={{ opacity: 0.6 }} />
         </div>
         <div className="input-group" style={{ gridColumn: '1 / -1' }}>
           <label className="input-label">О себе</label>
-          <textarea className="input-field" rows={3} value={form.bio} onChange={e => onChange('bio', e.target.value)} />
+          <textarea className="input-field" rows={3} placeholder="Скоро" disabled style={{ opacity: 0.6 }} />
         </div>
       </div>
 
       {saveMsg && (
         <div style={{ padding: '0.75rem 1rem', borderRadius: 8, marginTop: '1rem', fontSize: '0.9rem',
-          background: 'var(--success-light, #D1FAE5)', color: 'var(--success, #059669)' }}>
+          background: saveMsg.includes('Ошибка') ? 'var(--danger-light, #FEF2F2)' : 'var(--success-light, #D1FAE5)',
+          color: saveMsg.includes('Ошибка') ? 'var(--danger, #EF4444)' : 'var(--success, #059669)' }}>
           {saveMsg}
         </div>
       )}
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-        <button className="btn btn-secondary">Отмена</button>
-        <button className="btn btn-primary" onClick={handleSave}>
-          <Save size={16} /> Сохранить изменения
+        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+          {saving ? <><Loader size={16} className="spin" /> Сохранение...</> : <><Save size={16} /> Сохранить изменения</>}
         </button>
       </div>
     </div>

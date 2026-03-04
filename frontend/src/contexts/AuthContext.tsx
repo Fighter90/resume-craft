@@ -16,8 +16,9 @@ interface AuthContextType {
   isAuthenticated: boolean
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, fullName?: string) => Promise<void>
   logout: () => void
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -28,11 +29,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   const logout = useCallback(() => {
+    // Call server-side logout to invalidate refresh token
+    const rt = localStorage.getItem('refresh_token')
+    if (rt) {
+      api.serverLogout(rt).catch(() => {/* ignore errors on logout */})
+    }
     setUser(null)
     setToken(null)
+    api.clearToken()
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
   }, [])
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const me = await api.getMe()
+      setUser(me)
+    } catch {
+      // If getMe fails, token may be expired
+      logout()
+    }
+  }, [logout])
 
   useEffect(() => {
     if (token) {
@@ -56,8 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(me)
   }
 
-  const register = async (email: string, password: string) => {
-    const data = await api.register(email, password)
+  const register = async (email: string, password: string, fullName?: string) => {
+    const data = await api.register(email, password, fullName)
     localStorage.setItem('access_token', data.access_token)
     localStorage.setItem('refresh_token', data.refresh_token)
     setToken(data.access_token)
@@ -67,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated: !!user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isAuthenticated: !!user, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

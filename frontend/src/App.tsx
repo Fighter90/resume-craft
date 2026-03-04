@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
+import { WizardProvider } from './contexts/WizardContext'
 
 // Layouts
 import AppLayout from './components/layout/AppLayout'
@@ -37,7 +38,7 @@ import SettingsSubscriptionPage from './pages/settings/SettingsSubscriptionPage'
 import SettingsSecurityPage from './pages/settings/SettingsSecurityPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { loading } = useAuth()
+  const { loading, isAuthenticated } = useAuth()
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
@@ -45,7 +46,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       </div>
     )
   }
-  // In demo mode, allow access even without real auth
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />
+  }
   return <>{children}</>
 }
 
@@ -73,7 +76,9 @@ export default function App() {
         path="/app"
         element={
           <ProtectedRoute>
-            <AppLayout />
+            <WizardProvider>
+              <AppLayout />
+            </WizardProvider>
           </ProtectedRoute>
         }
       >

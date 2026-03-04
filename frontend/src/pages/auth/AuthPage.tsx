@@ -50,10 +50,9 @@ const authStyles = `
 export default function AuthPage() {
   const [searchParams] = useSearchParams()
   const [tab, setTab] = useState<'login' | 'register'>(searchParams.get('tab') === 'register' ? 'register' : 'login')
-  const [method, setMethod] = useState<'email' | 'phone'>('phone')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { login, register } = useAuth()
@@ -67,7 +66,7 @@ export default function AuthPage() {
       if (tab === 'login') {
         await login(email, password)
       } else {
-        await register(email, password)
+        await register(email, password, fullName || undefined)
       }
       navigate('/app/dashboard')
     } catch (err) {
@@ -138,16 +137,6 @@ export default function AuthPage() {
               </div>
             </div>
 
-            {/* Method tabs */}
-            <div className="method-tabs">
-              <button type="button" className={`method-tab${method === 'phone' ? ' active' : ''}`} onClick={() => setMethod('phone')}>
-                Телефон
-              </button>
-              <button type="button" className={`method-tab${method === 'email' ? ' active' : ''}`} onClick={() => setMethod('email')}>
-                Почта
-              </button>
-            </div>
-
             {error && (
               <div style={{ background: 'var(--danger-light, #FEF2F2)', color: 'var(--danger, #EF4444)', padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', fontSize: '0.9rem' }}>
                 {error}
@@ -155,60 +144,42 @@ export default function AuthPage() {
             )}
 
             <form onSubmit={handleSubmit}>
-              {method === 'phone' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div className="phone-row">
-                    <div className="phone-prefix">
-                      <span>🇷🇺</span> +7
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {tab === 'register' && (
+                  <div className="input-group">
+                    <label className="input-label">Имя</label>
+                    <input
+                      type="text" className="input-field" placeholder="Александр Иванов"
+                      value={fullName} onChange={e => setFullName(e.target.value)}
+                    />
+                  </div>
+                )}
+                <div className="input-group">
+                  <label className="input-label">Email</label>
+                  <input
+                    type="email" className="input-field" placeholder="alex@example.com"
+                    value={email} onChange={e => setEmail(e.target.value)} required
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Пароль</label>
+                  <input
+                    type="password" className="input-field"
+                    placeholder={tab === 'login' ? '••••••••' : 'Минимум 8 символов'}
+                    value={password} onChange={e => setPassword(e.target.value)} required minLength={8}
+                  />
+                  {tab === 'login' && (
+                    <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
+                      <Link to="/password-recovery" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 500 }}>
+                        Забыли пароль?
+                      </Link>
                     </div>
-                    <input
-                      type="tel"
-                      className="input-field"
-                      placeholder="918 276-25-33"
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                    />
-                  </div>
-                  <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-                    {loading ? 'Загрузка...' : 'Дальше'}
-                  </button>
-                  <button type="button" className="btn-link" onClick={() => setMethod('email')} style={{
-                    display: 'block', width: '100%', textAlign: 'center', padding: '0.875rem 1rem',
-                    borderRadius: 12, background: '#F3F4F6', color: 'var(--primary)', fontWeight: 500,
-                    fontSize: '0.95rem', cursor: 'pointer', border: 'none',
-                  }}>
-                    Войти с паролем
-                  </button>
+                  )}
                 </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div className="input-group">
-                    <label className="input-label">Email</label>
-                    <input
-                      type="email" className="input-field" placeholder="alex@example.com"
-                      value={email} onChange={e => setEmail(e.target.value)} required
-                    />
-                  </div>
-                  <div className="input-group">
-                    <label className="input-label">Пароль</label>
-                    <input
-                      type="password" className="input-field"
-                      placeholder={tab === 'login' ? '••••••••' : 'Минимум 8 символов'}
-                      value={password} onChange={e => setPassword(e.target.value)} required minLength={8}
-                    />
-                    {tab === 'login' && (
-                      <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                        <Link to="/password-recovery" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 500 }}>
-                          Забыли пароль?
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                  <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-                    {loading ? 'Загрузка...' : tab === 'login' ? 'Войти' : 'Продолжить'}
-                  </button>
-                </div>
-              )}
+                <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+                  {loading ? 'Загрузка...' : tab === 'login' ? 'Войти' : 'Создать аккаунт'}
+                </button>
+              </div>
             </form>
 
             <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', textAlign: 'center', marginTop: '1.5rem', lineHeight: 1.5 }}>

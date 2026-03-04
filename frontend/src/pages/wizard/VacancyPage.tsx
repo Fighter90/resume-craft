@@ -1,12 +1,98 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Search } from 'lucide-react'
+import { ArrowLeft, Search, AlertCircle, Loader } from 'lucide-react'
 import { useState } from 'react'
-import { DEMO_VACANCIES } from '../../data/demo'
+import { api } from '../../services/api'
+import { useWizard } from '../../contexts/WizardContext'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function VacancyPage() {
   const navigate = useNavigate()
+  const { setVacancyId } = useWizard()
   const [tab, setTab] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchCity, setSearchCity] = useState('Москва')
+  const [vacancies, setVacancies] = useState<any[]>([])
+  const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
+
+  // URL state
+  const [url, setUrl] = useState('')
+  const [urlLoading, setUrlLoading] = useState(false)
+  const [urlError, setUrlError] = useState<string | null>(null)
+
+  // Manual state
+  const [manualTitle, setManualTitle] = useState('')
+  const [manualCompany, setManualCompany] = useState('')
+  const [manualDesc, setManualDesc] = useState('')
+  const [manualSkills, setManualSkills] = useState('')
+  const [manualLoading, setManualLoading] = useState(false)
+  const [manualError, setManualError] = useState<string | null>(null)
+
+  const AREA_MAP: Record<string, string> = { 'Москва': '1', 'Санкт-Петербург': '2', 'Удалённо': '113' }
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return
+    setSearching(true)
+    setSearchError(null)
+    try {
+      const params: Record<string, string> = { text: searchQuery }
+      if (AREA_MAP[searchCity]) params.area = AREA_MAP[searchCity]
+      const results = await api.searchVacancies(params) as any[]
+      setVacancies(results)
+      if (results.length === 0) setSearchError('Вакансии не найдены. Попробуйте другой запрос.')
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : 'Ошибка поиска')
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  const handleUrlSubmit = async () => {
+    if (!url.trim()) return
+    setUrlLoading(true)
+    setUrlError(null)
+    try {
+      const res = await api.createVacancyFromUrl(url) as any
+      setVacancyId(res.id)
+      navigate('/app/models')
+    } catch (err) {
+      setUrlError(err instanceof Error ? err.message : 'Ошибка загрузки вакансии')
+    } finally {
+      setUrlLoading(false)
+    }
+  }
+
+  const handleManualSubmit = async () => {
+    if (!manualTitle.trim() || !manualDesc.trim()) return
+    setManualLoading(true)
+    setManualError(null)
+    try {
+      const skills = manualSkills.split(',').map(s => s.trim()).filter(Boolean)
+      const res = await api.createVacancyManual({
+        title: manualTitle,
+        company: manualCompany || undefined,
+        description: manualDesc,
+        key_skills: skills.length > 0 ? skills : undefined,
+      }) as any
+      setVacancyId(res.id)
+      navigate('/app/models')
+    } catch (err) {
+      setManualError(err instanceof Error ? err.message : 'Ошибка создания вакансии')
+    } finally {
+      setManualLoading(false)
+    }
+  }
+
+  const handleSelectVacancy = () => {
+    if (selected) {
+      setVacancyId(selected)
+      navigate('/app/models')
+    }
+  }
 
   return (
     <div className="wizard-container">
@@ -33,34 +119,27 @@ export default function VacancyPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="input-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="input-label">Должность</label>
-                <input className="input-field" placeholder="Product Manager" />
+                <input className="input-field" placeholder="Product Manager" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
               </div>
               <div className="input-group">
                 <label className="input-label">Город</label>
-                <select className="input-field select-field">
+                <select className="input-field select-field" value={searchCity} onChange={e => setSearchCity(e.target.value)}>
                   <option>Москва</option><option>Санкт-Петербург</option><option>Удалённо</option>
                 </select>
               </div>
-              <div className="input-group">
-                <label className="input-label">Зарплата от</label>
-                <select className="input-field select-field">
-                  <option>Любая</option><option>от 150 000 ₽</option><option>от 200 000 ₽</option><option>от 300 000 ₽</option>
-                </select>
-              </div>
-              <div className="input-group">
-                <label className="input-label">Занятость</label>
-                <select className="input-field select-field">
-                  <option>Любая</option><option>Полная</option><option>Частичная</option><option>Удалённая</option>
-                </select>
-              </div>
             </div>
-            <button className="btn btn-primary" style={{ marginTop: '1rem', height: 48 }}>
-              <Search size={16} /> Найти
+            {searchError && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginTop: '0.75rem', fontSize: '0.875rem' }}>
+                <AlertCircle size={16} /> {searchError}
+              </div>
+            )}
+            <button className="btn btn-primary" style={{ marginTop: '1rem', height: 48 }} onClick={handleSearch} disabled={searching || !searchQuery.trim()}>
+              {searching ? <><Loader size={16} className="spin" /> Поиск...</> : <><Search size={16} /> Найти</>}
             </button>
           </div>
 
           <div className="vacancy-results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {DEMO_VACANCIES.map(v => (
+            {vacancies.map((v: any) => (
               <div
                 key={v.id}
                 className={`card vacancy-card${selected === v.id ? ' selected' : ''}`}
@@ -70,22 +149,25 @@ export default function VacancyPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.25rem' }}>{v.title}</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{v.company} · {v.city}</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{v.company || 'Компания не указана'}{v.city ? ` · ${v.city}` : ''}</p>
                   </div>
-                  <span className={`badge ${v.matchScore >= 80 ? 'badge-green' : v.matchScore >= 60 ? 'badge-yellow' : 'badge-gray'}`}>
-                    {v.matchScore}%
-                  </span>
                 </div>
-                <div style={{ fontWeight: 600, color: 'var(--success)', margin: '0.5rem 0', fontSize: '0.95rem' }}>{v.salary}</div>
-                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                  {v.tags.map(t => <span key={t} className="badge badge-indigo">{t}</span>)}
-                </div>
+                {v.salary_from && (
+                  <div style={{ fontWeight: 600, color: 'var(--success)', margin: '0.5rem 0', fontSize: '0.95rem' }}>
+                    от {v.salary_from.toLocaleString()} ₽{v.salary_to ? ` до ${v.salary_to.toLocaleString()} ₽` : ''}
+                  </div>
+                )}
+                {v.key_skills && v.key_skills.length > 0 && (
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                    {v.key_skills.slice(0, 5).map((t: string) => <span key={t} className="badge badge-indigo">{t}</span>)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
 
           {selected && (
-            <button onClick={() => navigate('/app/models')} className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }}>
+            <button onClick={handleSelectVacancy} className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }}>
               Продолжить с выбранной вакансией
             </button>
           )}
@@ -97,9 +179,16 @@ export default function VacancyPage() {
         <div className="card" style={{ padding: '1.5rem' }}>
           <div className="input-group" style={{ marginBottom: '1rem' }}>
             <label className="input-label">Ссылка на вакансию hh.ru</label>
-            <input className="input-field" placeholder="https://hh.ru/vacancy/12345678" />
+            <input className="input-field" placeholder="https://hh.ru/vacancy/12345678" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleUrlSubmit()} />
           </div>
-          <button onClick={() => navigate('/app/models')} className="btn btn-primary">Загрузить вакансию</button>
+          {urlError && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginBottom: '0.75rem', fontSize: '0.875rem' }}>
+              <AlertCircle size={16} /> {urlError}
+            </div>
+          )}
+          <button onClick={handleUrlSubmit} className="btn btn-primary" disabled={urlLoading || !url.trim()}>
+            {urlLoading ? 'Загрузка...' : 'Загрузить вакансию'}
+          </button>
         </div>
       )}
 
@@ -107,22 +196,29 @@ export default function VacancyPage() {
       {tab === 2 && (
         <div className="card" style={{ padding: '1.5rem' }}>
           <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="input-label">Название должности</label>
-            <input className="input-field" placeholder="Product Manager" />
+            <label className="input-label">Название должности *</label>
+            <input className="input-field" placeholder="Product Manager" value={manualTitle} onChange={e => setManualTitle(e.target.value)} />
           </div>
           <div className="input-group" style={{ marginBottom: '1rem' }}>
             <label className="input-label">Компания</label>
-            <input className="input-field" placeholder="Яндекс" />
+            <input className="input-field" placeholder="Яндекс" value={manualCompany} onChange={e => setManualCompany(e.target.value)} />
           </div>
           <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="input-label">Описание и требования</label>
-            <textarea className="input-field" rows={4} placeholder="Опишите обязанности, требования..." />
+            <label className="input-label">Описание и требования *</label>
+            <textarea className="input-field" rows={4} placeholder="Опишите обязанности, требования..." value={manualDesc} onChange={e => setManualDesc(e.target.value)} />
           </div>
           <div className="input-group" style={{ marginBottom: '1rem' }}>
             <label className="input-label">Ключевые навыки (через запятую)</label>
-            <input className="input-field" placeholder="SQL, Agile, Product Strategy" />
+            <input className="input-field" placeholder="SQL, Agile, Product Strategy" value={manualSkills} onChange={e => setManualSkills(e.target.value)} />
           </div>
-          <button onClick={() => navigate('/app/models')} className="btn btn-primary">Продолжить</button>
+          {manualError && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginBottom: '0.75rem', fontSize: '0.875rem' }}>
+              <AlertCircle size={16} /> {manualError}
+            </div>
+          )}
+          <button onClick={handleManualSubmit} className="btn btn-primary" disabled={manualLoading || !manualTitle.trim() || !manualDesc.trim()}>
+            {manualLoading ? 'Создание...' : 'Продолжить'}
+          </button>
         </div>
       )}
     </div>

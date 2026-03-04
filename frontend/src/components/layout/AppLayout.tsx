@@ -88,10 +88,14 @@ export default function AppLayout() {
               {user?.plan === 'pro' ? 'Pro план' : user?.plan === 'standard' ? 'Standard план' : 'Бесплатный план'}
             </div>
             <div className="plan-bar">
-              <div className="plan-bar-fill" style={{ width: `${Math.min((user?.optimizations_used || 0) / 5 * 100, 100)}%` }} />
+              <div className="plan-bar-fill" style={{ width: `${user?.plan === 'pro' ? 100 : Math.min((user?.optimizations_used || 0) / (user?.plan === 'standard' ? 30 : 5) * 100, 100)}%` }} />
             </div>
-            <div className="plan-usage">{user?.optimizations_used || 0} / 5 оптимизаций</div>
-            <NavLink to="/app/settings/subscription" className="plan-upgrade">Обновить до Pro →</NavLink>
+            <div className="plan-usage">
+              {user?.plan === 'pro' ? 'Безлимит' : `${user?.optimizations_used || 0} / ${user?.plan === 'standard' ? 30 : 5} оптимизаций`}
+            </div>
+            {user?.plan !== 'pro' && (
+              <NavLink to="/app/settings/subscription" className="plan-upgrade">Обновить до Pro →</NavLink>
+            )}
           </div>
 
           {/* User profile with dropdown */}

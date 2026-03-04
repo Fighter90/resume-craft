@@ -1,26 +1,63 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Upload, FileText, ArrowLeft } from 'lucide-react'
+import { Upload, FileText, ArrowLeft, AlertCircle } from 'lucide-react'
 import { useState, useCallback } from 'react'
+import { api } from '../../services/api'
+import { useWizard } from '../../contexts/WizardContext'
+
+const ALLOWED_EXT = ['pdf', 'docx']
+const MAX_SIZE = 10 * 1024 * 1024
 
 export default function UploadPage() {
   const navigate = useNavigate()
+  const { setFile: setWizardFile, setResumeId } = useWizard()
   const [dragActive, setDragActive] = useState(false)
   const [file, setFile] = useState<File | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const validateFile = (f: File): string | null => {
+    const ext = f.name.split('.').pop()?.toLowerCase() || ''
+    if (!ALLOWED_EXT.includes(ext)) return `Неподдерживаемый формат .${ext}. Используйте PDF или DOCX.`
+    if (f.size > MAX_SIZE) return `Файл слишком большой (${(f.size / 1024 / 1024).toFixed(1)} МБ). Максимум 10 МБ.`
+    return null
+  }
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setDragActive(false)
+    setError(null)
     const f = e.dataTransfer.files[0]
-    if (f) setFile(f)
+    if (f) {
+      const err = validateFile(f)
+      if (err) { setError(err); return }
+      setFile(f)
+    }
   }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null)
     const f = e.target.files?.[0]
-    if (f) setFile(f)
+    if (f) {
+      const err = validateFile(f)
+      if (err) { setError(err); return }
+      setFile(f)
+    }
   }
 
-  const handleContinue = () => {
-    navigate('/app/vacancy')
+  const handleContinue = async () => {
+    if (!file) return
+    setUploading(true)
+    setError(null)
+    try {
+      const res = await api.uploadResume(file)
+      setWizardFile(file)
+      setResumeId(res.id)
+      navigate('/app/vacancy')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки файла')
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
@@ -68,9 +105,15 @@ export default function UploadPage() {
         <span>до 10 МБ</span>
       </div>
 
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', padding: '0.75rem 1rem', borderRadius: 8, background: 'var(--danger-light, #FEF2F2)', color: 'var(--danger, #EF4444)', fontSize: '0.9rem' }}>
+          <AlertCircle size={16} /> {error}
+        </div>
+      )}
+
       {file && (
-        <button onClick={handleContinue} className="btn btn-primary btn-block" style={{ marginTop: '2rem' }}>
-          Продолжить
+        <button onClick={handleContinue} className="btn btn-primary btn-block" style={{ marginTop: '2rem' }} disabled={uploading}>
+          {uploading ? 'Загрузка на сервер...' : 'Продолжить'}
         </button>
       )}
     </div>

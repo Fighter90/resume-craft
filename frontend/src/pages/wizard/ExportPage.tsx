@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Download, FileText, FileType, ExternalLink, Check } from 'lucide-react'
+import { ArrowLeft, Download, FileText, FileType, ExternalLink, Check, AlertCircle, Loader } from 'lucide-react'
+import { api } from '../../services/api'
+import { useWizard } from '../../contexts/WizardContext'
 
 const FORMATS = [
   { id: 'docx', icon: FileText, label: 'DOCX', desc: 'Microsoft Word — рекомендуем для hh.ru' },
@@ -16,8 +18,36 @@ const TEMPLATES = [
 
 export default function ExportPage() {
   const navigate = useNavigate()
+  const { result } = useWizard()
   const [format, setFormat] = useState('docx')
   const [template, setTemplate] = useState('professional')
+  const [downloading, setDownloading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleDownload = async () => {
+    const exportId = result?.id
+    if (!exportId) {
+      setError('Нет данных для экспорта. Выполните оптимизацию сначала.')
+      return
+    }
+    setDownloading(true)
+    setError(null)
+    try {
+      const blob = await api.exportDocx(exportId)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `resume_optimized.${format}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка скачивания')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <div className="wizard-container">
@@ -80,8 +110,14 @@ export default function ExportPage() {
         ))}
       </div>
 
-      <button className="btn btn-primary btn-block" style={{ height: 52 }}>
-        <Download size={18} /> Скачать {format.toUpperCase()}
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginBottom: '1rem', fontSize: '0.875rem' }}>
+          <AlertCircle size={16} /> {error}
+        </div>
+      )}
+
+      <button className="btn btn-primary btn-block" style={{ height: 52 }} onClick={handleDownload} disabled={downloading}>
+        {downloading ? <><Loader size={18} className="spin" /> Скачивание...</> : <><Download size={18} /> Скачать {format.toUpperCase()}</>}
       </button>
 
       {/* Ready to download — matches prototype */}
@@ -101,8 +137,8 @@ export default function ExportPage() {
             <span style={{ fontWeight: 500 }}>~48 КБ</span>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <span className="badge badge-green">Match 87%</span>
-            <span className="badge badge-green">ATS A+</span>
+            <span className="badge badge-green">Match {Math.round(result?.match_score_after ?? 0)}%</span>
+            <span className="badge badge-green">ATS {result?.ats_rating || '—'}</span>
           </div>
         </div>
       </div>

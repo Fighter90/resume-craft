@@ -1,6 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Download, Sparkles, Save, User, Briefcase, GraduationCap, Star, FileText, X, Plus } from 'lucide-react'
+import { ArrowLeft, Download, Sparkles, Save, User, Briefcase, GraduationCap, Star, FileText, X, Plus, Loader } from 'lucide-react'
+import { useWizard } from '../../contexts/WizardContext'
+import { api } from '../../services/api'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const SECTIONS = [
   { id: 'header', label: 'Заголовок', icon: User },
@@ -26,25 +30,82 @@ const AI_HINTS = [
 
 export default function EditorPage() {
   const navigate = useNavigate()
+  const { result, resumeId } = useWizard()
   const [activeSection, setActiveSection] = useState('header')
+  const [saving, setSaving] = useState(false)
+  const [saveMsg, setSaveMsg] = useState<string | null>(null)
+
+  // Initialize state from result.rewritten_data if available
+  const rd = result?.rewritten_data as any
   const [headerData, setHeaderData] = useState({
-    fullName: 'Алексей Петров',
-    position: 'Senior Product Manager',
-    email: 'aleksey@example.com',
-    phone: '+7 (999) 123-45-67',
-    city: 'Москва',
-    linkedin: 'linkedin.com/in/alekseypetrov',
+    fullName: rd?.summary?.split('.')[0] || '',
+    position: rd?.experience?.[0]?.position || '',
+    email: '',
+    phone: '',
+    city: '',
+    linkedin: '',
   })
-  const [experiences, setExperiences] = useState([
-    { position: 'Product Manager', company: 'Яндекс', period: '2021 – настоящее время', achievements: 'Руководил запуском 3 продуктовых линеек, каждая достигла 100K+ MAU за 6 месяцев\nПовысил конверсию воронки на 34% через A/B тестирование (120+ экспериментов)\nУправлял кросс-функциональной командой из 12 человек\nВнедрил OKR-фреймворк, повысив alignment команды на 40%' },
-  ])
-  const [educations, setEducations] = useState([
-    { institution: 'МГУ им. М.В. Ломоносова', specialization: 'Прикладная математика и информатика', degree: 'Магистратура', year: '2018' },
-  ])
-  const [skills, setSkills] = useState(['Agile', 'Scrum', 'SQL', 'Python', 'A/B Testing', 'Unit-экономика', 'CJM', 'JTBD', 'Product Strategy', 'Growth Marketing', 'Jira', 'Figma', 'Amplitude'])
-  const [aiSkills] = useState(['Data Analysis', 'Mixpanel', 'Kanban'])
+  const [experiences, setExperiences] = useState<Array<{ position: string; company: string; period: string; achievements: string }>>(
+    rd?.experience?.map((e: any) => ({
+      position: e.position || '',
+      company: e.company || '',
+      period: e.period || '',
+      achievements: Array.isArray(e.achievements) ? e.achievements.join('\n') : (e.achievements || ''),
+    })) || [{ position: '', company: '', period: '', achievements: '' }]
+  )
+  const [educations, setEducations] = useState<Array<{ institution: string; specialization: string; degree: string; year: string }>>(
+    rd?.education?.map((e: any) => ({
+      institution: e.institution || '',
+      specialization: e.specialization || '',
+      degree: e.degree || 'Бакалавриат',
+      year: String(e.year || ''),
+    })) || [{ institution: '', specialization: '', degree: 'Бакалавриат', year: '' }]
+  )
+  const [skills, setSkills] = useState<string[]>(rd?.skills || [])
+  const [aiSkills] = useState<string[]>(result?.keywords_added || [])
   const [newSkill, setNewSkill] = useState('')
-  const [aboutText, setAboutText] = useState('Product Manager с 6+ лет опыта в B2B/B2C продуктах (DAU 500K+). Руководил командами до 12 человек. Специализация — data-driven стратегия, Growth, монетизация SaaS, интеграция AI. Увеличил конверсию на 34%, LTV на 45%.')
+  const [aboutText, setAboutText] = useState(rd?.summary || result?.rewritten_text?.slice(0, 500) || '')
+
+  // Reload from result if it changes
+  useEffect(() => {
+    if (rd) {
+      if (rd.experience) setExperiences(rd.experience.map((e: any) => ({
+        position: e.position || '', company: e.company || '', period: e.period || '',
+        achievements: Array.isArray(e.achievements) ? e.achievements.join('\n') : (e.achievements || ''),
+      })))
+      if (rd.education) setEducations(rd.education.map((e: any) => ({
+        institution: e.institution || '', specialization: e.specialization || '',
+        degree: e.degree || 'Бакалавриат', year: String(e.year || ''),
+      })))
+      if (rd.skills) setSkills(rd.skills)
+      if (rd.summary) setAboutText(rd.summary)
+    }
+  }, [result]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSave = async () => {
+    if (!resumeId) return
+    setSaving(true)
+    setSaveMsg(null)
+    try {
+      const data = {
+        title: headerData.position || 'Резюме',
+        parsed_data: {
+          header: headerData,
+          experience: experiences,
+          education: educations,
+          skills: [...skills, ...aiSkills],
+          about: aboutText,
+        },
+      }
+      await api.updateResume(resumeId, data)
+      setSaveMsg('Черновик сохранён')
+      setTimeout(() => setSaveMsg(null), 3000)
+    } catch (err) {
+      setSaveMsg(err instanceof Error ? err.message : 'Ошибка сохранения')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const getCharCount = () => {
     switch (activeSection) {
@@ -76,7 +137,10 @@ export default function EditorPage() {
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Редактор резюме</h2>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn btn-secondary btn-sm"><Save size={14} /> Сохранить черновик</button>
+          <button className="btn btn-secondary btn-sm" onClick={handleSave} disabled={saving}>
+            {saving ? <><Loader size={14} className="spin" /> Сохранение...</> : <><Save size={14} /> Сохранить черновик</>}
+          </button>
+          {saveMsg && <span style={{ fontSize: '0.8rem', color: saveMsg.includes('Ошибка') ? 'var(--error)' : 'var(--success)' }}>{saveMsg}</span>}
           <button onClick={() => navigate('/app/export')} className="btn btn-primary btn-sm"><Download size={14} /> Экспорт</button>
         </div>
       </div>

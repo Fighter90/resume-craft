@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Lock } from 'lucide-react'
+import { Lock, Info } from 'lucide-react'
 
 export default function PasswordRecoveryPage() {
   return (
@@ -11,17 +11,19 @@ export default function PasswordRecoveryPage() {
         <Lock size={24} />
       </div>
       <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Восстановление пароля</h2>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-        Введите email вашего аккаунта. Мы отправим ссылку для сброса пароля.
-      </p>
-      <form onSubmit={e => e.preventDefault()}>
-        <div className="input-group" style={{ marginBottom: '1rem', textAlign: 'left' }}>
-          <label className="input-label">Email</label>
-          <input type="email" className="input-field" placeholder="alex@example.com" />
+
+      <div style={{
+        background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 12,
+        padding: '1rem 1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', textAlign: 'left'
+      }}>
+        <Info size={20} style={{ color: '#0284C7', flexShrink: 0, marginTop: 2 }} />
+        <div style={{ fontSize: '0.9rem', color: '#0369A1', lineHeight: 1.5 }}>
+          Функция восстановления пароля будет доступна в следующем обновлении.
+          Если вы забыли пароль, обратитесь в поддержку.
         </div>
-        <Link to="/email-verify" className="btn btn-primary btn-block">Отправить ссылку</Link>
-      </form>
-      <Link to="/auth" style={{ display: 'block', marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+      </div>
+
+      <Link to="/auth" className="btn btn-primary btn-block">
         ← Вернуться к входу
       </Link>
     </div>
