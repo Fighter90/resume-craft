@@ -8,9 +8,12 @@ from __future__ import annotations
 
 import streamlit as st
 
+from streamlit_app.styles import render_top_navbar
+
 
 def render() -> None:
     """Отрисовка страницы 404."""
+    render_top_navbar()
     st.markdown("""
     <div style="text-align: center; padding: 4rem 2rem;">
         <div style="font-size: 8rem; font-weight: 700; color: #E5E7EB;">404</div>

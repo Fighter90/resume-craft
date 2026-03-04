@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import streamlit as st
 
+from streamlit_app.styles import render_top_navbar
+
 
 def render() -> None:
     """Отрисовка страницы авторизации (login / register / recovery / verify)."""
+    render_top_navbar()
     auth_view = st.session_state.get('auth_view', 'login')
 
     st.markdown("""

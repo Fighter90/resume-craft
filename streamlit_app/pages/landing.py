@@ -1,16 +1,20 @@
 """Страница 01: Лендинг (для неавторизованных пользователей).
 
 Прототип: 01-landing.html
-Hero-секция, возможности, как работает, тарифы, FAQ, CTA.
+Top navbar, Hero-секция, возможности, как работает, тарифы, FAQ, CTA.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
+from streamlit_app.styles import render_top_navbar
+
 
 def render() -> None:
     """Отрисовка лендинга."""
+    # ── Top Navbar (как в прототипе 01-landing.html) ──
+    render_top_navbar()
     # ── Hero ──
     st.markdown("""
     <div class="hero-section">

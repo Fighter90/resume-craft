@@ -8,9 +8,14 @@ from __future__ import annotations
 
 import streamlit as st
 
+from streamlit_app.styles import render_top_navbar
+
 
 def render() -> None:
     """Отрисовка страницы тарифов."""
+    # Top navbar для публичной страницы
+    if not st.session_state.get('authenticated'):
+        render_top_navbar()
     st.title('Тарифные планы')
     st.write('Выберите план, который подходит вам. Начните бесплатно.')
 

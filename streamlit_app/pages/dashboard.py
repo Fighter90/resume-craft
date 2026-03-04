@@ -14,8 +14,20 @@ from streamlit_app.demo_data import DEMO_RESUMES_LIST
 def render() -> None:
     """Отрисовка дашборда."""
     user = st.session_state.get('user_email', 'Пользователь')
-    st.title(f'Добро пожаловать, {user.split("@")[0]}!')
-    st.write('Ваша панель управления ResumeCraft')
+    name = user.split('@')[0] if user else 'Пользователь'
+
+    # ── Header с приветствием и CTA (как в прототипе 06-dashboard.html) ──
+    hdr1, hdr2 = st.columns([3, 1])
+    with hdr1:
+        st.title(f'Добро пожаловать, {name}!')
+        st.write('Ваша панель управления ResumeCraft')
+    with hdr2:
+        st.markdown('<br>', unsafe_allow_html=True)
+        if st.button('🚀 Оптимизировать резюме', type='primary',
+                     use_container_width=True):
+            st.session_state.page = 'wizard'
+            st.session_state.step = 0
+            st.rerun()
 
     # ── Статистика ──
     c1, c2, c3 = st.columns(3)

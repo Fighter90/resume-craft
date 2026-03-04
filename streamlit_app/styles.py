@@ -64,6 +64,42 @@ def inject_css() -> None:
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+
+    /* ── Top Navbar (лендинг / публичные страницы) ── */
+    .top-navbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.75rem 2rem; background: white;
+        border-bottom: 1px solid #E5E7EB; margin: -1rem -1rem 1.5rem -1rem;
+        position: sticky; top: 0; z-index: 999;
+    }
+    .top-navbar .logo {
+        display: flex; align-items: center; gap: 0.5rem;
+        font-weight: 700; font-size: 1.25rem; color: #111827;
+        cursor: pointer; text-decoration: none;
+    }
+    .top-navbar .logo-icon {
+        width: 28px; height: 28px;
+        background: linear-gradient(135deg, #4F46E5, #7C3AED);
+        border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        color: white; font-weight: 700; font-size: 0.85rem;
+    }
+    .top-navbar .nav-actions { display: flex; gap: 0.75rem; align-items: center; }
+    .top-navbar .nav-btn {
+        padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.9rem;
+        font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+        border: none; transition: all 0.15s;
+    }
+    .nav-btn-secondary {
+        background: #F3F4F6; color: #374151;
+    }
+    .nav-btn-secondary:hover { background: #E5E7EB; }
+    .nav-btn-primary {
+        background: linear-gradient(135deg, #4F46E5, #7C3AED);
+        color: white;
+    }
+    .nav-btn-primary:hover { opacity: 0.9; }
+
+    /* ── Общие карточки и компоненты ── */
     .main-header {
         background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
         padding: 2rem; border-radius: 20px; color: white; margin-bottom: 1.5rem;
@@ -163,3 +199,36 @@ def render_logo() -> None:
         <span style="font-weight: 700; font-size: 1.25rem; color: #111827;">ResumeCraft</span>
     </div>
     """, unsafe_allow_html=True)
+
+
+def render_top_navbar() -> None:
+    """Top navbar для публичных страниц (лендинг, auth, pricing, error).
+
+    Как в прототипе 01-landing.html: логотип + кнопки Войти / Начать бесплатно.
+    Навигация происходит через Streamlit session_state.
+    """
+    st.markdown("""
+    <div class="top-navbar">
+        <div class="logo">
+            <div class="logo-icon">R</div>
+            ResumeCraft
+        </div>
+        <div class="nav-actions" id="top-nav-actions"></div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Streamlit-кнопки для навигации (рендерим в одну строку)
+    cols = st.columns([6, 1, 1, 1])
+    with cols[1]:
+        if st.button('💰 Тарифы', key='topnav_pricing', use_container_width=True):
+            st.session_state.page = 'pricing'
+            st.rerun()
+    with cols[2]:
+        if st.button('🔑 Войти', key='topnav_login', use_container_width=True):
+            st.session_state.page = 'auth'
+            st.rerun()
+    with cols[3]:
+        if st.button('🚀 Начать', key='topnav_start', type='primary',
+                     use_container_width=True):
+            st.session_state.page = 'auth'
+            st.rerun()
