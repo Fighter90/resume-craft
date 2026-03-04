@@ -58,7 +58,8 @@ export class ApiClient {
   }
 
   async getResumes() {
-    return this.request<unknown[]>('GET', '/resumes')
+    const res = await this.request<{ items: unknown[]; total: number } | unknown[]>('GET', '/resumes')
+    return Array.isArray(res) ? res : (res as any).items || []
   }
 
   async uploadResume(file: File) {
@@ -101,7 +102,8 @@ export class ApiClient {
   }
 
   async getRewriteHistory() {
-    return this.request<unknown[]>('GET', '/rewrite/history')
+    const res = await this.request<{ items: unknown[]; total: number } | unknown[]>('GET', '/rewrite/history')
+    return Array.isArray(res) ? res : (res as any).items || []
   }
 
   async exportDocx(id: string) {
@@ -154,6 +156,18 @@ export class ApiClient {
 
   async deleteVacancy(id: string) {
     return this.request<void>('DELETE', `/vacancies/${id}`)
+  }
+
+  async createResumeFromText(data: { text: string; title?: string; source_url?: string }) {
+    return this.request<{ id: string; title: string; file_format: string; status: string }>(
+      'POST', '/resumes/from-text', data
+    )
+  }
+
+  async selectSearchVacancy(hhUrl: string) {
+    return this.request<{ id: string }>(
+      'POST', '/vacancies/from-url', { url: hhUrl }
+    )
   }
 }
 

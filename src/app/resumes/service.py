@@ -94,6 +94,43 @@ async def upload_resume(
     return resume
 
 
+async def create_from_text(
+    session: AsyncSession,
+    *,
+    user_id: UUID,
+    text: str,
+    title: str | None = None,
+    source_url: str | None = None,
+) -> Resume:
+    """Создание резюме из вставленного текста.
+
+    Используется для импорта текста, скопированного с hh.ru или другого источника.
+    """
+    resume_title = title or 'Резюме из текста'
+    if source_url and 'hh.ru' in source_url:
+        resume_title = title or 'Резюме с hh.ru'
+
+    text_bytes = text.encode('utf-8')
+
+    resume = Resume(
+        user_id=user_id,
+        title=resume_title,
+        file_path='',
+        file_format='txt',
+        file_size_bytes=len(text_bytes),
+        raw_text=text,
+        status=ResumeStatus.DRAFT,
+    )
+    session.add(resume)
+    await session.flush()
+
+    # Генерация эмбеддинга
+    _try_generate_embedding(resume)
+
+    logger.info('Resume created from text: %s (user=%s, len=%d)', resume.id, user_id, len(text))
+    return resume
+
+
 def _extract_text(content: bytes, *, ext: str) -> str | None:
     """Извлечение текста из файла (PDF/DOCX)."""
     try:

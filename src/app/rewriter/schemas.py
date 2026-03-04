@@ -43,6 +43,7 @@ class RewriteStatusResponse(BaseModel):
     step: str | None = None
     progress: int = Field(0, ge=0, le=100, description='Прогресс в %')
     eta_seconds: int | None = Field(None, description='Примерное время до завершения')
+    error_message: str | None = None
 
 
 class RewriteResultResponse(BaseModel):
@@ -51,6 +52,7 @@ class RewriteResultResponse(BaseModel):
     id: UUID
     resume_id: UUID
     vacancy_id: UUID
+    original_text: str | None = None
     rewritten_text: str | None
     rewritten_data: dict[str, Any] | None
     model_name: str | None
@@ -61,6 +63,7 @@ class RewriteResultResponse(BaseModel):
     keywords_added: list[str] | None
     tokens_used: int | None
     processing_time_ms: int | None
+    error_message: str | None = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

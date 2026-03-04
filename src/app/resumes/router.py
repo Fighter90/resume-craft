@@ -12,6 +12,7 @@ from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.resumes import service as resume_service
 from app.resumes.schemas import (
+    ResumeFromTextRequest,
     ResumeListResponse,
     ResumeResponse,
     ResumeUpdateRequest,
@@ -37,6 +38,28 @@ async def upload_resume(
         session,
         user_id=current_user.id,
         file=file,
+    )
+    return ResumeUploadResponse.model_validate(resume)
+
+
+@router.post(
+    '/from-text',
+    response_model=ResumeUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary='Создание резюме из текста (вставка / hh.ru)',
+)
+async def create_from_text(
+    data: ResumeFromTextRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ResumeUploadResponse:
+    """Создание резюме из вставленного текста (например, скопированного с hh.ru)."""
+    resume = await resume_service.create_from_text(
+        session,
+        user_id=current_user.id,
+        text=data.text,
+        title=data.title,
+        source_url=data.source_url,
     )
     return ResumeUploadResponse.model_validate(resume)
 

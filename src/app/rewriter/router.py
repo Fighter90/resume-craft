@@ -88,6 +88,7 @@ async def get_rewrite_status(
         status=task.status,
         step=step,
         progress=progress,
+        error_message=task.error_message if task.status.value == 'failed' else None,
     )
 
 

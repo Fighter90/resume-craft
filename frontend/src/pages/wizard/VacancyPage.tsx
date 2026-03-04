@@ -41,9 +41,11 @@ export default function VacancyPage() {
     try {
       const params: Record<string, string> = { text: searchQuery }
       if (AREA_MAP[searchCity]) params.area = AREA_MAP[searchCity]
-      const results = await api.searchVacancies(params) as any[]
-      setVacancies(results)
-      if (results.length === 0) setSearchError('Вакансии не найдены. Попробуйте другой запрос.')
+      const response = await api.searchVacancies(params) as any
+      // Backend returns { items: [...], found, page, pages }
+      const items = response.items || response || []
+      setVacancies(items)
+      if (items.length === 0) setSearchError('Вакансии не найдены. Попробуйте другой запрос.')
     } catch (err) {
       setSearchError(err instanceof Error ? err.message : 'Ошибка поиска')
     } finally {
@@ -87,10 +89,22 @@ export default function VacancyPage() {
     }
   }
 
-  const handleSelectVacancy = () => {
-    if (selected) {
-      setVacancyId(selected)
+  const handleSelectVacancy = async () => {
+    if (!selected) return
+    // selected is the hh.ru vacancy URL — save it to DB first
+    const vacancy = vacancies.find((v: any) => v.hh_id === selected)
+    if (!vacancy) return
+    setSearchError(null)
+    setSearching(true)
+    try {
+      const url = vacancy.url || `https://hh.ru/vacancy/${vacancy.hh_id}`
+      const res = await api.createVacancyFromUrl(url) as any
+      setVacancyId(res.id)
       navigate('/app/models')
+    } catch (err) {
+      setSearchError(err instanceof Error ? err.message : 'Ошибка сохранения вакансии')
+    } finally {
+      setSearching(false)
     }
   }
 
@@ -141,9 +155,9 @@ export default function VacancyPage() {
           <div className="vacancy-results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             {vacancies.map((v: any) => (
               <div
-                key={v.id}
-                className={`card vacancy-card${selected === v.id ? ' selected' : ''}`}
-                onClick={() => setSelected(v.id)}
+                key={v.hh_id}
+                className={`card vacancy-card${selected === v.hh_id ? ' selected' : ''}`}
+                onClick={() => setSelected(v.hh_id)}
                 style={{ padding: '1.25rem', cursor: 'pointer' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
