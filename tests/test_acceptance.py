@@ -20,11 +20,32 @@
 from __future__ import annotations
 
 import os
+import time
 import uuid
 from typing import Any
 
 import httpx
 import pytest
+
+
+def _retry_request(
+    fn: Any,
+    *args: Any,
+    retries: int = 3,
+    delay: float = 5.0,
+    **kwargs: Any,
+) -> httpx.Response:
+    """Retry HTTP-запрос при RemoteProtocolError (сервер рестартует)."""
+    last_exc: Exception | None = None
+    for attempt in range(retries):
+        try:
+            return fn(*args, **kwargs)  # type: ignore[no-any-return]
+        except (httpx.RemoteProtocolError, httpx.ConnectError) as exc:
+            last_exc = exc
+            if attempt < retries - 1:
+                time.sleep(delay)
+    raise last_exc  # type: ignore[misc]
+
 
 # ---------------------------------------------------------------------------
 # Маркер — тесты запускаются ТОЛЬКО при наличии BASE_URL
@@ -60,8 +81,9 @@ def http() -> httpx.Client:
 @pytest.fixture(scope='module')
 def tokens(http: httpx.Client) -> dict[str, str]:
     """Регистрация/логин тестового пользователя → токены."""
-    # Пробуем зарегистрировать
-    resp = http.post(
+    # Пробуем зарегистрировать (с retry на случай рестарта сервера)
+    resp = _retry_request(
+        http.post,
         f'{API}/auth/register',
         json={
             'email': TEST_EMAIL,
@@ -73,7 +95,8 @@ def tokens(http: httpx.Client) -> dict[str, str]:
 
     # Если уже существует — логинимся
     assert resp.status_code == 409, f'Unexpected register status: {resp.status_code} {resp.text}'
-    resp = http.post(
+    resp = _retry_request(
+        http.post,
         f'{API}/auth/login',
         json={
             'email': TEST_EMAIL,
@@ -116,7 +139,8 @@ def resume_id(http: httpx.Client, auth_headers: dict[str, str]) -> str:
         b'5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n'
         b'xref\n0 6\ntrailer<</Size 6/Root 1 0 R>>\nstartxref\n0\n%%EOF'
     )
-    resp = http.post(
+    resp = _retry_request(
+        http.post,
         f'{API}/resumes/upload',
         headers=auth_headers,
         files={'file': ('accept_test.pdf', pdf_content, 'application/pdf')},
@@ -128,7 +152,8 @@ def resume_id(http: httpx.Client, auth_headers: dict[str, str]) -> str:
 @pytest.fixture(scope='module')
 def vacancy_id(http: httpx.Client, auth_headers: dict[str, str]) -> str:
     """Создаёт тестовую вакансию вручную и возвращает vacancy_id."""
-    resp = http.post(
+    resp = _retry_request(
+        http.post,
         f'{API}/vacancies/manual',
         headers={**auth_headers, 'Content-Type': 'application/json'},
         json={
@@ -152,7 +177,8 @@ def rewrite_task_id(
     vacancy_id: str,
 ) -> str:
     """Запускает реврайт-задачу и возвращает task_id."""
-    resp = http.post(
+    resp = _retry_request(
+        http.post,
         f'{API}/rewrite',
         headers={**auth_headers, 'Content-Type': 'application/json'},
         json={'resume_id': resume_id, 'vacancy_id': vacancy_id},
