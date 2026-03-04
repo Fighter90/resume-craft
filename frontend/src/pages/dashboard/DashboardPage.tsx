@@ -31,8 +31,9 @@ export default function DashboardPage() {
 
   const totalResumes = resumes.length
   const totalOptimizations = history.length
-  const avgScore = history.length > 0
-    ? Math.round(history.filter((h: any) => h.match_score_after).reduce((acc: number, h: any) => acc + (h.match_score_after || 0), 0) / history.filter((h: any) => h.match_score_after).length)
+  const scored = history.filter((h: any) => h.match_score_after != null && h.match_score_after > 0)
+  const avgScore = scored.length > 0
+    ? Math.round(scored.reduce((acc: number, h: any) => acc + h.match_score_after, 0) / scored.length)
     : 0
 
   return (
