@@ -1028,7 +1028,7 @@ describe('ResumesPage actions', () => {
   it('view button links to results with ID', () => {
     const { container } = renderWithProviders(<ResumesPage />, '/app/resumes')
     const viewLinks = container.querySelectorAll('a[href*="/app/results/"]')
-    expect(viewLinks.length).toBe(5) // 5 demo resumes
+    expect(viewLinks.length).toBe(10) // 5 demo resumes × 2 (desktop table + mobile cards)
   })
 
   it('first resume links to /app/results/1', () => {

@@ -689,6 +689,10 @@ svg { width: 20px; height: 20px; stroke-width: 2; }
 /* ========================================
    RESPONSIVE: Mobile (max-width: 768px)
    ======================================== */
+
+/* Resumes: desktop table visible, mobile cards hidden by default */
+.resumes-mobile-cards { display: none; }
+
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
@@ -759,6 +763,10 @@ svg { width: 20px; height: 20px; stroke-width: 2; }
         text-transform: uppercase;
         margin-right: 1rem;
     }
+
+    /* Resumes: show mobile cards, hide desktop table */
+    .resumes-desktop-table { display: none !important; }
+    .resumes-mobile-cards { display: flex; flex-direction: column; gap: 0.75rem; }
 
     /* Filter bar stack */
     .filter-bar { flex-direction: column; }

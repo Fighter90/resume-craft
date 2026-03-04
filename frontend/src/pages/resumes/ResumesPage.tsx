@@ -44,7 +44,7 @@ export default function ResumesPage() {
       </div>
 
       {/* Desktop Table */}
-      <div className="card" style={{ overflow: 'auto' }}>
+      <div className="card resumes-desktop-table" style={{ overflow: 'auto' }}>
         <table className="data-table">
           <thead>
             <tr>
@@ -98,6 +98,45 @@ export default function ResumesPage() {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="resumes-mobile-cards">
+        {DEMO_RESUMES.map(r => {
+          const st = statusLabel(r.status)
+          return (
+            <div key={r.id} className="card" style={{ padding: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
+                    <FileText size={16} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>{r.vacancy || 'Без вакансии'}</div>
+                  </div>
+                </div>
+                <span className={`badge ${st.cls}`}>{st.text}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                <span>
+                  {r.match_score ? (
+                    <span style={{ fontWeight: 600, color: r.match_score >= 80 ? 'var(--success)' : r.match_score >= 60 ? '#D97706' : 'inherit' }}>
+                      Match: {r.match_score}%
+                    </span>
+                  ) : 'Match: —'}
+                </span>
+                <span>{r.model || '—'}</span>
+                <span>{r.date}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Link to={`/app/results/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
+                <button className="btn btn-ghost btn-sm" onClick={() => alert('Загрузка началась...')}><Download size={14} /></button>
+                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => alert(`Резюме "${r.title}" удалено`)}><Trash2 size={14} /></button>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {/* Pagination */}

@@ -10,16 +10,16 @@
 
 | # | Прототип HTML | React-компонент | Маршрут | Статус |
 |---|--------------|-----------------|---------|--------|
-| 01 | `01-landing.html` | `pages/LandingPage.tsx` | `/` | ⚠️ Есть отличия |
+| 01 | `01-landing.html` | `pages/LandingPage.tsx` | `/` | ✅ Исправлено (L4, L7) |
 | 02 | `02-auth.html` | `pages/auth/AuthPage.tsx` | `/auth` | ✅ Хорошо |
 | 03 | `03-password-recovery.html` | `pages/auth/PasswordRecoveryPage.tsx` | `/password-recovery` | ✅ Хорошо |
 | 04 | `04-email-verify.html` | `pages/auth/EmailVerifyPage.tsx` | `/email-verify` | ✅ Хорошо |
 | 05 | `05-pricing.html` | `pages/PricingPage.tsx` | `/pricing` | ✅ Хорошо |
 | 06 | `06-dashboard.html` | `pages/dashboard/DashboardPage.tsx` | `/app/dashboard` | ⚠️ Мелкие отличия |
-| 07 | `07-resumes.html` | `pages/resumes/ResumesPage.tsx` | `/app/resumes` | ⚠️ Есть отличия |
+| 07 | `07-resumes.html` | `pages/resumes/ResumesPage.tsx` | `/app/resumes` | ✅ Исправлено (R3) |
 | 08 | `08-upload.html` | `pages/wizard/UploadPage.tsx` | `/app/upload` | ✅ Хорошо |
 | 09 | `09-vacancy.html` | `pages/wizard/VacancyPage.tsx` | `/app/vacancy` | ✅ Хорошо |
-| 10 | `10-models.html` | `pages/wizard/ModelsPage.tsx` | `/app/models` | ⚠️ Есть отличия |
+| 10 | `10-models.html` | `pages/wizard/ModelsPage.tsx` | `/app/models` | ✅ Исправлено (M3) |
 | 11 | `11-processing.html` | `pages/wizard/ProcessingPage.tsx` | `/app/processing` | ✅ Хорошо |
 | 12 | `12-results.html` | `pages/wizard/ResultsPage.tsx` | `/app/results` | ✅ Хорошо |
 | 13 | `13-editor.html` | `pages/wizard/EditorPage.tsx` | `/app/editor` | ⚠️ Мелкие отличия |
@@ -29,7 +29,7 @@
 | 17 | `17-settings-ai.html` | `pages/settings/SettingsAiPage.tsx` | `/app/settings/ai` | ⚠️ Есть отличия (расширен) |
 | 18 | `18-settings-subscription.html` | `pages/settings/SettingsSubscriptionPage.tsx` | `/app/settings/subscription` | ⚠️ Мелкие отличия |
 | 19 | `19-settings-security.html` | `pages/settings/SettingsSecurityPage.tsx` | `/app/settings/security` | ✅ Хорошо |
-| 20 | `20-error-404.html` | `pages/ErrorPage.tsx` | `*` (catch-all) | ❌ Есть проблемы |
+| 20 | `20-error-404.html` | `pages/ErrorPage.tsx` | `*` (catch-all) | ✅ Исправлено (E1, E2) |
 | — | Нет прототипа | `pages/AboutPage.tsx` | `/about` | ➕ Дополнительная |
 | — | Нет прототипа | `pages/PrivacyPage.tsx` | `/privacy` | ➕ Дополнительная |
 | — | Нет прототипа | `pages/TermsPage.tsx` | `/terms` | ➕ Дополнительная |
@@ -249,16 +249,16 @@ Timeline сгруппирован по датам, разные типы соб�
 ### ❌ CRITICAL — 0 штук
 Нет критических проблем.
 
-### ⚠️ MEDIUM — 6 штук
+### ⚠️ MEDIUM — 6 штук (все исправлены ✅)
 
-| ID | Страница | Описание |
-|----|----------|----------|
-| L4 | LandingPage | Отсутствует образовательная ATS-карточка из Problem-секции |
-| L7 | LandingPage | В списке ATS заменён «hh.ru» на «E-Staff» |
-| R3 | ResumesPage | Отсутствует мобильная card view для таблицы резюме |
-| M3 | ModelsPage | Нет индикации тарифных ограничений на моделях |
-| E1 | ErrorPage | Кнопка «На главную» ведёт на лендинг вместо дашборда |
-| E2 | ErrorPage | Отсутствует ссылка «Связаться с поддержкой» (mailto) |
+| ID | Страница | Описание | Статус |
+|----|----------|----------|--------|
+| L4 | LandingPage | Отсутствует образовательная ATS-карточка из Problem-секции | ✅ Исправлено |
+| L7 | LandingPage | В списке ATS заменён «hh.ru» на «E-Staff» | ✅ Исправлено |
+| R3 | ResumesPage | Отсутствует мобильная card view для таблицы резюме | ✅ Исправлено |
+| M3 | ModelsPage | Нет индикации тарифных ограничений на моделях | ✅ Исправлено |
+| E1 | ErrorPage | Кнопка «На главную» ведёт на лендинг вместо дашборда | ✅ Исправлено |
+| E2 | ErrorPage | Отсутствует ссылка «Связаться с поддержкой» (mailto) | ✅ Исправлено |
 
 ### 💡 LOW — 18 штук
 

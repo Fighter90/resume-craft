@@ -65,7 +65,7 @@ export default function LandingPage() {
           <div className="card" style={{ maxWidth: 800, margin: '0 auto', padding: '2rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', textAlign: 'center' }}>Что происходит с вашим резюме на самом деле</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
-              Большинство крупных компаний в России — Яндекс, Сбер, Тинькофф, VK, Ozon — используют автоматизированные системы отбора кандидатов (ATS). Это такие платформы, как Huntflow, Потоk, Талантикс и Skillaz. Когда вы отправляете резюме, оно сначала проходит через алгоритм, который ищет совпадения с описанием вакансии.
+              Большинство крупных компаний в России — Яндекс, Сбер, Тинькофф, VK, Ozon — используют автоматизированные системы отбора кандидатов (ATS). Это такие платформы, как Huntflow, Поток, Талантикс и Skillaz. Когда вы отправляете резюме, оно сначала проходит через алгоритм, который ищет совпадения с описанием вакансии.
             </p>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
               Если алгоритм не находит достаточно совпадений, ваше резюме попросту не доходит до живого рекрутера. Вы можете быть идеальным кандидатом, но если в вашем резюме написано «управлял проектами» вместо «руководил портфелем из 5 проектов с бюджетом 12 млн рублей», ATS оценит вас ниже конкурента.
@@ -314,7 +314,7 @@ export default function LandingPage() {
               Совместимо с ATS-системами:
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['Huntflow', 'Потоk', 'Талантикс', 'Skillaz', 'hh.ru'].map(name => (
+              {['Huntflow', 'Поток', 'Талантикс', 'Skillaz', 'hh.ru'].map(name => (
                 <span key={name} className="badge badge-gray">{name}</span>
               ))}
             </div>

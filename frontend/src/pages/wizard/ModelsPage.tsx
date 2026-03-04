@@ -13,23 +13,25 @@ const MODELS = [
     quality: 95,
     speed: 70,
     tags: ['Русский язык', 'ATS-оптимизация', 'Данные в РФ'],
+    plan: 'standard',
   },
   {
     id: 'gpt-4o',
     name: 'GPT-4o',
     provider: 'OpenAI',
-    badge: 'Мощная',
+    badge: 'Pro',
     badgeClass: 'badge-indigo',
     description: 'Сильнейшая мультиязычная модель. Глубокое понимание контекста и нюансов.',
     quality: 92,
     speed: 65,
     tags: ['Мультиязычная', 'Креативность', 'Аналитика'],
+    plan: 'pro',
   },
   {
     id: 'llama-3-70b',
     name: 'Llama 3.3 70B',
     provider: 'Groq',
-    badge: 'Быстрая',
+    badge: 'Бесплатная',
     badgeClass: 'badge-yellow',
     description: 'Молниеносная скорость генерации. 14 400 запросов/день бесплатно.',
     quality: 78,
@@ -46,6 +48,7 @@ const MODELS = [
     quality: 90,
     speed: 80,
     tags: ['Мультимодель', 'Гибкость', '100+ моделей'],
+    plan: 'standard',
   },
 ]
 
@@ -99,6 +102,12 @@ export default function ModelsPage() {
             <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
               {m.tags.map(t => <span key={t} className="badge badge-gray">{t}</span>)}
             </div>
+
+            {m.plan && (
+              <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                Доступна на тарифе <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{m.plan === 'pro' ? 'Pro' : 'Standard+'}</span>
+              </div>
+            )}
 
             {selected === m.id && (
               <div style={{
