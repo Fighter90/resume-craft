@@ -75,5 +75,19 @@ jobs:
             echo "=== Cleaning up old images ==="
             docker image prune -f
 
+            echo "=== Running acceptance tests ==="
+            docker compose exec -T \
+              -e BASE_URL=http://localhost:8000 \
+              -e PYTHONPATH=src \
+              app python -m pytest tests/test_acceptance.py \
+              -v --tb=short --no-header \
+              -x \
+              2>&1 || {
+              echo "❌ Acceptance tests failed!"
+              docker compose logs --tail=30 app
+              exit 1
+            }
+            echo "✅ Acceptance tests passed!"
+
             echo "=== Deploy complete ==="
             docker compose ps
