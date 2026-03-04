@@ -122,23 +122,23 @@ jobs:
       - name: Build Docker image
         run: docker build -t resumecraft:scan .
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: "resumecraft:scan"
-          format: "table"
-          severity: "CRITICAL,HIGH"
-
-      - name: Upload Trivy report (JSON)
+      - name: Install Trivy
         run: |
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:latest image \
-            --format json \
-            --severity CRITICAL,HIGH \
-            resumecraft:scan > trivy-results.json || true
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Run Trivy vulnerability scanner
+        run: trivy image --severity CRITICAL,HIGH --format table resumecraft:scan
+
+      - name: Trivy JSON report
+        if: always()
+        run: trivy image --severity CRITICAL,HIGH --format json -o trivy-results.json resumecraft:scan || true
 
       - name: Upload Trivy artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report

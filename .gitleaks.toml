@@ -1,0 +1,15 @@
+# Gitleaks configuration
+# https://github.com/gitleaks/gitleaks#configuration
+
+title = "ResumeCraft Gitleaks Config"
+
+# Allowlist paths that contain example/documentation tokens (false positives)
+[allowlist]
+  description = "Global allowlist for documentation files with example tokens"
+  paths = [
+    '''BASELINE\.md''',
+    '''ANALYSIS\.md''',
+    '''REFERENCES\.md''',
+    '''Docs/.*\.md''',
+    '''Prototype/.*''',
+  ]
