@@ -76,10 +76,14 @@ jobs:
             docker image prune -f
 
             echo "=== Running acceptance tests ==="
+            # pytest не входит в production-образ — ставим временно
+            docker compose exec -T --user root app pip install pytest --quiet 2>&1
+            # Копируем тест-файл в контейнер (tests/ нет в образе)
+            docker cp tests/test_acceptance.py resumecraft-app:/app/test_acceptance.py
             docker compose exec -T \
               -e BASE_URL=http://localhost:8000 \
               -e PYTHONPATH=src \
-              app python -m pytest tests/test_acceptance.py \
+              app python -m pytest /app/test_acceptance.py \
               -v --tb=short --no-header \
               -x \
               2>&1 || {
@@ -87,6 +91,8 @@ jobs:
               docker compose logs --tail=30 app
               exit 1
             }
+            # Убираем тест-файл из контейнера
+            docker compose exec -T --user root app rm -f /app/test_acceptance.py
             echo "✅ Acceptance tests passed!"
 
             echo "=== Deploy complete ==="
