@@ -25,9 +25,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS builder
 
 COPY requirements.txt .
-# PyTorch CPU-only (без CUDA ~2.5 ГБ экономии) — GPU не используется в production
-RUN pip install --prefix=/install torch --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --prefix=/install -r requirements.txt
+# PyTorch CPU-only: --extra-index-url обеспечивает CPU-версию torch
+# вместо CUDA-версии (~300 МБ vs ~3 ГБ). Одна RUN для минимизации слоёв.
+RUN pip install --prefix=/install \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    -r requirements.txt \
+    && find /install -type d -name "tests" -exec rm -rf {} + 2>/dev/null; \
+    find /install -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null; \
+    find /install -name "*.pyc" -delete 2>/dev/null; true
 
 # ============================================
 # Production stage
