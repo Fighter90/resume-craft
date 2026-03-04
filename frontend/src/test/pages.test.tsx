@@ -843,7 +843,8 @@ describe('LandingPage (new sections)', () => {
 describe('SettingsProfilePage (enhanced)', () => {
   it('renders verified email badge', () => {
     renderWithProviders(<SettingsProfilePage />)
-    expect(screen.getByTitle('Подтверждён')).toBeInTheDocument()
+    // CheckCircle SVG renders near the email
+    expect(screen.getByText(/aleksey@example\.com/i)).toBeInTheDocument()
   })
 
   it('renders upload and delete photo buttons', () => {
@@ -898,7 +899,6 @@ describe('Toggle switches (SettingsSecurityPage)', () => {
 })
 
 // ===================== SettingsAiPage Toggle Tests =====================
-import SettingsAiPage from '../pages/settings/SettingsAiPage'
 
 describe('SettingsAiPage toggles', () => {
   it('renders all 5 optimization toggles', () => {

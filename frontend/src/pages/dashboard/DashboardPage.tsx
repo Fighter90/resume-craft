@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FileText, BarChart3, TrendingUp, Plus, Clock } from 'lucide-react'
+import { FileText, BarChart3, TrendingUp, Plus } from 'lucide-react'
 import { DEMO_RESUMES } from '../../data/demo'
 import { useAuth } from '../../contexts/AuthContext'
 

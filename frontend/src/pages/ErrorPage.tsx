@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Home, ArrowLeft, Mail } from 'lucide-react'
+import { Home, Mail } from 'lucide-react'
 
 export default function ErrorPage() {
   return (

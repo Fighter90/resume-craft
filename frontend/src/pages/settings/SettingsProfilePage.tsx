@@ -72,7 +72,7 @@ export default function SettingsProfilePage() {
           <div style={{ fontWeight: 600 }}>{form.firstName} {form.lastName}</div>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             {form.email}
-            <CheckCircle size={14} style={{ color: 'var(--success)' }} title="Подтверждён" />
+            <CheckCircle size={14} style={{ color: 'var(--success)' }} />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
