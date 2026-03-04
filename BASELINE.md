@@ -177,7 +177,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **454** |
+| Тестов | — | **563** |
 
 ---
 
@@ -938,8 +938,8 @@ def validate_upload(file: UploadFile) -> None:
 | Метрика | Значение |
 |---------|----------|
 | **Backend тестов** | 365 (pytest + pytest-asyncio) |
-| **Frontend тестов** | 89 (Vitest + @testing-library/react) |
-| **Всего тестов** | 454 |
+| **Frontend тестов** | 198 (Vitest + @testing-library/react) |
+| **Всего тестов** | 563 |
 | **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
@@ -1126,7 +1126,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **454** (365 backend + 89 frontend) |
+| Тестов всего | — | **563** (365 backend + 198 frontend) |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
