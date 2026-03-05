@@ -57,9 +57,8 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 
 | Технология | Назначение |
 |-----------|------------|
-| Docker + Compose | 6 контейнеров: app, celery-worker, db, redis, rabbitmq, flower |
-| Streamlit | Demo UI для защиты ВКР (Phase 1) |
-| React + TypeScript | Production SPA (Phase 2) |
+| Docker + Compose | 7 контейнеров: app, celery-worker, db, redis, rabbitmq, flower, frontend |
+| React + TypeScript | Production SPA |
 | pytest + Ruff + mypy | Тестирование + линтинг + типы |
 
 ---
@@ -128,13 +127,6 @@ tests/                 # Зеркалирует src/app/
 └── test_ml/
 
 alembic/               # Миграции PostgreSQL
-streamlit_app/         # Streamlit Demo UI (20/20 прототипов, модульная архитектура)
-├── app.py             # Роутер + навигация + session state
-├── styles.py          # Общие CSS-стили
-├── demo_data.py       # Демо-данные
-├── api_client.py      # HTTP-клиент для FastAPI
-└── pages/             # 11 модулей страниц (landing, auth, pricing, dashboard,
-                       #   resumes, wizard, editor, export, history, settings, error)
 ```
 
 ### Ключевые паттерны
@@ -788,7 +780,7 @@ REWRITE_SYSTEM_PROMPT = """Вы — эксперт по оптимизации �
 
 ## 12. Docker и инфраструктура
 
-### Docker Compose: 6 сервисов
+### Docker Compose: 7 сервисов
 
 | Сервис | Образ | Порт | Назначение |
 |--------|-------|------|-----------|
@@ -797,6 +789,7 @@ REWRITE_SYSTEM_PROMPT = """Вы — эксперт по оптимизации �
 | db | pgvector/pgvector:pg16 | 5432 | PostgreSQL + pgvector |
 | redis | redis:7-alpine | 6379 | Кэш + result backend |
 | rabbitmq | rabbitmq:3.13-management | 5672, 15672 | Брокер сообщений |
+| frontend | build: ./frontend | 3000→80 | React SPA (nginx) |
 | flower | build: . | 5555 | Мониторинг Celery |
 
 **Правила Docker:**

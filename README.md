@@ -645,16 +645,16 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
 
 Мультипровайдерная архитектура (Strategy Pattern) с единым интерфейсом `BaseLLMProvider`:
 
-| Характеристика | GigaChat Pro | Claude Sonnet 4 | GPT-4o-mini | Llama 3.3 70B (Groq) |
-|----------------|-------------|-----------------|------------|----------------------|
-| Контекст | 32K tokens | 200K tokens | 128K tokens | 128K tokens |
-| Цена input | ~$1.2/1M tok | $3.00/1M tok | $0.15/1M tok | Бесплатно |
-| Скорость | ~12 сек | ~10 сек | ~18 сек | ~8 сек |
-| Русский язык | ✅ #1 MERA | ✅ Отлично | ⚠️ Хорошо | ⚠️ Средне |
+| Характеристика | GigaChat Pro | Claude Sonnet 4 | GPT-4o-mini | OpenRouter (100+ моделей) |
+|----------------|-------------|-----------------|------------|--------------------------|
+| Контекст | 32K tokens | 200K tokens | 128K tokens | Зависит от модели |
+| Цена input | ~$1.2/1M tok | $3.00/1M tok | $0.15/1M tok | Зависит от модели |
+| Скорость | ~12 сек | ~10 сек | ~18 сек | Зависит от модели |
+| Русский язык | ✅ #1 MERA | ✅ Отлично | ⚠️ Хорошо | Зависит от модели |
 | Данные в РФ | ✅ | ❌ | ❌ | ❌ |
-| Лимиты | По тарифу Сбера | По тарифу Anthropic | По тарифу OpenAI | 14 400 req/день |
+| Лимиты | По тарифу Сбера | По тарифу Anthropic | По тарифу OpenAI | По тарифу OpenRouter |
 
-**5 LLM-провайдеров** в MVP: GigaChat Pro, Groq/Llama 3.3, Anthropic Claude, OpenRouter (100+ моделей), OpenAI.
+**4 LLM-провайдера** в MVP: GigaChat Pro, Anthropic Claude, OpenRouter (100+ моделей), OpenAI. Для OpenAI, Anthropic и OpenRouter реализован 2-ступенчатый выбор модели с динамической загрузкой доступных суб-моделей через API.
 
 ### 11.2. Match Score
 
@@ -907,11 +907,11 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 368 (pytest + pytest-asyncio) |
-| **Backend тестов (integration)** | 24 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
+| **Backend тестов (unit)** | 416 (pytest + pytest-asyncio) |
+| **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 628 |
+| **Всего тестов** | 675 |
 | **Backend покрытие** | 100% |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 

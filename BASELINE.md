@@ -946,11 +946,11 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 368 (pytest + pytest-asyncio) |
-| **Backend тестов (integration)** | 24 (реальные LLM API: 5 провайдеров) |
+| **Backend тестов (unit)** | 416 (pytest + pytest-asyncio) |
+| **Backend тестов (integration)** | 23 (реальные LLM API: 4 провайдера) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 628 |
+| **Всего тестов** | 675 |
 | **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |

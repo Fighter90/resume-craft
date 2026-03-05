@@ -1,5 +1,5 @@
 # ============================================
-# ResumeCraft — Docker Compose (6 сервисов)
+# ResumeCraft — Docker Compose (7 сервисов)
 # ============================================
 # Запуск: docker compose up -d
 # Остановка: docker compose down
