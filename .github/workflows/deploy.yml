@@ -41,8 +41,15 @@ jobs:
             git fetch origin master
             git reset --hard origin/master
 
-            echo "=== Building Docker images ==="
-            docker compose build --parallel 2>&1 | tail -20
+            echo "=== Cleaning disk before build ==="
+            docker builder prune -af 2>/dev/null || true
+            docker image prune -f 2>/dev/null || true
+
+            echo "=== Building Docker images (sequential to save disk) ==="
+            docker compose build app 2>&1 | tail -10
+            docker compose build celery-worker 2>&1 | tail -10
+            docker compose build flower 2>&1 | tail -10
+            docker compose build frontend 2>&1 | tail -10
 
             echo "=== Restarting services ==="
             docker compose up -d --remove-orphans
