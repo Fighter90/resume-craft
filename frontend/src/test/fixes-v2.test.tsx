@@ -193,7 +193,6 @@ describe('ResumesPage v2', () => {
 
     // Draft badge should be gone from data rows (might still be in dropdown)
     await waitFor(() => {
-      const rows = screen.queryAllByText('Черновик')
       // Only in dropdown, not in table body
       const tableBody = document.querySelector('tbody')
       const draftInTable = tableBody?.querySelectorAll('.badge-gray')
