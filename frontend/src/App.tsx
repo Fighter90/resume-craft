@@ -21,6 +21,7 @@ import ErrorPage from './pages/ErrorPage'
 // App pages
 import DashboardPage from './pages/dashboard/DashboardPage'
 import ResumesPage from './pages/resumes/ResumesPage'
+import ResumeDetailPage from './pages/resumes/ResumeDetailPage'
 import UploadPage from './pages/wizard/UploadPage'
 import VacancyPage from './pages/wizard/VacancyPage'
 import ModelsPage from './pages/wizard/ModelsPage'
@@ -85,6 +86,7 @@ export default function App() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="resumes" element={<ResumesPage />} />
+        <Route path="resumes/:id" element={<ResumeDetailPage />} />
         <Route path="upload" element={<UploadPage />} />
         <Route path="vacancy" element={<VacancyPage />} />
         <Route path="models" element={<ModelsPage />} />

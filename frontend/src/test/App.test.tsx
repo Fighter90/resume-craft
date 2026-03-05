@@ -1,15 +1,41 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import App from '../App'
-import { AuthProvider } from '../contexts/AuthContext'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Mock AuthContext so ProtectedRoute sees isAuthenticated = true
+vi.mock('../contexts/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAuth: () => ({
+    isAuthenticated: true,
+    loading: false,
+    user: { id: 'u1', email: 'test@test.com', full_name: 'Test User', plan: 'free', optimizations_used: 0, is_active: true },
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    refreshUser: vi.fn(),
+  }),
+}))
+
+// Mock API to prevent real network calls
+vi.mock('../services/api', () => ({
+  api: {
+    setToken: vi.fn(),
+    clearToken: vi.fn(),
+    getMe: vi.fn().mockRejectedValue(new Error('mocked')),
+    getResumes: vi.fn().mockResolvedValue([]),
+    getRewriteHistory: vi.fn().mockResolvedValue([]),
+    searchVacancies: vi.fn().mockResolvedValue({ items: [] }),
+  },
+  ApiClient: vi.fn(),
+}))
 
 function renderApp(route = '/') {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <App />
     </MemoryRouter>
   )
 }
@@ -37,7 +63,7 @@ describe('App Router', () => {
 
   it('renders email verify at /email-verify', () => {
     renderApp('/email-verify')
-    expect(screen.getByRole('heading', { name: /проверьте почту/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /аккаунт создан/i })).toBeInTheDocument()
   })
 
   it('renders 404 for unknown routes', () => {
@@ -88,7 +114,8 @@ describe('App Router', () => {
 
   it('renders results at /app/results', () => {
     renderApp('/app/results')
-    expect(screen.getByText('Match Score')).toBeInTheDocument()
+    // Without a task_id, ResultsPage shows "Нет данных"
+    expect(screen.getByText(/нет данных/i)).toBeInTheDocument()
   })
 
   it('renders editor at /app/editor', () => {

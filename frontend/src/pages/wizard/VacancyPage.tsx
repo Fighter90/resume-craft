@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Search, AlertCircle, Loader } from 'lucide-react'
+import { ArrowLeft, Search, AlertCircle, Loader, X, MapPin, DollarSign, Clock, ExternalLink, Briefcase, Info, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
@@ -18,6 +18,9 @@ export default function VacancyPage() {
   const [vacancies, setVacancies] = useState<any[]>([])
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+
+  // Vacancy details modal
+  const [detailVacancy, setDetailVacancy] = useState<any>(null)
 
   // URL state
   const [url, setUrl] = useState('')
@@ -91,14 +94,17 @@ export default function VacancyPage() {
 
   const handleSelectVacancy = async () => {
     if (!selected) return
-    // selected is the hh.ru vacancy URL — save it to DB first
     const vacancy = vacancies.find((v: any) => v.hh_id === selected)
     if (!vacancy) return
+    await selectVacancyAndNavigate(vacancy)
+  }
+
+  const selectVacancyAndNavigate = async (vacancy: any) => {
     setSearchError(null)
     setSearching(true)
     try {
-      const url = vacancy.url || `https://hh.ru/vacancy/${vacancy.hh_id}`
-      const res = await api.createVacancyFromUrl(url) as any
+      const vacUrl = vacancy.url || `https://hh.ru/vacancy/${vacancy.hh_id}`
+      const res = await api.createVacancyFromUrl(vacUrl) as any
       setVacancyId(res.id)
       navigate('/app/models')
     } catch (err) {
@@ -158,24 +164,34 @@ export default function VacancyPage() {
                 key={v.hh_id}
                 className={`card vacancy-card${selected === v.hh_id ? ' selected' : ''}`}
                 onClick={() => setSelected(v.hh_id)}
-                style={{ padding: '1.25rem', cursor: 'pointer' }}
+                style={{ padding: '1.25rem', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.25rem' }}>{v.title}</h3>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{v.company || 'Компания не указана'}{v.city ? ` · ${v.city}` : ''}</p>
                   </div>
+                  {selected === v.hh_id && <CheckCircle size={18} style={{ color: 'var(--primary)', flexShrink: 0 }} />}
                 </div>
                 {v.salary_from && (
-                  <div style={{ fontWeight: 600, color: 'var(--success)', margin: '0.5rem 0', fontSize: '0.95rem' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--success)', fontSize: '0.95rem' }}>
                     от {v.salary_from.toLocaleString()} ₽{v.salary_to ? ` до ${v.salary_to.toLocaleString()} ₽` : ''}
                   </div>
                 )}
                 {v.key_skills && v.key_skills.length > 0 && (
-                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                     {v.key_skills.slice(0, 5).map((t: string) => <span key={t} className="badge badge-indigo">{t}</span>)}
                   </div>
                 )}
+                {/* Per-card action buttons */}
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }} onClick={e => e.stopPropagation()}>
+                  <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => setDetailVacancy(v)}>
+                    <Info size={14} /> Подробнее
+                  </button>
+                  <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => selectVacancyAndNavigate(v)} disabled={searching}>
+                    <CheckCircle size={14} /> Выбрать
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -233,6 +249,140 @@ export default function VacancyPage() {
           <button onClick={handleManualSubmit} className="btn btn-primary" disabled={manualLoading || !manualTitle.trim() || !manualDesc.trim()}>
             {manualLoading ? 'Создание...' : 'Продолжить'}
           </button>
+        </div>
+      )}
+
+      {/* Vacancy Details Modal */}
+      {detailVacancy && (
+        <div
+          className="modal-overlay"
+          data-testid="vacancy-detail-modal"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem',
+          }}
+          onClick={() => setDetailVacancy(null)}
+        >
+          <div
+            className="card"
+            style={{
+              maxWidth: 640, width: '100%', maxHeight: '85vh', overflow: 'auto',
+              padding: '1.5rem', position: 'relative',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setDetailVacancy(null)}
+              style={{
+                position: 'absolute', top: '1rem', right: '1rem',
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--text-secondary)', padding: '0.25rem',
+              }}
+              aria-label="Закрыть"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.25rem', paddingRight: '2rem' }}>
+              <Briefcase size={18} style={{ verticalAlign: '-3px', marginRight: '0.5rem' }} />
+              Подробности вакансии
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{detailVacancy.title}</h3>
+                {detailVacancy.company && (
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{detailVacancy.company}</div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+                {detailVacancy.city && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-secondary)' }}>
+                    <MapPin size={14} /> {detailVacancy.city}
+                  </span>
+                )}
+                {(detailVacancy.salary_from || detailVacancy.salary_to) && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--success)', fontWeight: 600 }}>
+                    <DollarSign size={14} />
+                    {detailVacancy.salary_from && detailVacancy.salary_to
+                      ? `${detailVacancy.salary_from.toLocaleString('ru-RU')} – ${detailVacancy.salary_to.toLocaleString('ru-RU')} ₽`
+                      : detailVacancy.salary_from
+                        ? `от ${detailVacancy.salary_from.toLocaleString('ru-RU')} ₽`
+                        : `до ${detailVacancy.salary_to.toLocaleString('ru-RU')} ₽`
+                    }
+                  </span>
+                )}
+                {detailVacancy.experience && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-secondary)' }}>
+                    <Clock size={14} /> {detailVacancy.experience}
+                  </span>
+                )}
+              </div>
+
+              {detailVacancy.key_skills?.length > 0 && (
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Ключевые навыки</div>
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                    {detailVacancy.key_skills.map((s: string) => (
+                      <span key={s} className="badge badge-indigo">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {detailVacancy.description && (
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Описание</div>
+                  <div
+                    style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}
+                    dangerouslySetInnerHTML={{ __html: detailVacancy.description }}
+                  />
+                </div>
+              )}
+
+              {detailVacancy.snippet?.requirement && (
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Требования</div>
+                  <div
+                    style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}
+                    dangerouslySetInnerHTML={{ __html: detailVacancy.snippet.requirement }}
+                  />
+                </div>
+              )}
+
+              {detailVacancy.snippet?.responsibility && (
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Обязанности</div>
+                  <div
+                    style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}
+                    dangerouslySetInnerHTML={{ __html: detailVacancy.snippet.responsibility }}
+                  />
+                </div>
+              )}
+
+              {(detailVacancy.url || detailVacancy.hh_id) && (
+                <a
+                  href={detailVacancy.url || `https://hh.ru/vacancy/${detailVacancy.hh_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary btn-sm"
+                  style={{ alignSelf: 'flex-start', marginTop: '0.25rem' }}
+                >
+                  <ExternalLink size={14} /> Открыть на hh.ru
+                </a>
+              )}
+
+              <button className="btn btn-primary" style={{ marginTop: '0.5rem' }}
+                onClick={() => { setDetailVacancy(null); selectVacancyAndNavigate(detailVacancy) }}
+                disabled={searching}
+              >
+                <CheckCircle size={16} /> Выбрать эту вакансию
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

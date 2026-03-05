@@ -14,10 +14,19 @@ const statusLabel = (s: string) => {
   }
 }
 
+const STATUS_MAP: Record<string, string> = {
+  'Все статусы': '',
+  'Оптимизировано': 'optimized',
+  'Черновик': 'draft',
+  'В обработке': 'processing',
+}
+
 export default function ResumesPage() {
   const [resumes, setResumes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('Все статусы')
+  const [sortBy, setSortBy] = useState('По дате (новые)')
 
   useEffect(() => {
     const load = async () => {
@@ -40,13 +49,24 @@ export default function ResumesPage() {
     }
   }
 
-  const handleDownload = async (id: string) => {
+  const handleDownload = async (r: any) => {
+    if (r.status !== 'optimized') {
+      alert('Скачивание доступно только для оптимизированных резюме. Сначала запустите оптимизацию.')
+      return
+    }
     try {
-      const blob = await api.exportDocx(id)
+      // Try to find the latest rewrite task for this resume from history
+      const history = await api.getRewriteHistory()
+      const task = (history as any[]).find((h: any) => h.resume_id === r.id && h.status === 'completed')
+      if (!task) {
+        alert('Не найдена завершённая оптимизация для этого резюме.')
+        return
+      }
+      const blob = await api.exportDocx(task.id)
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'resume.docx'
+      a.download = `${r.title || 'resume'}.docx`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -56,9 +76,23 @@ export default function ResumesPage() {
     }
   }
 
-  const filtered = resumes.filter(r =>
+  // Filter by search
+  let filtered = resumes.filter(r =>
     !searchQuery || (r.title || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  // Filter by status
+  const statusValue = STATUS_MAP[statusFilter] || ''
+  if (statusValue) {
+    filtered = filtered.filter(r => r.status === statusValue)
+  }
+
+  // Sort
+  if (sortBy === 'По дате (новые)') {
+    filtered.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+  } else if (sortBy === 'По названию') {
+    filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+  }
   return (
     <>
       <div className="page-header">
@@ -72,20 +106,24 @@ export default function ResumesPage() {
       {/* Filters */}
       <div className="filter-bar">
         <div className="input-group" style={{ flex: 1, maxWidth: 300 }}>
-          <div style={{ position: 'relative' }}>
-            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
-            <input className="input-field" placeholder="Поиск резюме..." style={{ paddingLeft: '2.5rem' }} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+          <div style={{ position: 'relative', display: 'flex', gap: '0.5rem' }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+              <input className="input-field" placeholder="Поиск резюме..." style={{ paddingLeft: '2.5rem' }} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && setSearchQuery(e.currentTarget.value)} />
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={() => setSearchQuery(searchQuery)} aria-label="Искать">
+              <Search size={16} />
+            </button>
           </div>
         </div>
-        <select className="input-field select-field" style={{ maxWidth: 200 }}>
+        <select className="input-field select-field" style={{ maxWidth: 200 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option>Все статусы</option>
           <option>Оптимизировано</option>
           <option>Черновик</option>
           <option>В обработке</option>
         </select>
-        <select className="input-field select-field" style={{ maxWidth: 200 }}>
+        <select className="input-field select-field" style={{ maxWidth: 200 }} value={sortBy} onChange={e => setSortBy(e.target.value)}>
           <option>По дате (новые)</option>
-          <option>По Match Score</option>
           <option>По названию</option>
         </select>
       </div>
@@ -132,8 +170,8 @@ export default function ResumesPage() {
                   <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '—'}</td>
                   <td>
                     <div className="td-actions">
-                      <Link to={`/app/results/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
-                      <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => handleDownload(r.id)}><Download size={16} /></button>
+                      <Link to={`/app/resumes/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
+                      <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => handleDownload(r)}><Download size={16} /></button>
                       <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={16} /></button>
                     </div>
                   </td>
@@ -167,8 +205,8 @@ export default function ResumesPage() {
                 <span>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '—'}</span>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Link to={`/app/results/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
-                <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(r.id)}><Download size={14} /></button>
+                <Link to={`/app/resumes/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
+                <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(r)}><Download size={14} /></button>
                 <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={14} /></button>
               </div>
             </div>

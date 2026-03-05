@@ -79,12 +79,34 @@ export default function UploadPage() {
       const res = await api.createResumeFromText({
         text: pasteText.trim(),
         title: pasteTitle.trim() || undefined,
-        source_url: hhUrl.trim() || undefined,
+        // Only include source_url if user is on Tab 2 AND manually entered something in the title field
+        // Completely independent of hh.ru URL tab
       })
       setResumeId(res.id)
       navigate('/app/vacancy')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка создания резюме')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleHhUrlParse = async () => {
+    if (!hhUrl.trim()) return
+    setUploading(true)
+    setError(null)
+    try {
+      // Try to create resume from hh.ru URL via backend
+      const res = await api.createResumeFromText({
+        text: '', // Backend will try to parse from URL
+        title: 'Резюме с hh.ru',
+        source_url: hhUrl.trim(),
+      })
+      setResumeId(res.id)
+      navigate('/app/vacancy')
+    } catch {
+      // If backend can't parse, guide user to paste text manually
+      setError('Не удалось автоматически загрузить резюме с hh.ru. Скопируйте текст резюме вручную на вкладке «Вставить текст».')
     } finally {
       setUploading(false)
     }
@@ -165,22 +187,23 @@ export default function UploadPage() {
             background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: 12,
             padding: '1rem 1.25rem', marginBottom: '1.5rem', fontSize: '0.9rem', color: '#0369A1', lineHeight: 1.6
           }}>
-            <strong>Как импортировать резюме с hh.ru:</strong>
-            <ol style={{ margin: '0.5rem 0 0 1.25rem', padding: 0 }}>
-              <li>Откройте ваше резюме на <a href="https://hh.ru/applicant/resumes" target="_blank" rel="noopener noreferrer" style={{ color: '#0284C7' }}>hh.ru</a></li>
-              <li>Выделите весь текст резюме (Ctrl+A) и скопируйте (Ctrl+C)</li>
-              <li>Перейдите на вкладку <strong>«Вставить текст»</strong> и вставьте скопированный текст</li>
-            </ol>
+            <strong>Импорт резюме с hh.ru:</strong>
+            <p style={{ margin: '0.5rem 0 0' }}>Вставьте ссылку на ваше резюме для автоматического парсинга. Если автоматический парсинг не удастся, вы можете скопировать текст резюме вручную на вкладке «Вставить текст».</p>
           </div>
 
           <div className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="input-label">Ссылка на резюме hh.ru (для справки)</label>
-            <input className="input-field" placeholder="https://hh.ru/resume/abc123def4" value={hhUrl} onChange={e => setHhUrl(e.target.value)} />
+            <label className="input-label">Ссылка на резюме hh.ru</label>
+            <input className="input-field" placeholder="https://hh.ru/resume/abc123def4" value={hhUrl} onChange={e => setHhUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleHhUrlParse()} />
           </div>
 
-          <button onClick={() => { setTab(2); setError(null) }} className="btn btn-primary">
-            <ClipboardPaste size={16} /> Перейти к вставке текста
-          </button>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button onClick={handleHhUrlParse} className="btn btn-primary" disabled={uploading || !hhUrl.trim()}>
+              {uploading ? 'Загрузка...' : 'Загрузить резюме'}
+            </button>
+            <button onClick={() => { setTab(2); setError(null) }} className="btn btn-secondary">
+              <ClipboardPaste size={16} /> Вставить текст вручную
+            </button>
+          </div>
         </div>
       )}
 

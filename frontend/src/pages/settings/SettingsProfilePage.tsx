@@ -11,7 +11,12 @@ export default function SettingsProfilePage() {
     lastName: nameParts.slice(1).join(' ') || '',
     email: user?.email || '',
   })
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+
+  // Load avatar from localStorage on mount
+  const savedAvatar = (() => {
+    try { return localStorage.getItem('user_avatar') || null } catch { return null }
+  })()
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(savedAvatar)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -21,13 +26,20 @@ export default function SettingsProfilePage() {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file && file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file)
-      setAvatarUrl(url)
+      // Convert to base64 and persist in localStorage
+      const reader = new FileReader()
+      reader.onload = () => {
+        const dataUrl = reader.result as string
+        setAvatarUrl(dataUrl)
+        try { localStorage.setItem('user_avatar', dataUrl) } catch { /* quota exceeded */ }
+      }
+      reader.readAsDataURL(file)
     }
   }
 
   const handleRemovePhoto = () => {
     setAvatarUrl(null)
+    try { localStorage.removeItem('user_avatar') } catch { /* ignore */ }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 

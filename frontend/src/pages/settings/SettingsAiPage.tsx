@@ -56,6 +56,27 @@ const TOGGLES = [
   { id: 'soft_skills', label: 'Soft skills', desc: 'Добавлять soft skills из описания вакансии', default: false },
 ]
 
+// Fallback sub-model lists when server can't provide them
+const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
+  openai: [
+    { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI' },
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI' },
+    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI' },
+    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
+  ],
+  anthropic: [
+    { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'Anthropic' },
+    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'Anthropic' },
+  ],
+  openrouter: [
+    { id: 'anthropic/claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'OpenRouter' },
+    { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'OpenRouter' },
+    { id: 'google/gemini-2.5-pro-preview', name: 'Gemini 2.5 Pro', provider: 'OpenRouter' },
+    { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B', provider: 'OpenRouter' },
+  ],
+}
+
 export default function SettingsAiPage() {
   // Load from localStorage
   const savedSettings = (() => {
@@ -99,15 +120,33 @@ export default function SettingsAiPage() {
       try {
         const res = await api.getSubModels(model)
         const list = res.sub_models || []
-        setSubModels(list)
-        if (list.length > 0 && !selectedSubModel) setSelectedSubModel(list[0].id)
-      } catch { setSubModels([]) }
+        if (list.length > 0) {
+          setSubModels(list)
+          if (!selectedSubModel) setSelectedSubModel(list[0].id)
+        } else {
+          // Use fallback list
+          const fallback = FALLBACK_SUB_MODELS[model] || []
+          setSubModels(fallback)
+          if (fallback.length > 0 && !selectedSubModel) setSelectedSubModel(fallback[0].id)
+        }
+      } catch {
+        // Server unavailable — use fallback list
+        const fallback = FALLBACK_SUB_MODELS[model] || []
+        setSubModels(fallback)
+        if (fallback.length > 0 && !selectedSubModel) setSelectedSubModel(fallback[0].id)
+      }
       setLoadingSubModels(false)
     }
     fetchSub()
   }, [model]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getServerAvailability = (modelId: string): boolean | null => {
+    // First check if user has a local API key set
+    const model = MODELS.find(m => m.id === modelId)
+    if (model && apiKeys[model.apiKeyField]?.trim()) {
+      return true // User has provided an API key locally
+    }
+    // Fall back to server-reported availability
     const m = serverModels.find((s: any) => s.id === modelId)
     return m ? m.available ?? null : null
   }
