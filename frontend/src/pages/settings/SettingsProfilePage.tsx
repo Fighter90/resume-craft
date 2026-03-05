@@ -12,9 +12,10 @@ export default function SettingsProfilePage() {
     email: user?.email || '',
   })
 
-  // Load avatar from localStorage on mount
+  // Load avatar from localStorage on mount (per-account)
+  const avatarKey = `user_avatar_${user?.id || 'default'}`
   const savedAvatar = (() => {
-    try { return localStorage.getItem('user_avatar') || null } catch { return null }
+    try { return localStorage.getItem(avatarKey) || null } catch { return null }
   })()
   const [avatarUrl, setAvatarUrl] = useState<string | null>(savedAvatar)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
@@ -31,7 +32,7 @@ export default function SettingsProfilePage() {
       reader.onload = () => {
         const dataUrl = reader.result as string
         setAvatarUrl(dataUrl)
-        try { localStorage.setItem('user_avatar', dataUrl) } catch { /* quota exceeded */ }
+        try { localStorage.setItem(avatarKey, dataUrl) } catch { /* quota exceeded */ }
       }
       reader.readAsDataURL(file)
     }
@@ -39,7 +40,7 @@ export default function SettingsProfilePage() {
 
   const handleRemovePhoto = () => {
     setAvatarUrl(null)
-    try { localStorage.removeItem('user_avatar') } catch { /* ignore */ }
+    try { localStorage.removeItem(avatarKey) } catch { /* ignore */ }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 

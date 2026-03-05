@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Search, Plus, FileText, Download, Trash2, Eye, Loader } from 'lucide-react'
+import { Search, Plus, FileText, Download, Trash2, Eye, Loader, Zap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 
@@ -126,6 +126,7 @@ export default function ResumesPage() {
           <option>По дате (новые)</option>
           <option>По названию</option>
         </select>
+        <button className="btn btn-primary btn-sm" onClick={() => { /* filters apply on change already, button for UX */ }}>Применить</button>
       </div>
 
       {/* Desktop Table */}
@@ -171,6 +172,9 @@ export default function ResumesPage() {
                   <td>
                     <div className="td-actions">
                       <Link to={`/app/resumes/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
+                      {r.status !== 'optimized' && (
+                        <Link to="/app/upload" className="btn btn-ghost btn-icon" title="Оптимизировать" style={{ color: 'var(--primary)' }}><Zap size={16} /></Link>
+                      )}
                       <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => handleDownload(r)}><Download size={16} /></button>
                       <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={16} /></button>
                     </div>
@@ -206,6 +210,9 @@ export default function ResumesPage() {
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link to={`/app/resumes/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
+                {r.status !== 'optimized' && (
+                  <Link to="/app/upload" className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)' }}><Zap size={14} /> Оптимизировать</Link>
+                )}
                 <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(r)}><Download size={14} /></button>
                 <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={14} /></button>
               </div>

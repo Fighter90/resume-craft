@@ -154,8 +154,8 @@ export default function ResumeDetailPage() {
         </div>
       )}
 
-      {/* Raw text fallback */}
-      {(!parsedData || Object.keys(parsedData).length === 0) && rawText && (
+      {/* Raw text — always show when available */}
+      {rawText && (
         <div className="card" style={{ padding: '1.25rem', marginBottom: '2rem' }}>
           <h3 style={{ fontWeight: 600, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FileText size={16} /> Текст резюме
@@ -166,7 +166,7 @@ export default function ResumeDetailPage() {
         </div>
       )}
 
-      {/* No content */}
+      {/* No content at all */}
       {!parsedData && !rawText && (
         <div className="card" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
           <FileText size={32} style={{ margin: '0 auto 0.75rem', opacity: 0.4 }} />

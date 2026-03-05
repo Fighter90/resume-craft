@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.2.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.3.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.2  
+> **Версия:** 1.3  
 > **Дата:** Март 2026  
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -171,7 +171,7 @@
 | **OpenAI GPT-4o** | 92% | ~18 сек | Standard+ |
 | **OpenRouter** ¹ | 90–98% | ~15 сек | Все планы |
 
-GigaChat Pro — рекомендованная модель: #1 на MERA для русского языка, данные в РФ, оплата в рублях. Для OpenAI, Anthropic и OpenRouter доступен двухшаговый выбор: провайдер → конкретная модель (список получается динамически через API).
+GigaChat Pro — рекомендованная модель: #1 на MERA для русского языка, данные в РФ, оплата в рублях. Для OpenAI, Anthropic и OpenRouter доступен двухшаговый выбор: провайдер → конкретная модель (список получается динамически через API провайдеров). Локально установленные API-ключи автоматически определяются и активируют соответствующих провайдеров.
 
 > ¹ OpenRouter — мульти-провайдер, доступ к Claude, Gemini, Mistral и др. через единый API.
 > В MVP подключены **4 LLM-провайдера**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI.
@@ -352,7 +352,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (198 тестов) |
+| **Vitest + Testing Library** | Тесты frontend (366 тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitHub Actions** | CI/CD (lint, test, build, deploy) |
@@ -443,7 +443,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 23 page components (+PrivacyPage, TermsPage, AboutPage)
-    └── test/              # 198 тестов (Vitest + Testing Library)
+    └── test/              # 366 тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -913,8 +913,8 @@ docker compose down -v
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 734 |
+| **Frontend тестов** | 366 (Vitest + @testing-library/react) |
+| **Всего тестов** | 902 |
 | **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 

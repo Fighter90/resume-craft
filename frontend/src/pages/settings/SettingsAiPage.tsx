@@ -77,6 +77,47 @@ const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
   ],
 }
 
+// Fetch live model lists from provider APIs using user's API key
+async function fetchLiveModels(provider: string, apiKey: string): Promise<SubModel[]> {
+  try {
+    if (provider === 'openai') {
+      const res = await fetch('https://api.openai.com/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      })
+      if (!res.ok) return []
+      const data = await res.json()
+      const chatModels = (data.data || [])
+        .filter((m: any) => m.id.startsWith('gpt-') || m.id.startsWith('o') || m.id.includes('chatgpt'))
+        .sort((a: any, b: any) => (b.created || 0) - (a.created || 0))
+        .slice(0, 20)
+      return chatModels.map((m: any) => ({ id: m.id, name: m.id, provider: 'OpenAI' }))
+    }
+    if (provider === 'anthropic') {
+      const res = await fetch('https://api.anthropic.com/v1/models', {
+        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      })
+      if (!res.ok) return []
+      const data = await res.json()
+      return (data.data || [])
+        .sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''))
+        .slice(0, 20)
+        .map((m: any) => ({ id: m.id, name: m.display_name || m.id, provider: 'Anthropic' }))
+    }
+    if (provider === 'openrouter') {
+      const res = await fetch('https://openrouter.ai/api/v1/models', {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      })
+      if (!res.ok) return []
+      const data = await res.json()
+      return (data.data || [])
+        .filter((m: any) => m.id && !m.id.includes(':free'))
+        .slice(0, 50)
+        .map((m: any) => ({ id: m.id, name: m.name || m.id, provider: 'OpenRouter' }))
+    }
+  } catch { /* CORS or network error — fall through */ }
+  return []
+}
+
 export default function SettingsAiPage() {
   // Load from localStorage
   const savedSettings = (() => {
@@ -118,6 +159,18 @@ export default function SettingsAiPage() {
     const fetchSub = async () => {
       setLoadingSubModels(true)
       try {
+        // Try fetching live models from provider API using user's key
+        const userKey = apiKeys[currentModel.apiKeyField]?.trim()
+        if (userKey) {
+          const live = await fetchLiveModels(model, userKey)
+          if (live.length > 0) {
+            setSubModels(live)
+            if (!selectedSubModel || !live.find(m => m.id === selectedSubModel)) setSelectedSubModel(live[0].id)
+            setLoadingSubModels(false)
+            return
+          }
+        }
+        // Fallback: try server-side sub-models
         const res = await api.getSubModels(model)
         const list = res.sub_models || []
         if (list.length > 0) {
@@ -138,7 +191,7 @@ export default function SettingsAiPage() {
       setLoadingSubModels(false)
     }
     fetchSub()
-  }, [model]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [model, apiKeys]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getServerAvailability = (modelId: string): boolean | null => {
     // First check if user has a local API key set

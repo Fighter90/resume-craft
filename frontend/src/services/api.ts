@@ -173,6 +173,16 @@ export class ApiClient {
     )
   }
 
+  async parseResumeFromUrl(url: string) {
+    return this.request<{ id: string; title: string; file_format: string; status: string; raw_text?: string }>(
+      'POST', '/resumes/from-url', { url }
+    )
+  }
+
+  async deleteAccount() {
+    return this.request<void>('DELETE', '/auth/me')
+  }
+
   async selectSearchVacancy(hhUrl: string) {
     return this.request<{ id: string }>(
       'POST', '/vacancies/from-url', { url: hhUrl }

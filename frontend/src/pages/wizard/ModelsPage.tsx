@@ -42,21 +42,47 @@ export default function ModelsPage() {
   const [models, setModels] = useState<ModelInfo[]>(FALLBACK_MODELS)
   const [loadingModels, setLoadingModels] = useState(false)
 
+  // Map provider id to localStorage API key field
+  const LOCAL_KEY_MAP: Record<string, string> = {
+    'gigachat-pro': 'gigachat', 'openai': 'openai', 'anthropic': 'anthropic', 'openrouter': 'openrouter',
+  }
+
+  // Check if user has local API key set for a given model
+  const hasLocalKey = (modelId: string): boolean => {
+    try {
+      const settings = JSON.parse(localStorage.getItem('ai_settings') || '{}')
+      const keys = settings.apiKeys || {}
+      const field = LOCAL_KEY_MAP[modelId]
+      return !!(field && keys[field]?.trim())
+    } catch { return false }
+  }
+
   useEffect(() => {
     const load = async () => {
       try {
         const res = await api.getModels()
         const list = res.models || []
         if (list.length > 0) {
-          setModels(list)
-          const first = list.find((m: ModelInfo) => m.available)
+          // Merge server availability with local keys
+          const merged = list.map((m: ModelInfo) => ({
+            ...m,
+            available: m.available || hasLocalKey(m.id),
+          }))
+          setModels(merged)
+          const first = merged.find((m: ModelInfo) => m.available)
           if (first) setSelected(first.id)
+        } else {
+          // No server models — use fallback with local key check
+          setModels(FALLBACK_MODELS.map(m => ({ ...m, available: m.available || hasLocalKey(m.id) })))
         }
-      } catch { /* use fallback models */ }
+      } catch {
+        // Server unavailable — use fallback with local key check
+        setModels(FALLBACK_MODELS.map(m => ({ ...m, available: m.available || hasLocalKey(m.id) })))
+      }
       setLoadingModels(false)
     }
     load()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Загрузка подмоделей при выборе провайдера с has_sub_models
   useEffect(() => {

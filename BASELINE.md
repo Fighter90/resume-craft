@@ -1207,10 +1207,10 @@ Docker Desktop → docker compose up -d
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
 | AI-оптимизация | GigaChat Pro + Anthropic Claude + OpenRouter + OpenAI, Match Score, ATS |
 | Экспорт | DOCX |
-| UI | React SPA (23 маршрута, модульная архитектура, 198 тестов) |
+| UI | React SPA (23 маршрута, модульная архитектура, 366 тестов) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
 | Оплата | Робокасса (тестовый режим, URL-генерация + подпись) |
-| Тестирование | Unit + Integration + E2E + Frontend, 628 тестов, 100% backend coverage |
+| Тестирование | Unit + Integration + E2E + Frontend, 902 тестов, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 

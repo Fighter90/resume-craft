@@ -1,15 +1,34 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Shield, AlertTriangle, Save, Loader } from 'lucide-react'
 import { api } from '../../services/api'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function SettingsSecurityPage() {
+  const navigate = useNavigate()
+  const { logout } = useAuth()
   const [showDelete, setShowDelete] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' })
   const [pwMessage, setPwMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [pwLoading, setPwLoading] = useState(false)
 
   const handlePwChange = (key: string, value: string) => setPwForm({ ...pwForm, [key]: value })
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm !== 'УДАЛИТЬ') return
+    setDeleteLoading(true)
+    try {
+      await api.deleteAccount()
+      logout()
+      navigate('/')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Ошибка удаления аккаунта')
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
 
   const handlePwSubmit = async () => {
     setPwMessage(null)
@@ -107,7 +126,8 @@ export default function SettingsSecurityPage() {
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <input className="input-field" placeholder='Введите "УДАЛИТЬ" для подтверждения' style={{ flex: 1 }}
               value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
-            <button className="btn" style={{ background: 'var(--danger)', color: '#fff' }} disabled={deleteConfirm !== 'УДАЛИТЬ'}>Подтвердить</button>
+            <button className="btn" style={{ background: 'var(--danger)', color: '#fff' }} disabled={deleteConfirm !== 'УДАЛИТЬ' || deleteLoading} onClick={handleDeleteAccount}>
+              {deleteLoading ? <><Loader size={16} className="spin" /> Удаление...</> : 'Подтвердить'}</button>
             <button className="btn btn-secondary" onClick={() => { setShowDelete(false); setDeleteConfirm('') }}>Отмена</button>
           </div>
         )}

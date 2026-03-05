@@ -96,17 +96,24 @@ export default function UploadPage() {
     setUploading(true)
     setError(null)
     try {
-      // Try to create resume from hh.ru URL via backend
-      const res = await api.createResumeFromText({
-        text: '', // Backend will try to parse from URL
-        title: 'Резюме с hh.ru',
-        source_url: hhUrl.trim(),
-      })
+      // First try dedicated URL parsing endpoint
+      const res = await api.parseResumeFromUrl(hhUrl.trim())
       setResumeId(res.id)
       navigate('/app/vacancy')
     } catch {
-      // If backend can't parse, guide user to paste text manually
-      setError('Не удалось автоматически загрузить резюме с hh.ru. Скопируйте текст резюме вручную на вкладке «Вставить текст».')
+      try {
+        // Fallback: create resume from URL via from-text with source_url
+        const res = await api.createResumeFromText({
+          text: '',
+          title: 'Резюме с hh.ru',
+          source_url: hhUrl.trim(),
+        })
+        setResumeId(res.id)
+        navigate('/app/vacancy')
+      } catch {
+        // If both fail, guide user to paste text manually
+        setError('Не удалось автоматически загрузить резюме с hh.ru. Скопируйте текст резюме вручную на вкладке «Вставить текст».')
+      }
     } finally {
       setUploading(false)
     }

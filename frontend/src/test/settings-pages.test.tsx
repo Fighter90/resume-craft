@@ -14,6 +14,7 @@ const mockUpdateProfile = vi.fn()
 const mockChangePassword = vi.fn()
 const mockGetModels = vi.fn()
 const mockGetSubModels = vi.fn()
+const mockDeleteAccount = vi.fn()
 
 vi.mock('../services/api', () => ({
   api: {
@@ -21,6 +22,7 @@ vi.mock('../services/api', () => ({
     changePassword: (...a: any[]) => mockChangePassword(...a),
     getModels: (...a: any[]) => mockGetModels(...a),
     getSubModels: (...a: any[]) => mockGetSubModels(...a),
+    deleteAccount: (...a: any[]) => mockDeleteAccount(...a),
     setToken: vi.fn(),
     clearToken: vi.fn(),
     getMe: vi.fn().mockRejectedValue(new Error('not authed')),
@@ -118,13 +120,13 @@ describe('SettingsProfilePage', () => {
     instance?.onload?.()
 
     await waitFor(() => {
-      expect(localStorage.getItem('user_avatar')).toBe(mockDataUrl)
+      expect(localStorage.getItem('user_avatar_user-1')).toBe(mockDataUrl)
     })
     window.FileReader = OrigFileReader
   })
 
   it('loads avatar from localStorage on mount', () => {
-    localStorage.setItem('user_avatar', 'data:image/png;base64,test123')
+    localStorage.setItem('user_avatar_user-1', 'data:image/png;base64,test123')
     renderInRouter(<SettingsProfilePage />)
 
     // Check the avatar div uses the stored URL as background
@@ -133,12 +135,12 @@ describe('SettingsProfilePage', () => {
   })
 
   it('removes avatar on delete', () => {
-    localStorage.setItem('user_avatar', 'data:image/png;base64,test123')
+    localStorage.setItem('user_avatar_user-1', 'data:image/png;base64,test123')
     renderInRouter(<SettingsProfilePage />)
 
     fireEvent.click(screen.getByText('Удалить'))
 
-    expect(localStorage.getItem('user_avatar')).toBeNull()
+    expect(localStorage.getItem('user_avatar_user-1')).toBeNull()
   })
 
   it('saves profile on button click', async () => {
