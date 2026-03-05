@@ -177,7 +177,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **565** |
+| Тестов | — | **734** |
 
 ---
 
@@ -946,12 +946,13 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 416 (pytest + pytest-asyncio) |
+| **Backend тестов (unit)** | 423 (pytest + pytest-asyncio) |
+| **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: 4 провайдера) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 675 |
-| **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
+| **Всего тестов** | 734 |
+| **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 | **Ruff warnings** | 0 |
@@ -978,10 +979,11 @@ def validate_upload(file: UploadFile) -> None:
 | `test_vacancies/` | 42 | hh.ru клиент, CRUD, retry, таймауты, HTTP-ошибки — 100% |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
-| `test_ml/` | 71 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация — 100% |
+| `test_ml/` | 87 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация — 100% |
 | `test_core/` | 79 | config, security, database, storage, exceptions, deps, **seed** — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
+| `test_coverage_100` | 40 | 100% покрытие: AnthropicClient, error paths, create_from_text, execute_rewrite, celery |
 | `test_health` | 1 | GET /health — 100% |
 
 ### 14.4. Ключевые тесты

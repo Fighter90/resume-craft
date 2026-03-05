@@ -416,14 +416,16 @@ tests/                     # Зеркалирует src/app/
 ├── test_vacancies/        # 42 теста
 ├── test_rewriter/         # 40 тестов
 ├── test_export/           # 11 тестов
-├── test_ml/               # 71 тест
+├── test_ml/               # 87 тестов
 ├── test_core/             # 79 тестов
 ├── test_main.py           # 3 теста (middleware, health)
 ├── test_main_extra.py     # 4 теста (error handlers, lifespan)
 ├── test_health.py         # 1 тест
 ├── test_coverage_gaps.py  # 22 теста (edge-cases)
-├── test_integration_llm.py # 24 теста (реальные LLM API)
-└── test_e2e_browser.py    # 38 тестов (Playwright E2E)
+├── test_coverage_100.py   # 40 тестов (100% покрытие)
+├── test_integration_llm.py # 23 теста (реальные LLM API)
+├── test_e2e_browser.py    # 38 тестов (Playwright E2E)
+└── test_acceptance.py     # 52 теста (приёмочные)
 
 alembic/                   # Миграции PostgreSQL
 
@@ -907,12 +909,13 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 416 (pytest + pytest-asyncio) |
+| **Backend тестов (unit)** | 423 (pytest + pytest-asyncio) |
+| **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 675 |
-| **Backend покрытие** | 100% |
+| **Всего тестов** | 734 |
+| **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
 ### 17.2. Запуск тестов
@@ -943,12 +946,14 @@ cd frontend && npm run test:watch
 | `test_vacancies/` | 42 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, история, LLM retry |
 | `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
-| `test_ml/` | 71 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация |
+| `test_ml/` | 87 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация |
 | `test_core/` | 79 | Config, security, database, storage, exceptions, dependencies |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
 | `test_coverage_gaps` | 22 | Edge-cases: scoring, embedding fallback, export |
-| `test_integration_llm` | 24 | Интеграция: реальные вызовы 4 LLM-провайдеров (GigaChat, Anthropic, OpenRouter, OpenAI) |
+| `test_coverage_100` | 40 | 100% покрытие: AnthropicClient, _handle_llm_error, create_from_text, execute_rewrite, celery preload |
+| `test_integration_llm` | 23 | Интеграция: реальные вызовы 4 LLM-провайдеров (GigaChat, Anthropic, OpenRouter, OpenAI) |
 | `test_e2e_browser` | 38 | E2E: Playwright browser-тесты (навигация, формы, wizard, настройки) |
+| `test_acceptance` | 52 | Приёмочные тесты: полные пользовательские сценарии |
 
 ### 17.4. Инструменты проверки качества
 

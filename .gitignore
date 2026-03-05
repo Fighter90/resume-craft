@@ -320,3 +320,4 @@ tests/fixtures/*.pdf
 tests/fixtures/*.docx
 tests/fixtures/*.doc
 tests/fixtures/*.rtf
+coverage.json
