@@ -42,13 +42,18 @@ jobs:
             git reset --hard origin/master
 
             echo "=== Cleaning disk before build ==="
+            docker compose down --remove-orphans 2>/dev/null || true
             docker builder prune -af 2>/dev/null || true
-            docker image prune -f 2>/dev/null || true
+            docker image prune -af 2>/dev/null || true
+            echo "Disk space available:"
+            df -h / | tail -1
 
             echo "=== Building Docker images (sequential to save disk) ==="
-            docker compose build app 2>&1 | tail -10
+            docker compose build --no-cache app 2>&1 | tail -10
+            docker builder prune -f 2>/dev/null || true
             docker compose build celery-worker 2>&1 | tail -10
             docker compose build flower 2>&1 | tail -10
+            docker builder prune -f 2>/dev/null || true
             docker compose build frontend 2>&1 | tail -10
 
             echo "=== Restarting services ==="
