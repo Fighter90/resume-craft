@@ -49,7 +49,6 @@ class Settings(BaseSettings):
     # --- LLM ---
     gigachat_credentials: str = ''
     gigachat_scope: str = 'GIGACHAT_API_PERS'
-    groq_api_key: str = ''
     openai_api_key: str = ''
     openrouter_api_key: str = ''
     anthropic_api_key: str = ''

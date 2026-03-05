@@ -19,9 +19,9 @@ class RewriteRequest(BaseModel):
     resume_id: UUID = Field(description='ID резюме')
     vacancy_id: UUID = Field(description='ID целевой вакансии')
     model: str = Field('gigachat-pro', description='Модель LLM для оптимизации')
-    openrouter_model: str | None = Field(
+    sub_model: str | None = Field(
         None,
-        description='Конкретная модель OpenRouter (напр. anthropic/claude-3.5-sonnet)',
+        description='Конкретная модель провайдера (напр. gpt-4o, claude-sonnet-4-20250514)',
     )
 
     model_config = ConfigDict(str_strip_whitespace=True)

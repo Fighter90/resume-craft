@@ -10,7 +10,6 @@ from app.ml.llm_client import (
     AnthropicClient,
     BaseLLMClient,
     GigaChatClient,
-    GroqClient,
     OpenAIClient,
     OpenRouterClient,
 )
@@ -21,9 +20,6 @@ logger = logging.getLogger(__name__)
 _PROVIDERS: dict[str, type[BaseLLMClient]] = {
     'gigachat-pro': GigaChatClient,
     'gigachat-lite': GigaChatClient,
-    'groq': GroqClient,
-    'llama-3.3-70b': GroqClient,
-    'llama-3-70b': GroqClient,
     'openai': OpenAIClient,
     'gpt-4o-mini': OpenAIClient,
     'gpt-4o': OpenAIClient,
@@ -37,9 +33,6 @@ _PROVIDERS: dict[str, type[BaseLLMClient]] = {
 _MODEL_NAMES: dict[str, str] = {
     'gigachat-pro': 'GigaChat-Pro',
     'gigachat-lite': 'GigaChat',
-    'groq': 'llama-3.3-70b-versatile',
-    'llama-3.3-70b': 'llama-3.3-70b-versatile',
-    'llama-3-70b': 'llama-3.3-70b-versatile',
     'openai': 'gpt-4o-mini',
     'gpt-4o-mini': 'gpt-4o-mini',
     'gpt-4o': 'gpt-4o',
@@ -53,9 +46,6 @@ _MODEL_NAMES: dict[str, str] = {
 _PROVIDER_KEY_FIELDS: dict[str, str] = {
     'gigachat-pro': 'gigachat_credentials',
     'gigachat-lite': 'gigachat_credentials',
-    'groq': 'groq_api_key',
-    'llama-3.3-70b': 'groq_api_key',
-    'llama-3-70b': 'groq_api_key',
     'openai': 'openai_api_key',
     'gpt-4o-mini': 'openai_api_key',
     'gpt-4o': 'openai_api_key',
@@ -65,21 +55,11 @@ _PROVIDER_KEY_FIELDS: dict[str, str] = {
     'openrouter': 'openrouter_api_key',
 }
 
-# Популярные модели OpenRouter
-OPENROUTER_MODELS: list[dict[str, str]] = [
-    {'id': 'anthropic/claude-sonnet-4', 'name': 'Claude Sonnet 4', 'provider': 'Anthropic'},
-    {'id': 'anthropic/claude-3.5-sonnet', 'name': 'Claude 3.5 Sonnet', 'provider': 'Anthropic'},
-    {'id': 'google/gemini-2.5-flash-preview', 'name': 'Gemini 2.5 Flash', 'provider': 'Google'},
-    {'id': 'google/gemini-2.0-flash-001', 'name': 'Gemini 2.0 Flash', 'provider': 'Google'},
-    {'id': 'deepseek/deepseek-chat-v3-0324', 'name': 'DeepSeek V3', 'provider': 'DeepSeek'},
-    {'id': 'deepseek/deepseek-r1', 'name': 'DeepSeek R1', 'provider': 'DeepSeek'},
-    {'id': 'mistralai/mistral-large-2411', 'name': 'Mistral Large', 'provider': 'Mistral'},
-    {'id': 'qwen/qwen-2.5-72b-instruct', 'name': 'Qwen 2.5 72B', 'provider': 'Qwen'},
-    {'id': 'meta-llama/llama-3.3-70b-instruct', 'name': 'Llama 3.3 70B', 'provider': 'Meta'},
-]
+# Провайдеры с поддержкой выбора подмодели (2-шаговый выбор)
+SUB_MODEL_PROVIDERS: frozenset[str] = frozenset({'openai', 'anthropic', 'openrouter'})
 
 # Порядок fallback
-FALLBACK_ORDER: list[str] = ['gigachat-pro', 'groq', 'anthropic', 'openrouter', 'openai']
+FALLBACK_ORDER: list[str] = ['gigachat-pro', 'anthropic', 'openrouter', 'openai']
 
 
 class LLMClientFactory:
@@ -95,13 +75,13 @@ class LLMClientFactory:
     def create(
         provider_name: str,
         *,
-        openrouter_model: str | None = None,
+        sub_model: str | None = None,
     ) -> BaseLLMClient:
         """Создание LLM-клиента по имени провайдера.
 
         Args:
-            provider_name: Имя провайдера ('gigachat-pro', 'groq', 'openai', 'openrouter').
-            openrouter_model: Модель OpenRouter (напр. 'anthropic/claude-3.5-sonnet').
+            provider_name: Имя провайдера ('gigachat-pro', 'openai', 'anthropic', 'openrouter').
+            sub_model: Конкретная модель провайдера (напр. 'gpt-4o', 'claude-sonnet-4-20250514').
 
         Returns:
             Экземпляр LLM-клиента.
@@ -123,9 +103,9 @@ class LLMClientFactory:
 
                 raise LLMAuthError(provider_name)
 
-        # Подмодель OpenRouter
-        if provider_name == 'openrouter' and openrouter_model:
-            model_name = openrouter_model
+        # Подмодель для провайдеров с 2-шаговым выбором
+        if provider_name in SUB_MODEL_PROVIDERS and sub_model:
+            model_name = sub_model
         else:
             model_name = _MODEL_NAMES.get(provider_name, provider_name)
 
@@ -136,11 +116,11 @@ class LLMClientFactory:
     def create_with_fallback(
         *,
         preferred: str | None = None,
-        openrouter_model: str | None = None,
+        sub_model: str | None = None,
     ) -> BaseLLMClient:
         """Создание клиента с автоматическим fallback.
 
-        Порядок: preferred → GigaChat Pro → Groq → OpenRouter → OpenAI.
+        Порядок: preferred → GigaChat Pro → Anthropic → OpenRouter → OpenAI.
         Пропускает провайдеров без настроенных ключей.
 
         Raises:
@@ -157,7 +137,7 @@ class LLMClientFactory:
             try:
                 client = LLMClientFactory.create(
                     provider_name,
-                    openrouter_model=openrouter_model if provider_name == 'openrouter' else None,
+                    sub_model=sub_model if provider_name in SUB_MODEL_PROVIDERS else None,
                 )
                 logger.info('Using LLM provider: %s', provider_name)
                 return client

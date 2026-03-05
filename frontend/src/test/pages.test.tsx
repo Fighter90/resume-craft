@@ -109,8 +109,8 @@ describe('SettingsAiPage', () => {
   it('renders model selection cards', () => {
     renderWithProviders(<SettingsAiPage />)
     expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
-    expect(screen.getByText('GPT-4o')).toBeInTheDocument()
-    expect(screen.getByText('Llama 3.3 70B')).toBeInTheDocument()
+    expect(screen.getByText('OpenAI')).toBeInTheDocument()
+    expect(screen.getByText('Anthropic Claude')).toBeInTheDocument()
     expect(screen.getByText('OpenRouter')).toBeInTheDocument()
   })
 
@@ -125,7 +125,7 @@ describe('SettingsAiPage', () => {
     renderWithProviders(<SettingsAiPage />)
     expect(screen.getByPlaceholderText('Credentials (Base64)')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('sk-...')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('gsk_...')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('sk-ant-...')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('sk-or-v1-...')).toBeInTheDocument()
   })
 
@@ -177,7 +177,6 @@ describe('SettingsAiPage', () => {
   it('renders provider badges', () => {
     renderWithProviders(<SettingsAiPage />)
     expect(screen.getByText('Рекомендуем')).toBeInTheDocument()
-    expect(screen.getByText('Бесплатно')).toBeInTheDocument()
     expect(screen.getByText('Новое')).toBeInTheDocument()
   })
 
@@ -416,11 +415,12 @@ describe('VacancyPage', () => {
 import ModelsPage from '../pages/wizard/ModelsPage'
 
 describe('ModelsPage', () => {
-  it('renders three model cards', () => {
+  it('renders four model cards', () => {
     renderWithProviders(<ModelsPage />, '/app/models')
     expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
-    expect(screen.getByText('GPT-4o')).toBeInTheDocument()
-    expect(screen.getByText('Llama 3.3 70B')).toBeInTheDocument()
+    expect(screen.getByText('OpenAI')).toBeInTheDocument()
+    expect(screen.getByText('Anthropic Claude')).toBeInTheDocument()
+    expect(screen.getAllByText('OpenRouter').length).toBeGreaterThanOrEqual(1)
   })
 
   it('GigaChat is selected by default', () => {
@@ -794,8 +794,8 @@ describe('ModelsPage (enhanced)', () => {
   it('renders all four model cards', () => {
     renderWithProviders(<ModelsPage />, '/app/models')
     expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
-    expect(screen.getByText('GPT-4o')).toBeInTheDocument()
-    expect(screen.getByText('Llama 3.3 70B')).toBeInTheDocument()
+    expect(screen.getByText('OpenAI')).toBeInTheDocument()
+    expect(screen.getByText('Anthropic Claude')).toBeInTheDocument()
     expect(screen.getAllByText('OpenRouter').length).toBeGreaterThanOrEqual(1)
   })
 
@@ -930,8 +930,8 @@ describe('SettingsAiPage toggles', () => {
   it('renders all 4 AI models', () => {
     renderWithProviders(<SettingsAiPage />)
     expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
-    expect(screen.getByText('GPT-4o')).toBeInTheDocument()
-    expect(screen.getByText('Llama 3.3 70B')).toBeInTheDocument()
+    expect(screen.getByText('OpenAI')).toBeInTheDocument()
+    expect(screen.getByText('Anthropic Claude')).toBeInTheDocument()
     expect(screen.getAllByText('OpenRouter').length).toBeGreaterThanOrEqual(1)
   })
 

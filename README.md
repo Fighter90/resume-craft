@@ -166,16 +166,15 @@
 
 | Модель | Качество | Скорость | Доступ |
 |--------|----------|----------|--------|
-| **GigaChat Pro** | 95% | ~12 сек | Standard+ |
-| **Claude Sonnet 4** (Anthropic) | 97% | ~10 сек | Standard+ |
-| **GPT-4o-mini** (OpenAI) | 90% | ~18 сек | Standard+ |
-| **Llama 3.3 70B** (Groq) | 82% | ~8 сек | Free |
-| **OpenRouter** ¹ | 90–98% | ~15 сек | Standard+ |
+| **GigaChat Pro** | 95% | ~12 сек | Все планы |
+| **Anthropic Claude** | 93% | ~10 сек | Standard+ |
+| **OpenAI GPT-4o** | 92% | ~18 сек | Standard+ |
+| **OpenRouter** ¹ | 90–98% | ~15 сек | Все планы |
 
-GigaChat Pro — рекомендованная модель: #1 на MERA для русского языка, данные в РФ, оплата в рублях.
+GigaChat Pro — рекомендованная модель: #1 на MERA для русского языка, данные в РФ, оплата в рублях. Для OpenAI, Anthropic и OpenRouter доступен двухшаговый выбор: провайдер → конкретная модель (список получается динамически через API).
 
 > ¹ OpenRouter — мульти-провайдер, доступ к Claude, Gemini, Mistral и др. через единый API.
-> В MVP подключены **5 LLM-провайдеров**: GigaChat Pro, Groq/Llama 3.3, Anthropic Claude, OpenRouter, OpenAI.
+> В MVP подключены **4 LLM-провайдера**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI.
 
 ### 3.6. Экспорт и редактор
 
@@ -276,7 +275,6 @@ Export ←── Results ←── Processing ←── Vacancy
 │                              ┌───────┴────────┐      │
 │                              │   LLM APIs     │      │
 │                              │   GigaChat     │      │
-│                              │   Groq/Llama3  │      │
 │                              │   Anthropic    │      │
 │                              │   OpenRouter   │      │
 │                              │   OpenAI       │      │
@@ -294,7 +292,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **Celery + RabbitMQ** | Асинхронная обработка LLM-задач (8–30 сек). RabbitMQ — брокер, 3 очереди: default, hh_api, export |
 | **Redis 7.x** | Кэш (справочники hh.ru, TTL 1–24ч) + Celery result backend |
 | **Local FS** | Docker volume `/data/uploads` для PDF/DOCX файлов. Миграция на MinIO/S3 в продакшене |
-| **LLM API Layer** | Strategy Pattern: GigaChat / Groq / Anthropic / OpenRouter / OpenAI с автоматическим fallback |
+| **LLM API Layer** | Strategy Pattern: GigaChat / Anthropic / OpenRouter / OpenAI с автоматическим fallback |
 
 ### 5.3. Ключевые паттерны
 
@@ -340,7 +338,7 @@ Export ←── Results ←── Processing ←── Vacancy
 |-----------|------------|
 | **GigaChat SDK** | Интеграция с GigaChat API (Сбер) |
 | **anthropic** (SDK) | Прямая интеграция с Anthropic Claude |
-| **openai** (SDK) | OpenAI, Groq, OpenRouter, DeepSeek — единый SDK |
+| **openai** (SDK) | OpenAI, OpenRouter — единый SDK |
 | **PyMuPDF** (fitz) | Извлечение текста из PDF (AGPL 3.0) |
 | **python-docx** | Чтение и создание DOCX |
 | **LibreOffice headless** | Конвертация DOCX → PDF |
@@ -404,7 +402,7 @@ src/app/
 │   ├── router.py          # GET /export/{id}/docx
 │   └── service.py         # python-docx генерация
 └── ml/                    # ML-пакет
-    ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Groq, Anthropic, OpenAI, OpenRouter
+    ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Anthropic, OpenAI, OpenRouter
     ├── llm_factory.py     # LLMClientFactory (Strategy Pattern)
     ├── prompts.py         # Системные промпты
     ├── embeddings.py      # sentence-transformers → VECTOR(1536)
@@ -676,15 +674,13 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
 ```
 1. GigaChat Pro (основная)
    ↓ если недоступен
-2. Groq / Llama 3.3 70B
+2. Anthropic Claude
    ↓ если недоступен
-3. Anthropic Claude Sonnet 4
+3. OpenRouter (100+ моделей)
    ↓ если недоступен
-4. OpenRouter (Claude 3.5 Sonnet via OpenRouter)
+4. OpenAI GPT-4o
    ↓ если недоступен
-5. OpenAI GPT-4o-mini / GPT-4o
-   ↓ если недоступен
-6. Ошибка: «Все LLM-провайдеры временно недоступны»
+5. Ошибка: «Все LLM-провайдеры временно недоступны»
 ```
 
 Fallback автоматический с уведомлением пользователя. JSON-парсер LLM-ответов включает многоуровневую коррекцию: `strict=False` → regex-исправление пропущенных запятых → regex-извлечение `{...}`.
@@ -734,11 +730,11 @@ Fallback автоматический с уведомлением пользов
 | **Цена** | 0 ₽ | 490 ₽/мес | 1 490 ₽/мес |
 | **Цена/год** | — | 3 990 ₽ (−32%) | 11 990 ₽ (−33%) |
 | **Оптимизаций/мес** | 5 | 30 | Безлимит |
-| **AI-модели** | Llama 3 | GigaChat Pro + Llama 3 + Claude | Все (+ GPT-4o) |
+| **AI-модели** | OpenRouter | GigaChat Pro + Claude + OpenRouter | Все (+ GPT-4o) |
 | **Экспорт** | DOCX | PDF + DOCX | Все + hh.ru |
 | **Шаблоны** | 1 (Minimal) | 3 | Все + кастом |
 
-> В MVP подключены **5 LLM-провайдеров**: GigaChat Pro, Groq/Llama 3.3, Anthropic Claude Sonnet 4, OpenRouter, OpenAI GPT-4o-mini.
+> В MVP подключены **4 LLM-провайдера**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI.
 
 **Позиционирование:** в 5–9x дешевле глобальных аналогов (Rezi $29, Jobscan $49) с нативной интеграцией hh.ru.
 
@@ -849,7 +845,6 @@ curl http://localhost:8000/health
 | `CELERY_BROKER_URL` | ⚠️ | `amqp://guest:guest@localhost:5672//` | RabbitMQ брокер |
 | `CELERY_RESULT_BACKEND` | ⚠️ | `redis://localhost:6379/1` | Celery result backend |
 | `GIGACHAT_CREDENTIALS` | ❌ | — | API-ключ GigaChat (Сбер) |
-| `GROQ_API_KEY` | ❌ | — | API-ключ Groq |
 | `OPENAI_API_KEY` | ❌ | — | API-ключ OpenAI |
 | `ANTHROPIC_API_KEY` | ❌ | — | API-ключ Anthropic Claude |
 | `OPENROUTER_API_KEY` | ❌ | — | API-ключ OpenRouter |
@@ -913,7 +908,7 @@ docker compose down -v
 | Метрика | Значение |
 |---------|----------|
 | **Backend тестов (unit)** | 368 (pytest + pytest-asyncio) |
-| **Backend тестов (integration)** | 24 (реальные LLM API: GigaChat, Groq, Anthropic, OpenRouter, OpenAI) |
+| **Backend тестов (integration)** | 24 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
 | **Всего тестов** | 628 |
@@ -948,11 +943,11 @@ cd frontend && npm run test:watch
 | `test_vacancies/` | 42 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, история, LLM retry |
 | `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
-| `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация |
+| `test_ml/` | 71 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация |
 | `test_core/` | 79 | Config, security, database, storage, exceptions, dependencies |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
 | `test_coverage_gaps` | 22 | Edge-cases: scoring, embedding fallback, export |
-| `test_integration_llm` | 24 | Интеграция: реальные вызовы 5 LLM-провайдеров (GigaChat, Groq, Anthropic, OpenRouter, OpenAI) |
+| `test_integration_llm` | 24 | Интеграция: реальные вызовы 4 LLM-провайдеров (GigaChat, Anthropic, OpenRouter, OpenAI) |
 | `test_e2e_browser` | 38 | E2E: Playwright browser-тесты (навигация, формы, wizard, настройки) |
 
 ### 17.4. Инструменты проверки качества

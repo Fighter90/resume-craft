@@ -69,7 +69,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 - 2FA (→ Phase 2)
 - Email verification (→ Phase 2)
 - Интерактивный редактор (→ Phase 2)
-- GPT-4o (подключен через alias, основные: GigaChat Pro + Llama 3)
+- GPT-4o (подключен через OpenAI SDK, основные: GigaChat Pro + Anthropic Claude)
 
 ---
 
@@ -118,7 +118,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | ID | Приоритет | Требование |
 |----|-----------|-----------|
 | RW-01 | Must | Оптимизация через GigaChat Pro |
-| RW-02 | Must | Оптимизация через Llama 3 (Groq) |
+| RW-02 | Must | Оптимизация через Anthropic Claude |
 | RW-03 | Must | 8-шаговый pipeline (Extract → Complete) |
 | RW-04 | Must | Match Score (до и после, 0–100) |
 | RW-05 | Must | ATS-рейтинг (A+ – F) |
@@ -126,7 +126,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | RW-07 | Must | Celery task с прогрессом (polling) |
 | RW-08 | Must | Сохранение в rewrite_history |
 | RW-09 | Must | Проверка лимитов тарифа |
-| RW-10 | Should | Fallback GigaChat → Groq → OpenRouter → OpenAI |
+| RW-10 | Should | Fallback GigaChat → Anthropic → OpenRouter → OpenAI |
 | RW-11 | Should | Pydantic-валидация LLM-ответа + retry (до 3) |
 
 ### 3.5. Export — Экспорт
@@ -147,7 +147,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 |---------|-----------|
 | API response (CRUD) | < 200 мс (p95) |
 | Resume upload + parsing | < 10 сек |
-| AI-оптимизация (Llama 3) | < 15 сек |
+| AI-оптимизация (Anthropic Claude) | < 15 сек |
 | AI-оптимизация (GigaChat) | < 30 сек |
 | Concurrent users | 100 (при 4 workers) |
 
@@ -334,7 +334,9 @@ Then:  200 OK, binary DOCX file
                                    ┌─────┴─────┐
                                    │ LLM APIs  │
                                    │ GigaChat  │
-                                   │ Groq      │
+                                   │ Anthropic │
+                                   │ OpenRouter│
+                                   │ OpenAI    │
                                    └───────────┘
 ```
 
@@ -378,7 +380,7 @@ React → GET /api/v1/rewrite/{task_id}/result
 | **PostgreSQL + pgvector** | MongoDB, Qdrant | Единая БД для реляционных и векторных данных |
 | **Celery + RabbitMQ + Redis** | BackgroundTasks, Dramatiq | Battle-tested, RabbitMQ — брокер, Redis — result backend |
 | **GigaChat** | YandexGPT | #1 на MERA для русского, OpenAI-compatible SDK |
-| **Llama 3 (Groq)** | Ollama | 14 400 бесплатных req/день |
+| **Anthropic Claude** | — | Отличный русский, 200K контекст |
 | **Local FS** | MinIO, S3 | Docker volume /data/uploads, миграция на S3 в продакшене |
 | **PyMuPDF** | pdfplumber | 10x быстрее альтернатив |
 | **React + Vite** | Gradio, Next.js | Production SPA, TypeScript, быстрый HMR, nginx serving |
@@ -724,26 +726,20 @@ class BaseLLMClient(ABC):
     async def complete(self, system: str, user: str) -> str: ...
 
 class GigaChatClient(BaseLLMClient): ...
-class GroqClient(BaseLLMClient): ...
 class AnthropicClient(BaseLLMClient): ...
+class OpenAIClient(BaseLLMClient): ...
+class OpenRouterClient(BaseLLMClient): ...
 
 class LLMClientFactory:
     _clients = {
         "gigachat-pro": GigaChatClient,
         "gigachat-lite": GigaChatClient,
-        "groq": GroqClient,
-        "llama-3.3-70b": GroqClient,
-        "llama-3-70b": GroqClient,
         "anthropic": AnthropicClient,
-        "claude-sonnet": AnthropicClient,
-        "claude-haiku": AnthropicClient,
         "openrouter": OpenRouterClient,
         "openai": OpenAIClient,
-        "gpt-4o-mini": OpenAIClient,
-        "gpt-4o": OpenAIClient,
     }
 
-    FALLBACK_ORDER = ["gigachat-pro", "groq", "anthropic", "openrouter", "openai"]
+    FALLBACK_ORDER = ["gigachat-pro", "anthropic", "openrouter", "openai"]
 
     @classmethod
     def create(cls, model: str) -> BaseLLMClient:
@@ -982,7 +978,7 @@ def validate_upload(file: UploadFile) -> None:
 | `test_vacancies/` | 42 | hh.ru клиент, CRUD, retry, таймауты, HTTP-ошибки — 100% |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
-| `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация — 100% |
+| `test_ml/` | 71 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация — 100% |
 | `test_core/` | 79 | config, security, database, storage, exceptions, deps, **seed** — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
@@ -1126,7 +1122,7 @@ Docker Desktop → docker compose up -d
 | 7 | Импорт вакансии по URL | Must |
 | 8 | Ручной ввод вакансии | Must |
 | 9 | AI-оптимизация (GigaChat Pro) | Must |
-| 10 | AI-оптимизация (Llama 3 / Groq) | Must |
+| 10 | AI-оптимизация (Anthropic Claude) | Must |
 | 11 | Match Score (до и после) | Must |
 | 12 | ATS-рейтинг (A+–F) | Should |
 | 13 | Diff (список изменений) | Must |
@@ -1143,7 +1139,7 @@ Docker Desktop → docker compose up -d
 | mypy errors | 0 | **0** ✅ |
 | Тестов всего | — | **628** (368 unit + 24 integration + 38 E2E + 198 frontend) |
 | API response (CRUD) | < 200 мс | — |
-| Оптимизация (Llama 3) | < 15 сек | — |
+| Оптимизация (Anthropic Claude) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
 
 ---
@@ -1160,7 +1156,7 @@ Docker Desktop → docker compose up -d
   Resume upload + parsing, Vacancy module, Embeddings
 
 Неделя 5–6: AI Rewriting
-  Celery pipeline, GigaChat + Groq, Match Score, ATS, Diff
+  Celery pipeline, GigaChat + Anthropic + OpenRouter + OpenAI, Match Score, ATS, Diff
 
 Неделя 7: Export + React SPA
   DOCX export, React SPA UI, E2E testing
@@ -1174,7 +1170,7 @@ Docker Desktop → docker compose up -d
 | Зависимость | Срок |
 |-------------|------|
 | GigaChat API ключ (developers.sber.ru) | Неделя 1 |
-| Groq API ключ (console.groq.com) | Неделя 1 |
+| Anthropic API ключ (console.anthropic.com) | Неделя 1 |
 | hh.ru App регистрация (dev.hh.ru) | Неделя 1 |
 | Тестовые резюме (10+) | Неделя 3 |
 
@@ -1184,8 +1180,8 @@ Docker Desktop → docker compose up -d
 
 | Риск | Вероятность | Влияние | Митигация |
 |------|-----------|---------|-----------|
-| GigaChat API недоступен | Средняя | Высокое | Fallback на Groq → Anthropic → OpenRouter → OpenAI |
-| Groq rate limit исчерпан | Средняя | Среднее | 14 400 req/день. При исчерпании → Anthropic → OpenRouter |
+| GigaChat API недоступен | Средняя | Высокое | Fallback на Anthropic → OpenRouter → OpenAI |
+| Anthropic rate limit исчерпан | Средняя | Среднее | При исчерпании → OpenRouter → OpenAI |
 | hh.ru API блокирует | Низкая | Среднее | User-Agent + ручной ввод как fallback |
 | LLM-ответы нестабильны | Средняя | Высокое | Pydantic-валидация + retry (до 3) |
 | Не хватает времени | Средняя | Высокое | Приоритизация Must-требований |
@@ -1207,7 +1203,7 @@ Docker Desktop → docker compose up -d
 | Аутентификация | Email + пароль, JWT |
 | Резюме | PDF/DOCX, парсинг, LLM-структуризация |
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
-| AI-оптимизация | GigaChat Pro + Llama 3 + Anthropic Claude + OpenRouter + OpenAI, Match Score, ATS |
+| AI-оптимизация | GigaChat Pro + Anthropic Claude + OpenRouter + OpenAI, Match Score, ATS |
 | Экспорт | DOCX |
 | UI | React SPA (23 маршрута, модульная архитектура, 198 тестов) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |

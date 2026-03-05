@@ -10,7 +10,6 @@ import pytest
 from app.ml.llm_client import (
     BaseLLMClient,
     GigaChatClient,
-    GroqClient,
     OpenAIClient,
     OpenRouterClient,
 )
@@ -89,57 +88,6 @@ class TestGigaChatClient:
         client._client = MagicMock()
         await client.close()
         assert client._client is None
-
-
-class TestGroqClient:
-    """Тесты GroqClient."""
-
-    def test_init_default(self) -> None:
-        client = GroqClient()
-        assert client._model == 'llama-3.3-70b-versatile'
-
-    def test_get_client_lazy_init(self) -> None:
-        """Lazy-инициализация Groq клиента через openai SDK."""
-        mock_async_openai = MagicMock()
-        mock_openai_mod = MagicMock()
-        mock_openai_mod.AsyncOpenAI = mock_async_openai
-
-        sys.modules['openai'] = mock_openai_mod
-        try:
-            client = GroqClient()
-            assert client._client is None
-            result = client._get_client()
-            assert result is not None
-            mock_async_openai.assert_called_once()
-        finally:
-            sys.modules.pop('openai', None)
-
-    @patch('app.ml.llm_client.GroqClient._get_client')
-    async def test_complete(self, mock_get: MagicMock) -> None:
-        """Успешный запрос к Groq."""
-        mock_completion = MagicMock()
-        mock_completion.choices = [MagicMock(message=MagicMock(content='Groq response'))]
-        mock_completion.usage = MagicMock(total_tokens=50)
-
-        mock_sdk = AsyncMock()
-        mock_sdk.chat.completions.create = AsyncMock(return_value=mock_completion)
-        mock_get.return_value = mock_sdk
-
-        client = GroqClient()
-        result = await client.complete(system='sys', user='usr')
-        assert result == 'Groq response'
-
-    async def test_close_with_client(self) -> None:
-        client = GroqClient()
-        mock_sdk = AsyncMock()
-        client._client = mock_sdk
-        await client.close()
-        mock_sdk.close.assert_called_once()
-        assert client._client is None
-
-    async def test_close_without_client(self) -> None:
-        client = GroqClient()
-        await client.close()  # no error
 
 
 class TestOpenAIClient:

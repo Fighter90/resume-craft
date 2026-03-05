@@ -36,7 +36,7 @@ async def create_rewrite_task(
     resume_id: UUID,
     vacancy_id: UUID,
     model_name: str = 'gigachat-pro',
-    openrouter_model: str | None = None,
+    sub_model: str | None = None,
 ) -> RewriteHistory:
     """Создание задачи оптимизации.
 
@@ -62,10 +62,10 @@ async def create_rewrite_task(
     if not original_text.strip():
         logger.warning('Resume %s has no raw_text, using empty string', resume_id)
 
-    # Сохраняем openrouter sub-model в model_name (openrouter:model_id)
+    # Сохраняем sub-model в model_name (provider:model_id)
     effective_model = model_name
-    if model_name == 'openrouter' and openrouter_model:
-        effective_model = f'openrouter:{openrouter_model}'
+    if model_name in ('openai', 'anthropic', 'openrouter') and sub_model:
+        effective_model = f'{model_name}:{sub_model}'
 
     task = RewriteHistory(
         user_id=user_id,
@@ -125,16 +125,15 @@ async def execute_rewrite(
             )
 
         # Step 4: Rewrite через LLM (с retry при невалидном JSON)
-        # Парсим openrouter sub-model если сохранено как 'openrouter:model_id'
+        # Парсим sub-model если сохранено как 'provider:model_id'
         provider_name = task.model_name or 'gigachat-pro'
-        openrouter_sub: str | None = None
-        if provider_name.startswith('openrouter:'):
-            openrouter_sub = provider_name.split(':', 1)[1]
-            provider_name = 'openrouter'
+        sub_model_value: str | None = None
+        if ':' in provider_name:
+            provider_name, sub_model_value = provider_name.split(':', 1)
 
         llm_client = LLMClientFactory.create_with_fallback(
             preferred=provider_name,
-            openrouter_model=openrouter_sub,
+            sub_model=sub_model_value,
         )
         try:
             user_prompt = f'РЕЗЮМЕ:\n{sanitized_resume}\n\nВАКАНСИЯ:\n{sanitized_vacancy}'

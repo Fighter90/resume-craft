@@ -48,8 +48,8 @@ class TestSettings:
             settings.gigachat_credentials,
             str,
         )
-        assert settings.groq_api_key == '' or isinstance(settings.groq_api_key, str)
         assert settings.openai_api_key == '' or isinstance(settings.openai_api_key, str)
+        assert settings.anthropic_api_key == '' or isinstance(settings.anthropic_api_key, str)
         assert settings.openrouter_api_key == '' or isinstance(settings.openrouter_api_key, str)
 
     def test_gigachat_scope_default(self) -> None:

@@ -39,7 +39,7 @@
 | Redis 7 | ⚠️ | Кэш + Celery results | Локально или Docker |
 | RabbitMQ 3.13 | ⚠️ | Celery брокер | Локально или Docker |
 | GigaChat API | ❌ | LLM (основная) | [developers.sber.ru](https://developers.sber.ru) |
-| Groq API | ❌ | LLM (бесплатная) | [console.groq.com](https://console.groq.com) |
+| Anthropic API | ❌ | LLM (Claude) | [console.anthropic.com](https://console.anthropic.com) |
 | OpenAI API | ❌ | LLM (резервная) | [platform.openai.com](https://platform.openai.com) |
 | OpenRouter API | ❌ | LLM (мульти-провайдер) | [openrouter.ai](https://openrouter.ai) |
 
@@ -387,7 +387,8 @@ CELERY_RESULT_BACKEND=redis://redis:6379/1
 
 # LLM
 GIGACHAT_CREDENTIALS=<ваш-ключ-от-developers.sber.ru>
-GROQ_API_KEY=<ваш-ключ-от-console.groq.com>
+OPENAI_API_KEY=<ваш-ключ-от-platform.openai.com>
+ANTHROPIC_API_KEY=<ваш-ключ-от-console.anthropic.com>
 OPENROUTER_API_KEY=<ваш-ключ-от-openrouter.ai>
 
 # Production

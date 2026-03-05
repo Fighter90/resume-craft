@@ -1,4 +1,4 @@
-"""Базовый LLM-клиент и реализации для GigaChat, Groq, OpenAI, Anthropic, OpenRouter."""
+"""Базовый LLM-клиент и реализации для GigaChat, OpenAI, Anthropic, OpenRouter."""
 
 from __future__ import annotations
 
@@ -134,63 +134,6 @@ class GigaChatClient(BaseLLMClient):
     async def close(self) -> None:
         """Закрытие GigaChat клиента."""
         self._client = None
-
-
-class GroqClient(BaseLLMClient):
-    """Клиент Groq (Llama 3.3 70B) — быстрый fallback."""
-
-    def __init__(self, model: str = 'llama-3.3-70b-versatile') -> None:
-        self._model = model
-        self._client: Any = None
-
-    def _get_client(self) -> Any:
-        """Lazy-инициализация Groq через openai SDK."""
-        if self._client is None:
-            from openai import AsyncOpenAI
-
-            self._client = AsyncOpenAI(
-                api_key=settings.groq_api_key,
-                base_url='https://api.groq.com/openai/v1',
-            )
-        return self._client
-
-    async def complete(
-        self,
-        *,
-        system: str,
-        user: str,
-        temperature: float = 0.3,
-        max_tokens: int = 4096,
-    ) -> str:
-        """Запрос к Groq API."""
-        client = self._get_client()
-
-        try:
-            response = await client.chat.completions.create(
-                model=self._model,
-                messages=[
-                    {'role': 'system', 'content': system},
-                    {'role': 'user', 'content': user},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-        except Exception as exc:
-            _handle_llm_error(exc, provider='groq')
-
-        content = response.choices[0].message.content or ''
-        logger.info(
-            'Groq response: model=%s, tokens=%s',
-            self._model,
-            response.usage.total_tokens if response.usage else 'N/A',
-        )
-        return content
-
-    async def close(self) -> None:
-        """Закрытие Groq клиента."""
-        if self._client:
-            await self._client.close()
-            self._client = None
 
 
 class OpenAIClient(BaseLLMClient):

@@ -47,7 +47,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Технология | Назначение |
 |-----------|------------|
 | GigaChat SDK | Основная LLM (#1 MERA для русского) |
-| openai SDK | Groq/Llama 3.3 70B, OpenAI GPT-4o (Phase 2) |
+| openai SDK | OpenAI GPT-4o, Anthropic Claude, OpenRouter |
 | PyMuPDF (fitz) | Извлечение текста из PDF |
 | python-docx | Чтение/создание DOCX |
 | sentence-transformers | Генерация эмбеддингов VECTOR(1536) |
@@ -110,7 +110,7 @@ src/app/
 │   └── service.py     # python-docx генерация
 │
 ├── ml/                # ML-пакет
-│   ├── llm_client.py  # BaseLLMClient (ABC), GigaChatClient, GroqClient
+│   ├── llm_client.py  # BaseLLMClient (ABC), GigaChatClient, OpenAIClient, AnthropicClient, OpenRouterClient
 │   ├── llm_factory.py # LLMClientFactory (Strategy Pattern)
 │   ├── prompts.py     # Системные промпты (REWRITE_SYSTEM_PROMPT и др.)
 │   ├── embeddings.py  # sentence-transformers → VECTOR(1536)
@@ -419,7 +419,9 @@ class Settings(BaseSettings):
 
     # LLM
     gigachat_credentials: str = ''  # Сбер API ключ
-    groq_api_key: str = ''
+    openai_api_key: str = ''
+    anthropic_api_key: str = ''
+    openrouter_api_key: str = ''
 
     # hh.ru
     hh_user_agent: str = 'ResumeCraft/2.0 (contact@resumecraft.ru)'
@@ -465,7 +467,7 @@ async def rewrite_resume(
 - Pydantic-валидация каждого ответа LLM с retry (до 3 попыток)
 - LLM API-ключи: `.env`, ротация каждые 90 дней
 - Не отправлять в LLM внутренние метаданные (user_id, пути файлов)
-- Fallback-стратегия: GigaChat → Groq → OpenAI → ошибка
+- Fallback-стратегия: GigaChat → Anthropic → OpenRouter → OpenAI → ошибка
 
 ### 7.5. Защита от распространённых уязвимостей
 
@@ -762,11 +764,11 @@ REWRITE_SYSTEM_PROMPT = """Вы — эксперт по оптимизации �
 ```
 1. GigaChat Pro (основная) — #1 MERA для русского
    ↓ если недоступен (timeout 60 сек / HTTP 5xx)
-2. Groq / Llama 3.3 70B — бесплатно, 14 400 req/день
+2. Anthropic Claude — отличный русский, 200K контекст
    ↓ если недоступен
-3. OpenAI GPT-4o-mini — резервный, через VPN
+3. OpenRouter — мульти-провайдер, 100+ моделей
    ↓ если недоступен
-4. Ollama (локально, dev) — без ограничений
+4. OpenAI GPT-4o — резервный
    ↓ если недоступен
 5. Ошибка 503: «Все LLM-провайдеры временно недоступны»
 ```

@@ -38,8 +38,8 @@ export default function TermsPage() {
 
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', margin: '1.5rem 0 0.75rem' }}>4. Тарифные планы</h2>
         <ul style={{ paddingLeft: '1.5rem' }}>
-          <li><strong>Free</strong> — 5 оптимизаций/мес, модель Llama 3, DOCX экспорт</li>
-          <li><strong>Standard</strong> (490 ₽/мес) — 30 оптимизаций/мес, GigaChat Pro + Llama 3</li>
+          <li><strong>Free</strong> — 5 оптимизаций/мес, OpenRouter, DOCX экспорт</li>
+          <li><strong>Standard</strong> (490 ₽/мес) — 30 оптимизаций/мес, GigaChat Pro + Claude</li>
           <li><strong>Pro</strong> (1 490 ₽/мес) — безлимит, все модели, все форматы</li>
         </ul>
 

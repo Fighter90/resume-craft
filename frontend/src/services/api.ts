@@ -88,13 +88,17 @@ export class ApiClient {
   }
 
   async getModels() {
-    return this.request<{ models: Array<{ id: string; name: string; provider: string; available: boolean; description: string; sub_models?: Array<{ id: string; name: string; provider: string }> }> }>('GET', '/models')
+    return this.request<{ models: Array<{ id: string; name: string; provider: string; available: boolean; description: string; has_sub_models?: boolean; sub_models?: Array<{ id: string; name: string; provider: string }> }> }>('GET', '/models')
   }
 
-  async startRewrite(resumeId: string, vacancyId: string, model: string, openrouterModel?: string) {
+  async getSubModels(provider: string) {
+    return this.request<{ sub_models: Array<{ id: string; name: string; provider: string }>; error?: string; fallback?: boolean }>('GET', `/models/${provider}/sub-models`)
+  }
+
+  async startRewrite(resumeId: string, vacancyId: string, model: string, subModel?: string) {
     return this.request<{ task_id: string }>('POST', '/rewrite', {
       resume_id: resumeId, vacancy_id: vacancyId, model,
-      ...(openrouterModel ? { openrouter_model: openrouterModel } : {}),
+      ...(subModel ? { sub_model: subModel } : {}),
     })
   }
 

@@ -30,7 +30,7 @@ export const DEMO_RESUMES = [
   },
   {
     id: '4', title: 'Data Analyst @ Ozon', file_format: 'pdf',
-    status: 'optimized', match_score: 68, ats_rating: 'B', model: 'Llama 3',
+    status: 'optimized', match_score: 68, ats_rating: 'B', model: 'Claude Sonnet 4',
     vacancy: 'Data Analyst @ Ozon', date: '17 фев',
     tags: ['Python', 'SQL', 'Tableau'],
   },
@@ -76,7 +76,7 @@ export const DEMO_HISTORY = [
   },
   {
     date: '17 февраля', items: [
-      { type: 'optimization', title: 'Оптимизация завершена', desc: 'Resume_Data_Analyst.pdf → Data Analyst @ Ozon', time: '16:45', match: 68, model: 'Llama 3' },
+      { type: 'optimization', title: 'Оптимизация завершена', desc: 'Resume_Data_Analyst.pdf → Data Analyst @ Ozon', time: '16:45', match: 68, model: 'Claude Sonnet 4' },
       { type: 'upload', title: 'Файл загружен', desc: 'Resume_Data_Analyst.pdf · 198 КБ', time: '16:30' },
     ]
   },

@@ -6,38 +6,41 @@ import { useWizard } from '../../contexts/WizardContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+interface SubModel { id: string; name: string; provider: string }
 interface ModelInfo {
   id: string
   name: string
   provider: string
   available: boolean
   description: string
-  sub_models?: Array<{ id: string; name: string; provider: string }>
+  has_sub_models?: boolean
 }
 
 const MODEL_META: Record<string, { badge: string; badgeClass: string; quality: number; speed: number; tags: string[] }> = {
   'gigachat-pro': { badge: 'Рекомендуем', badgeClass: 'badge-green', quality: 95, speed: 70, tags: ['Русский язык', 'ATS-оптимизация', 'Данные в РФ'] },
-  'gpt-4o': { badge: 'Pro', badgeClass: 'badge-indigo', quality: 92, speed: 65, tags: ['Мультиязычная', 'Креативность', 'Аналитика'] },
-  'llama-3-70b': { badge: 'Бесплатная', badgeClass: 'badge-yellow', quality: 78, speed: 95, tags: ['Скорость', 'Бесплатно', 'Open Source'] },
+  'openai': { badge: 'Pro', badgeClass: 'badge-indigo', quality: 92, speed: 65, tags: ['Мультиязычная', 'Креативность', 'GPT-4o'] },
+  'anthropic': { badge: 'Pro', badgeClass: 'badge-indigo', quality: 93, speed: 70, tags: ['Claude 4', 'Русский язык', '200K контекст'] },
   'openrouter': { badge: 'Гибкая', badgeClass: 'badge-indigo', quality: 90, speed: 80, tags: ['Мультимодель', 'Гибкость', '100+ моделей'] },
 }
 
 const FALLBACK_MODELS: ModelInfo[] = [
-  { id: 'gigachat-pro', name: 'GigaChat Pro', provider: 'Сбер', available: true, description: '#1 в MERA бенчмарке для русского языка. Лучшее понимание российского рынка труда.' },
-  { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI', available: true, description: 'Сильнейшая мультиязычная модель. Глубокое понимание контекста и нюансов.' },
-  { id: 'llama-3-70b', name: 'Llama 3.3 70B', provider: 'Groq', available: true, description: 'Молниеносная скорость генерации. 14 400 запросов/день бесплатно.' },
-  { id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter', available: true, description: '100+ моделей через единый API. Claude, Gemini, Mistral и другие.' },
+  { id: 'gigachat-pro', name: 'GigaChat Pro', provider: 'Сбер', available: true, description: '#1 в MERA бенчмарке для русского языка. Лучшее понимание российского рынка труда.', has_sub_models: false },
+  { id: 'openai', name: 'OpenAI', provider: 'OpenAI', available: true, description: 'GPT-4o, GPT-4o-mini и другие модели OpenAI. 128K контекст.', has_sub_models: true },
+  { id: 'anthropic', name: 'Anthropic Claude', provider: 'Anthropic', available: true, description: 'Claude Sonnet 4, Claude Haiku — отличный русский, 200K контекст.', has_sub_models: true },
+  { id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter', available: true, description: '100+ моделей через единый API. Claude, Gemini, Mistral и другие.', has_sub_models: true },
 ]
 
 export default function ModelsPage() {
   const navigate = useNavigate()
   const { resumeId, vacancyId, setModel, setTaskId } = useWizard()
   const [selected, setSelected] = useState('gigachat-pro')
-  const [openrouterModel, setOpenrouterModel] = useState('')
+  const [subModel, setSubModel] = useState('')
+  const [subModels, setSubModels] = useState<SubModel[]>([])
+  const [loadingSubModels, setLoadingSubModels] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [models, setModels] = useState<ModelInfo[]>(FALLBACK_MODELS)
-  const [loadingModels, setLoadingModels] = useState(true)
+  const [loadingModels, setLoadingModels] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -48,14 +51,36 @@ export default function ModelsPage() {
           setModels(list)
           const first = list.find((m: ModelInfo) => m.available)
           if (first) setSelected(first.id)
-          const or = list.find((m: ModelInfo) => m.id === 'openrouter')
-          if (or?.sub_models?.length) setOpenrouterModel(or.sub_models[0].id)
         }
       } catch { /* use fallback models */ }
       setLoadingModels(false)
     }
     load()
   }, [])
+
+  // Загрузка подмоделей при выборе провайдера с has_sub_models
+  useEffect(() => {
+    const selectedModel = models.find(m => m.id === selected)
+    if (!selectedModel?.has_sub_models || !selectedModel.available) {
+      setSubModels([])
+      setSubModel('')
+      return
+    }
+
+    const fetchSubModels = async () => {
+      setLoadingSubModels(true)
+      try {
+        const res = await api.getSubModels(selected)
+        const list = res.sub_models || []
+        setSubModels(list)
+        if (list.length > 0) setSubModel(list[0].id)
+      } catch {
+        setSubModels([])
+      }
+      setLoadingSubModels(false)
+    }
+    fetchSubModels()
+  }, [selected, models])
 
   const noKeysConfigured = models.length > 0 && !models.some(m => m.available)
   const selectedModel = models.find(m => m.id === selected)
@@ -73,8 +98,8 @@ export default function ModelsPage() {
     setError(null)
     try {
       setModel(selected)
-      const orModel = selected === 'openrouter' && openrouterModel ? openrouterModel : undefined
-      const res = await api.startRewrite(resumeId, vacancyId, selected, orModel) as { task_id: string }
+      const sm = selectedModel?.has_sub_models && subModel ? subModel : undefined
+      const res = await api.startRewrite(resumeId, vacancyId, selected, sm) as { task_id: string }
       setTaskId(res.task_id)
       navigate('/app/processing')
     } catch (err: any) {
@@ -179,25 +204,37 @@ export default function ModelsPage() {
         </div>
       )}
 
-      {/* OpenRouter sub-model selector */}
-      {selected === 'openrouter' && selectedModel?.available && selectedModel.sub_models && selectedModel.sub_models.length > 0 && (
+      {/* Sub-model selector for providers with 2-step selection */}
+      {selectedModel?.has_sub_models && selectedModel.available && (
         <div className="card" style={{ padding: '1rem 1.25rem', marginTop: '1rem' }}>
           <label style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
-            Модель OpenRouter
+            Модель {selectedModel.name}
           </label>
-          <select
-            className="input-field"
-            value={openrouterModel}
-            onChange={e => setOpenrouterModel(e.target.value)}
-            style={{ width: '100%' }}
-          >
-            {selectedModel.sub_models.map(sm => (
-              <option key={sm.id} value={sm.id}>{sm.name} ({sm.provider})</option>
-            ))}
-          </select>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0' }}>
-            Выберите конкретную модель из каталога OpenRouter
-          </p>
+          {loadingSubModels ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', padding: '0.5rem 0' }}>
+              <Loader size={14} className="spin" /> Загрузка доступных моделей...
+            </div>
+          ) : subModels.length > 0 ? (
+            <>
+              <select
+                className="input-field"
+                value={subModel}
+                onChange={e => setSubModel(e.target.value)}
+                style={{ width: '100%' }}
+              >
+                {subModels.map(sm => (
+                  <option key={sm.id} value={sm.id}>{sm.name} ({sm.provider})</option>
+                ))}
+              </select>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0' }}>
+                Выберите конкретную модель из каталога {selectedModel.name}
+              </p>
+            </>
+          ) : (
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Не удалось загрузить список моделей. Будет использована модель по умолчанию.
+            </p>
+          )}
         </div>
       )}
 

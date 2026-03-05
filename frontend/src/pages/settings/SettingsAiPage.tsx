@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Save, RotateCcw, Eye, EyeOff, Zap, Brain, Globe, Cpu, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Save, RotateCcw, Eye, EyeOff, Zap, Brain, Globe, Cpu, AlertTriangle, CheckCircle, Loader } from 'lucide-react'
 import { api } from '../../services/api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -16,6 +16,7 @@ interface ModelOption {
   apiKeyField: string
   apiKeyPlaceholder: string
   available?: boolean
+  hasSubModels?: boolean
 }
 
 const MODELS: ModelOption[] = [
@@ -24,23 +25,26 @@ const MODELS: ModelOption[] = [
     desc: '#1 русский язык (MERA), данные в РФ, ФЗ-152 compliant',
     badge: 'Рекомендуем', badgeColor: '#4F46E5',
     icon: Zap, apiKeyField: 'gigachat', apiKeyPlaceholder: 'Credentials (Base64)',
+    hasSubModels: false,
   },
   {
-    id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI',
-    desc: 'Топ-модель OpenAI, мультиязычность, 128K контекст',
+    id: 'openai', name: 'OpenAI', provider: 'OpenAI',
+    desc: 'GPT-4o, GPT-4o-mini и другие модели OpenAI, 128K контекст',
     icon: Brain, apiKeyField: 'openai', apiKeyPlaceholder: 'sk-...',
+    hasSubModels: true,
   },
   {
-    id: 'llama-3-70b', name: 'Llama 3.3 70B', provider: 'Groq',
-    desc: 'Бесплатно 14 400 запросов/день, быстрый inference',
-    badge: 'Бесплатно', badgeColor: '#059669',
-    icon: Cpu, apiKeyField: 'groq', apiKeyPlaceholder: 'gsk_...',
+    id: 'anthropic', name: 'Anthropic Claude', provider: 'Anthropic',
+    desc: 'Claude Sonnet 4, Claude Haiku — отличный русский, 200K контекст',
+    badge: 'Новое', badgeColor: '#D97706',
+    icon: Brain, apiKeyField: 'anthropic', apiKeyPlaceholder: 'sk-ant-...',
+    hasSubModels: true,
   },
   {
     id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter',
     desc: 'Доступ к 100+ моделям через единый API (Claude, Gemini, Mixtral...)',
-    badge: 'Новое', badgeColor: '#D97706',
     icon: Globe, apiKeyField: 'openrouter', apiKeyPlaceholder: 'sk-or-v1-...',
+    hasSubModels: true,
   },
 ]
 
@@ -59,7 +63,7 @@ export default function SettingsAiPage() {
   })()
   const [model, setModel] = useState(savedSettings.model || 'gigachat-pro')
   const [apiKeys, setApiKeys] = useState<Record<string, string>>(savedSettings.apiKeys || {
-    gigachat: '', openai: '', groq: '', openrouter: '',
+    gigachat: '', openai: '', anthropic: '', openrouter: '',
   })
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({})
   const [toggles, setToggles] = useState<Record<string, boolean>>(
@@ -67,8 +71,9 @@ export default function SettingsAiPage() {
   )
   const [saved, setSaved] = useState(false)
   const [serverModels, setServerModels] = useState<ModelOption[]>([])
-  const [openrouterSubModels, setOpenrouterSubModels] = useState<SubModel[]>([])
-  const [selectedOrModel, setSelectedOrModel] = useState<string>(savedSettings.openrouterModel || '')
+  const [subModels, setSubModels] = useState<SubModel[]>([])
+  const [selectedSubModel, setSelectedSubModel] = useState<string>(savedSettings.subModel || '')
+  const [loadingSubModels, setLoadingSubModels] = useState(false)
 
   // Fetch server-side model availability
   useEffect(() => {
@@ -77,15 +82,30 @@ export default function SettingsAiPage() {
         const res = await api.getModels()
         const list = res.models || []
         setServerModels(list.map((m: any) => ({ ...m, icon: Cpu, apiKeyField: '', apiKeyPlaceholder: '' })))
-        const or = list.find((m: any) => m.id === 'openrouter')
-        if (or?.sub_models?.length) {
-          setOpenrouterSubModels(or.sub_models)
-          if (!selectedOrModel) setSelectedOrModel(or.sub_models[0].id)
-        }
       } catch { /* server unavailable, continue with local settings */ }
     }
     load()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Load sub-models when provider with hasSubModels is selected
+  const currentModel = MODELS.find(m => m.id === model)
+  useEffect(() => {
+    if (!currentModel?.hasSubModels) {
+      setSubModels([])
+      return
+    }
+    const fetchSub = async () => {
+      setLoadingSubModels(true)
+      try {
+        const res = await api.getSubModels(model)
+        const list = res.sub_models || []
+        setSubModels(list)
+        if (list.length > 0 && !selectedSubModel) setSelectedSubModel(list[0].id)
+      } catch { setSubModels([]) }
+      setLoadingSubModels(false)
+    }
+    fetchSub()
+  }, [model]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getServerAvailability = (modelId: string): boolean | null => {
     const m = serverModels.find((s: any) => s.id === modelId)
@@ -95,7 +115,7 @@ export default function SettingsAiPage() {
   const toggle = (id: string) => setToggles({ ...toggles, [id]: !toggles[id] })
 
   const handleSave = () => {
-    localStorage.setItem('ai_settings', JSON.stringify({ model, apiKeys, toggles, openrouterModel: selectedOrModel }))
+    localStorage.setItem('ai_settings', JSON.stringify({ model, apiKeys, toggles, subModel: selectedSubModel }))
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -103,8 +123,8 @@ export default function SettingsAiPage() {
   const handleReset = () => {
     setModel('gigachat-pro')
     setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
-    setApiKeys({ gigachat: '', openai: '', groq: '', openrouter: '' })
-    setSelectedOrModel('')
+    setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '' })
+    setSelectedSubModel('')
     localStorage.removeItem('ai_settings')
   }
 
@@ -165,23 +185,33 @@ export default function SettingsAiPage() {
         ))}
       </div>
 
-      {/* OpenRouter sub-model picker */}
-      {model === 'openrouter' && openrouterSubModels.length > 0 && (
+      {/* Sub-model picker for providers with 2-step selection */}
+      {currentModel?.hasSubModels && (
         <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', border: '1px solid var(--primary, #4F46E5)', background: 'var(--primary-bg, #EEF2FF)' }}>
-          <h4 style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem' }}>Модель OpenRouter</h4>
+          <h4 style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.5rem' }}>Модель {currentModel.name}</h4>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-            Выберите конкретную модель из каталога OpenRouter
+            Выберите конкретную модель из каталога {currentModel.name}
           </p>
-          <select
-            className="input-field"
-            value={selectedOrModel}
-            onChange={e => setSelectedOrModel(e.target.value)}
-            style={{ width: '100%' }}
-          >
-            {openrouterSubModels.map(sm => (
-              <option key={sm.id} value={sm.id}>{sm.name} — {sm.provider}</option>
-            ))}
-          </select>
+          {loadingSubModels ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+              <Loader size={14} className="spin" /> Загрузка доступных моделей...
+            </div>
+          ) : subModels.length > 0 ? (
+            <select
+              className="input-field"
+              value={selectedSubModel}
+              onChange={e => setSelectedSubModel(e.target.value)}
+              style={{ width: '100%' }}
+            >
+              {subModels.map(sm => (
+                <option key={sm.id} value={sm.id}>{sm.name} — {sm.provider}</option>
+              ))}
+            </select>
+          ) : (
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Не удалось загрузить список моделей
+            </p>
+          )}
         </div>
       )}
 

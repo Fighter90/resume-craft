@@ -124,15 +124,15 @@ Lite (бесплатно), Pro (платно). OpenAI-compatible REST API. #1 н
 **URL:** https://platform.openai.com/docs/api-reference/chat/create  
 Structured outputs, function calling, 128K ctx. $2.50/$10.00 за 1M tokens. Premium-модель для Pro-пользователей.
 
-### [18] Meta AI — Llama 3.3 70B
+### [18] Anthropic — Claude API
 
-**URL:** https://ai.meta.com/blog/llama-3-3/  
-Open-source, 70B params. Бесплатно через Groq (14 400 req/день), Together.ai, Ollama.
+**URL:** https://docs.anthropic.com/en/api
+Claude Sonnet 4, Claude Haiku. Отличный русский язык, 200K контекст. Динамический выбор модели через API.
 
-### [19] Groq — API
+### [19] OpenRouter — API
 
-**URL:** https://console.groq.com/docs  
-LPU-инференс. Free tier: 14 400 req/день для Llama 3.3 70B. 2–5× быстрее GPU.
+**URL:** https://openrouter.ai/docs
+Мульти-провайдер: 100+ моделей через единый API (Claude, Gemini, Mistral и др.).
 
 ### [20] Ollama
 
@@ -369,7 +369,7 @@ CoT prompting. Пошаговая оценка соответствия резю
 ### [59] Touvron et al. — LLaMA (arXiv 2023)
 
 **URL:** https://arxiv.org/abs/2302.13971  
-Open-source LLM от Meta. Основа Llama 3.3 70B, используемой в Free-тарифе.
+Open-source LLM от Meta. Основа современных open-source моделей, доступных через OpenRouter.
 
 ---
 
@@ -394,8 +394,8 @@ Open-source LLM от Meta. Основа Llama 3.3 70B, используемой 
 | 15 | TheLadders — Eye-Tracking | Исследование | 2018 |
 | 16 | GigaChat API | Тех. док. | 2025 |
 | 17 | OpenAI — GPT-4o | Тех. док. | 2025 |
-| 18 | Meta — Llama 3.3 | Тех. док. | 2024 |
-| 19 | Groq API | Тех. док. | 2025 |
+| 18 | Anthropic — Claude API | Тех. док. | 2025 |
+| 19 | OpenRouter API | Тех. док. | 2025 |
 | 20 | Ollama | Тех. док. | 2025 |
 | 21 | MERA Benchmark | Бенчмарк | 2025 |
 | 22 | YandexGPT | Тех. док. | 2025 |

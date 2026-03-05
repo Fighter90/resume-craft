@@ -42,7 +42,7 @@ export default function PrivacyPage() {
 
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', margin: '1.5rem 0 0.75rem' }}>5. AI-обработка данных</h2>
         <p>
-          Загруженные резюме обрабатываются AI-моделями (GigaChat, Groq, OpenRouter) исключительно для генерации
+          Загруженные резюме обрабатываются AI-моделями (GigaChat, OpenAI, Anthropic, OpenRouter) исключительно для генерации
           оптимизированных версий. Данные не используются для обучения моделей. Основная LLM — GigaChat (Сбер) —
           обрабатывает данные на территории РФ.
         </p>

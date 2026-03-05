@@ -5,7 +5,7 @@
 
 Запуск:
     PYTHONPATH=src pytest tests/test_integration_llm.py -v -s --tb=short
-    PYTHONPATH=src pytest tests/test_integration_llm.py -k groq -v -s  # только Groq
+    PYTHONPATH=src pytest tests/test_integration_llm.py -k openai -v -s  # только OpenAI
 
 НЕ КОММИТИТЬ: файл использует .env ключи и реальные резюме.
 """
@@ -27,8 +27,7 @@ import pytest  # noqa: E402
 
 # Пропускать если нет ключей вообще
 pytestmark = pytest.mark.skipif(
-    not os.getenv('GROQ_API_KEY')
-    and not os.getenv('OPENAI_API_KEY')
+    not os.getenv('OPENAI_API_KEY')
     and not os.getenv('ANTHROPIC_API_KEY')
     and not os.getenv('OPENROUTER_API_KEY')
     and not os.getenv('GIGACHAT_CREDENTIALS'),
@@ -294,41 +293,6 @@ class TestMatchScore:
 # =========================================================================
 
 
-class TestGroqLlama:
-    """Тест Groq / Llama 3.3 70B — реальный API вызов."""
-
-    @pytest.mark.skipif(not os.getenv('GROQ_API_KEY'), reason='No GROQ_API_KEY')
-    @pytest.mark.asyncio
-    async def test_rewrite_with_groq(self, resume_text_pdf: str) -> None:
-        """Groq Llama 3.3 70B: полный rewrite резюме."""
-        from app.ml.llm_factory import LLMClientFactory
-        from app.ml.prompts import REWRITE_SYSTEM_PROMPT
-        from app.ml.sanitize import sanitize_for_llm
-
-        client = LLMClientFactory.create('groq')
-        try:
-            start = time.monotonic()
-            response = await client.complete(
-                system=REWRITE_SYSTEM_PROMPT,
-                user=f'РЕЗЮМЕ:\n{sanitize_for_llm(resume_text_pdf[:8000])}'
-                f'\n\nВАКАНСИЯ:\n{sanitize_for_llm(SAMPLE_VACANCY_TEXT)}',
-                temperature=0.3,
-                max_tokens=4096,
-            )
-            elapsed = time.monotonic() - start
-
-            assert len(response) > 200, f'Response too short: {len(response)}'
-            data = _validate_rewrite_json(response)
-            logger.info(
-                'Groq Llama rewrite OK: %.1fs, summary=%d chars, %d experience items',
-                elapsed,
-                len(data['summary']),
-                len(data['experience']),
-            )
-        finally:
-            await client.close()
-
-
 class TestOpenAI:
     """Тест OpenAI GPT — реальный API вызов."""
 
@@ -412,7 +376,7 @@ class TestOpenRouter:
 
         client = LLMClientFactory.create(
             'openrouter',
-            openrouter_model='anthropic/claude-3.5-sonnet',
+            sub_model='anthropic/claude-3.5-sonnet',
         )
         try:
             start = time.monotonic()

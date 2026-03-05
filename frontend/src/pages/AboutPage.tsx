@@ -24,7 +24,7 @@ export default function AboutPage() {
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', margin: '1.5rem 0 0.75rem' }}>Что мы делаем</h2>
         <ul style={{ paddingLeft: '1.5rem' }}>
           <li>Единственная интеграция с hh.ru API — автоматический анализ требований вакансий</li>
-          <li>Мультимодельный AI — GigaChat Pro, Llama 3, OpenRouter для лучшего качества</li>
+          <li>Мультимодельный AI — GigaChat Pro, OpenAI, Anthropic Claude, OpenRouter для лучшего качества</li>
           <li>Match Score — объективная оценка соответствия резюме вакансии</li>
           <li>ATS-оптимизация — рейтинг от A+ до D</li>
           <li>Соответствие ФЗ-152 — данные хранятся в России</li>
@@ -34,8 +34,8 @@ export default function AboutPage() {
         <p>
           Backend на FastAPI (Python 3.11), PostgreSQL 16 с pgvector, Redis, RabbitMQ.
           Frontend — React 19 + TypeScript. Docker Compose для развёртывания.
-          AI: GigaChat Pro (#1 MERA для русского), Llama 3.3 70B через Groq,
-          100+ моделей через OpenRouter.
+          AI: GigaChat Pro (#1 MERA для русского), OpenAI GPT-4o,
+          Anthropic Claude, 100+ моделей через OpenRouter.
         </p>
 
         <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', margin: '1.5rem 0 0.75rem' }}>Контакты</h2>

@@ -6,7 +6,7 @@ const FAQ_DATA = [
   { q: 'Как работает AI-оптимизация?', a: 'Наша система анализирует ваше резюме и целевую вакансию, выявляет пробелы и с помощью AI переписывает текст, добавляя релевантные ключевые слова и метрики достижений.' },
   { q: 'Безопасно ли загружать резюме?', a: 'Да. Все данные хранятся на серверах в России (ФЗ-152), передаются по зашифрованному каналу. Вы можете удалить все данные в любой момент.' },
   { q: 'Какие форматы поддерживаются?', a: 'PDF и DOCX для загрузки. Экспорт доступен в DOCX (все планы) и PDF (Standard+).' },
-  { q: 'Можно ли использовать бесплатно?', a: 'Да! Бесплатный план включает 5 оптимизаций в месяц с моделью Llama 3.' },
+  { q: 'Можно ли использовать бесплатно?', a: 'Да! Бесплатный план включает 5 оптимизаций в месяц.' },
   { q: 'Чем отличается от конкурентов?', a: 'ResumeCraft — единственный сервис с интеграцией hh.ru API, мультимодельным AI и специализацией на российском рынке.' },
   { q: 'Как считается Match Score?', a: 'Match Score — взвешенная оценка: ключевые слова (40%) + релевантность опыта (25%) + структура (20%) + читаемость (15%).' },
 ]
@@ -114,7 +114,7 @@ export default function LandingPage() {
               { icon: BarChart3, title: 'Match Score', desc: 'Оценка соответствия 0–100% по 4 компонентам' },
               { icon: Shield, title: 'ATS-оптимизация', desc: 'Рейтинг A+ – D, ключевые слова, структура' },
               { icon: FileText, title: 'Мультиформат', desc: 'Экспорт в DOCX и PDF с профессиональными шаблонами' },
-              { icon: Star, title: 'Выбор AI-модели', desc: 'GigaChat Pro, GPT-4o, Llama 3 — под вашу задачу' },
+              { icon: Star, title: 'Выбор AI-модели', desc: 'GigaChat Pro, GPT-4o, Claude, OpenRouter — под вашу задачу' },
             ].map(f => (
               <div key={f.title} className="card" style={{ padding: '1.5rem' }}>
                 <div style={{
@@ -142,8 +142,8 @@ export default function LandingPage() {
           </p>
           <div className="pricing-grid">
             {[
-              { name: 'Free', price: '0 ₽', period: 'навсегда', desc: 'Для знакомства', features: ['5 оптимизаций/мес', 'Llama 3', 'DOCX экспорт', '1 шаблон', 'Поиск hh.ru'], featured: false },
-              { name: 'Standard', price: '490 ₽', period: '/мес', desc: 'Для активного поиска', features: ['30 оптимизаций/мес', 'GigaChat Pro + Llama 3', 'PDF + DOCX', '3 шаблона', 'Email + чат'], year: '3 990 ₽/год (−32%)', featured: true },
+              { name: 'Free', price: '0 ₽', period: 'навсегда', desc: 'Для знакомства', features: ['5 оптимизаций/мес', 'OpenRouter', 'DOCX экспорт', '1 шаблон', 'Поиск hh.ru'], featured: false },
+              { name: 'Standard', price: '490 ₽', period: '/мес', desc: 'Для активного поиска', features: ['30 оптимизаций/мес', 'GigaChat Pro + Claude', 'PDF + DOCX', '3 шаблона', 'Email + чат'], year: '3 990 ₽/год (−32%)', featured: true },
               { name: 'Pro', price: '1 490 ₽', period: '/мес', desc: 'Для профессионалов', features: ['Безлимит оптимизаций', 'Все модели + GPT-4o', 'Все форматы + hh.ru', 'Все шаблоны', 'Приоритет 24/7'], year: '11 990 ₽/год (−33%)', featured: false },
             ].map(p => (
               <div key={p.name} className={`card pricing-card${p.featured ? ' featured' : ''}`} style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>

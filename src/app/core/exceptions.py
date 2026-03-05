@@ -180,11 +180,10 @@ class LLMAuthError(AppError):
         provider_names: dict[str, str] = {
             'gigachat-pro': 'GigaChat',
             'gigachat-lite': 'GigaChat',
-            'groq': 'Groq (Llama)',
-            'llama-3-70b': 'Groq (Llama)',
             'openai': 'OpenAI',
             'gpt-4o': 'OpenAI',
             'gpt-4o-mini': 'OpenAI',
+            'anthropic': 'Anthropic Claude',
             'openrouter': 'OpenRouter',
         }
         name = provider_names.get(provider, provider)
