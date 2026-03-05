@@ -456,8 +456,13 @@ class TestProtectedPages:
         has_models = any(
             word in content
             for word in [
-                'GigaChat', 'GPT', 'Anthropic',
-                'Claude', 'OpenRouter', 'модел', 'AI',
+                'GigaChat',
+                'GPT',
+                'Anthropic',
+                'Claude',
+                'OpenRouter',
+                'модел',
+                'AI',
             ]
         )
         assert has_models, 'Models page не содержит списка моделей'
@@ -717,8 +722,11 @@ class TestWizardFlow:
         has_models = any(
             word in content
             for word in [
-                'GigaChat', 'GPT', 'Anthropic',
-                'Claude', 'OpenRouter',
+                'GigaChat',
+                'GPT',
+                'Anthropic',
+                'Claude',
+                'OpenRouter',
             ]
         )
         assert has_models, 'Wizard models шаг не содержит карточек моделей'

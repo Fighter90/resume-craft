@@ -117,9 +117,16 @@ async def _fetch_openai_models(api_key: str) -> dict[str, Any]:
         # Фильтруем только chat-модели GPT
         chat_prefixes = ('gpt-4', 'gpt-3.5', 'o1', 'o3', 'o4')
         exclude_keywords = (
-            'instruct', 'realtime', 'audio', 'transcribe',
-            'tts', 'dall-e', 'whisper', 'embedding',
-            'moderation', 'search',
+            'instruct',
+            'realtime',
+            'audio',
+            'transcribe',
+            'tts',
+            'dall-e',
+            'whisper',
+            'embedding',
+            'moderation',
+            'search',
         )
         models = []
         for m in data.get('data', []):
@@ -127,11 +134,13 @@ async def _fetch_openai_models(api_key: str) -> dict[str, Any]:
             if any(mid.startswith(p) for p in chat_prefixes) and not any(
                 kw in mid for kw in exclude_keywords
             ):
-                    models.append({
+                models.append(
+                    {
                         'id': mid,
                         'name': mid,
                         'provider': 'OpenAI',
-                    })
+                    }
+                )
 
         # Сортировка: новые модели первыми
         models.sort(key=lambda x: x['id'], reverse=True)
@@ -170,11 +179,13 @@ async def _fetch_anthropic_models(api_key: str) -> dict[str, Any]:
         for m in data.get('data', []):
             mid = m.get('id', '')
             name = m.get('display_name', mid)
-            models.append({
-                'id': mid,
-                'name': name,
-                'provider': 'Anthropic',
-            })
+            models.append(
+                {
+                    'id': mid,
+                    'name': name,
+                    'provider': 'Anthropic',
+                }
+            )
 
         # Сортировка по имени (новые первыми)
         models.sort(key=lambda x: x['id'], reverse=True)
@@ -224,11 +235,13 @@ async def _fetch_openrouter_models(api_key: str) -> dict[str, Any]:
             name = m.get('name', mid)
             # Извлекаем провайдера из id (формат: provider/model)
             provider = mid.split('/')[0] if '/' in mid else 'Unknown'
-            models.append({
-                'id': mid,
-                'name': name,
-                'provider': provider.capitalize(),
-            })
+            models.append(
+                {
+                    'id': mid,
+                    'name': name,
+                    'provider': provider.capitalize(),
+                }
+            )
 
         # Сортировка по имени
         models.sort(key=lambda x: x['name'])
