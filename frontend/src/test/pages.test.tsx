@@ -17,21 +17,6 @@ function renderWithProviders(ui: React.ReactNode, route = '/') {
   )
 }
 
-// Helper to render with route params (e.g. /app/results/:id)
-function renderWithRoute(element: React.ReactNode, path: string, route: string) {
-  return render(
-    <MemoryRouter initialEntries={[route]}>
-      <AuthProvider>
-        <WizardProvider>
-          <Routes>
-            <Route path={path} element={element} />
-          </Routes>
-        </WizardProvider>
-      </AuthProvider>
-    </MemoryRouter>
-  )
-}
-
 // ===================== AuthPage =====================
 import AuthPage from '../pages/auth/AuthPage'
 

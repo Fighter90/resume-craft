@@ -3,6 +3,8 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface RewriteResult {
   id: string
+  resume_id: string | null
+  vacancy_id: string | null
   status: string
   match_score_before: number | null
   match_score_after: number | null
@@ -14,6 +16,8 @@ export interface RewriteResult {
   rewritten_data: any
   keywords_added: string[] | null
   tokens_used: number | null
+  error_message: string | null
+  created_at: string | null
 }
 
 interface WizardState {
