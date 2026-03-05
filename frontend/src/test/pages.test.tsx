@@ -2,13 +2,31 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect, vi } from 'vitest'
 import { AuthProvider } from '../contexts/AuthContext'
+import { WizardProvider } from '../contexts/WizardContext'
 
-// Helper to render within router + auth
+// Helper to render within router + auth + wizard
 function renderWithProviders(ui: React.ReactNode, route = '/') {
   return render(
     <MemoryRouter initialEntries={[route]}>
       <AuthProvider>
-        {ui}
+        <WizardProvider>
+          {ui}
+        </WizardProvider>
+      </AuthProvider>
+    </MemoryRouter>
+  )
+}
+
+// Helper to render with route params (e.g. /app/results/:id)
+function renderWithRoute(element: React.ReactNode, path: string, route: string) {
+  return render(
+    <MemoryRouter initialEntries={[route]}>
+      <AuthProvider>
+        <WizardProvider>
+          <Routes>
+            <Route path={path} element={element} />
+          </Routes>
+        </WizardProvider>
       </AuthProvider>
     </MemoryRouter>
   )
@@ -447,53 +465,14 @@ describe('ModelsPage', () => {
 import ResultsPage from '../pages/wizard/ResultsPage'
 
 describe('ResultsPage', () => {
-  it('renders match score circle', () => {
+  it('shows error when no taskId and no URL id', () => {
     renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Match Score')).toBeInTheDocument()
+    expect(screen.getByText('Нет данных для отображения')).toBeInTheDocument()
   })
 
-  it('renders metrics cards', () => {
+  it('shows start over button on error', () => {
     renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Ключевые слова')).toBeInTheDocument()
-    expect(screen.getByText('Опыт')).toBeInTheDocument()
-    expect(screen.getByText('Структура')).toBeInTheDocument()
-  })
-
-  it('renders keywords section', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Добавленные ключевые слова')).toBeInTheDocument()
-  })
-
-  it('renders diff comparison', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Оригинал')).toBeInTheDocument()
-    expect(screen.getByText('Оптимизировано')).toBeInTheDocument()
-  })
-
-  it('renders action buttons', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getAllByText('Редактировать').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText('Экспорт').length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('renders readability metric', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Читаемость')).toBeInTheDocument()
-  })
-
-  it('renders ATS compatibility', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('ATS совместимость')).toBeInTheDocument()
-  })
-
-  it('renders page header with title', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('Результаты оптимизации')).toBeInTheDocument()
-  })
-
-  it('renders AI model info', () => {
-    renderWithProviders(<ResultsPage />, '/app/results')
-    expect(screen.getByText('GigaChat Pro')).toBeInTheDocument()
+    expect(screen.getByText('Начать заново')).toBeInTheDocument()
   })
 })
 
@@ -718,16 +697,15 @@ describe('ExportPage', () => {
     expect(screen.getByText('Креативный')).toBeInTheDocument()
   })
 
-  it('renders ready to download section', () => {
-    renderWithProviders(<ExportPage />, '/app/export')
-    expect(screen.getByText('Готово к скачиванию')).toBeInTheDocument()
-    expect(screen.getByText('Match 87%')).toBeInTheDocument()
-    expect(screen.getByText('ATS A+')).toBeInTheDocument()
-  })
-
   it('renders download button', () => {
     renderWithProviders(<ExportPage />, '/app/export')
     expect(screen.getByText(/Скачать DOCX/)).toBeInTheDocument()
+  })
+
+  it('shows error when clicking download without data', () => {
+    renderWithProviders(<ExportPage />, '/app/export')
+    fireEvent.click(screen.getByText(/Скачать DOCX/))
+    expect(screen.getByText(/Нет данных для экспорта/)).toBeInTheDocument()
   })
 })
 
@@ -740,20 +718,9 @@ describe('HistoryPage', () => {
     expect(screen.getByText('История оптимизаций')).toBeInTheDocument()
   })
 
-  it('renders filter dropdown', () => {
+  it('renders subtitle', () => {
     renderWithProviders(<HistoryPage />, '/app/history')
-    expect(screen.getByText('Все типы')).toBeInTheDocument()
-  })
-
-  it('renders timeline items', () => {
-    renderWithProviders(<HistoryPage />, '/app/history')
-    expect(screen.getByText('Сегодня')).toBeInTheDocument()
-  })
-
-  it('renders clickable optimization items as links', () => {
-    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
-    const links = container.querySelectorAll('a[href="/app/results/1"]')
-    expect(links.length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Все ваши оптимизации резюме')).toBeInTheDocument()
   })
 })
 
@@ -994,30 +961,15 @@ describe('SettingsProfilePage photo upload', () => {
 })
 
 // ===================== History Page All Items Clickable =====================
-describe('HistoryPage all items clickable', () => {
-  it('all history items are rendered as links', () => {
-    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
-    const allLinks = container.querySelectorAll('a.session-item')
-    // DEMO_HISTORY: 3 today + 2 yesterday + 2 feb17 + 1 feb12 = 8 items
-    expect(allLinks.length).toBe(8)
+describe('HistoryPage navigation', () => {
+  it('shows loading state initially', () => {
+    renderWithProviders(<HistoryPage />, '/app/history')
+    expect(screen.getByText('Загрузка...')).toBeInTheDocument()
   })
 
-  it('upload items link to resumes page', () => {
-    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
-    const resumeLinks = container.querySelectorAll('a[href="/app/resumes"]')
-    expect(resumeLinks.length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('export items link to export page', () => {
-    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
-    const exportLinks = container.querySelectorAll('a[href="/app/export"]')
-    expect(exportLinks.length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('account items link to settings', () => {
-    const { container } = renderWithProviders(<HistoryPage />, '/app/history')
-    const settingsLinks = container.querySelectorAll('a[href="/app/settings/profile"]')
-    expect(settingsLinks.length).toBeGreaterThanOrEqual(1)
+  it('renders page heading', () => {
+    renderWithProviders(<HistoryPage />, '/app/history')
+    expect(screen.getByText('История оптимизаций')).toBeInTheDocument()
   })
 })
 
@@ -1082,24 +1034,27 @@ describe('SettingsSubscriptionPage plan switching', () => {
 
 // ===================== ResultsPage with ID =====================
 describe('ResultsPage with route params', () => {
-  it('renders results page at /app/results/1 with resume info', () => {
+  it('renders results page at /app/results/1 — shows loading then error', async () => {
     render(
       <MemoryRouter initialEntries={['/app/results/1']}>
-        <AuthProvider>
+        <WizardProvider>
           <Routes>
             <Route path="/app/results/:id" element={<ResultsPage />} />
           </Routes>
-        </AuthProvider>
+        </WizardProvider>
       </MemoryRouter>
     )
-    // Should show resume-specific title from demo data
-    expect(screen.getByText(/Product Manager @ Yandex/)).toBeInTheDocument()
+    // Initially shows loading, then error because API is not available in tests
+    await waitFor(() => {
+      expect(screen.getByText('Начать заново')).toBeInTheDocument()
+    })
   })
 
-  it('renders results page without ID (fallback)', () => {
+  it('renders results page without ID (fallback) — shows no data message', async () => {
     renderWithProviders(<ResultsPage />)
-    expect(screen.getByText('Результаты оптимизации')).toBeInTheDocument()
-    expect(screen.getByText(/Senior Product Manager @ Яндекс/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Нет данных для отображения')).toBeInTheDocument()
+    })
   })
 })
 

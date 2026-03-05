@@ -1,10 +1,12 @@
-import { Clock, FileText, Loader } from 'lucide-react'
+import { Clock, FileText, Loader, ExternalLink } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../../services/api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function HistoryPage() {
+  const navigate = useNavigate()
   const [history, setHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -63,6 +65,15 @@ export default function HistoryPage() {
                   <Clock size={12} style={{ verticalAlign: '-1px', marginRight: '0.2rem' }} />
                   {item.created_at ? new Date(item.created_at).toLocaleDateString('ru-RU') : '—'}
                 </span>
+                {item.status === 'completed' && item.id && (
+                  <button
+                    onClick={() => navigate(`/app/results/${item.id}`)}
+                    className="btn btn-secondary btn-sm"
+                    style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}
+                  >
+                    <ExternalLink size={12} /> Открыть
+                  </button>
+                )}
               </div>
             </div>
           ))}

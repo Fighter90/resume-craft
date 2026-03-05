@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Download, TrendingUp, Target, Award, Tag, BookOpen, Cpu, Edit, AlertCircle, Loader } from 'lucide-react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ArrowRight, Download, TrendingUp, Target, Award, Tag, BookOpen, Cpu, Edit, AlertCircle, Loader, Briefcase, X, MapPin, DollarSign, Clock, ExternalLink } from 'lucide-react'
 import { useWizard } from '../../contexts/WizardContext'
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
@@ -8,16 +8,23 @@ import { api } from '../../services/api'
 
 export default function ResultsPage() {
   const navigate = useNavigate()
+  const { id: urlId } = useParams<{ id: string }>()
   const { taskId, result, setResult } = useWizard()
   const [loading, setLoading] = useState(!result)
   const [error, setError] = useState<string | null>(null)
+  const [vacancyModalOpen, setVacancyModalOpen] = useState(false)
+  const [vacancy, setVacancy] = useState<any>(null)
+  const [vacancyLoading, setVacancyLoading] = useState(false)
+
+  // Resolve effective ID: wizard taskId → URL param
+  const effectiveId = taskId || urlId
 
   useEffect(() => {
     if (result) { setLoading(false); return }
-    if (!taskId) { setError('Нет данных для отображения'); setLoading(false); return }
+    if (!effectiveId) { setError('Нет данных для отображения'); setLoading(false); return }
     const fetchResult = async () => {
       try {
-        const res = await api.getRewriteResult(taskId) as any
+        const res = await api.getRewriteResult(effectiveId) as any
         setResult(res)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Ошибка загрузки результатов')
@@ -26,7 +33,22 @@ export default function ResultsPage() {
       }
     }
     fetchResult()
-  }, [taskId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [effectiveId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const openVacancyModal = async () => {
+    if (!result?.vacancy_id) return
+    setVacancyModalOpen(true)
+    if (vacancy) return // already loaded
+    setVacancyLoading(true)
+    try {
+      const v = await api.getVacancy(result.vacancy_id)
+      setVacancy(v)
+    } catch {
+      setVacancy({ _error: 'Не удалось загрузить данные вакансии' })
+    } finally {
+      setVacancyLoading(false)
+    }
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', gap: '0.75rem' }}>
@@ -63,10 +85,15 @@ export default function ResultsPage() {
           <p>Оптимизация завершена</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {result?.vacancy_id && (
+            <button onClick={openVacancyModal} className="btn btn-secondary">
+              <Briefcase size={16} /> Вакансия
+            </button>
+          )}
           <button onClick={() => navigate('/app/editor')} className="btn btn-secondary">
             <Edit size={16} /> Редактировать
           </button>
-          <button onClick={() => navigate('/app/export')} className="btn btn-primary">
+          <button onClick={() => navigate(`/app/export/${result?.id || effectiveId || ''}`)} className="btn btn-primary">
             <Download size={16} /> Экспорт
           </button>
         </div>
@@ -209,10 +236,140 @@ export default function ResultsPage() {
         <button onClick={() => navigate('/app/editor')} className="btn btn-primary" style={{ flex: 1 }}>
           Редактировать <ArrowRight size={16} />
         </button>
-        <button onClick={() => navigate('/app/export')} className="btn btn-secondary" style={{ flex: 1 }}>
+        <button onClick={() => navigate(`/app/export/${result?.id || effectiveId || ''}`)} className="btn btn-secondary" style={{ flex: 1 }}>
           <Download size={16} /> Экспорт
         </button>
       </div>
+
+      {/* Vacancy Details Modal */}
+      {vacancyModalOpen && (
+        <div
+          className="modal-overlay"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem',
+          }}
+          onClick={() => setVacancyModalOpen(false)}
+        >
+          <div
+            className="card"
+            style={{
+              maxWidth: 640, width: '100%', maxHeight: '85vh', overflow: 'auto',
+              padding: '1.5rem', position: 'relative',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setVacancyModalOpen(false)}
+              style={{
+                position: 'absolute', top: '1rem', right: '1rem',
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--text-secondary)', padding: '0.25rem',
+              }}
+              aria-label="Закрыть"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.25rem', paddingRight: '2rem' }}>
+              <Briefcase size={18} style={{ verticalAlign: '-3px', marginRight: '0.5rem' }} />
+              Подробности вакансии
+            </h2>
+
+            {vacancyLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '2rem', color: 'var(--text-secondary)' }}>
+                <Loader size={18} className="spin" /> Загрузка...
+              </div>
+            ) : vacancy?._error ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', padding: '1rem' }}>
+                <AlertCircle size={16} /> {vacancy._error}
+              </div>
+            ) : vacancy ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{vacancy.title}</h3>
+                  {vacancy.company && (
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>{vacancy.company}</div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+                  {vacancy.city && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-secondary)' }}>
+                      <MapPin size={14} /> {vacancy.city}
+                    </span>
+                  )}
+                  {(vacancy.salary_from || vacancy.salary_to) && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--success)', fontWeight: 600 }}>
+                      <DollarSign size={14} />
+                      {vacancy.salary_from && vacancy.salary_to
+                        ? `${vacancy.salary_from.toLocaleString('ru-RU')} – ${vacancy.salary_to.toLocaleString('ru-RU')} ₽`
+                        : vacancy.salary_from
+                          ? `от ${vacancy.salary_from.toLocaleString('ru-RU')} ₽`
+                          : `до ${vacancy.salary_to.toLocaleString('ru-RU')} ₽`
+                      }
+                    </span>
+                  )}
+                  {vacancy.experience && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-secondary)' }}>
+                      <Clock size={14} /> {vacancy.experience}
+                    </span>
+                  )}
+                </div>
+
+                {vacancy.key_skills?.length > 0 && (
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Ключевые навыки</div>
+                    <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                      {vacancy.key_skills.map((s: string) => (
+                        <span key={s} className="badge badge-indigo">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {vacancy.requirements && Object.keys(vacancy.requirements).length > 0 && (
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Требования</div>
+                    <div style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                      {typeof vacancy.requirements === 'string'
+                        ? vacancy.requirements
+                        : Object.entries(vacancy.requirements).map(([k, v]) => (
+                            <div key={k} style={{ marginBottom: '0.25rem' }}>
+                              <strong>{k}:</strong> {String(v)}
+                            </div>
+                          ))
+                      }
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Описание</div>
+                  <div
+                    style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}
+                    dangerouslySetInnerHTML={{ __html: vacancy.description }}
+                  />
+                </div>
+
+                {vacancy.source_url && (
+                  <a
+                    href={vacancy.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary btn-sm"
+                    style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}
+                  >
+                    <ExternalLink size={14} /> Открыть на hh.ru
+                  </a>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

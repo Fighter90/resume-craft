@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Download, FileText, FileType, ExternalLink, Check, AlertCircle, Loader } from 'lucide-react'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const FORMATS = [
   { id: 'docx', icon: FileText, label: 'DOCX', desc: 'Microsoft Word — рекомендуем для hh.ru' },
@@ -18,14 +20,34 @@ const TEMPLATES = [
 
 export default function ExportPage() {
   const navigate = useNavigate()
-  const { result } = useWizard()
+  const { id: urlId } = useParams<{ id: string }>()
+  const { result, setResult } = useWizard()
   const [format, setFormat] = useState('docx')
   const [template, setTemplate] = useState('professional')
   const [downloading, setDownloading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadingResult, setLoadingResult] = useState(false)
+
+  // If result is not in wizard context but we have a URL ID, fetch it
+  useEffect(() => {
+    if (result || !urlId) return
+    setLoadingResult(true)
+    const load = async () => {
+      try {
+        const res = await api.getRewriteResult(urlId) as any
+        setResult(res)
+      } catch {
+        setError('Не удалось загрузить данные для экспорта')
+      } finally {
+        setLoadingResult(false)
+      }
+    }
+    load()
+  }, [urlId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const exportId = result?.id || urlId
 
   const handleDownload = async () => {
-    const exportId = result?.id
     if (!exportId) {
       setError('Нет данных для экспорта. Выполните оптимизацию сначала.')
       return
@@ -47,6 +69,14 @@ export default function ExportPage() {
     } finally {
       setDownloading(false)
     }
+  }
+
+  if (loadingResult) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', gap: '0.75rem' }}>
+        <Loader size={24} className="spin" /> Загрузка данных...
+      </div>
+    )
   }
 
   return (

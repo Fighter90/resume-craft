@@ -93,6 +93,7 @@ export default function App() {
         <Route path="results/:id" element={<ResultsPage />} />
         <Route path="editor" element={<EditorPage />} />
         <Route path="export" element={<ExportPage />} />
+        <Route path="export/:id" element={<ExportPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="settings" element={<SettingsLayout />}>
           <Route index element={<Navigate to="profile" replace />} />
