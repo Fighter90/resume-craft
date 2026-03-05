@@ -21,7 +21,7 @@ jobs:
     name: "🚀 Deploy to Production"
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Deploy via SSH
@@ -32,7 +32,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script_stop: true
-          timeout: 600s
+          timeout: 900s
           script: |
             set -euo pipefail
             cd /opt/resumecraft
