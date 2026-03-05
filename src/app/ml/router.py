@@ -116,12 +116,17 @@ async def _fetch_openai_models(api_key: str) -> dict[str, Any]:
 
         # Фильтруем только chat-модели GPT
         chat_prefixes = ('gpt-4', 'gpt-3.5', 'o1', 'o3', 'o4')
-        exclude_keywords = ('instruct', 'realtime', 'audio', 'transcribe', 'tts', 'dall-e', 'whisper', 'embedding', 'moderation', 'search')
+        exclude_keywords = (
+            'instruct', 'realtime', 'audio', 'transcribe',
+            'tts', 'dall-e', 'whisper', 'embedding',
+            'moderation', 'search',
+        )
         models = []
         for m in data.get('data', []):
             mid = m.get('id', '')
-            if any(mid.startswith(p) for p in chat_prefixes):
-                if not any(kw in mid for kw in exclude_keywords):
+            if any(mid.startswith(p) for p in chat_prefixes) and not any(
+                kw in mid for kw in exclude_keywords
+            ):
                     models.append({
                         'id': mid,
                         'name': mid,
@@ -179,9 +184,21 @@ async def _fetch_anthropic_models(api_key: str) -> dict[str, Any]:
         logger.warning('Failed to fetch Anthropic models: %s', exc)
         return {
             'sub_models': [
-                {'id': 'claude-sonnet-4-20250514', 'name': 'Claude Sonnet 4', 'provider': 'Anthropic'},
-                {'id': 'claude-3-5-sonnet-20241022', 'name': 'Claude 3.5 Sonnet', 'provider': 'Anthropic'},
-                {'id': 'claude-3-5-haiku-20241022', 'name': 'Claude 3.5 Haiku', 'provider': 'Anthropic'},
+                {
+                    'id': 'claude-sonnet-4-20250514',
+                    'name': 'Claude Sonnet 4',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'claude-3-5-sonnet-20241022',
+                    'name': 'Claude 3.5 Sonnet',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'claude-3-5-haiku-20241022',
+                    'name': 'Claude 3.5 Haiku',
+                    'provider': 'Anthropic',
+                },
             ],
             'fallback': True,
         }
@@ -221,11 +238,31 @@ async def _fetch_openrouter_models(api_key: str) -> dict[str, Any]:
         logger.warning('Failed to fetch OpenRouter models: %s', exc)
         return {
             'sub_models': [
-                {'id': 'anthropic/claude-sonnet-4', 'name': 'Claude Sonnet 4', 'provider': 'Anthropic'},
-                {'id': 'anthropic/claude-3.5-sonnet', 'name': 'Claude 3.5 Sonnet', 'provider': 'Anthropic'},
-                {'id': 'google/gemini-2.5-flash-preview', 'name': 'Gemini 2.5 Flash', 'provider': 'Google'},
-                {'id': 'deepseek/deepseek-chat-v3-0324', 'name': 'DeepSeek V3', 'provider': 'DeepSeek'},
-                {'id': 'mistralai/mistral-large-2411', 'name': 'Mistral Large', 'provider': 'Mistral'},
+                {
+                    'id': 'anthropic/claude-sonnet-4',
+                    'name': 'Claude Sonnet 4',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'anthropic/claude-3.5-sonnet',
+                    'name': 'Claude 3.5 Sonnet',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'google/gemini-2.5-flash-preview',
+                    'name': 'Gemini 2.5 Flash',
+                    'provider': 'Google',
+                },
+                {
+                    'id': 'deepseek/deepseek-chat-v3-0324',
+                    'name': 'DeepSeek V3',
+                    'provider': 'DeepSeek',
+                },
+                {
+                    'id': 'mistralai/mistral-large-2411',
+                    'name': 'Mistral Large',
+                    'provider': 'Mistral',
+                },
             ],
             'fallback': True,
         }

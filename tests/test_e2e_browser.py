@@ -454,7 +454,11 @@ class TestProtectedPages:
 
         content = auth_page.content()
         has_models = any(
-            word in content for word in ['GigaChat', 'GPT', 'Anthropic', 'Claude', 'OpenRouter', 'модел', 'AI']
+            word in content
+            for word in [
+                'GigaChat', 'GPT', 'Anthropic',
+                'Claude', 'OpenRouter', 'модел', 'AI',
+            ]
         )
         assert has_models, 'Models page не содержит списка моделей'
 
@@ -710,7 +714,13 @@ class TestWizardFlow:
         auth_page.wait_for_timeout(1000)
 
         content = auth_page.content()
-        has_models = any(word in content for word in ['GigaChat', 'GPT', 'Anthropic', 'Claude', 'OpenRouter'])
+        has_models = any(
+            word in content
+            for word in [
+                'GigaChat', 'GPT', 'Anthropic',
+                'Claude', 'OpenRouter',
+            ]
+        )
         assert has_models, 'Wizard models шаг не содержит карточек моделей'
 
 
