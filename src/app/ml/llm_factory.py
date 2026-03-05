@@ -7,6 +7,7 @@ import logging
 from app.core.config import get_settings
 from app.core.exceptions import LLMProviderUnavailable
 from app.ml.llm_client import (
+    AnthropicClient,
     BaseLLMClient,
     GigaChatClient,
     GroqClient,
@@ -26,6 +27,9 @@ _PROVIDERS: dict[str, type[BaseLLMClient]] = {
     'openai': OpenAIClient,
     'gpt-4o-mini': OpenAIClient,
     'gpt-4o': OpenAIClient,
+    'anthropic': AnthropicClient,
+    'claude-sonnet': AnthropicClient,
+    'claude-haiku': AnthropicClient,
     'openrouter': OpenRouterClient,
 }
 
@@ -39,6 +43,9 @@ _MODEL_NAMES: dict[str, str] = {
     'openai': 'gpt-4o-mini',
     'gpt-4o-mini': 'gpt-4o-mini',
     'gpt-4o': 'gpt-4o',
+    'anthropic': 'claude-sonnet-4-20250514',
+    'claude-sonnet': 'claude-sonnet-4-20250514',
+    'claude-haiku': 'claude-3-5-haiku-20241022',
     'openrouter': 'anthropic/claude-3.5-sonnet',
 }
 
@@ -52,6 +59,9 @@ _PROVIDER_KEY_FIELDS: dict[str, str] = {
     'openai': 'openai_api_key',
     'gpt-4o-mini': 'openai_api_key',
     'gpt-4o': 'openai_api_key',
+    'anthropic': 'anthropic_api_key',
+    'claude-sonnet': 'anthropic_api_key',
+    'claude-haiku': 'anthropic_api_key',
     'openrouter': 'openrouter_api_key',
 }
 
@@ -69,7 +79,7 @@ OPENROUTER_MODELS: list[dict[str, str]] = [
 ]
 
 # Порядок fallback
-FALLBACK_ORDER: list[str] = ['gigachat-pro', 'groq', 'openrouter', 'openai']
+FALLBACK_ORDER: list[str] = ['gigachat-pro', 'groq', 'anthropic', 'openrouter', 'openai']
 
 
 class LLMClientFactory:

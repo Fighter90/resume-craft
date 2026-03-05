@@ -314,3 +314,9 @@ credentials/
 service-account*.json
 *-credentials.json
 *-serviceaccount.json
+
+# Test fixtures — real resumes (never commit personal data)
+tests/fixtures/*.pdf
+tests/fixtures/*.docx
+tests/fixtures/*.doc
+tests/fixtures/*.rtf

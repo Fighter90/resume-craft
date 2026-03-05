@@ -152,6 +152,7 @@ jobs:
           pytest tests/ \
             --ignore=tests/test_e2e_browser.py \
             --ignore=tests/test_acceptance.py \
+            --ignore=tests/test_integration_llm.py \
             --cov=src/app \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing \

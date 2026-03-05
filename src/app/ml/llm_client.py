@@ -1,4 +1,4 @@
-"""Базовый LLM-клиент и реализации для GigaChat, Groq, OpenAI, OpenRouter."""
+"""Базовый LLM-клиент и реализации для GigaChat, Groq, OpenAI, Anthropic, OpenRouter."""
 
 from __future__ import annotations
 
@@ -238,6 +238,62 @@ class OpenAIClient(BaseLLMClient):
 
     async def close(self) -> None:
         """Закрытие OpenAI клиента."""
+        if self._client:
+            await self._client.close()
+            self._client = None
+
+
+class AnthropicClient(BaseLLMClient):
+    """Клиент Anthropic Claude — прямой доступ к Claude моделям."""
+
+    def __init__(self, model: str = 'claude-sonnet-4-20250514') -> None:
+        self._model = model
+        self._client: Any = None
+
+    def _get_client(self) -> Any:
+        """Lazy-инициализация Anthropic клиента."""
+        if self._client is None:
+            import anthropic
+
+            self._client = anthropic.AsyncAnthropic(
+                api_key=settings.anthropic_api_key,
+            )
+        return self._client
+
+    async def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        temperature: float = 0.3,
+        max_tokens: int = 4096,
+    ) -> str:
+        """Запрос к Anthropic API."""
+        client = self._get_client()
+
+        try:
+            response = await client.messages.create(
+                model=self._model,
+                max_tokens=max_tokens,
+                system=system,
+                messages=[
+                    {'role': 'user', 'content': user},
+                ],
+                temperature=temperature,
+            )
+        except Exception as exc:
+            _handle_llm_error(exc, provider='anthropic')
+
+        content = response.content[0].text if response.content else ''
+        logger.info(
+            'Anthropic response: model=%s, tokens=%s',
+            self._model,
+            response.usage.output_tokens if response.usage else 'N/A',
+        )
+        return content
+
+    async def close(self) -> None:
+        """Закрытие Anthropic клиента."""
         if self._client:
             await self._client.close()
             self._client = None

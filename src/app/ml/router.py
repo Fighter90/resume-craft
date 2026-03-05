@@ -14,6 +14,7 @@ _KEY_FIELDS: dict[str, str] = {
     'gigachat': 'gigachat_credentials',
     'openai': 'openai_api_key',
     'groq': 'groq_api_key',
+    'anthropic': 'anthropic_api_key',
     'openrouter': 'openrouter_api_key',
 }
 
@@ -54,7 +55,14 @@ async def list_models() -> dict[str, object]:
             'name': 'Llama 3.3 70B',
             'provider': 'groq',
             'available': available['groq'],
-            'description': 'Бесплатно 14 400 запросов/день',
+            'description': 'Бесплатно 14 400 запросов/день (Groq)',
+        },
+        {
+            'id': 'anthropic',
+            'name': 'Claude Sonnet 4',
+            'provider': 'anthropic',
+            'available': available['anthropic'],
+            'description': 'Anthropic Claude — отличный русский, 200K контекст',
         },
         {
             'id': 'openrouter',

@@ -221,7 +221,7 @@ def _parse_llm_response(response: str, *, task: RewriteHistory) -> bool:
             lines = clean.split('\n')
             clean = '\n'.join(lines[1:-1])
 
-        data = json.loads(clean)
+        data = json.loads(clean, strict=False)
         task.rewritten_data = data
         task.keywords_added = data.get('keywords_added', [])
         return True
