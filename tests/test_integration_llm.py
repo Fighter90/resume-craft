@@ -131,7 +131,15 @@ def resume_docx_bytes() -> bytes:
 
 
 def _validate_rewrite_json(response: str) -> dict:
-    """Парсинг и валидация JSON-ответа LLM."""
+    """Парсинг и валидация JSON-ответа LLM.
+
+    Поддерживает:
+    - markdown code blocks (```json ... ```)
+    - control characters (GigaChat)
+    - мелкие синтаксические ошибки JSON (пропущенные запятые и т.д.)
+    """
+    import re
+
     clean = response.strip()
     # Удаляем markdown code blocks
     if clean.startswith('```'):
@@ -142,8 +150,26 @@ def _validate_rewrite_json(response: str) -> dict:
     if clean.endswith('```'):
         clean = clean[:-3]
 
+    clean = clean.strip()
+
     # strict=False — разрешаем control characters (GigaChat иногда их вставляет)
-    data = json.loads(clean.strip(), strict=False)
+    try:
+        data = json.loads(clean, strict=False)
+    except json.JSONDecodeError:
+        # Попытка авто-исправления: trailing commas, пропущенные запятые
+        fixed = re.sub(r',\s*([}\]])', r'\1', clean)  # trailing commas
+        fixed = re.sub(r'"\s*\n\s*"', '",\n"', fixed)  # missing commas between strings
+        fixed = re.sub(r'}\s*\n\s*{', '},\n{', fixed)  # missing commas between objects
+        fixed = re.sub(r']\s*\n\s*"', '],\n"', fixed)  # missing comma after array
+        try:
+            data = json.loads(fixed, strict=False)
+        except json.JSONDecodeError:
+            # Последняя попытка — найти JSON-объект через regex
+            match = re.search(r'\{.*\}', clean, re.DOTALL)
+            if match:
+                data = json.loads(match.group(), strict=False)
+            else:
+                raise
 
     # Основные поля
     assert 'summary' in data, 'No summary in response'

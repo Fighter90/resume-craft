@@ -1,7 +1,7 @@
 # ResumeCraft — Baseline MVP
 
-> **Версия:** 1.1  
-> **Дата:** Февраль 2026  
+> **Версия:** 1.2  
+> **Дата:** Март 2026  
 > **Тип документа:** Техническая спецификация MVP  
 > **Связанные документы:** README.md (обзор), ANALYSIS.md (аудитория), REFERENCES.md (источники)
 
@@ -725,6 +725,7 @@ class BaseLLMClient(ABC):
 
 class GigaChatClient(BaseLLMClient): ...
 class GroqClient(BaseLLMClient): ...
+class AnthropicClient(BaseLLMClient): ...
 
 class LLMClientFactory:
     _clients = {
@@ -733,13 +734,16 @@ class LLMClientFactory:
         "groq": GroqClient,
         "llama-3.3-70b": GroqClient,
         "llama-3-70b": GroqClient,
+        "anthropic": AnthropicClient,
+        "claude-sonnet": AnthropicClient,
+        "claude-haiku": AnthropicClient,
         "openrouter": OpenRouterClient,
         "openai": OpenAIClient,
         "gpt-4o-mini": OpenAIClient,
         "gpt-4o": OpenAIClient,
     }
 
-    FALLBACK_ORDER = ["gigachat-pro", "groq", "openrouter", "openai"]
+    FALLBACK_ORDER = ["gigachat-pro", "groq", "anthropic", "openrouter", "openai"]
 
     @classmethod
     def create(cls, model: str) -> BaseLLMClient:
@@ -946,9 +950,11 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов** | 367 (pytest + pytest-asyncio) |
+| **Backend тестов (unit)** | 368 (pytest + pytest-asyncio) |
+| **Backend тестов (integration)** | 24 (реальные LLM API: 5 провайдеров) |
+| **Backend тестов (E2E)** | 38 (Playwright) |
 | **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 565 |
+| **Всего тестов** | 628 |
 | **Backend покрытие** | 100% (1473 statements, 0 uncovered) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
@@ -976,7 +982,7 @@ def validate_upload(file: UploadFile) -> None:
 | `test_vacancies/` | 42 | hh.ru клиент, CRUD, retry, таймауты, HTTP-ошибки — 100% |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
 | `test_export/` | 11 | DOCX-генерация — 100% |
-| `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация — 100% |
+| `test_ml/` | 71 | LLM-клиенты (GigaChat, Groq, Anthropic, OpenRouter, OpenAI), фабрика, парсер, скоринг, эмбеддинги, санитизация — 100% |
 | `test_core/` | 79 | config, security, database, storage, exceptions, deps, **seed** — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
@@ -1135,7 +1141,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **565** (367 backend + 198 frontend) |
+| Тестов всего | — | **628** (368 unit + 24 integration + 38 E2E + 198 frontend) |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Llama 3) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1178,8 +1184,8 @@ Docker Desktop → docker compose up -d
 
 | Риск | Вероятность | Влияние | Митигация |
 |------|-----------|---------|-----------|
-| GigaChat API недоступен | Средняя | Высокое | Fallback на Llama 3 (Groq) → OpenRouter |
-| Groq rate limit исчерпан | Средняя | Среднее | 14 400 req/день. При исчерпании → GigaChat |
+| GigaChat API недоступен | Средняя | Высокое | Fallback на Groq → Anthropic → OpenRouter → OpenAI |
+| Groq rate limit исчерпан | Средняя | Среднее | 14 400 req/день. При исчерпании → Anthropic → OpenRouter |
 | hh.ru API блокирует | Низкая | Среднее | User-Agent + ручной ввод как fallback |
 | LLM-ответы нестабильны | Средняя | Высокое | Pydantic-валидация + retry (до 3) |
 | Не хватает времени | Средняя | Высокое | Приоритизация Must-требований |
@@ -1201,12 +1207,12 @@ Docker Desktop → docker compose up -d
 | Аутентификация | Email + пароль, JWT |
 | Резюме | PDF/DOCX, парсинг, LLM-структуризация |
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
-| AI-оптимизация | GigaChat Pro + Llama 3 + OpenRouter, Match Score, ATS |
+| AI-оптимизация | GigaChat Pro + Llama 3 + Anthropic Claude + OpenRouter + OpenAI, Match Score, ATS |
 | Экспорт | DOCX |
 | UI | React SPA (23 маршрута, модульная архитектура, 198 тестов) |
 | Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
 | Оплата | Робокасса (тестовый режим, URL-генерация + подпись) |
-| Тестирование | Unit + Integration + Frontend, 565 тестов, 100% backend coverage |
+| Тестирование | Unit + Integration + E2E + Frontend, 628 тестов, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 

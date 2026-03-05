@@ -209,10 +209,14 @@ async def execute_rewrite(
 def _parse_llm_response(response: str, *, task: RewriteHistory) -> bool:
     """Попытка парсинга JSON-ответа LLM.
 
+    Обрабатывает markdown code blocks, control characters,
+    пропущенные запятые и trailing commas.
+
     Returns:
         True если JSON успешно распарсен, False иначе.
     """
     import json
+    import re
 
     try:
         # LLM может вернуть JSON в markdown code block
@@ -221,7 +225,25 @@ def _parse_llm_response(response: str, *, task: RewriteHistory) -> bool:
             lines = clean.split('\n')
             clean = '\n'.join(lines[1:-1])
 
-        data = json.loads(clean, strict=False)
+        clean = clean.strip()
+
+        try:
+            data = json.loads(clean, strict=False)
+        except json.JSONDecodeError:
+            # Авто-исправление мелких ошибок JSON от LLM
+            fixed = re.sub(r',\s*([}\]])', r'\1', clean)  # trailing commas
+            fixed = re.sub(r'"\s*\n\s*"', '",\n"', fixed)  # пропущенные запятые
+            fixed = re.sub(r'}\s*\n\s*{', '},\n{', fixed)
+            fixed = re.sub(r']\s*\n\s*"', '],\n"', fixed)
+            try:
+                data = json.loads(fixed, strict=False)
+            except json.JSONDecodeError:
+                match = re.search(r'\{.*\}', clean, re.DOTALL)
+                if match:
+                    data = json.loads(match.group(), strict=False)
+                else:
+                    raise
+
         task.rewritten_data = data
         task.keywords_added = data.get('keywords_added', [])
         return True

@@ -1,8 +1,8 @@
 # ResumeCraft — Обзор литературы и конкурентного окружения
 
-> **Версия:** 1.1  
-> **Дата:** Февраль 2026  
-> **Источников:** 59 верифицированных  
+> **Версия:** 1.2  
+> **Дата:** Март 2026  
+> **Источников:** 60 верифицированных  
 > **Связанные документы:** README.md (обзор), ANALYSIS.md (аудитория), BASELINE.md (спецификация)
 
 ---
@@ -148,6 +148,11 @@ LPU-инференс. Free tier: 14 400 req/день для Llama 3.3 70B. 2–5
 
 **URL:** https://yandex.cloud/ru/docs/foundation-models/  
 YandexGPT 4. Нативная интеграция с Yandex Cloud, streaming, embeddings.
+
+### [60] Anthropic — Claude API
+
+**URL:** https://docs.anthropic.com/en/docs  
+Claude Sonnet 4, Claude Haiku. 200K контекст, structured output, Messages API. Прямая интеграция через `anthropic` SDK.
 
 ---
 
@@ -394,6 +399,7 @@ Open-source LLM от Meta. Основа Llama 3.3 70B, используемой 
 | 20 | Ollama | Тех. док. | 2025 |
 | 21 | MERA Benchmark | Бенчмарк | 2025 |
 | 22 | YandexGPT | Тех. док. | 2025 |
+| 60 | Anthropic — Claude API | Тех. док. | 2025 |
 | 23 | Rezi.ai | Продукт | 2025 |
 | 24 | Jobscan | Продукт | 2025 |
 | 25 | Resume Worded | Продукт | 2025 |
@@ -434,4 +440,4 @@ Open-source LLM от Meta. Основа Llama 3.3 70B, используемой 
 
 ---
 
-*ResumeCraft — 59 верифицированных источников по всем аспектам проекта.*
+*ResumeCraft — 60 верифицированных источников по всем аспектам проекта.*
