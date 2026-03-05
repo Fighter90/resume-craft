@@ -19,7 +19,7 @@ mypy==1.14.1
 
 # --- Security ---
 bandit[toml]==1.8.3
-pip-audit==2.7.3
+pip-audit==2.10.0
 
 # --- Debug ---
 ipdb==0.13.13
