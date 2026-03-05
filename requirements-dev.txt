@@ -9,7 +9,7 @@ pytest==8.3.4
 pytest-asyncio==0.24.0
 pytest-cov==6.0.0
 httpx==0.28.1
-aiosqlite==0.20.0
+aiosqlite==0.22.1
 factory-boy==3.3.1
 Faker==33.1.0
 
