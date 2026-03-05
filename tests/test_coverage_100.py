@@ -209,8 +209,9 @@ class TestLLMClientFactoryExtraFallback:
 
         from app.ml.llm_factory import LLMClientFactory
 
-        with patch('app.ml.llm_factory.get_settings', return_value=s), pytest.raises(
-            LLMProviderUnavailable
+        with (
+            patch('app.ml.llm_factory.get_settings', return_value=s),
+            pytest.raises(LLMProviderUnavailable),
         ):
             LLMClientFactory.create_with_fallback()
 
@@ -370,12 +371,14 @@ class TestRewriterServiceEdgeCases:
         task.rewritten_data = None
         task.keywords_added = None
 
-        response = json.dumps({
-            'summary': 'Опытный разработчик',
-            'experience': [],
-            'skills': ['Python', 'FastAPI'],
-            'keywords_added': ['Docker', 'CI/CD'],
-        })
+        response = json.dumps(
+            {
+                'summary': 'Опытный разработчик',
+                'experience': [],
+                'skills': ['Python', 'FastAPI'],
+                'keywords_added': ['Docker', 'CI/CD'],
+            }
+        )
 
         result = _parse_llm_response(response, task=task)
         assert result is True
@@ -503,9 +506,7 @@ class TestOpenRouterClientError:
         from app.ml.llm_client import OpenRouterClient
 
         mock_sdk = AsyncMock()
-        mock_sdk.chat.completions.create = AsyncMock(
-            side_effect=Exception('OpenRouter timeout')
-        )
+        mock_sdk.chat.completions.create = AsyncMock(side_effect=Exception('OpenRouter timeout'))
         mock_get.return_value = mock_sdk
 
         client = OpenRouterClient()
@@ -572,10 +573,7 @@ class TestResumeFromTextEndpoint:
                 'app.resumes.router.resume_service.create_from_text',
                 new=AsyncMock(return_value=mock_resume),
             ):
-                long_text = (
-                    'Python разработчик с опытом работы'
-                    ' более пяти лет в крупных проектах'
-                )
+                long_text = 'Python разработчик с опытом работы более пяти лет в крупных проектах'
                 resp = await client.post(
                     '/api/v1/resumes/from-text',
                     json={'text': long_text},
@@ -617,9 +615,7 @@ class TestRewriterServiceSubModel:
         mock_result_vacancy = MagicMock()
         mock_result_vacancy.scalar_one_or_none.return_value = mock_vacancy
 
-        mock_session.execute = AsyncMock(
-            side_effect=[mock_result_resume, mock_result_vacancy]
-        )
+        mock_session.execute = AsyncMock(side_effect=[mock_result_resume, mock_result_vacancy])
         mock_session.add = MagicMock()
         mock_session.flush = AsyncMock()
 
@@ -673,9 +669,7 @@ class TestExecuteRewriteEdgeCases:
         mock_llm_client.close = AsyncMock()
 
         mock_session = AsyncMock()
-        mock_session.get = AsyncMock(
-            side_effect=[mock_task, mock_vacancy, mock_resume]
-        )
+        mock_session.get = AsyncMock(side_effect=[mock_task, mock_vacancy, mock_resume])
         mock_session.flush = AsyncMock()
 
         with patch(
@@ -715,9 +709,7 @@ class TestExecuteRewriteEdgeCases:
         mock_vacancy.description = 'Python developer'
 
         mock_session = AsyncMock()
-        mock_session.get = AsyncMock(
-            side_effect=[mock_task, mock_vacancy]
-        )
+        mock_session.get = AsyncMock(side_effect=[mock_task, mock_vacancy])
         mock_session.flush = AsyncMock()
 
         # LLM factory бросает AppError с detail
