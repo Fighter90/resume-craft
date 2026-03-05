@@ -158,8 +158,11 @@ beforeEach(() => {
   vi.spyOn(window, 'alert').mockImplementation(() => {})
 
   // Mock URL.createObjectURL / revokeObjectURL
-  global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
-  global.URL.revokeObjectURL = vi.fn()
+  vi.stubGlobal('URL', {
+    ...window.URL,
+    createObjectURL: vi.fn(() => 'blob:mock-url'),
+    revokeObjectURL: vi.fn(),
+  })
 
   // Clear localStorage
   localStorage.clear()
