@@ -73,13 +73,13 @@ export default function SettingsProfilePage() {
       />
 
       {/* Avatar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{
-          width: 72, height: 72, borderRadius: '50%',
+          width: 72, height: 72, minWidth: 72, minHeight: 72, borderRadius: '50%',
           background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : 'var(--primary-gradient)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontSize: '1.5rem', fontWeight: 700, position: 'relative',
-          overflow: 'hidden',
+          overflow: 'hidden', flexShrink: 0,
         }}>
           {!avatarUrl && 'АП'}
           <button
@@ -93,10 +93,10 @@ export default function SettingsProfilePage() {
             <Camera size={12} />
           </button>
         </div>
-        <div>
-          <div style={{ fontWeight: 600 }}>{form.firstName} {form.lastName}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            {form.email}
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{form.firstName} {form.lastName}</div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{form.email}</span>
             <CheckCircle size={14} style={{ color: 'var(--success)' }} />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>

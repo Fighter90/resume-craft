@@ -223,7 +223,7 @@ describe('ResumesPage', () => {
     })
   })
 
-  it('download shows alert for non-optimized resumes', async () => {
+  it('download works for non-optimized resumes (no alert)', async () => {
     renderResumesPage()
     await waitFor(() => expect(screen.getAllByText('Frontend Developer Resume').length).toBeGreaterThanOrEqual(1))
 
@@ -232,8 +232,9 @@ describe('ResumesPage', () => {
     const downloadButtons = screen.getAllByTitle('Скачать')
     fireEvent.click(downloadButtons[2]) // res-2 is draft
 
+    // v3: download no longer blocked for non-optimized — no alert shown
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('оптимизированных'))
+      expect(window.alert).not.toHaveBeenCalledWith(expect.stringContaining('оптимизированных'))
     })
   })
 

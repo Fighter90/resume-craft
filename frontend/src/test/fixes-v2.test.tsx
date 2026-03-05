@@ -138,9 +138,9 @@ describe('ResumesPage v2', () => {
       expect(screen.getByText('Черновик')).toBeInTheDocument()
     })
 
-    const optimizeLink = screen.getByTitle('Оптимизировать')
-    expect(optimizeLink).toBeInTheDocument()
-    expect(optimizeLink.closest('a')).toHaveAttribute('href', '/app/upload')
+    // v3: optimize is now a <button> with confirmation dialog, not a <a> link
+    const optimizeBtn = screen.getAllByTitle('Оптимизировать')
+    expect(optimizeBtn.length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows optimize button for processing resumes', async () => {
@@ -154,7 +154,7 @@ describe('ResumesPage v2', () => {
     expect(screen.getAllByTitle('Оптимизировать').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('does NOT show optimize button for optimized resumes', async () => {
+  it('shows optimize button for optimized resumes too (v3)', async () => {
     mockGetResumes.mockResolvedValue([optimizedResume])
     renderInRouter(<ResumesPage />)
 
@@ -162,7 +162,8 @@ describe('ResumesPage v2', () => {
       expect(screen.getAllByText('Оптимизированное').length).toBeGreaterThanOrEqual(1)
     })
 
-    expect(screen.queryByTitle('Оптимизировать')).not.toBeInTheDocument()
+    // v3: optimize button is now shown for ALL statuses (re-optimize)
+    expect(screen.getAllByTitle('Оптимизировать').length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders Применить filter button', async () => {
@@ -200,7 +201,7 @@ describe('ResumesPage v2', () => {
     })
   })
 
-  it('shows mix of optimize and non-optimize buttons in a list of mixed resumes', async () => {
+  it('shows optimize buttons for ALL resumes in a mixed list (v3)', async () => {
     mockGetResumes.mockResolvedValue([draftResume, optimizedResume, processingResume])
     renderInRouter(<ResumesPage />)
 
@@ -208,9 +209,9 @@ describe('ResumesPage v2', () => {
       expect(screen.getByText('Черновик')).toBeInTheDocument()
     })
 
-    // 2 optimize buttons (draft + processing), not for optimized
+    // v3: optimize button shown for all statuses — 3 resumes in desktop + 3 in mobile cards
     const optimizeButtons = screen.getAllByTitle('Оптимизировать')
-    expect(optimizeButtons).toHaveLength(2)
+    expect(optimizeButtons.length).toBeGreaterThanOrEqual(3)
   })
 
   it('renders search input and search button', async () => {

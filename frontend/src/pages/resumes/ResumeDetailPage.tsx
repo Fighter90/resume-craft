@@ -1,5 +1,5 @@
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { ArrowLeft, FileText, Calendar, Tag, Loader, AlertCircle, Edit, Trash2, Briefcase } from 'lucide-react'
+import { ArrowLeft, FileText, Calendar, Tag, Loader, AlertCircle, Trash2, Briefcase, Download, Eye } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 
@@ -15,19 +15,42 @@ const statusLabel = (s: string) => {
   }
 }
 
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 export default function ResumeDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [resume, setResume] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [fileUrl, setFileUrl] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     if (!id) { setError('ID резюме не указан'); setLoading(false); return }
+    let blobUrl: string | null = null
     const load = async () => {
       try {
         const res = await api.getResume(id)
         setResume(res)
+        const fmt = ((res as any).file_format || '').toLowerCase()
+        if (fmt === 'pdf' || fmt === 'docx') {
+          try {
+            const blob = await api.downloadResumeFile(id)
+            blobUrl = URL.createObjectURL(blob)
+            setFileUrl(blobUrl)
+          } catch { /* file preview not available */ }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Ошибка загрузки резюме')
       } finally {
@@ -35,15 +58,50 @@ export default function ResumeDetailPage() {
       }
     }
     load()
+    return () => { if (blobUrl) URL.revokeObjectURL(blobUrl) }
   }, [id])
 
   const handleDelete = async () => {
     if (!id || !confirm('Удалить это резюме?')) return
+    setDeleting(true)
     try {
       await api.deleteResume(id)
       navigate('/app/resumes')
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка удаления')
+      setDeleting(false)
+    }
+  }
+
+  const handleDownload = async () => {
+    if (!id || !resume) return
+    setDownloading(true)
+    try {
+      const fmt = (resume.file_format || 'txt').toLowerCase()
+      if (resume.status === 'optimized') {
+        const history = await api.getRewriteHistory()
+        const task = (history as any[]).find((h: any) => h.resume_id === id && h.status === 'completed')
+        if (task) {
+          const blob = await api.exportDocx(task.id)
+          triggerDownload(blob, `${resume.title || 'resume'}_optimized.docx`)
+          return
+        }
+      }
+      try {
+        const blob = await api.downloadResumeFile(id)
+        triggerDownload(blob, `${resume.title || 'resume'}.${fmt}`)
+      } catch {
+        if (resume.raw_text) {
+          const blob = new Blob([resume.raw_text], { type: 'text/plain;charset=utf-8' })
+          triggerDownload(blob, `${resume.title || 'resume'}.txt`)
+        } else {
+          alert('Файл недоступен для скачивания')
+        }
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Ошибка скачивания')
+    } finally {
+      setDownloading(false)
     }
   }
 
@@ -64,6 +122,8 @@ export default function ResumeDetailPage() {
   const st = statusLabel(resume.status || 'draft')
   const parsedData = resume.parsed_data
   const rawText = resume.raw_text
+  const fmt = (resume.file_format || '').toLowerCase()
+  const canPreview = (fmt === 'pdf') && fileUrl
 
   return (
     <div>
@@ -74,7 +134,7 @@ export default function ResumeDetailPage() {
             <ArrowLeft size={16} /> Назад
           </Link>
           <h1>{resume.title || 'Резюме'}</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
             <span className={`badge ${st.cls}`}>{st.text}</span>
             {resume.file_format && <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{resume.file_format?.toUpperCase()}</span>}
             {resume.created_at && (
@@ -84,15 +144,30 @@ export default function ResumeDetailPage() {
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <Link to="/app/upload" className="btn btn-secondary">
-            <Edit size={16} /> Оптимизировать
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Link to={`/app/vacancy?resumeId=${id}`} className="btn btn-primary">
+            <Eye size={16} /> Оптимизировать
           </Link>
-          <button className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={handleDelete}>
-            <Trash2 size={16} /> Удалить
+          <button className="btn btn-secondary" onClick={handleDownload} disabled={downloading}>
+            {downloading ? <><Loader size={16} className="spin" /> Скачивание...</> : <><Download size={16} /> Скачать</>}
+          </button>
+          <button className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={handleDelete} disabled={deleting}>
+            {deleting ? <><Loader size={16} className="spin" /> Удаление...</> : <><Trash2 size={16} /> Удалить</>}
           </button>
         </div>
       </div>
+
+      {/* File preview for PDF */}
+      {canPreview && (
+        <div className="card" style={{ padding: 0, marginBottom: '2rem', overflow: 'hidden', borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#F9FAFB', borderBottom: '1px solid var(--border)' }}>
+            <Eye size={16} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Просмотр документа</span>
+            <span className="badge badge-indigo" style={{ marginLeft: '0.5rem' }}>{fmt.toUpperCase()}</span>
+          </div>
+          <iframe src={fileUrl!} title="Просмотр PDF" style={{ width: '100%', height: '70vh', border: 'none' }} />
+        </div>
+      )}
 
       {/* Parsed data sections */}
       {parsedData && (
@@ -171,7 +246,7 @@ export default function ResumeDetailPage() {
         <div className="card" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
           <FileText size={32} style={{ margin: '0 auto 0.75rem', opacity: 0.4 }} />
           <p>Текст резюме ещё не извлечён. Запустите оптимизацию для обработки.</p>
-          <Link to="/app/upload" className="btn btn-primary" style={{ marginTop: '1rem' }}>Оптимизировать</Link>
+          <Link to={`/app/vacancy?resumeId=${id}`} className="btn btn-primary" style={{ marginTop: '1rem' }}>Оптимизировать</Link>
         </div>
       )}
     </div>

@@ -30,10 +30,37 @@ const FALLBACK_MODELS: ModelInfo[] = [
   { id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter', available: true, description: '100+ моделей через единый API. Claude, Gemini, Mistral и другие.', has_sub_models: true },
 ]
 
+const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
+  'openai': [
+    { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI' },
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI' },
+    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI' },
+  ],
+  'anthropic': [
+    { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'Anthropic' },
+    { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'Anthropic' },
+  ],
+  'openrouter': [
+    { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', provider: 'OpenRouter' },
+    { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'OpenRouter' },
+    { id: 'mistralai/mistral-large', name: 'Mistral Large', provider: 'OpenRouter' },
+  ],
+}
+
 export default function ModelsPage() {
   const navigate = useNavigate()
   const { resumeId, vacancyId, setModel, setTaskId } = useWizard()
-  const [selected, setSelected] = useState('gigachat-pro')
+
+  // Read default model from settings
+  const getDefaultModel = (): string => {
+    try {
+      const settings = JSON.parse(localStorage.getItem('ai_settings') || '{}')
+      if (settings.model && typeof settings.model === 'string') return settings.model
+    } catch { /* ignore */ }
+    return 'gigachat-pro'
+  }
+
+  const [selected, setSelected] = useState(getDefaultModel())
   const [subModel, setSubModel] = useState('')
   const [subModels, setSubModels] = useState<SubModel[]>([])
   const [loadingSubModels, setLoadingSubModels] = useState(false)
@@ -98,10 +125,20 @@ export default function ModelsPage() {
       try {
         const res = await api.getSubModels(selected)
         const list = res.sub_models || []
-        setSubModels(list)
-        if (list.length > 0) setSubModel(list[0].id)
+        if (list.length > 0) {
+          setSubModels(list)
+          setSubModel(list[0].id)
+        } else {
+          // Use fallback sub-models when server returns empty
+          const fallback = FALLBACK_SUB_MODELS[selected] || []
+          setSubModels(fallback)
+          if (fallback.length > 0) setSubModel(fallback[0].id)
+        }
       } catch {
-        setSubModels([])
+        // Use fallback sub-models on error
+        const fallback = FALLBACK_SUB_MODELS[selected] || []
+        setSubModels(fallback)
+        if (fallback.length > 0) setSubModel(fallback[0].id)
       }
       setLoadingSubModels(false)
     }

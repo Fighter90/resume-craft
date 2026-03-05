@@ -1,6 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Search, AlertCircle, Loader, X, MapPin, DollarSign, Clock, ExternalLink, Briefcase, Info, CheckCircle } from 'lucide-react'
-import { useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, Search, AlertCircle, Loader, X, MapPin, DollarSign, Clock, ExternalLink, Briefcase, Info, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
 
@@ -8,9 +8,16 @@ import { useWizard } from '../../contexts/WizardContext'
 
 export default function VacancyPage() {
   const navigate = useNavigate()
-  const { setVacancyId } = useWizard()
+  const [searchParams] = useSearchParams()
+  const { setVacancyId, setResumeId } = useWizard()
   const [tab, setTab] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
+
+  // Read resumeId from URL query if navigating from resumes page
+  useEffect(() => {
+    const rid = searchParams.get('resumeId')
+    if (rid) setResumeId(rid)
+  }, [searchParams, setResumeId])
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
@@ -18,6 +25,11 @@ export default function VacancyPage() {
   const [vacancies, setVacancies] = useState<any[]>([])
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const PER_PAGE = 10
 
   // Vacancy details modal
   const [detailVacancy, setDetailVacancy] = useState<any>(null)
@@ -37,17 +49,19 @@ export default function VacancyPage() {
 
   const AREA_MAP: Record<string, string> = { 'Москва': '1', 'Санкт-Петербург': '2', 'Удалённо': '113' }
 
-  const handleSearch = async () => {
+  const handleSearch = async (page = 1) => {
     if (!searchQuery.trim()) return
     setSearching(true)
     setSearchError(null)
     try {
-      const params: Record<string, string> = { text: searchQuery }
+      const params: Record<string, string> = { text: searchQuery, per_page: String(PER_PAGE), page: String(page - 1) }
       if (AREA_MAP[searchCity]) params.area = AREA_MAP[searchCity]
       const response = await api.searchVacancies(params) as any
-      // Backend returns { items: [...], found, page, pages }
       const items = response.items || response || []
       setVacancies(items)
+      setCurrentPage(page)
+      const pages = response.pages || Math.ceil((response.found || items.length) / PER_PAGE) || 1
+      setTotalPages(Math.max(1, pages))
       if (items.length === 0) setSearchError('Вакансии не найдены. Попробуйте другой запрос.')
     } catch (err) {
       setSearchError(err instanceof Error ? err.message : 'Ошибка поиска')
@@ -153,7 +167,7 @@ export default function VacancyPage() {
                 <AlertCircle size={16} /> {searchError}
               </div>
             )}
-            <button className="btn btn-primary" style={{ marginTop: '1rem', height: 48 }} onClick={handleSearch} disabled={searching || !searchQuery.trim()}>
+            <button className="btn btn-primary" style={{ marginTop: '1rem', height: 48 }} onClick={() => handleSearch(1)} disabled={searching || !searchQuery.trim()}>
               {searching ? <><Loader size={16} className="spin" /> Поиск...</> : <><Search size={16} /> Найти</>}
             </button>
           </div>
@@ -200,6 +214,21 @@ export default function VacancyPage() {
             <button onClick={handleSelectVacancy} className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }}>
               Продолжить с выбранной вакансией
             </button>
+          )}
+
+          {/* Pagination */}
+          {vacancies.length > 0 && totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '1.5rem' }}>
+              <button className="btn btn-secondary btn-sm" disabled={currentPage <= 1 || searching} onClick={() => handleSearch(currentPage - 1)}>
+                <ChevronLeft size={16} /> Назад
+              </button>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                Страница {currentPage} из {totalPages}
+              </span>
+              <button className="btn btn-secondary btn-sm" disabled={currentPage >= totalPages || searching} onClick={() => handleSearch(currentPage + 1)}>
+                Вперёд <ChevronRight size={16} />
+              </button>
+            </div>
           )}
         </>
       )}

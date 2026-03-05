@@ -124,6 +124,15 @@ export class ApiClient {
     return res.blob()
   }
 
+  async downloadResumeFile(id: string) {
+    const tok = this.token || localStorage.getItem('access_token')
+    const res = await fetch(`${API_BASE}/resumes/${id}/file`, {
+      headers: tok ? { 'Authorization': `Bearer ${tok}` } : {},
+    })
+    if (!res.ok) throw new Error('Download failed')
+    return res.blob()
+  }
+
   // --- Missing methods ---
 
   async refreshToken(refreshToken: string) {

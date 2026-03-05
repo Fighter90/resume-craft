@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.3.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.4.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.3  
+> **Версия:** 1.4  
 > **Дата:** Март 2026  
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -352,7 +352,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (366 тестов) |
+| **Vitest + Testing Library** | Тесты frontend (428 тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitHub Actions** | CI/CD (lint, test, build, deploy) |
@@ -443,7 +443,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 23 page components (+PrivacyPage, TermsPage, AboutPage)
-    └── test/              # 366 тестов (Vitest + Testing Library)
+    └── test/              # 428 тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -913,8 +913,8 @@ docker compose down -v
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 366 (Vitest + @testing-library/react) |
-| **Всего тестов** | 902 |
+| **Frontend тестов** | 428 (Vitest + @testing-library/react) |
+| **Всего тестов** | 964 |
 | **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -1041,6 +1041,41 @@ pip-audit
 Причина: зависимость от [PyMuPDF](https://pymupdf.readthedocs.io/) (AGPL-3.0) обязывает распространять код под совместимой copyleft-лицензией.
 
 Полный текст: [LICENSE](LICENSE)
+
+---
+
+---
+
+## Changelog
+
+### v1.4.0 (Март 2026)
+
+**Новые возможности:**
+- Встроенный PDF-просмотрщик на странице детали резюме (`ResumeDetailPage`)
+- Скачивание оригинального файла резюме для всех статусов (не только optimized)
+- Новый API-метод `downloadResumeFile(id)` — GET `/resumes/{id}/file`
+- Диалог подтверждения перед оптимизацией с навигацией на выбор вакансии
+- Пагинация результатов поиска вакансий на hh.ru (10 результатов на страницу)
+- Передача `resumeId` через URL query params при переходе к выбору вакансии
+- Модель AI по умолчанию из настроек пользователя (`localStorage ai_settings`)
+- Fallback-подмодели для OpenAI / Anthropic / OpenRouter при недоступности сервера
+
+**Исправления:**
+- Кнопка «Оптимизировать» теперь доступна для всех статусов резюме
+- Устранено наложение аватара на текст email/имени в настройках профиля
+- Исправлена передача `resumeId` в WizardContext при переходе со страницы резюме
+- Исправлена ошибка «Не удалось загрузить список моделей» при недоступности API
+
+**Тесты:**
+- +62 новых теста (v3 fixes): ResumeDetailPage, ResumesPage, VacancyPage, ModelsPage, ProcessingPage, SettingsProfilePage, API, интеграция, edge-cases
+- Обновлены 4 старых теста для соответствия новому поведению
+- Итого: **428 frontend-тестов** (было 366), **964 тестов всего** (было 902)
+
+### v1.3.0 (Март 2026)
+
+- Исправлено 12 frontend-багов (v2 fixes)
+- 366 frontend-тестов, 902 тестов всего
+- 3 CI/CD pipeline зелёные
 
 ---
 

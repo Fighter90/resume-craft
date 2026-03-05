@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Search, Plus, FileText, Download, Trash2, Eye, Loader, Zap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
@@ -21,7 +21,19 @@ const STATUS_MAP: Record<string, string> = {
   'В обработке': 'processing',
 }
 
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 export default function ResumesPage() {
+  const navigate = useNavigate()
   const [resumes, setResumes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -49,28 +61,34 @@ export default function ResumesPage() {
     }
   }
 
+  const handleOptimize = (r: any) => {
+    if (!confirm(`Оптимизировать резюме "${r.title || 'Резюме'}"? Вы перейдёте к выбору вакансии.`)) return
+    navigate(`/app/vacancy?resumeId=${r.id}`)
+  }
+
   const handleDownload = async (r: any) => {
-    if (r.status !== 'optimized') {
-      alert('Скачивание доступно только для оптимизированных резюме. Сначала запустите оптимизацию.')
-      return
-    }
     try {
-      // Try to find the latest rewrite task for this resume from history
-      const history = await api.getRewriteHistory()
-      const task = (history as any[]).find((h: any) => h.resume_id === r.id && h.status === 'completed')
-      if (!task) {
-        alert('Не найдена завершённая оптимизация для этого резюме.')
-        return
+      if (r.status === 'optimized') {
+        const history = await api.getRewriteHistory()
+        const task = (history as any[]).find((h: any) => h.resume_id === r.id && h.status === 'completed')
+        if (task) {
+          const blob = await api.exportDocx(task.id)
+          triggerDownload(blob, `${r.title || 'resume'}_optimized.docx`)
+          return
+        }
       }
-      const blob = await api.exportDocx(task.id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${r.title || 'resume'}.docx`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      try {
+        const blob = await api.downloadResumeFile(r.id)
+        const fmt = (r.file_format || 'txt').toLowerCase()
+        triggerDownload(blob, `${r.title || 'resume'}.${fmt}`)
+      } catch {
+        if (r.raw_text) {
+          const blob = new Blob([r.raw_text], { type: 'text/plain;charset=utf-8' })
+          triggerDownload(blob, `${r.title || 'resume'}.txt`)
+        } else {
+          alert('Файл недоступен для скачивания')
+        }
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка скачивания')
     }
@@ -172,9 +190,7 @@ export default function ResumesPage() {
                   <td>
                     <div className="td-actions">
                       <Link to={`/app/resumes/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
-                      {r.status !== 'optimized' && (
-                        <Link to="/app/upload" className="btn btn-ghost btn-icon" title="Оптимизировать" style={{ color: 'var(--primary)' }}><Zap size={16} /></Link>
-                      )}
+                      <button className="btn btn-ghost btn-icon" title="Оптимизировать" style={{ color: 'var(--primary)' }} onClick={() => handleOptimize(r)}><Zap size={16} /></button>
                       <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => handleDownload(r)}><Download size={16} /></button>
                       <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={16} /></button>
                     </div>
@@ -210,9 +226,7 @@ export default function ResumesPage() {
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <Link to={`/app/resumes/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
-                {r.status !== 'optimized' && (
-                  <Link to="/app/upload" className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)' }}><Zap size={14} /> Оптимизировать</Link>
-                )}
+                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)' }} onClick={() => handleOptimize(r)}><Zap size={14} /> Оптимизировать</button>
                 <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(r)}><Download size={14} /></button>
                 <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={14} /></button>
               </div>
