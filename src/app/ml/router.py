@@ -139,6 +139,8 @@ async def get_sub_models(
     Требует настроенного API-ключа (в env или в личных настройках).
     """
     # Получаем пользовательский ключ из БД (если авторизован)
+    # Нормализуем имя провайдера (gigachat-pro → gigachat)
+    db_key = provider.split('-')[0] if provider.startswith('gigachat') else provider
     user_key = ''
     if current_user and session:
         from app.settings.service import get_decrypted_value
@@ -147,22 +149,25 @@ async def get_sub_models(
             session,
             user_id=current_user.id,
             category='ai_keys',
-            key=provider,
+            key=db_key,
         )
 
     settings = get_settings()
 
-    if provider == 'gigachat':
+    # Нормализуем имя провайдера (gigachat-pro → gigachat)
+    normalized = provider.split('-')[0] if provider.startswith('gigachat') else provider
+
+    if normalized == 'gigachat':
         key = user_key or settings.gigachat_credentials
         scope = settings.gigachat_scope
         return await _fetch_gigachat_models(key, scope=scope)
-    if provider == 'openai':
+    if normalized == 'openai':
         key = user_key or settings.openai_api_key
         return await _fetch_openai_models(key)
-    if provider == 'anthropic':
+    if normalized == 'anthropic':
         key = user_key or settings.anthropic_api_key
         return await _fetch_anthropic_models(key)
-    if provider == 'openrouter':
+    if normalized == 'openrouter':
         key = user_key or settings.openrouter_api_key
         return await _fetch_openrouter_models(key)
 
@@ -228,7 +233,7 @@ async def _fetch_openai_models(api_key: str) -> dict[str, Any]:
             data = resp.json()
 
         # Фильтруем только chat-модели GPT
-        chat_prefixes = ('gpt-4', 'gpt-3.5', 'o1', 'o3', 'o4')
+        chat_prefixes = ('gpt-4', 'gpt-3.5', 'chatgpt', 'o1', 'o3', 'o4')
         exclude_keywords = (
             'instruct',
             'realtime',
@@ -263,9 +268,16 @@ async def _fetch_openai_models(api_key: str) -> dict[str, Any]:
         logger.warning('Failed to fetch OpenAI models: %s', exc)
         return {
             'sub_models': [
-                {'id': 'gpt-4o', 'name': 'gpt-4o', 'provider': 'OpenAI'},
-                {'id': 'gpt-4o-mini', 'name': 'gpt-4o-mini', 'provider': 'OpenAI'},
-                {'id': 'gpt-4-turbo', 'name': 'gpt-4-turbo', 'provider': 'OpenAI'},
+                {'id': 'gpt-4o', 'name': 'GPT-4o', 'provider': 'OpenAI'},
+                {'id': 'gpt-4o-mini', 'name': 'GPT-4o Mini', 'provider': 'OpenAI'},
+                {'id': 'gpt-4.1', 'name': 'GPT-4.1', 'provider': 'OpenAI'},
+                {'id': 'gpt-4.1-mini', 'name': 'GPT-4.1 Mini', 'provider': 'OpenAI'},
+                {'id': 'gpt-4.1-nano', 'name': 'GPT-4.1 Nano', 'provider': 'OpenAI'},
+                {'id': 'gpt-4-turbo', 'name': 'GPT-4 Turbo', 'provider': 'OpenAI'},
+                {'id': 'o3', 'name': 'o3', 'provider': 'OpenAI'},
+                {'id': 'o3-mini', 'name': 'o3 Mini', 'provider': 'OpenAI'},
+                {'id': 'o4-mini', 'name': 'o4 Mini', 'provider': 'OpenAI'},
+                {'id': 'gpt-3.5-turbo', 'name': 'GPT-3.5 Turbo', 'provider': 'OpenAI'},
             ],
             'fallback': True,
         }
@@ -314,13 +326,33 @@ async def _fetch_anthropic_models(api_key: str) -> dict[str, Any]:
                     'provider': 'Anthropic',
                 },
                 {
+                    'id': 'claude-opus-4-20250514',
+                    'name': 'Claude Opus 4',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'claude-3-7-sonnet-20250219',
+                    'name': 'Claude 3.7 Sonnet',
+                    'provider': 'Anthropic',
+                },
+                {
                     'id': 'claude-3-5-sonnet-20241022',
-                    'name': 'Claude 3.5 Sonnet',
+                    'name': 'Claude 3.5 Sonnet v2',
                     'provider': 'Anthropic',
                 },
                 {
                     'id': 'claude-3-5-haiku-20241022',
                     'name': 'Claude 3.5 Haiku',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'claude-3-opus-20240229',
+                    'name': 'Claude 3 Opus',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'claude-3-haiku-20240307',
+                    'name': 'Claude 3 Haiku',
                     'provider': 'Anthropic',
                 },
             ],
@@ -370,24 +402,79 @@ async def _fetch_openrouter_models(api_key: str) -> dict[str, Any]:
                     'provider': 'Anthropic',
                 },
                 {
-                    'id': 'anthropic/claude-3.5-sonnet',
-                    'name': 'Claude 3.5 Sonnet',
+                    'id': 'anthropic/claude-opus-4',
+                    'name': 'Claude Opus 4',
                     'provider': 'Anthropic',
                 },
                 {
-                    'id': 'google/gemini-2.5-flash-preview',
+                    'id': 'anthropic/claude-3.7-sonnet',
+                    'name': 'Claude 3.7 Sonnet',
+                    'provider': 'Anthropic',
+                },
+                {
+                    'id': 'google/gemini-2.5-pro-preview',
+                    'name': 'Gemini 2.5 Pro',
+                    'provider': 'Google',
+                },
+                {
+                    'id': 'google/gemini-2.5-flash',
                     'name': 'Gemini 2.5 Flash',
                     'provider': 'Google',
                 },
                 {
-                    'id': 'deepseek/deepseek-chat-v3-0324',
-                    'name': 'DeepSeek V3',
-                    'provider': 'DeepSeek',
+                    'id': 'google/gemini-2.0-flash-001',
+                    'name': 'Gemini 2.0 Flash',
+                    'provider': 'Google',
                 },
                 {
-                    'id': 'mistralai/mistral-large-2411',
+                    'id': 'openai/gpt-4o',
+                    'name': 'GPT-4o',
+                    'provider': 'Openai',
+                },
+                {
+                    'id': 'openai/gpt-4.1',
+                    'name': 'GPT-4.1',
+                    'provider': 'Openai',
+                },
+                {
+                    'id': 'mistralai/mistral-large',
                     'name': 'Mistral Large',
-                    'provider': 'Mistral',
+                    'provider': 'Mistralai',
+                },
+                {
+                    'id': 'mistralai/mistral-medium',
+                    'name': 'Mistral Medium',
+                    'provider': 'Mistralai',
+                },
+                {
+                    'id': 'meta-llama/llama-4-maverick',
+                    'name': 'Llama 4 Maverick',
+                    'provider': 'Meta-llama',
+                },
+                {
+                    'id': 'meta-llama/llama-4-scout',
+                    'name': 'Llama 4 Scout',
+                    'provider': 'Meta-llama',
+                },
+                {
+                    'id': 'deepseek/deepseek-r1',
+                    'name': 'DeepSeek R1',
+                    'provider': 'Deepseek',
+                },
+                {
+                    'id': 'deepseek/deepseek-chat-v3-0324',
+                    'name': 'DeepSeek V3',
+                    'provider': 'Deepseek',
+                },
+                {
+                    'id': 'qwen/qwen3-235b-a22b',
+                    'name': 'Qwen3 235B',
+                    'provider': 'Qwen',
+                },
+                {
+                    'id': 'x-ai/grok-3-mini-beta',
+                    'name': 'Grok 3 Mini',
+                    'provider': 'X-ai',
                 },
             ],
             'fallback': True,

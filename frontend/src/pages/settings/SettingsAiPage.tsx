@@ -25,7 +25,7 @@ const MODELS: ModelOption[] = [
     desc: '#1 русский язык (MERA), данные в РФ, ФЗ-152 compliant',
     badge: 'Рекомендуем', badgeColor: '#4F46E5',
     icon: Zap, apiKeyField: 'gigachat', apiKeyPlaceholder: 'Credentials (Base64)',
-    hasSubModels: false,
+    hasSubModels: true,
   },
   {
     id: 'openai', name: 'OpenAI', provider: 'OpenAI',
@@ -58,64 +58,50 @@ const TOGGLES = [
 
 // Fallback sub-model lists when server can't provide them
 const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
+  'gigachat-pro': [
+    { id: 'GigaChat-Pro', name: 'GigaChat-Pro', provider: 'GigaChat' },
+    { id: 'GigaChat', name: 'GigaChat', provider: 'GigaChat' },
+    { id: 'GigaChat-Max', name: 'GigaChat-Max', provider: 'GigaChat' },
+  ],
   openai: [
     { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI' },
     { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI' },
     { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI' },
+    { id: 'gpt-4.1', name: 'GPT-4.1', provider: 'OpenAI' },
+    { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', provider: 'OpenAI' },
+    { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', provider: 'OpenAI' },
+    { id: 'o3', name: 'o3', provider: 'OpenAI' },
+    { id: 'o3-mini', name: 'o3 Mini', provider: 'OpenAI' },
+    { id: 'o4-mini', name: 'o4 Mini', provider: 'OpenAI' },
     { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
   ],
   anthropic: [
     { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'Anthropic' },
-    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+    { id: 'claude-opus-4-20250514', name: 'Claude Opus 4', provider: 'Anthropic' },
+    { id: 'claude-3-7-sonnet-20250219', name: 'Claude 3.7 Sonnet', provider: 'Anthropic' },
+    { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet v2', provider: 'Anthropic' },
     { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'Anthropic' },
+    { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', provider: 'Anthropic' },
+    { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', provider: 'Anthropic' },
   ],
   openrouter: [
-    { id: 'anthropic/claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'OpenRouter' },
-    { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'OpenRouter' },
+    { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', provider: 'OpenRouter' },
+    { id: 'anthropic/claude-opus-4', name: 'Claude Opus 4', provider: 'OpenRouter' },
+    { id: 'anthropic/claude-3.7-sonnet', name: 'Claude 3.7 Sonnet', provider: 'OpenRouter' },
     { id: 'google/gemini-2.5-pro-preview', name: 'Gemini 2.5 Pro', provider: 'OpenRouter' },
-    { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B', provider: 'OpenRouter' },
+    { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'OpenRouter' },
+    { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash', provider: 'OpenRouter' },
+    { id: 'openai/gpt-4o', name: 'GPT-4o', provider: 'OpenRouter' },
+    { id: 'openai/gpt-4.1', name: 'GPT-4.1', provider: 'OpenRouter' },
+    { id: 'mistralai/mistral-large', name: 'Mistral Large', provider: 'OpenRouter' },
+    { id: 'mistralai/mistral-medium', name: 'Mistral Medium', provider: 'OpenRouter' },
+    { id: 'meta-llama/llama-4-maverick', name: 'Llama 4 Maverick', provider: 'OpenRouter' },
+    { id: 'meta-llama/llama-4-scout', name: 'Llama 4 Scout', provider: 'OpenRouter' },
+    { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1', provider: 'OpenRouter' },
+    { id: 'deepseek/deepseek-chat-v3-0324', name: 'DeepSeek V3', provider: 'OpenRouter' },
+    { id: 'qwen/qwen3-235b-a22b', name: 'Qwen3 235B', provider: 'OpenRouter' },
+    { id: 'x-ai/grok-3-mini-beta', name: 'Grok 3 Mini', provider: 'OpenRouter' },
   ],
-}
-
-// Fetch live model lists from provider APIs using user's API key
-async function fetchLiveModels(provider: string, apiKey: string): Promise<SubModel[]> {
-  try {
-    if (provider === 'openai') {
-      const res = await fetch('https://api.openai.com/v1/models', {
-        headers: { 'Authorization': `Bearer ${apiKey}` },
-      })
-      if (!res.ok) return []
-      const data = await res.json()
-      const chatModels = (data.data || [])
-        .filter((m: any) => m.id.startsWith('gpt-') || m.id.startsWith('o') || m.id.includes('chatgpt'))
-        .sort((a: any, b: any) => (b.created || 0) - (a.created || 0))
-        .slice(0, 20)
-      return chatModels.map((m: any) => ({ id: m.id, name: m.id, provider: 'OpenAI' }))
-    }
-    if (provider === 'anthropic') {
-      const res = await fetch('https://api.anthropic.com/v1/models', {
-        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      })
-      if (!res.ok) return []
-      const data = await res.json()
-      return (data.data || [])
-        .sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''))
-        .slice(0, 20)
-        .map((m: any) => ({ id: m.id, name: m.display_name || m.id, provider: 'Anthropic' }))
-    }
-    if (provider === 'openrouter') {
-      const res = await fetch('https://openrouter.ai/api/v1/models', {
-        headers: { 'Authorization': `Bearer ${apiKey}` },
-      })
-      if (!res.ok) return []
-      const data = await res.json()
-      return (data.data || [])
-        .filter((m: any) => m.id && !m.id.includes(':free'))
-        .slice(0, 50)
-        .map((m: any) => ({ id: m.id, name: m.name || m.id, provider: 'OpenRouter' }))
-    }
-  } catch { /* CORS or network error — fall through */ }
-  return []
 }
 
 export default function SettingsAiPage() {
@@ -183,39 +169,24 @@ export default function SettingsAiPage() {
     const fetchSub = async () => {
       setLoadingSubModels(true)
       try {
-        // Try fetching live models from provider API using user's key
-        const userKey = apiKeys[currentModel.apiKeyField]?.trim()
-        if (userKey) {
-          const live = await fetchLiveModels(model, userKey)
-          if (live.length > 0) {
-            setSubModels(live)
-            if (!selectedSubModel || !live.find(m => m.id === selectedSubModel)) setSelectedSubModel(live[0].id)
-            setLoadingSubModels(false)
-            return
-          }
-        }
-        // Fallback: try server-side sub-models
+        // 1. Try server-side sub-models (uses saved API keys from DB or env)
         const res = await api.getSubModels(model)
         const list = res.sub_models || []
         if (list.length > 0) {
           setSubModels(list)
-          if (!selectedSubModel) setSelectedSubModel(list[0].id)
-        } else {
-          // Use fallback list
-          const fallback = FALLBACK_SUB_MODELS[model] || []
-          setSubModels(fallback)
-          if (fallback.length > 0 && !selectedSubModel) setSelectedSubModel(fallback[0].id)
+          if (!selectedSubModel || !list.find(m => m.id === selectedSubModel)) setSelectedSubModel(list[0].id)
+          setLoadingSubModels(false)
+          return
         }
-      } catch {
-        // Server unavailable — use fallback list
-        const fallback = FALLBACK_SUB_MODELS[model] || []
-        setSubModels(fallback)
-        if (fallback.length > 0 && !selectedSubModel) setSelectedSubModel(fallback[0].id)
-      }
+      } catch { /* server unavailable, fall through to fallback */ }
+      // 2. Use comprehensive fallback list
+      const fallback = FALLBACK_SUB_MODELS[model] || []
+      setSubModels(fallback)
+      if (fallback.length > 0 && !selectedSubModel) setSelectedSubModel(fallback[0].id)
       setLoadingSubModels(false)
     }
     fetchSub()
-  }, [model, apiKeys]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [model]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getServerAvailability = (modelId: string): boolean | null => {
     // LIVE-004: Показываем статус ТОЛЬКО на основе серверной доступности,

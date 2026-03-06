@@ -159,6 +159,29 @@ class TestGigaChatSubModels:
         assert data['sub_models'] == []
         assert 'error' in data
 
+    async def test_gigachat_pro_alias(self, client: AsyncClient) -> None:
+        """gigachat-pro alias → те же модели GigaChat."""
+        mock_settings = MagicMock()
+        mock_settings.gigachat_credentials = 'test-cred'
+        mock_settings.gigachat_scope = 'GIGACHAT_API_PERS'
+
+        mock_model = MagicMock()
+        mock_model.id = 'GigaChat-Pro'
+        mock_response = MagicMock()
+        mock_response.data = [mock_model]
+        mock_gc_client = MagicMock()
+        mock_gc_client.get_models.return_value = mock_response
+
+        with (
+            patch('app.ml.router.get_settings', return_value=mock_settings),
+            patch('gigachat.GigaChat', return_value=mock_gc_client),
+        ):
+            resp = await client.get('/api/v1/models/gigachat-pro/sub-models')
+
+        data = resp.json()
+        assert len(data['sub_models']) > 0
+        assert data['sub_models'][0]['provider'] == 'GigaChat'
+
     async def test_success(self, client: AsyncClient) -> None:
         """Успешный запрос → модели GigaChat."""
         mock_settings = MagicMock()
@@ -328,6 +351,41 @@ class TestOpenAISubModels:
         model_ids = [m['id'] for m in data['sub_models']]
         assert 'gpt-4o' in model_ids
         assert 'gpt-4o-mini' in model_ids
+        assert 'gpt-4.1' in model_ids
+        assert 'o3' in model_ids
+        assert len(data['sub_models']) >= 10
+
+    async def test_chatgpt_prefix_included(self, client: AsyncClient) -> None:
+        """chatgpt-* модели включены в фильтр."""
+        mock_settings = MagicMock()
+        mock_settings.openai_api_key = 'sk-test'
+
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            'data': [
+                {'id': 'gpt-4o'},
+                {'id': 'chatgpt-4o-latest'},
+                {'id': 'dall-e-3'},
+            ],
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        mock_http = AsyncMock()
+        mock_http.get = AsyncMock(return_value=mock_response)
+        mock_http.__aenter__ = AsyncMock(return_value=mock_http)
+        mock_http.__aexit__ = AsyncMock(return_value=None)
+
+        with (
+            patch('app.ml.router.get_settings', return_value=mock_settings),
+            patch('app.ml.router.httpx.AsyncClient', return_value=mock_http),
+        ):
+            resp = await client.get('/api/v1/models/openai/sub-models')
+
+        data = resp.json()
+        model_ids = [m['id'] for m in data['sub_models']]
+        assert 'chatgpt-4o-latest' in model_ids
+        assert 'gpt-4o' in model_ids
+        assert 'dall-e-3' not in model_ids
 
     async def test_whitespace_key(self, client: AsyncClient) -> None:
         """Ключ из пробелов → error."""
@@ -415,6 +473,8 @@ class TestAnthropicSubModels:
         assert data.get('fallback') is True
         model_ids = [m['id'] for m in data['sub_models']]
         assert 'claude-sonnet-4-20250514' in model_ids
+        assert 'claude-opus-4-20250514' in model_ids
+        assert len(data['sub_models']) >= 7
 
     async def test_model_without_display_name(self, client: AsyncClient) -> None:
         """Модель без display_name → id используется как имя."""
@@ -522,7 +582,9 @@ class TestOpenRouterSubModels:
         assert data.get('fallback') is True
         model_ids = [m['id'] for m in data['sub_models']]
         assert 'anthropic/claude-sonnet-4' in model_ids
+        assert 'deepseek/deepseek-r1' in model_ids
         assert 'deepseek/deepseek-chat-v3-0324' in model_ids
+        assert len(data['sub_models']) >= 16
 
     async def test_sorted_by_name(self, client: AsyncClient) -> None:
         """Модели отсортированы по name."""
