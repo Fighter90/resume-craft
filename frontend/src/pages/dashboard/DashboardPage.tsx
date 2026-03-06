@@ -30,7 +30,7 @@ export default function DashboardPage() {
   }, [])
 
   const totalResumes = resumes.length
-  const totalOptimizations = history.length
+  const totalOptimizations = history.filter((h: any) => h.status === 'completed').length
   const scored = history.filter((h: any) => h.match_score_after != null && h.match_score_after > 0)
   const avgScore = scored.length > 0
     ? Math.round(scored.reduce((acc: number, h: any) => acc + h.match_score_after, 0) / scored.length)
