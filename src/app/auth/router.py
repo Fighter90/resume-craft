@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import service as auth_service
@@ -20,6 +20,7 @@ from app.auth.schemas import (
 )
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
+from app.core.limiter import limiter
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
@@ -30,7 +31,9 @@ router = APIRouter(prefix='/auth', tags=['auth'])
     status_code=status.HTTP_201_CREATED,
     summary='Регистрация нового пользователя',
 )
+@limiter.limit('3/minute')
 async def register(
+    request: Request,
     data: RegisterRequest,
     session: AsyncSession = Depends(get_session),
 ) -> TokenResponse:
@@ -43,7 +46,9 @@ async def register(
     response_model=TokenResponse,
     summary='Авторизация по email/password',
 )
+@limiter.limit('5/minute')
 async def login(
+    request: Request,
     data: LoginRequest,
     session: AsyncSession = Depends(get_session),
 ) -> TokenResponse:

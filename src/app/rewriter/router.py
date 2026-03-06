@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.core.exceptions import TariffLimitExceeded
+from app.core.limiter import limiter
 from app.rewriter import service as rewrite_service
 from app.rewriter.schemas import (
     RewriteHistoryResponse,
@@ -30,7 +31,9 @@ router = APIRouter(prefix='/rewrite', tags=['rewrite'])
     status_code=status.HTTP_202_ACCEPTED,
     summary='Запуск оптимизации резюме',
 )
+@limiter.limit('10/hour')
 async def create_rewrite(
+    request: Request,
     data: RewriteRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
