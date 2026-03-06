@@ -60,7 +60,7 @@ class TestRegister:
         assert response.status_code == 422
 
     async def test_register_duplicate_email(self, client: AsyncClient, test_user: User) -> None:
-        """Дублирующий email → 409."""
+        """Дублирующий email → 201 с сообщением (LIVE-013: защита от email enumeration)."""
         response = await client.post(
             '/api/v1/auth/register',
             json={
@@ -68,7 +68,9 @@ class TestRegister:
                 'password': 'AnotherPass1',
             },
         )
-        assert response.status_code == 409
+        assert response.status_code == 201
+        data = response.json()
+        assert 'message' in data
 
 
 class TestLogin:

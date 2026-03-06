@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Shield, AlertTriangle, Save, Loader } from 'lucide-react'
+import { AlertTriangle, Save, Loader } from 'lucide-react'
 import { api } from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -94,26 +94,6 @@ export default function SettingsSecurityPage() {
         <button className="btn btn-primary" onClick={handlePwSubmit} disabled={pwLoading}>
           {pwLoading ? <><Loader size={16} className="spin" /> Обновление...</> : <><Save size={16} /> Обновить пароль</>}
         </button>
-      </div>
-
-      {/* 2FA */}
-      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', opacity: 0.6 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Shield size={20} style={{ color: 'var(--primary)' }} />
-            <div>
-              <div style={{ fontWeight: 600 }}>Двухфакторная аутентификация</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Будет доступно в следующем обновлении</div>
-            </div>
-          </div>
-          <span className="badge badge-gray">Скоро</span>
-        </div>
-      </div>
-
-      {/* Active sessions — placeholder */}
-      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', opacity: 0.6 }}>
-        <h3 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Активные сессии</h3>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Управление сессиями будет доступно в следующем обновлении</p>
       </div>
 
       {/* Danger zone */}

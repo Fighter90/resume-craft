@@ -91,10 +91,15 @@ def tokens(http: httpx.Client) -> dict[str, str]:
         },
     )
     if resp.status_code == 201:
-        return resp.json()
+        data = resp.json()
+        # LIVE-013: если вернулся message вместо токенов — email уже существует
+        if 'access_token' in data:
+            return data
+        # Дублирующий email — логинимся
+    else:
+        raise AssertionError(f'Unexpected register status: {resp.status_code} {resp.text}')
 
     # Если уже существует — логинимся
-    assert resp.status_code == 409, f'Unexpected register status: {resp.status_code} {resp.text}'
     resp = _retry_request(
         http.post,
         f'{API}/auth/login',

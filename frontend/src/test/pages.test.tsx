@@ -842,15 +842,15 @@ describe('SettingsProfilePage (enhanced)', () => {
 
 // ===================== Toggle Switch CSS Tests =====================
 describe('Security 2FA section (SettingsSecurityPage)', () => {
-  it('renders 2FA section as coming soon', () => {
+  it('does not render 2FA placeholder (removed per NEW-007)', () => {
     renderWithProviders(<SettingsSecurityPage />)
-    expect(screen.getByText('Двухфакторная аутентификация')).toBeInTheDocument()
-    expect(screen.getByText('Скоро')).toBeInTheDocument()
+    expect(screen.queryByText('Двухфакторная аутентификация')).not.toBeInTheDocument()
+    expect(screen.queryByText('Скоро')).not.toBeInTheDocument()
   })
 
-  it('renders coming soon message for 2FA', () => {
+  it('does not render coming soon message for 2FA (removed per NEW-007)', () => {
     renderWithProviders(<SettingsSecurityPage />)
-    expect(screen.getByText(/Будет доступно/)).toBeInTheDocument()
+    expect(screen.queryByText(/Будет доступно/)).not.toBeInTheDocument()
   })
 
   it('renders security page heading', () => {

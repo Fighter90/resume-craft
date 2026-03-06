@@ -20,6 +20,7 @@ from app.auth.schemas import (
 )
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
+from app.core.exceptions import UserAlreadyExists
 from app.core.limiter import limiter
 
 router = APIRouter(prefix='/auth', tags=['auth'])
@@ -27,7 +28,7 @@ router = APIRouter(prefix='/auth', tags=['auth'])
 
 @router.post(
     '/register',
-    response_model=TokenResponse,
+    response_model=TokenResponse | MessageResponse,
     status_code=status.HTTP_201_CREATED,
     summary='Регистрация нового пользователя',
 )
@@ -36,9 +37,16 @@ async def register(
     request: Request,
     data: RegisterRequest,
     session: AsyncSession = Depends(get_session),
-) -> TokenResponse:
-    """Создание нового аккаунта → JWT-токены."""
-    return await auth_service.register(session, data=data)
+) -> TokenResponse | MessageResponse:
+    """Создание нового аккаунта → JWT-токены.
+
+    LIVE-013: Единый формат ответа для защиты от email enumeration.
+    """
+    try:
+        return await auth_service.register(session, data=data)
+    except UserAlreadyExists:
+        # Не раскрываем, что email уже зарегистрирован
+        return MessageResponse(message='Проверьте почту для подтверждения аккаунта')
 
 
 @router.get(

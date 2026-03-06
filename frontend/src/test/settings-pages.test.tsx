@@ -286,10 +286,10 @@ describe('SettingsSecurityPage', () => {
     expect(screen.getByText(/Сменить пароль/i)).toBeInTheDocument()
   })
 
-  it('renders 2FA section as coming soon', () => {
+  it('does not render 2FA placeholder (removed per NEW-007)', () => {
     renderInRouter(<SettingsSecurityPage />)
-    expect(screen.getByText('Двухфакторная аутентификация')).toBeInTheDocument()
-    expect(screen.getByText('Скоро')).toBeInTheDocument()
+    expect(screen.queryByText('Двухфакторная аутентификация')).not.toBeInTheDocument()
+    expect(screen.queryByText('Скоро')).not.toBeInTheDocument()
   })
 
   it('renders delete account section', () => {
