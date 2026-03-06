@@ -176,26 +176,28 @@ export default function VacancyPage() {
       {tab === 0 && (
         <>
           <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-                <label className="input-label">Должность</label>
-                <input className="input-field" placeholder="Product Manager" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
+            <form onSubmit={e => { e.preventDefault(); handleSearch(1) }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="input-label">Должность</label>
+                  <input className="input-field" placeholder="Product Manager" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Город</label>
+                  <select className="input-field select-field" value={searchCity} onChange={e => setSearchCity(e.target.value)}>
+                    <option>Москва</option><option>Санкт-Петербург</option><option>Удалённо</option>
+                  </select>
+                </div>
               </div>
-              <div className="input-group">
-                <label className="input-label">Город</label>
-                <select className="input-field select-field" value={searchCity} onChange={e => setSearchCity(e.target.value)}>
-                  <option>Москва</option><option>Санкт-Петербург</option><option>Удалённо</option>
-                </select>
-              </div>
-            </div>
-            {searchError && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginTop: '0.75rem', fontSize: '0.875rem' }}>
-                <AlertCircle size={16} /> {searchError}
-              </div>
-            )}
-            <button className="btn btn-primary" style={{ marginTop: '1rem', height: 48 }} onClick={() => handleSearch(1)} disabled={searching || !searchQuery.trim()}>
-              {searching ? <><Loader size={16} className="spin" /> Поиск...</> : <><Search size={16} /> Найти</>}
-            </button>
+              {searchError && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginTop: '0.75rem', fontSize: '0.875rem' }}>
+                  <AlertCircle size={16} /> {searchError}
+                </div>
+              )}
+              <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem', height: 48, width: '100%' }} disabled={searching || !searchQuery.trim()}>
+                {searching ? <><Loader size={16} className="spin" /> Поиск...</> : <><Search size={16} /> Найти</>}
+              </button>
+            </form>
           </div>
 
           <div className="vacancy-results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -225,10 +227,10 @@ export default function VacancyPage() {
                 )}
                 {/* Per-card action buttons */}
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }} onClick={e => e.stopPropagation()}>
-                  <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => handleShowDetails(v)}>
+                  <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => handleShowDetails(v)}>
                     <Info size={14} /> Подробнее
                   </button>
-                  <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => selectVacancyAndNavigate(v)} disabled={searching}>
+                  <button type="button" className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => selectVacancyAndNavigate(v)} disabled={searching}>
                     <CheckCircle size={14} /> Выбрать
                   </button>
                 </div>
