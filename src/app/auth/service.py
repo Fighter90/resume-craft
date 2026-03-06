@@ -23,8 +23,10 @@ from app.core.exceptions import (
 from app.core.security import (
     create_access_token,
     create_refresh_token,
+    create_verification_token,
     decode_token,
     hash_password,
+    verify_email_token,
     verify_password,
 )
 
@@ -61,14 +63,47 @@ async def register(
         email=data.email,
         hashed_password=hash_password(data.password),
         full_name=data.full_name,
+        is_verified=False,
     )
     session.add(user)
     await session.flush()
+
+    verification_token = create_verification_token(data.email)
+    logger.info('Verification token created for %s', data.email)
 
     return TokenResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
     )
+
+
+async def verify_email(
+    session: AsyncSession,
+    *,
+    token: str,
+) -> str:
+    """Подтверждение email по токену.
+
+    Raises:
+        TokenExpired: токен истёк.
+        TokenInvalid: невалидный токен.
+        UserNotFound: пользователь не найден.
+    """
+    try:
+        email = verify_email_token(token)
+    except jwt.ExpiredSignatureError:
+        raise TokenExpired() from None
+    except jwt.InvalidTokenError:
+        raise TokenInvalid() from None
+
+    user = await get_user_by_email(session, email=email)
+    if not user:
+        raise UserNotFound()
+
+    user.is_verified = True
+    await session.flush()
+    logger.info('Email verified for %s', email)
+    return 'Email подтверждён'
 
 
 async def authenticate(

@@ -207,36 +207,32 @@ class TestHHVacancyItemExtended:
 
 
 class TestResumeDeleteGuard:
-    """Тест: delete_resume не падает для резюме без файла."""
+    """Тест: delete_resume выполняет soft-delete (устанавливает deleted_at)."""
 
     @pytest.mark.asyncio
     async def test_delete_text_resume_no_file_path(self) -> None:
-        """Удаление резюме с пустым file_path не вызывает ошибку."""
+        """Soft-delete резюме с пустым file_path — deleted_at устанавливается."""
         from app.resumes.service import delete_resume
 
         mock_session = AsyncMock(spec=AsyncSession)
         mock_resume = MagicMock()
         mock_resume.id = uuid4()
         mock_resume.user_id = uuid4()
-        mock_resume.file_path = ''  # Text resume — no file
+        mock_resume.file_path = ''
+        mock_resume.deleted_at = None
 
-        with (
-            patch('app.resumes.service.get_resume', return_value=mock_resume),
-            patch('app.resumes.service.file_storage') as mock_storage,
-        ):
+        with patch('app.resumes.service.get_resume', return_value=mock_resume):
             await delete_resume(
                 mock_session,
                 resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
 
-            # file_storage.delete should NOT be called for empty file_path
-            mock_storage.delete.assert_not_called()
-            mock_session.delete.assert_awaited_once_with(mock_resume)
+            assert mock_resume.deleted_at is not None
 
     @pytest.mark.asyncio
-    async def test_delete_file_resume_calls_storage(self) -> None:
-        """Удаление файлового резюме вызывает storage.delete."""
+    async def test_delete_file_resume_soft_deletes(self) -> None:
+        """Soft-delete файлового резюме — storage.delete НЕ вызывается."""
         from app.resumes.service import delete_resume
 
         mock_session = AsyncMock(spec=AsyncSession)
@@ -244,24 +240,25 @@ class TestResumeDeleteGuard:
         mock_resume.id = uuid4()
         mock_resume.user_id = uuid4()
         mock_resume.file_path = 'uploads/resume.pdf'
+        mock_resume.deleted_at = None
 
         with (
             patch('app.resumes.service.get_resume', return_value=mock_resume),
             patch('app.resumes.service.file_storage') as mock_storage,
         ):
-            mock_storage.delete = AsyncMock()
             await delete_resume(
                 mock_session,
                 resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
 
-            mock_storage.delete.assert_awaited_once_with('uploads/resume.pdf')
-            mock_session.delete.assert_awaited_once_with(mock_resume)
+            mock_storage.delete.assert_not_called()
+            mock_session.delete.assert_not_called()
+            assert mock_resume.deleted_at is not None
 
     @pytest.mark.asyncio
-    async def test_delete_handles_is_directory_error(self) -> None:
-        """IsADirectoryError не роняет удаление."""
+    async def test_soft_delete_does_not_hard_delete(self) -> None:
+        """Soft-delete не вызывает session.delete()."""
         from app.resumes.service import delete_resume
 
         mock_session = AsyncMock(spec=AsyncSession)
@@ -269,46 +266,15 @@ class TestResumeDeleteGuard:
         mock_resume.id = uuid4()
         mock_resume.user_id = uuid4()
         mock_resume.file_path = 'some/path'
+        mock_resume.deleted_at = None
 
-        with (
-            patch('app.resumes.service.get_resume', return_value=mock_resume),
-            patch('app.resumes.service.file_storage') as mock_storage,
-        ):
-            mock_storage.delete = AsyncMock(
-                side_effect=IsADirectoryError('is a dir'),
-            )
+        with patch('app.resumes.service.get_resume', return_value=mock_resume):
             await delete_resume(
                 mock_session,
                 resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
-            # Should NOT raise, just log a warning
-            mock_session.delete.assert_awaited_once_with(mock_resume)
-
-    @pytest.mark.asyncio
-    async def test_delete_handles_permission_error(self) -> None:
-        """PermissionError не роняет удаление."""
-        from app.resumes.service import delete_resume
-
-        mock_session = AsyncMock(spec=AsyncSession)
-        mock_resume = MagicMock()
-        mock_resume.id = uuid4()
-        mock_resume.user_id = uuid4()
-        mock_resume.file_path = 'some/path'
-
-        with (
-            patch('app.resumes.service.get_resume', return_value=mock_resume),
-            patch('app.resumes.service.file_storage') as mock_storage,
-        ):
-            mock_storage.delete = AsyncMock(
-                side_effect=PermissionError('no perms'),
-            )
-            await delete_resume(
-                mock_session,
-                resume_id=mock_resume.id,
-                user_id=mock_resume.user_id,
-            )
-            mock_session.delete.assert_awaited_once_with(mock_resume)
+            mock_session.delete.assert_not_called()
 
 
 class TestVacancyRouterHHEndpoint:

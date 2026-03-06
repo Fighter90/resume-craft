@@ -53,6 +53,7 @@ class User(UUIDMixin, TimestampMixin, Base):
     )
     optimizations_used: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default='true')
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default='false')
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None)
     scheduled_deletion: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True, default=None,

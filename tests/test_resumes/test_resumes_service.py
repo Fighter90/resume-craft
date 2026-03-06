@@ -261,15 +261,12 @@ class TestListResumes:
 class TestDeleteResume:
     """Тесты delete_resume()."""
 
-    @patch('app.resumes.service.file_storage')
     async def test_delete_success(
         self,
-        mock_storage: AsyncMock,
         session: AsyncSession,
         test_user: User,
     ) -> None:
-        """Удаление существующего резюме."""
-        mock_storage.delete = AsyncMock()
+        """Soft-delete устанавливает deleted_at."""
         resume = Resume(
             user_id=test_user.id,
             title='To Delete',
@@ -281,25 +278,23 @@ class TestDeleteResume:
         await session.flush()
 
         await delete_resume(session, resume_id=resume.id, user_id=test_user.id)
-        mock_storage.delete.assert_called_once()
+        await session.refresh(resume)
+        assert resume.deleted_at is not None
 
     async def test_delete_nonexistent(self, session: AsyncSession, test_user: User) -> None:
         """Удаление несуществующего → ResumeNotFound."""
         with pytest.raises(ResumeNotFound):
             await delete_resume(session, resume_id=uuid4(), user_id=test_user.id)
 
-    @patch('app.resumes.service.file_storage')
-    async def test_delete_file_not_found(
+    async def test_delete_hides_from_listing(
         self,
-        mock_storage: AsyncMock,
         session: AsyncSession,
         test_user: User,
     ) -> None:
-        """Удаление резюме когда файл уже удалён → не крашится."""
-        mock_storage.delete = AsyncMock(side_effect=FileNotFoundError('not found'))
+        """Soft-deleted резюме не отображается в списке."""
         resume = Resume(
             user_id=test_user.id,
-            title='Missing File',
+            title='Hidden Resume',
             file_path='gone/path.pdf',
             file_format='pdf',
             file_size_bytes=100,
@@ -307,5 +302,6 @@ class TestDeleteResume:
         session.add(resume)
         await session.flush()
 
-        # Не должно бросать исключение
         await delete_resume(session, resume_id=resume.id, user_id=test_user.id)
+        resumes, total = await list_resumes(session, user_id=test_user.id)
+        assert all(r.id != resume.id for r in resumes)

@@ -142,13 +142,32 @@ async def delete_resume(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> Response:
-    """Удаление резюме и связанного файла."""
+    """Soft-delete резюме (помещает в корзину)."""
     await resume_service.delete_resume(
         session,
         resume_id=resume_id,
         user_id=current_user.id,
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    '/{resume_id}/restore',
+    response_model=ResumeResponse,
+    summary='Восстановление резюме из корзины',
+)
+async def restore_resume(
+    resume_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ResumeResponse:
+    """Восстановление ранее удалённого резюме."""
+    resume = await resume_service.restore_resume(
+        session,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+    return ResumeResponse.model_validate(resume)
 
 
 @router.get(

@@ -41,6 +41,20 @@ async def register(
     return await auth_service.register(session, data=data)
 
 
+@router.get(
+    '/verify/{token}',
+    response_model=MessageResponse,
+    summary='Подтверждение email',
+)
+async def verify_email(
+    token: str,
+    session: AsyncSession = Depends(get_session),
+) -> MessageResponse:
+    """Подтверждение email по верификационному токену."""
+    result = await auth_service.verify_email(session, token=token)
+    return MessageResponse(message=result)
+
+
 @router.post(
     '/login',
     response_model=TokenResponse,

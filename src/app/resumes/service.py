@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from fastapi import UploadFile
@@ -175,7 +176,7 @@ async def get_resume(
     Raises:
         ResumeNotFound: резюме не найдено или принадлежит другому пользователю.
     """
-    stmt = select(Resume).where(Resume.id == resume_id, Resume.user_id == user_id)
+    stmt = select(Resume).where(Resume.id == resume_id, Resume.user_id == user_id, Resume.deleted_at.is_(None))
     result = await session.execute(stmt)
     resume = result.scalar_one_or_none()
     if not resume:
@@ -192,13 +193,15 @@ async def list_resumes(
 ) -> tuple[Sequence[Resume], int]:
     """Список резюме пользователя с пагинацией."""
     # Count
-    count_stmt = select(func.count()).select_from(Resume).where(Resume.user_id == user_id)
+    count_stmt = select(func.count()).select_from(Resume).where(
+        Resume.user_id == user_id, Resume.deleted_at.is_(None),
+    )
     total = (await session.execute(count_stmt)).scalar_one()
 
     # Items
     stmt = (
         select(Resume)
-        .where(Resume.user_id == user_id)
+        .where(Resume.user_id == user_id, Resume.deleted_at.is_(None))
         .order_by(Resume.created_at.desc())
         .limit(limit)
         .offset(offset)
@@ -215,23 +218,41 @@ async def delete_resume(
     resume_id: UUID,
     user_id: UUID,
 ) -> None:
-    """Удаление резюме.
+    """Soft-delete резюме (устанавливает deleted_at).
 
     Raises:
         ResumeNotFound: резюме не найдено.
     """
     resume = await get_resume(session, resume_id=resume_id, user_id=user_id)
-
-    # Удаление файла (пропускаем для резюме из текста без файла)
-    if resume.file_path:
-        try:
-            await file_storage.delete(resume.file_path)
-        except (FileNotFoundError, IsADirectoryError, PermissionError):
-            logger.warning('File cleanup failed for: %r', resume.file_path)
-
-    await session.delete(resume)
+    resume.deleted_at = datetime.now(tz=UTC)
     await session.flush()
-    logger.info('Resume deleted: %s (user=%s)', resume_id, user_id)
+    logger.info('Resume soft-deleted: %s (user=%s)', resume_id, user_id)
+
+
+async def restore_resume(
+    session: AsyncSession,
+    *,
+    resume_id: UUID,
+    user_id: UUID,
+) -> Resume:
+    """Восстановление soft-deleted резюме.
+
+    Raises:
+        ResumeNotFound: резюме не найдено.
+    """
+    stmt = select(Resume).where(
+        Resume.id == resume_id,
+        Resume.user_id == user_id,
+        Resume.deleted_at.isnot(None),
+    )
+    result = await session.execute(stmt)
+    resume = result.scalar_one_or_none()
+    if not resume:
+        raise ResumeNotFound()
+    resume.deleted_at = None
+    await session.flush()
+    logger.info('Resume restored: %s (user=%s)', resume_id, user_id)
+    return resume
 
 
 async def update_resume(

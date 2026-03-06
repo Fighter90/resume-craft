@@ -66,3 +66,32 @@ def decode_token(token: str) -> dict[str, Any]:
         settings.secret_key,
         algorithms=[settings.jwt_algorithm],
     )
+
+
+def create_verification_token(email: str) -> str:
+    """Создание токена подтверждения email (24 часа)."""
+    payload: dict[str, Any] = {
+        'sub': email,
+        'exp': datetime.now(tz=UTC) + timedelta(hours=24),
+        'type': 'email_verification',
+    }
+    return jwt.encode(payload, settings.secret_key, algorithm=settings.jwt_algorithm)
+
+
+def verify_email_token(token: str) -> str:
+    """Декодирование токена подтверждения email → email.
+
+    Raises:
+        jwt.ExpiredSignatureError: токен истёк.
+        jwt.InvalidTokenError: невалидный или некорректный тип токена.
+    """
+    payload = jwt.decode(
+        token,
+        settings.secret_key,
+        algorithms=[settings.jwt_algorithm],
+    )
+    if payload.get('type') != 'email_verification':
+        msg = 'Invalid token type'
+        raise jwt.InvalidTokenError(msg)
+    email: str = payload['sub']
+    return email
