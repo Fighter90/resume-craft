@@ -793,7 +793,7 @@ class TestCleanup:
         assert resp.status_code == 204
 
     def test_delete_account(self, http: httpx.Client) -> None:
-        """Удаление тестового аккаунта (логинимся заново после logout)."""
+        """Soft-delete тестового аккаунта (логинимся заново после logout)."""
         resp = http.post(
             f'{API}/auth/login',
             json={
@@ -804,8 +804,10 @@ class TestCleanup:
         if resp.status_code != 200:
             pytest.skip('Cannot login for account deletion')
         token = resp.json()['access_token']
-        resp = http.delete(
+        resp = http.request(
+            'DELETE',
             f'{API}/auth/me',
             headers={'Authorization': f'Bearer {token}'},
+            json={'password': TEST_PASS},
         )
-        assert resp.status_code == 204
+        assert resp.status_code == 200

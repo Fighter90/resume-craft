@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import enum
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Enum, Integer, String
+from sqlalchemy import Boolean, DateTime, Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin, UUIDMixin
@@ -52,6 +53,10 @@ class User(UUIDMixin, TimestampMixin, Base):
     )
     optimizations_used: Mapped[int] = mapped_column(Integer, default=0, server_default='0')
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default='true')
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None)
+    scheduled_deletion: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True, default=None,
+    )
 
     # Relationships
     resumes: Mapped[list[Resume]] = relationship(

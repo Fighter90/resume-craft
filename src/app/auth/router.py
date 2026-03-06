@@ -8,7 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import service as auth_service
 from app.auth.models import User
 from app.auth.schemas import (
+    DeleteAccountRequest,
     LoginRequest,
+    MessageResponse,
     PasswordChangeRequest,
     RefreshRequest,
     RegisterRequest,
@@ -135,14 +137,34 @@ async def change_password(
 
 @router.delete(
     '/me',
-    status_code=status.HTTP_204_NO_CONTENT,
-    response_class=Response,
-    summary='Удаление аккаунта',
+    response_model=MessageResponse,
+    summary='Удаление аккаунта (soft-delete, 30 дней)',
 )
 async def delete_me(
+    data: DeleteAccountRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Response:
-    """Полное удаление аккаунта и всех данных (ФЗ-152)."""
-    await auth_service.delete_user_account(session, user=current_user)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+) -> MessageResponse:
+    """Soft-delete аккаунта с 30-дневным периодом восстановления (ФЗ-152).
+
+    Требует подтверждение паролем. Данные будут окончательно удалены через 30 дней.
+    Для восстановления — войдите в аккаунт до истечения срока.
+    """
+    result = await auth_service.soft_delete_account(
+        session, user=current_user, password=data.password,
+    )
+    return MessageResponse(message=result)
+
+
+@router.post(
+    '/me/restore',
+    response_model=MessageResponse,
+    summary='Восстановление аккаунта',
+)
+async def restore_me(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> MessageResponse:
+    """Отмена удаления аккаунта в течение 30-дневного периода."""
+    result = await auth_service.restore_account(session, user=current_user)
+    return MessageResponse(message=result)

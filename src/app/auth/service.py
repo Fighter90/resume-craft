@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import jwt
@@ -25,6 +27,8 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def get_user_by_email(session: AsyncSession, *, email: str) -> User | None:
@@ -85,6 +89,12 @@ async def authenticate(
 
     if not user.is_active:
         raise InactiveUser()
+
+    # Если аккаунт помечен для удаления — автоматически восстанавливаем при входе
+    if user.deleted_at is not None:
+        user.deleted_at = None
+        user.scheduled_deletion = None
+        await session.flush()
 
     return TokenResponse(
         access_token=create_access_token(user.id),
@@ -181,12 +191,10 @@ async def delete_user_account(
     """Полное удаление аккаунта пользователя и всех связанных данных (ФЗ-152).
 
     AUTH-001: Удаляет файлы пользователя с диска перед удалением из БД.
+    Используется Celery-задачей для окончательной очистки после soft-delete.
     """
-    import logging
-
     from app.core.storage import file_storage
 
-    logger = logging.getLogger(__name__)
     try:
         await file_storage.delete_user_files(user.id)
     except Exception:
@@ -194,3 +202,43 @@ async def delete_user_account(
 
     await session.delete(user)
     await session.flush()
+
+
+async def soft_delete_account(
+    session: AsyncSession,
+    *,
+    user: User,
+    password: str,
+) -> str:
+    """Soft-delete аккаунта с 30-дневным периодом восстановления.
+
+    Raises:
+        InvalidCredentials: неверный пароль.
+    """
+    if not verify_password(password, user.hashed_password):
+        raise InvalidCredentials()
+
+    user.deleted_at = datetime.now(tz=UTC)
+    user.scheduled_deletion = datetime.now(tz=UTC) + timedelta(days=30)
+    await session.flush()
+
+    return (
+        'Аккаунт будет удалён через 30 дней. '
+        'Вы можете отменить удаление, войдя в аккаунт.'
+    )
+
+
+async def restore_account(
+    session: AsyncSession,
+    *,
+    user: User,
+) -> str:
+    """Отмена soft-delete аккаунта."""
+    if user.deleted_at is None:
+        return 'Аккаунт не был помечен для удаления'
+
+    user.deleted_at = None
+    user.scheduled_deletion = None
+    await session.flush()
+
+    return 'Аккаунт успешно восстановлен'

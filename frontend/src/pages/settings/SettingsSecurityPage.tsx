@@ -9,6 +9,7 @@ export default function SettingsSecurityPage() {
   const { logout } = useAuth()
   const [showDelete, setShowDelete] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
+  const [deletePassword, setDeletePassword] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' })
@@ -18,11 +19,11 @@ export default function SettingsSecurityPage() {
   const handlePwChange = (key: string, value: string) => setPwForm({ ...pwForm, [key]: value })
 
   const handleDeleteAccount = async () => {
-    if (deleteConfirm !== 'УДАЛИТЬ') return
+    if (deleteConfirm !== 'УДАЛИТЬ' || !deletePassword) return
     setDeleteLoading(true)
     setDeleteError(null)
     try {
-      await api.deleteAccount()
+      await api.deleteAccount(deletePassword)
       logout()
       navigate('/')
     } catch (err) {
@@ -122,7 +123,8 @@ export default function SettingsSecurityPage() {
           <h3 style={{ fontWeight: 600 }}>Опасная зона</h3>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Удаление аккаунта безвозвратно. Все данные, резюме и история будут потеряны.
+          Аккаунт будет помечен для удаления. Через 30 дней все данные будут безвозвратно утрачены.
+          Вы можете отменить удаление в любой момент, просто войдя в аккаунт.
         </p>
         {deleteError && (
           <div style={{ padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', fontSize: '0.9rem',
@@ -135,12 +137,16 @@ export default function SettingsSecurityPage() {
             Удалить аккаунт
           </button>
         ) : (
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <input className="input-field" placeholder='Введите "УДАЛИТЬ" для подтверждения' style={{ flex: 1 }}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <input className="input-field" type="password" placeholder="Введите ваш пароль"
+              value={deletePassword} onChange={e => setDeletePassword(e.target.value)} />
+            <input className="input-field" placeholder='Введите "УДАЛИТЬ" для подтверждения'
               value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
-            <button className="btn" style={{ background: 'var(--danger)', color: '#fff' }} disabled={deleteConfirm !== 'УДАЛИТЬ' || deleteLoading} onClick={handleDeleteAccount}>
-              {deleteLoading ? <><Loader size={16} className="spin" /> Удаление...</> : 'Подтвердить'}</button>
-            <button className="btn btn-secondary" onClick={() => { setShowDelete(false); setDeleteConfirm('') }}>Отмена</button>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button className="btn" style={{ background: 'var(--danger)', color: '#fff' }} disabled={deleteConfirm !== 'УДАЛИТЬ' || !deletePassword || deleteLoading} onClick={handleDeleteAccount}>
+                {deleteLoading ? <><Loader size={16} className="spin" /> Удаление...</> : 'Подтвердить'}</button>
+              <button className="btn btn-secondary" onClick={() => { setShowDelete(false); setDeleteConfirm(''); setDeletePassword('') }}>Отмена</button>
+            </div>
           </div>
         )}
       </div>

@@ -7,6 +7,13 @@
 
 ---
 
+⚠️ **Статический анализ v1.5.** Часть дефектов исправлена в v1.6. Актуальный статус — в `06_SUMMARY.md` и `08_RETEST_V16.md`.
+
+**Исправлено в v1.6:** UI-001 (XSS), UI-003 (подтверждение пароля)
+**Не исправлено:** UI-002 (Match Score), UI-004 (JWT в localStorage)
+
+---
+
 ## UI-001: XSS через dangerouslySetInnerHTML в описании вакансии
 
 **Severity:** 🔴 CRITICAL

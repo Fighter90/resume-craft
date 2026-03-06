@@ -14,6 +14,8 @@ from app.auth.service import (
     change_password,
     delete_user_account,
     refresh_tokens,
+    restore_account,
+    soft_delete_account,
     update_user,
 )
 from app.core.config import get_settings
@@ -160,3 +162,66 @@ class TestDeleteUserAccount:
 
         deleted = await session.get(User, user_id)
         assert deleted is None
+
+
+class TestSoftDeleteAccount:
+    """Тесты soft_delete_account() и restore_account()."""
+
+    async def test_soft_delete_success(self, session: AsyncSession) -> None:
+        """Soft-delete с правильным паролем → deleted_at устанавливается."""
+        user = User(
+            id=uuid4(),
+            email=f'sd-{uuid4().hex[:8]}@test.com',
+            hashed_password=hash_password('SoftDel123'),
+        )
+        session.add(user)
+        await session.flush()
+
+        result = await soft_delete_account(session, user=user, password='SoftDel123')
+        assert 'удалён через 30 дней' in result
+        assert user.deleted_at is not None
+        assert user.scheduled_deletion is not None
+
+    async def test_soft_delete_wrong_password(self, session: AsyncSession) -> None:
+        """Soft-delete с неверным паролем → InvalidCredentials."""
+        user = User(
+            id=uuid4(),
+            email=f'sd-wp-{uuid4().hex[:8]}@test.com',
+            hashed_password=hash_password('SoftDel123'),
+        )
+        session.add(user)
+        await session.flush()
+
+        with pytest.raises(InvalidCredentials):
+            await soft_delete_account(session, user=user, password='WrongPass')
+
+    async def test_restore_account(self, session: AsyncSession) -> None:
+        """Восстановление soft-deleted аккаунта."""
+        user = User(
+            id=uuid4(),
+            email=f'restore-{uuid4().hex[:8]}@test.com',
+            hashed_password=hash_password('Restore123'),
+        )
+        session.add(user)
+        await session.flush()
+
+        await soft_delete_account(session, user=user, password='Restore123')
+        assert user.deleted_at is not None
+
+        result = await restore_account(session, user=user)
+        assert 'восстановлен' in result
+        assert user.deleted_at is None
+        assert user.scheduled_deletion is None
+
+    async def test_restore_not_deleted(self, session: AsyncSession) -> None:
+        """Восстановление не-deleted аккаунта → сообщение."""
+        user = User(
+            id=uuid4(),
+            email=f'notdel-{uuid4().hex[:8]}@test.com',
+            hashed_password=hash_password('NotDel123'),
+        )
+        session.add(user)
+        await session.flush()
+
+        result = await restore_account(session, user=user)
+        assert 'не был помечен' in result

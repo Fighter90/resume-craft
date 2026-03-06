@@ -128,3 +128,11 @@ class PasswordChangeRequest(BaseModel):
         return v
 
     model_config = ConfigDict(str_strip_whitespace=True)
+
+
+class DeleteAccountRequest(BaseModel):
+    """Запрос на удаление аккаунта — требует подтверждение паролем."""
+
+    password: str = Field(min_length=1, description='Текущий пароль для подтверждения')
+
+    model_config = ConfigDict(str_strip_whitespace=True)

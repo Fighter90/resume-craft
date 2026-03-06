@@ -227,8 +227,8 @@ export class ApiClient {
     )
   }
 
-  async deleteAccount() {
-    return this.request<void>('DELETE', '/auth/me')
+  async deleteAccount(password: string) {
+    return this.request<{ message: string }>('DELETE', '/auth/me', { password })
   }
 
   /** @deprecated Используйте createVacancyFromUrl. Оставлено для обратной совместимости. */
