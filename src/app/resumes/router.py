@@ -5,6 +5,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Response, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
@@ -148,3 +149,48 @@ async def delete_resume(
         user_id=current_user.id,
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get(
+    '/{resume_id}/file',
+    summary='Скачивание оригинального файла резюме',
+)
+async def download_resume_file(
+    resume_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> StreamingResponse:
+    """Скачивание оригинального PDF/DOCX файла резюме."""
+    import io
+
+    from fastapi import HTTPException
+
+    from app.core.storage import file_storage
+
+    resume = await resume_service.get_resume(
+        session,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    if not resume.file_path:
+        raise HTTPException(status_code=404, detail='Файл не найден')
+
+    try:
+        content = await file_storage.read(resume.file_path)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail='Файл не найден на диске') from None
+
+    fmt = (resume.file_format or 'bin').lower()
+    media_types: dict[str, str] = {
+        'pdf': 'application/pdf',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    }
+    media_type = media_types.get(fmt, 'application/octet-stream')
+    filename = f'{resume.title or "resume"}.{fmt}'
+
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=media_type,
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'},
+    )
