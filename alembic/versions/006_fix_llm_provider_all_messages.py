@@ -1,6 +1,6 @@
 """Fix old LLM provider 'all' error messages in rewrite_history.
 
-Revision ID: 006_fix_llm_provider_all_messages
+Revision ID: 006_fix_llm_all_msg
 Revises: 005_email_verification
 """
 
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from alembic import op
 
-revision = '006_fix_llm_provider_all_messages'
+revision = '006_fix_llm_all_msg'
 down_revision = '005_email_verification'
 branch_labels = None
 depends_on = None
