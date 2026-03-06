@@ -28,10 +28,16 @@ class TestCreateRewrite:
         )
         assert resp.status_code == 401
 
+    @patch(
+        'app.settings.service.get_user_setting',
+        new_callable=AsyncMock,
+        return_value='fake-api-key',
+    )
     @patch('app.rewriter.router.execute_rewrite_task')
     async def test_success(
         self,
         mock_celery: AsyncMock,
+        mock_get_key: AsyncMock,
         auth_client: AsyncClient,
         session: AsyncSession,
         test_user: User,
