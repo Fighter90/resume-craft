@@ -251,6 +251,7 @@ async def restore_resume(
         raise ResumeNotFound()
     resume.deleted_at = None
     await session.flush()
+    await session.refresh(resume)
     logger.info('Resume restored: %s (user=%s)', resume_id, user_id)
     return resume
 
