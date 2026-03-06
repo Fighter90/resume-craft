@@ -1,7 +1,7 @@
 """Add soft-delete to resumes (deleted_at column).
 
-Revision ID: 004
-Revises: 003
+Revision ID: 004_resume_soft_delete
+Revises: 003_user_settings
 """
 
 from __future__ import annotations
@@ -9,8 +9,8 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
-revision = '004'
-down_revision = '003'
+revision = '004_resume_soft_delete'
+down_revision = '003_user_settings'
 branch_labels = None
 depends_on = None
 
