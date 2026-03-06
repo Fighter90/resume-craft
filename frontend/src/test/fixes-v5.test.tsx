@@ -11,7 +11,7 @@
  * 9. AppLayout: Help link in sidebar navigation
  * 10. App.tsx: /app/help route exists
  */
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { WizardProvider } from '../contexts/WizardContext'

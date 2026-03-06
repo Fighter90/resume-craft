@@ -1,4 +1,4 @@
-import { HelpCircle, Upload, Search, Cpu, Sparkles, Download, Settings, Shield, MessageCircle, FileText, Target, Zap, BookOpen, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
+import { HelpCircle, Upload, Search, Cpu, Sparkles, Settings, Shield, MessageCircle, FileText, Target, Zap, BookOpen, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
