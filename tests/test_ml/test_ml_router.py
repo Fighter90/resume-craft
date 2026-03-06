@@ -107,8 +107,8 @@ class TestListModels:
             assert 'description' in m
             assert 'has_sub_models' in m
 
-    async def test_gigachat_no_sub_models(self, client: AsyncClient) -> None:
-        """GigaChat has_sub_models=False."""
+    async def test_all_providers_have_sub_models(self, client: AsyncClient) -> None:
+        """All providers (including GigaChat) have has_sub_models=True."""
         mock_settings = MagicMock()
         mock_settings.gigachat_credentials = ''
         mock_settings.openai_api_key = ''
@@ -119,13 +119,8 @@ class TestListModels:
             resp = await client.get('/api/v1/models')
 
         models = resp.json()['models']
-        gigachat = next(m for m in models if m['provider'] == 'gigachat')
-        assert gigachat['has_sub_models'] is False
-
-        # Другие — has_sub_models=True
         for m in models:
-            if m['provider'] != 'gigachat':
-                assert m['has_sub_models'] is True
+            assert m['has_sub_models'] is True, f'{m["provider"]} should have sub_models'
 
 
 # ── GET /api/v1/models/{provider}/sub-models ────────────────────────────────
@@ -133,17 +128,6 @@ class TestListModels:
 
 class TestSubModelsUnsupported:
     """Тесты для неподдерживаемых провайдеров."""
-
-    async def test_unsupported_provider(self, client: AsyncClient) -> None:
-        """Неподдерживаемый провайдер → ошибка."""
-        mock_settings = MagicMock()
-        with patch('app.ml.router.get_settings', return_value=mock_settings):
-            resp = await client.get('/api/v1/models/gigachat/sub-models')
-
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data['sub_models'] == []
-        assert 'error' in data
 
     async def test_unknown_provider(self, client: AsyncClient) -> None:
         """Неизвестный провайдер → ошибка."""
@@ -154,6 +138,109 @@ class TestSubModelsUnsupported:
         data = resp.json()
         assert data['sub_models'] == []
         assert 'error' in data
+
+
+# ── GigaChat sub-models ────────────────────────────────────────────────────
+
+
+class TestGigaChatSubModels:
+    """Тесты GET /api/v1/models/gigachat/sub-models."""
+
+    async def test_no_api_key(self, client: AsyncClient) -> None:
+        """Нет API-ключа → error."""
+        mock_settings = MagicMock()
+        mock_settings.gigachat_credentials = ''
+        mock_settings.gigachat_scope = 'GIGACHAT_API_PERS'
+
+        with patch('app.ml.router.get_settings', return_value=mock_settings):
+            resp = await client.get('/api/v1/models/gigachat/sub-models')
+
+        data = resp.json()
+        assert data['sub_models'] == []
+        assert 'error' in data
+
+    async def test_success(self, client: AsyncClient) -> None:
+        """Успешный запрос → модели GigaChat."""
+        mock_settings = MagicMock()
+        mock_settings.gigachat_credentials = 'test-cred'
+        mock_settings.gigachat_scope = 'GIGACHAT_API_PERS'
+
+        # Мокируем GigaChat SDK
+        mock_model_1 = MagicMock()
+        mock_model_1.id = 'GigaChat-Pro'
+        mock_model_2 = MagicMock()
+        mock_model_2.id = 'GigaChat'
+        mock_model_3 = MagicMock()
+        mock_model_3.id = 'GigaChat-Max'
+
+        mock_response = MagicMock()
+        mock_response.data = [mock_model_1, mock_model_2, mock_model_3]
+
+        mock_gc_client = MagicMock()
+        mock_gc_client.get_models.return_value = mock_response
+
+        with (
+            patch('app.ml.router.get_settings', return_value=mock_settings),
+            patch('gigachat.GigaChat', return_value=mock_gc_client),
+        ):
+            resp = await client.get('/api/v1/models/gigachat/sub-models')
+
+        data = resp.json()
+        model_ids = [m['id'] for m in data['sub_models']]
+        assert 'GigaChat-Pro' in model_ids
+        assert 'GigaChat' in model_ids
+        assert 'GigaChat-Max' in model_ids
+        # Провайдер = GigaChat
+        for m in data['sub_models']:
+            assert m['provider'] == 'GigaChat'
+
+    async def test_api_error_fallback(self, client: AsyncClient) -> None:
+        """Ошибка SDK → fallback-модели."""
+        mock_settings = MagicMock()
+        mock_settings.gigachat_credentials = 'test-cred'
+        mock_settings.gigachat_scope = 'GIGACHAT_API_PERS'
+
+        with (
+            patch('app.ml.router.get_settings', return_value=mock_settings),
+            patch('gigachat.GigaChat', side_effect=Exception('Auth failed')),
+        ):
+            resp = await client.get('/api/v1/models/gigachat/sub-models')
+
+        data = resp.json()
+        assert data.get('fallback') is True
+        model_ids = [m['id'] for m in data['sub_models']]
+        assert 'GigaChat-Pro' in model_ids
+        assert 'GigaChat' in model_ids
+        assert 'GigaChat-Max' in model_ids
+
+    async def test_sorted_by_name(self, client: AsyncClient) -> None:
+        """Модели отсортированы по имени."""
+        mock_settings = MagicMock()
+        mock_settings.gigachat_credentials = 'test-cred'
+        mock_settings.gigachat_scope = 'GIGACHAT_API_PERS'
+
+        mock_m1 = MagicMock()
+        mock_m1.id = 'GigaChat-Pro'
+        mock_m2 = MagicMock()
+        mock_m2.id = 'GigaChat'
+        mock_m3 = MagicMock()
+        mock_m3.id = 'GigaChat-Max'
+
+        mock_response = MagicMock()
+        mock_response.data = [mock_m1, mock_m2, mock_m3]
+
+        mock_gc_client = MagicMock()
+        mock_gc_client.get_models.return_value = mock_response
+
+        with (
+            patch('app.ml.router.get_settings', return_value=mock_settings),
+            patch('gigachat.GigaChat', return_value=mock_gc_client),
+        ):
+            resp = await client.get('/api/v1/models/gigachat/sub-models')
+
+        data = resp.json()
+        names = [m['name'] for m in data['sub_models']]
+        assert names == sorted(names)
 
 
 # ── OpenAI sub-models ───────────────────────────────────────────────────────

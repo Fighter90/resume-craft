@@ -93,7 +93,7 @@ async def list_models(
             'provider': 'gigachat',
             'available': available['gigachat'],
             'description': '#1 русский язык (MERA), данные в РФ',
-            'has_sub_models': False,
+            'has_sub_models': True,
         },
         {
             'id': 'openai',
@@ -152,6 +152,10 @@ async def get_sub_models(
 
     settings = get_settings()
 
+    if provider == 'gigachat':
+        key = user_key or settings.gigachat_credentials
+        scope = settings.gigachat_scope
+        return await _fetch_gigachat_models(key, scope=scope)
     if provider == 'openai':
         key = user_key or settings.openai_api_key
         return await _fetch_openai_models(key)
@@ -163,6 +167,50 @@ async def get_sub_models(
         return await _fetch_openrouter_models(key)
 
     return {'sub_models': [], 'error': f'Провайдер {provider} не поддерживает выбор подмоделей'}
+
+
+async def _fetch_gigachat_models(
+    credentials: str,
+    *,
+    scope: str = 'GIGACHAT_API_PERS',
+) -> dict[str, Any]:
+    """Получение списка моделей GigaChat через SDK."""
+    if not credentials or not credentials.strip():
+        return {'sub_models': [], 'error': 'API-ключ GigaChat не настроен'}
+
+    try:
+        from gigachat import GigaChat
+
+        client = GigaChat(
+            credentials=credentials,
+            scope=scope,
+            verify_ssl_certs=False,
+        )
+        response = client.get_models()
+
+        models = []
+        for m in response.data:
+            models.append(
+                {
+                    'id': m.id,
+                    'name': m.id,
+                    'provider': 'GigaChat',
+                }
+            )
+
+        models.sort(key=lambda x: x['name'])
+        return {'sub_models': models}
+
+    except Exception as exc:
+        logger.warning('Failed to fetch GigaChat models: %s', exc)
+        return {
+            'sub_models': [
+                {'id': 'GigaChat-Pro', 'name': 'GigaChat-Pro', 'provider': 'GigaChat'},
+                {'id': 'GigaChat', 'name': 'GigaChat', 'provider': 'GigaChat'},
+                {'id': 'GigaChat-Max', 'name': 'GigaChat-Max', 'provider': 'GigaChat'},
+            ],
+            'fallback': True,
+        }
 
 
 async def _fetch_openai_models(api_key: str) -> dict[str, Any]:
