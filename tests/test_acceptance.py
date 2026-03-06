@@ -188,6 +188,8 @@ def rewrite_task_id(
         headers={**auth_headers, 'Content-Type': 'application/json'},
         json={'resume_id': resume_id, 'vacancy_id': vacancy_id},
     )
+    if resp.status_code == 400 and 'API-ключ' in resp.text:
+        pytest.skip('API-ключ LLM-провайдера не настроен на сервере')
     assert resp.status_code == 202, f'Rewrite failed: {resp.status_code} {resp.text}'
     return resp.json()['task_id']
 
