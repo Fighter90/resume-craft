@@ -1,6 +1,8 @@
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { ArrowLeft, FileText, Calendar, Tag, Loader, AlertCircle, Trash2, Briefcase, Download, Eye } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import mammoth from 'mammoth'
+import DOMPurify from 'dompurify'
 import { api } from '../../services/api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -33,6 +35,7 @@ export default function ResumeDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [fileUrl, setFileUrl] = useState<string | null>(null)
+  const [docxHtml, setDocxHtml] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [showFormatMenu, setShowFormatMenu] = useState(false)
@@ -48,8 +51,14 @@ export default function ResumeDetailPage() {
         if (fmt === 'pdf' || fmt === 'docx') {
           try {
             const blob = await api.downloadResumeFile(id)
-            blobUrl = URL.createObjectURL(blob)
-            setFileUrl(blobUrl)
+            if (fmt === 'pdf') {
+              blobUrl = URL.createObjectURL(blob)
+              setFileUrl(blobUrl)
+            } else if (fmt === 'docx') {
+              const arrayBuffer = await blob.arrayBuffer()
+              const result = await mammoth.convertToHtml({ arrayBuffer })
+              setDocxHtml(DOMPurify.sanitize(result.value))
+            }
           } catch { /* file preview not available */ }
         }
       } catch (err) {
@@ -140,6 +149,7 @@ export default function ResumeDetailPage() {
   const rawText = resume.raw_text
   const fmt = (resume.file_format || '').toLowerCase()
   const canPreview = (fmt === 'pdf') && fileUrl
+  const canPreviewDocx = (fmt === 'docx') && docxHtml
 
   return (
     <div>
@@ -208,6 +218,21 @@ export default function ResumeDetailPage() {
             <span className="badge badge-indigo" style={{ marginLeft: '0.5rem' }}>{fmt.toUpperCase()}</span>
           </div>
           <iframe src={fileUrl!} title="Просмотр PDF" style={{ width: '100%', height: '70vh', border: 'none' }} />
+        </div>
+      )}
+
+      {/* File preview for DOCX via mammoth */}
+      {canPreviewDocx && (
+        <div className="card" style={{ padding: 0, marginBottom: '2rem', overflow: 'hidden', borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem', background: '#F9FAFB', borderBottom: '1px solid var(--border)' }}>
+            <Eye size={16} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Просмотр документа</span>
+            <span className="badge badge-indigo" style={{ marginLeft: '0.5rem' }}>DOCX</span>
+          </div>
+          <div
+            style={{ padding: '1.5rem 2rem', fontSize: '0.9rem', lineHeight: 1.7, maxHeight: '70vh', overflowY: 'auto' }}
+            dangerouslySetInnerHTML={{ __html: docxHtml! }}
+          />
         </div>
       )}
 
