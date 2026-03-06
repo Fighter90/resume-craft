@@ -62,6 +62,8 @@ def create_app() -> FastAPI:
     )
 
     # --- Rate Limiting (SEC-005/ARCH-010/LIVE-012) ---
+    if settings.environment in ('testing', 'test'):
+        limiter.enabled = False
     storage_uri = (
         'memory://'
         if settings.environment in ('testing', 'test')

@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.6.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.7.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.6  
+> **Версия:** 1.7  
 > **Дата:** Март 2026  
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -377,7 +377,7 @@ src/app/
 │   ├── dependencies.py    # FastAPI Depends()
 │   └── exceptions.py      # Кастомные HTTP-исключения
 ├── auth/                  # Аутентификация
-│   ├── router.py          # POST /auth/register, /login, /refresh, /logout
+│   ├── router.py          # POST /auth/register, /login, /refresh, /logout, GET /auth/verify/{token}
 │   ├── schemas.py         # Pydantic-модели
 │   ├── models.py          # SQLAlchemy User
 │   └── service.py         # Бизнес-логика
@@ -399,8 +399,8 @@ src/app/
 │   ├── service.py         # Оркестрация pipeline
 │   └── tasks.py           # Celery tasks
 ├── export/                # Экспорт
-│   ├── router.py          # GET /export/{id}/docx
-│   └── service.py         # python-docx генерация
+│   ├── router.py          # GET /export/{id}/{docx,pdf,txt}
+│   └── service.py         # python-docx, reportlab, txt генерация
 └── ml/                    # ML-пакет
     ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Anthropic, OpenAI, OpenRouter
     ├── llm_factory.py     # LLMClientFactory (Strategy Pattern)
@@ -425,7 +425,8 @@ tests/                     # Зеркалирует src/app/
 ├── test_coverage_100.py   # 40 тестов (100% покрытие)
 ├── test_integration_llm.py # 23 теста (реальные LLM API)
 ├── test_e2e_browser.py    # 38 тестов (Playwright E2E)
-└── test_acceptance.py     # 52 теста (приёмочные)
+├── test_acceptance.py     # 52 теста (приёмочные)
+└── test_v17_fixes.py      # 50 тестов (покрытие v1.7 правок)
 
 alembic/                   # Миграции PostgreSQL
 
@@ -504,11 +505,9 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | POST | `/auth/refresh` | 🔄 | Обновление access-токена |
 | POST | `/auth/logout` | ✅ | Выход |
 | POST | `/auth/password-reset` | ❌ | Запрос сброса пароля |
-| POST | `/auth/verify-email` | ❌ | Подтверждение email |
-| POST | `/auth/2fa/enable` | ✅ | Включение 2FA (QR-код) ² |
-| POST | `/auth/2fa/verify` | ✅ | Верификация 2FA-кода ² |
+| GET | `/auth/verify/{token}` | ❌ | Подтверждение email по токену |
 
-> ² 2FA и email verification подключаются в Phase 2.
+> ² 2FA подключается в Phase 2.
 
 ### 9.2. Пользователь
 
@@ -517,7 +516,8 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | GET | `/users/me` | Профиль текущего пользователя |
 | PUT | `/users/me` | Обновление профиля |
 | PUT | `/users/me/password` | Смена пароля |
-| DELETE | `/users/me` | Удаление аккаунта |
+| DELETE | `/users/me` | Soft-delete аккаунта (требуется пароль) |
+| POST | `/users/me/restore` | Восстановление удалённого аккаунта (30 дней) |
 
 ### 9.3. Резюме
 
@@ -527,7 +527,9 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | GET | `/resumes` | Список (пагинация, фильтры) |
 | GET | `/resumes/{id}` | Детали (включая parsed_data) |
 | PUT | `/resumes/{id}` | Обновление данных |
-| DELETE | `/resumes/{id}` | Удаление (+ файл) |
+| DELETE | `/resumes/{id}` | Soft-delete (пометка deleted_at) |
+| POST | `/resumes/{id}/restore` | Восстановление удалённого резюме |
+| GET | `/resumes/{id}/file` | Скачивание оригинального файла |
 
 ### 9.4. Вакансии
 
@@ -553,11 +555,12 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 
 | Метод | Путь | Описание |
 |-------|------|----------|
-| GET | `/export/{id}/pdf` | Экспорт в PDF (LibreOffice headless) ³ |
 | GET | `/export/{id}/docx` | Экспорт в DOCX (python-docx) |
+| GET | `/export/{id}/pdf` | Экспорт в PDF (reportlab) |
+| GET | `/export/{id}/txt` | Экспорт в TXT (plain text) |
 | POST | `/export/hh` | Публикация на hh.ru (OAuth) ³ |
 
-> ³ PDF-экспорт и публикация на hh.ru подключаются в Phase 2. В MVP доступен экспорт в DOCX.
+> ³ Публикация на hh.ru подключается в Phase 2.
 
 ### 9.7. Подписка
 
@@ -910,12 +913,12 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 423 (pytest + pytest-asyncio) |
+| **Backend тестов (unit)** | 473 (pytest + pytest-asyncio) |
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 480 (Vitest + @testing-library/react) |
-| **Всего тестов** | 1033 |
+| **Frontend тестов** | 487 (Vitest + @testing-library/react) |
+| **Всего тестов** | 1093 |
 | **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -946,7 +949,7 @@ cd frontend && npm run test:watch
 | `test_resumes/` | 39 | Upload, CRUD, парсинг PDF/DOCX, валидация, эмбеддинги |
 | `test_vacancies/` | 59 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки, hh детали |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, история, LLM retry |
-| `test_export/` | 11 | DOCX-генерация, структурированные/plain данные |
+| `test_export/` | 11 | DOCX/PDF/TXT-генерация, структурированные/plain данные |
 | `test_ml/` | 87 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация |
 | `test_core/` | 79 | Config, security, database, storage, exceptions, dependencies |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
@@ -955,6 +958,7 @@ cd frontend && npm run test:watch
 | `test_integration_llm` | 23 | Интеграция: реальные вызовы 4 LLM-провайдеров (GigaChat, Anthropic, OpenRouter, OpenAI) |
 | `test_e2e_browser` | 38 | E2E: Playwright browser-тесты (навигация, формы, wizard, настройки) |
 | `test_acceptance` | 52 | Приёмочные тесты: полные пользовательские сценарии |
+| `test_v17_fixes` | 50 | Покрытие всех v1.7 правок: верификация, шифрование, экспорт, soft-delete, email enumeration |
 
 ### 17.4. Инструменты проверки качества
 
@@ -1046,6 +1050,43 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.7.0 (Март 2026) — QA v2: 12 FIX пакетов, 50 новых тестов
+
+**Безопасность (4 исправления):**
+- API-ключи LLM перенесены из localStorage в зашифрованное хранилище БД — Fernet (AES-128-CBC) + SHA-256 derived key (FIX-001)
+- openapi.json закрыт в production (`openapi_url=None`) — предотвращает утечку API-схемы (FIX-012)
+- Rate limiting: login 5/min, register 3/min, rewrite 10/hour через slowapi + Redis (FIX-005)
+- Защита от email enumeration: единый ответ 201 при регистрации (FIX-008/LIVE-013)
+
+**Backend API (5 исправлений):**
+- Новые эндпоинты экспорта: `GET /export/{id}/pdf` (reportlab) и `GET /export/{id}/txt` (FIX-003)
+- LLM-провайдеры читают API-ключи пользователя из БД + проверка перед оптимизацией (FIX-002)
+- Эндпоинт скачивания оригинального файла резюме: `GET /resumes/{id}/file` (FIX-011)
+- Email-верификация: `GET /auth/verify/{token}` + 24-часовой JWT-токен (FIX-007)
+- Soft-delete для резюме и аккаунтов: `deleted_at` + restore эндпоинты (FIX-007, FIX-009)
+
+**Frontend UI (4 исправления):**
+- DOCX-просмотр резюме через mammoth.js с XSS-защитой (DOMPurify) (FIX-004)
+- Email-обрезка с CSS `text-overflow: ellipsis` в профиле (FIX-006)
+- Счётчик оптимизаций показывает только COMPLETED (FIX-006)
+- Кнопка «Найти» обёрнута в `<form>`, кнопки имеют `type` атрибуты (FIX-010)
+
+**UX/UI:**
+- Сообщение "LLM-провайдер all" заменено на "Все LLM-провайдеры" (FIX-008/LIVE-006)
+- Удалены placeholder-секции 2FA и «Активные сессии» со страницы безопасности (FIX-008)
+- Строки истории оптимизаций стали кликабельными (FIX-012)
+
+**Инфраструктура:**
+- Alembic 005: `is_verified` Boolean → users
+- Alembic 006: SQL REPLACE "LLM-провайдер all" → "Все LLM-провайдеры" в rewrite_history
+- `cryptography>=42.0` + `reportlab>=4.1` + `mammoth` в зависимостях
+
+**Тесты:**
+- +50 новых backend-тестов (`test_v17_fixes.py`): верификация токенов, шифрование, экспорт PDF/TXT, soft-delete, restore, email enumeration, OpenAPI
+- Обновлены тесты soft-delete (6 тестов) и email enumeration (3 теста)
+- Исправлен баг: `session.refresh(resume)` в `restore_resume()` для предотвращения MissingGreenlet
+- Итого: **516 backend-тестов passed** (было 466), **487 frontend-тестов**
 
 ### v1.6.0 (Март 2026) — QA: 43 дефекта исправлено
 
