@@ -257,10 +257,7 @@ async def soft_delete_account(
     user.scheduled_deletion = datetime.now(tz=UTC) + timedelta(days=30)
     await session.flush()
 
-    return (
-        'Аккаунт будет удалён через 30 дней. '
-        'Вы можете отменить удаление, войдя в аккаунт.'
-    )
+    return 'Аккаунт будет удалён через 30 дней. Вы можете отменить удаление, войдя в аккаунт.'
 
 
 async def restore_account(

@@ -178,7 +178,9 @@ async def delete_me(
     Для восстановления — войдите в аккаунт до истечения срока.
     """
     result = await auth_service.soft_delete_account(
-        session, user=current_user, password=data.password,
+        session,
+        user=current_user,
+        password=data.password,
     )
     return MessageResponse(message=result)
 

@@ -12,9 +12,14 @@ from app.settings.models import UserSetting
 from app.settings.schemas import AIKeyStatus
 
 # Допустимые провайдеры для API-ключей
-VALID_PROVIDERS: frozenset[str] = frozenset({
-    'gigachat', 'openai', 'anthropic', 'openrouter',
-})
+VALID_PROVIDERS: frozenset[str] = frozenset(
+    {
+        'gigachat',
+        'openai',
+        'anthropic',
+        'openrouter',
+    }
+)
 
 
 async def get_setting(
@@ -91,15 +96,20 @@ async def get_ai_keys_status(
     result: list[AIKeyStatus] = []
     for provider in sorted(VALID_PROVIDERS):
         setting = await get_setting(
-            session, user_id=user_id, category='ai_keys', key=provider,
+            session,
+            user_id=user_id,
+            category='ai_keys',
+            key=provider,
         )
         if setting and setting.value:
             decrypted = decrypt_value(setting.value) if setting.is_encrypted else setting.value
-            result.append(AIKeyStatus(
-                provider=provider,
-                has_key=bool(decrypted),
-                masked_key=mask_api_key(decrypted),
-            ))
+            result.append(
+                AIKeyStatus(
+                    provider=provider,
+                    has_key=bool(decrypted),
+                    masked_key=mask_api_key(decrypted),
+                )
+            )
         else:
             result.append(AIKeyStatus(provider=provider, has_key=False))
     return result
@@ -134,7 +144,10 @@ async def delete_ai_key(
 ) -> None:
     """Удалить API-ключ провайдера."""
     setting = await get_setting(
-        session, user_id=user_id, category='ai_keys', key=provider,
+        session,
+        user_id=user_id,
+        category='ai_keys',
+        key=provider,
     )
     if setting:
         await session.delete(setting)
@@ -152,5 +165,8 @@ async def get_user_setting(
     Используется rewriter-сервисом для проверки доступности модели.
     """
     return await get_decrypted_value(
-        session, user_id=user_id, category='ai_keys', key=provider,
+        session,
+        user_id=user_id,
+        category='ai_keys',
+        key=provider,
     )

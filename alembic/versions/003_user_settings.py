@@ -23,14 +23,20 @@ def upgrade() -> None:
     """Create user_settings table."""
     op.create_table(
         'user_settings',
-        sa.Column('id', sa.Uuid(), nullable=False, server_default=sa.text("uuid_generate_v4()")),
-        sa.Column('user_id', sa.Uuid(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False, server_default=sa.text('uuid_generate_v4()')),
+        sa.Column(
+            'user_id', sa.Uuid(), sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False
+        ),
         sa.Column('category', sa.String(50), nullable=False),
         sa.Column('key', sa.String(100), nullable=False),
         sa.Column('value', sa.Text(), nullable=False, server_default=''),
         sa.Column('is_encrypted', sa.Boolean(), nullable=False, server_default='false'),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            'created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            'updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint('id', name='pk_user_settings'),
         sa.UniqueConstraint('user_id', 'category', 'key', name='uq_user_settings_user_cat_key'),
     )

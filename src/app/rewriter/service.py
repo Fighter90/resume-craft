@@ -151,7 +151,9 @@ async def execute_rewrite(
         for prov_name, db_key in _provider_key_map.items():
             if db_key not in user_keys:
                 key_val = await get_user_setting(
-                    session, user_id=task.user_id, provider=db_key,
+                    session,
+                    user_id=task.user_id,
+                    provider=db_key,
                 )
                 if key_val:
                     user_keys[prov_name] = key_val

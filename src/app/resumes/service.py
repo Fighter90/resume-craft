@@ -177,7 +177,9 @@ async def get_resume(
         ResumeNotFound: резюме не найдено или принадлежит другому пользователю.
     """
     stmt = select(Resume).where(
-        Resume.id == resume_id, Resume.user_id == user_id, Resume.deleted_at.is_(None),
+        Resume.id == resume_id,
+        Resume.user_id == user_id,
+        Resume.deleted_at.is_(None),
     )
     result = await session.execute(stmt)
     resume = result.scalar_one_or_none()
@@ -195,8 +197,13 @@ async def list_resumes(
 ) -> tuple[Sequence[Resume], int]:
     """Список резюме пользователя с пагинацией."""
     # Count
-    count_stmt = select(func.count()).select_from(Resume).where(
-        Resume.user_id == user_id, Resume.deleted_at.is_(None),
+    count_stmt = (
+        select(func.count())
+        .select_from(Resume)
+        .where(
+            Resume.user_id == user_id,
+            Resume.deleted_at.is_(None),
+        )
     )
     total = (await session.execute(count_stmt)).scalar_one()
 

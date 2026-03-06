@@ -56,7 +56,9 @@ class User(UUIDMixin, TimestampMixin, Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default='false')
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None)
     scheduled_deletion: Mapped[datetime | None] = mapped_column(
-        DateTime, nullable=True, default=None,
+        DateTime,
+        nullable=True,
+        default=None,
     )
 
     # Relationships

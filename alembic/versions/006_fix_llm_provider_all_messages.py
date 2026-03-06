@@ -16,7 +16,7 @@ depends_on = None
 
 def upgrade() -> None:
     op.execute(
-        "UPDATE rewrite_history "
+        'UPDATE rewrite_history '
         "SET error_message = REPLACE(error_message, 'LLM-провайдер all', 'Все LLM-провайдеры') "
         "WHERE error_message LIKE '%LLM-провайдер all%'"
     )
@@ -25,7 +25,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Обратная миграция: восстановить старый текст
     op.execute(
-        "UPDATE rewrite_history "
+        'UPDATE rewrite_history '
         "SET error_message = REPLACE(error_message, 'Все LLM-провайдеры', 'LLM-провайдер all') "
         "WHERE error_message LIKE '%Все LLM-провайдеры%'"
     )

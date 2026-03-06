@@ -78,7 +78,9 @@ class TestVerifyEmailService:
     """Тесты auth.service.verify_email()."""
 
     async def test_verify_success(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Успешная верификация email."""
         from app.auth.service import verify_email
@@ -120,7 +122,10 @@ class TestVerifyEmailRouter:
     """GET /api/v1/auth/verify/{token}."""
 
     async def test_verify_success(
-        self, client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Валидный токен → 200 + message."""
         token = create_verification_token(test_user.email)
@@ -321,8 +326,12 @@ class TestGenerateTxt:
         """Секция образования в TXT."""
         data = {
             'education': [
-                {'institution': 'МФТИ', 'degree': 'Бакалавр',
-                 'specialization': 'CS', 'year': 2019},
+                {
+                    'institution': 'МФТИ',
+                    'degree': 'Бакалавр',
+                    'specialization': 'CS',
+                    'year': 2019,
+                },
             ],
         }
         result = generate_txt(data)
@@ -420,7 +429,9 @@ class TestRestoreResumeService:
     """Тесты resume.service.restore_resume()."""
 
     async def test_restore_success(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Восстановление удалённого резюме."""
         resume = Resume(
@@ -435,12 +446,16 @@ class TestRestoreResumeService:
         await session.flush()
 
         restored = await restore_resume(
-            session, resume_id=resume.id, user_id=test_user.id,
+            session,
+            resume_id=resume.id,
+            user_id=test_user.id,
         )
         assert restored.deleted_at is None
 
     async def test_restore_not_deleted(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Восстановление неудалённого → ResumeNotFound."""
         from app.core.exceptions import ResumeNotFound
@@ -457,18 +472,24 @@ class TestRestoreResumeService:
 
         with pytest.raises(ResumeNotFound):
             await restore_resume(
-                session, resume_id=resume.id, user_id=test_user.id,
+                session,
+                resume_id=resume.id,
+                user_id=test_user.id,
             )
 
     async def test_restore_nonexistent(
-        self, session: AsyncSession, test_user: User,
+        self,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Восстановление несуществующего → ResumeNotFound."""
         from app.core.exceptions import ResumeNotFound
 
         with pytest.raises(ResumeNotFound):
             await restore_resume(
-                session, resume_id=uuid4(), user_id=test_user.id,
+                session,
+                resume_id=uuid4(),
+                user_id=test_user.id,
             )
 
 
@@ -615,7 +636,10 @@ class TestEmailEnumeration:
         assert 'access_token' in resp.json()
 
     async def test_duplicate_email_returns_201(
-        self, client: AsyncClient, session: AsyncSession, test_user: User,
+        self,
+        client: AsyncClient,
+        session: AsyncSession,
+        test_user: User,
     ) -> None:
         """Существующий email → 201 с message (не 409)."""
         # Убедимся что пользователь точно существует

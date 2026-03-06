@@ -134,6 +134,7 @@ def _build_plain_docx(doc: Document, text: str) -> None:
 # PDF generation (reportlab)
 # ---------------------------------------------------------------------------
 
+
 def generate_pdf(rewritten_data: dict[str, Any] | None, *, raw_text: str | None = None) -> bytes:
     """Генерация PDF-файла из результатов оптимизации.
 
@@ -156,27 +157,33 @@ def generate_pdf(rewritten_data: dict[str, Any] | None, *, raw_text: str | None 
 
     styles = getSampleStyleSheet()
     # Custom styles
-    styles.add(ParagraphStyle(
-        'ResumeTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        alignment=TA_CENTER,
-        spaceAfter=12,
-    ))
-    styles.add(ParagraphStyle(
-        'SectionHeading',
-        parent=styles['Heading2'],
-        fontSize=13,
-        spaceAfter=6,
-        spaceBefore=12,
-    ))
-    styles.add(ParagraphStyle(
-        'BoldLine',
-        parent=styles['Normal'],
-        fontSize=11,
-        leading=14,
-        spaceAfter=2,
-    ))
+    styles.add(
+        ParagraphStyle(
+            'ResumeTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            alignment=TA_CENTER,
+            spaceAfter=12,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            'SectionHeading',
+            parent=styles['Heading2'],
+            fontSize=13,
+            spaceAfter=6,
+            spaceBefore=12,
+        )
+    )
+    styles.add(
+        ParagraphStyle(
+            'BoldLine',
+            parent=styles['Normal'],
+            fontSize=11,
+            leading=14,
+            spaceAfter=2,
+        )
+    )
 
     elements: list[Any] = []
 
@@ -214,9 +221,12 @@ def _build_structured_pdf(
                 elements.append(Paragraph(f'<b>{position}</b>', styles['BoldLine']))
             parts = [p for p in (company, period) if p]
             if parts:
-                elements.append(Paragraph(
-                    f'<i>{" | ".join(parts)}</i>', styles['Normal'],
-                ))
+                elements.append(
+                    Paragraph(
+                        f'<i>{" | ".join(parts)}</i>',
+                        styles['Normal'],
+                    )
+                )
             for ach in exp.get('achievements', []):
                 elements.append(Paragraph(f'• {ach}', styles['Normal']))
             elements.append(Spacer(1, 6))
@@ -229,11 +239,13 @@ def _build_structured_pdf(
             if institution:
                 elements.append(Paragraph(f'<b>{institution}</b>', styles['BoldLine']))
             details = [
-                d for d in (
+                d
+                for d in (
                     edu.get('degree', ''),
                     edu.get('specialization', ''),
                     str(edu.get('year', '')),
-                ) if d
+                )
+                if d
             ]
             if details:
                 elements.append(Paragraph(', '.join(details), styles['Normal']))
@@ -256,6 +268,7 @@ def _build_plain_pdf(elements: list[Any], text: str, styles: Any) -> None:
 # ---------------------------------------------------------------------------
 # TXT generation
 # ---------------------------------------------------------------------------
+
 
 def generate_txt(rewritten_data: dict[str, Any] | None, *, raw_text: str | None = None) -> bytes:
     """Генерация plain-text версии резюме.
@@ -311,11 +324,13 @@ def _build_structured_txt(data: dict[str, Any]) -> str:
             if institution:
                 lines.append(institution)
             details = [
-                d for d in (
+                d
+                for d in (
                     edu.get('degree', ''),
                     edu.get('specialization', ''),
                     str(edu.get('year', '')),
-                ) if d
+                )
+                if d
             ]
             if details:
                 lines.append(', '.join(details))

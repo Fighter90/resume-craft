@@ -54,7 +54,10 @@ async def save_ai_key(
             detail=f'Неизвестный провайдер: {provider}',
         )
     await settings_service.save_ai_key(
-        session, user_id=current_user.id, provider=provider, api_key=data.api_key,
+        session,
+        user_id=current_user.id,
+        provider=provider,
+        api_key=data.api_key,
     )
     from app.core.encryption import mask_api_key
 
@@ -75,11 +78,14 @@ async def delete_ai_key(
     provider: str,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> None:
+) -> Response:
     """Удалить API-ключ из БД."""
     await settings_service.delete_ai_key(
-        session, user_id=current_user.id, provider=provider,
+        session,
+        user_id=current_user.id,
+        provider=provider,
     )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(
@@ -95,7 +101,10 @@ async def get_ai_toggles(
     toggles: dict[str, bool] = {}
     for key in ('auto_metrics', 'ats', 'upgrade_title', 'keep_language', 'soft_skills'):
         val = await settings_service.get_decrypted_value(
-            session, user_id=current_user.id, category='ai_toggles', key=key,
+            session,
+            user_id=current_user.id,
+            category='ai_toggles',
+            key=key,
         )
         toggles[key] = val == 'true' if val else key in ('auto_metrics', 'ats', 'keep_language')
     return AITogglesResponse(toggles=toggles)
@@ -136,10 +145,16 @@ async def get_selected_model(
 ) -> SelectedModelResponse:
     """Получить текущую выбранную AI-модель пользователя."""
     model = await settings_service.get_decrypted_value(
-        session, user_id=current_user.id, category='ai_model', key='selected',
+        session,
+        user_id=current_user.id,
+        category='ai_model',
+        key='selected',
     )
     sub_model = await settings_service.get_decrypted_value(
-        session, user_id=current_user.id, category='ai_model', key='sub_model',
+        session,
+        user_id=current_user.id,
+        category='ai_model',
+        key='sub_model',
     )
     return SelectedModelResponse(
         model=model or 'gigachat-pro',
@@ -159,12 +174,18 @@ async def save_selected_model(
 ) -> SelectedModelResponse:
     """Сохранить выбранную AI-модель в БД."""
     await settings_service.set_setting(
-        session, user_id=current_user.id,
-        category='ai_model', key='selected', value=data.model,
+        session,
+        user_id=current_user.id,
+        category='ai_model',
+        key='selected',
+        value=data.model,
     )
     if data.sub_model:
         await settings_service.set_setting(
-            session, user_id=current_user.id,
-            category='ai_model', key='sub_model', value=data.sub_model,
+            session,
+            user_id=current_user.id,
+            category='ai_model',
+            key='sub_model',
+            value=data.sub_model,
         )
     return SelectedModelResponse(model=data.model, sub_model=data.sub_model)

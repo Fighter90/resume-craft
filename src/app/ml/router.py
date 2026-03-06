@@ -50,7 +50,10 @@ async def _get_user_keys(
 
     for provider in _KEY_FIELDS:
         setting = await get_setting(
-            session, user_id=user.id, category='ai_keys', key=provider,
+            session,
+            user_id=user.id,
+            category='ai_keys',
+            key=provider,
         )
         user_has[provider] = bool(setting and setting.value)
 
@@ -141,7 +144,10 @@ async def get_sub_models(
         from app.settings.service import get_decrypted_value
 
         user_key = await get_decrypted_value(
-            session, user_id=current_user.id, category='ai_keys', key=provider,
+            session,
+            user_id=current_user.id,
+            category='ai_keys',
+            key=provider,
         )
 
     settings = get_settings()

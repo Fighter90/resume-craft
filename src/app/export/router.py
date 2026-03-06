@@ -20,6 +20,7 @@ router = APIRouter(prefix='/export', tags=['export'])
 
 # ---- helpers ----
 
+
 async def _get_task_data(
     task_id: UUID,
     *,
@@ -36,10 +37,14 @@ async def _get_task_data(
 @router.get(
     '/{task_id}/docx',
     summary='Экспорт оптимизированного резюме в DOCX',
-    responses={200: {
-        'content': {'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {}},
-        'description': 'DOCX-файл',
-    }},
+    responses={
+        200: {
+            'content': {
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {}
+            },
+            'description': 'DOCX-файл',
+        }
+    },
 )
 async def export_docx(
     task_id: UUID,
@@ -62,10 +67,12 @@ async def export_docx(
 @router.get(
     '/{task_id}/pdf',
     summary='Экспорт оптимизированного резюме в PDF',
-    responses={200: {
-        'content': {'application/pdf': {}},
-        'description': 'PDF-файл',
-    }},
+    responses={
+        200: {
+            'content': {'application/pdf': {}},
+            'description': 'PDF-файл',
+        }
+    },
 )
 async def export_pdf(
     task_id: UUID,
@@ -88,10 +95,12 @@ async def export_pdf(
 @router.get(
     '/{task_id}/txt',
     summary='Экспорт оптимизированного резюме в TXT',
-    responses={200: {
-        'content': {'text/plain': {}},
-        'description': 'TXT-файл',
-    }},
+    responses={
+        200: {
+            'content': {'text/plain': {}},
+            'description': 'TXT-файл',
+        }
+    },
 )
 async def export_txt(
     task_id: UUID,
