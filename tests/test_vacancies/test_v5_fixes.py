@@ -93,21 +93,23 @@ class TestSearchHHWithSnippets:
     async def test_returns_snippets_and_experience(self) -> None:
         """Поиск возвращает сниппеты и опыт."""
         mock_response = {
-            'items': [{
-                'id': '1',
-                'name': 'Developer',
-                'employer': {'name': 'Corp'},
-                'area': {'name': 'СПб'},
-                'salary': {'from': 100000, 'to': None},
-                'experience': {'name': '1-3 года'},
-                'key_skills': [{'name': 'Python'}, {'name': 'SQL'}],
-                'snippet': {
-                    'requirement': 'Знание Python',
-                    'responsibility': 'Разработка API',
-                },
-                'description': '<p>Full description</p>',
-                'alternate_url': 'https://hh.ru/vacancy/1',
-            }],
+            'items': [
+                {
+                    'id': '1',
+                    'name': 'Developer',
+                    'employer': {'name': 'Corp'},
+                    'area': {'name': 'СПб'},
+                    'salary': {'from': 100000, 'to': None},
+                    'experience': {'name': '1-3 года'},
+                    'key_skills': [{'name': 'Python'}, {'name': 'SQL'}],
+                    'snippet': {
+                        'requirement': 'Знание Python',
+                        'responsibility': 'Разработка API',
+                    },
+                    'description': '<p>Full description</p>',
+                    'alternate_url': 'https://hh.ru/vacancy/1',
+                }
+            ],
             'found': 1,
             'page': 0,
             'pages': 1,
@@ -134,11 +136,13 @@ class TestSearchHHWithSnippets:
     async def test_null_snippets_are_handled(self) -> None:
         """Отсутствие сниппетов не вызывает ошибок."""
         mock_response = {
-            'items': [{
-                'id': '2',
-                'name': 'Manager',
-                'alternate_url': '',
-            }],
+            'items': [
+                {
+                    'id': '2',
+                    'name': 'Manager',
+                    'alternate_url': '',
+                }
+            ],
             'found': 1,
             'page': 0,
             'pages': 1,
@@ -221,7 +225,8 @@ class TestResumeDeleteGuard:
             patch('app.resumes.service.file_storage') as mock_storage,
         ):
             await delete_resume(
-                mock_session, resume_id=mock_resume.id,
+                mock_session,
+                resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
 
@@ -246,7 +251,8 @@ class TestResumeDeleteGuard:
         ):
             mock_storage.delete = AsyncMock()
             await delete_resume(
-                mock_session, resume_id=mock_resume.id,
+                mock_session,
+                resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
 
@@ -272,7 +278,8 @@ class TestResumeDeleteGuard:
                 side_effect=IsADirectoryError('is a dir'),
             )
             await delete_resume(
-                mock_session, resume_id=mock_resume.id,
+                mock_session,
+                resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
             # Should NOT raise, just log a warning
@@ -297,7 +304,8 @@ class TestResumeDeleteGuard:
                 side_effect=PermissionError('no perms'),
             )
             await delete_resume(
-                mock_session, resume_id=mock_resume.id,
+                mock_session,
+                resume_id=mock_resume.id,
                 user_id=mock_resume.user_id,
             )
             mock_session.delete.assert_awaited_once_with(mock_resume)
