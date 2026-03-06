@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
-from pydantic import Field
+import logging
+from functools import lru_cache
+
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -70,7 +75,25 @@ class Settings(BaseSettings):
         """Проверка production-окружения."""
         return self.environment == 'production'
 
+    # SEC-002: Валидация SECRET_KEY при запуске
+    @model_validator(mode='after')
+    def validate_secret_key(self) -> Settings:
+        """Отказ запуска если SECRET_KEY содержит placeholder-значение."""
+        weak_markers = ('change-me', 'change_me', 'placeholder', 'CHANGE', 'super-secret')
+        if any(marker in self.secret_key.lower() for marker in weak_markers):
+            if self.is_production:
+                msg = (
+                    'SECRET_KEY содержит placeholder-значение! '
+                    'Сгенерируйте: python -c "import secrets; print(secrets.token_hex(64))"'
+                )
+                raise ValueError(msg)
+            logger.warning(
+                'SECRET_KEY содержит placeholder-значение. Не используйте его в production!',
+            )
+        return self
 
+
+@lru_cache
 def get_settings() -> Settings:
-    """Фабрика настроек (для кэширования через lru_cache в dependencies)."""
+    """Фабрика настроек (кэшированная через lru_cache)."""
     return Settings()

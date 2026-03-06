@@ -43,6 +43,8 @@ export default function ProcessingPage() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const retriesRef = useRef(0)
+  const MAX_RETRIES = 60 // 60 × 3 сек = 3 мин максимум
 
   useEffect(() => {
     if (!taskId) {
@@ -74,6 +76,11 @@ export default function ProcessingPage() {
           setError(status.error_message || 'Ошибка обработки. Попробуйте выбрать другую модель.')
         }
       } catch (err) {
+        retriesRef.current++
+        if (retriesRef.current >= MAX_RETRIES) {
+          if (pollingRef.current) clearInterval(pollingRef.current)
+          setError('Превышено время ожидания. Задача обработки не завершена. Попробуйте ещё раз.')
+        }
         console.warn('Polling error:', err)
       }
     }

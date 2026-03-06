@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowRight, Download, TrendingUp, Target, Award, Tag, BookOpen, Cpu, Edit, AlertCircle, Loader, Briefcase, X, MapPin, DollarSign, Clock, ExternalLink } from 'lucide-react'
+import DOMPurify from 'dompurify'
 import { useWizard } from '../../contexts/WizardContext'
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
@@ -184,10 +185,10 @@ export default function ResultsPage() {
       <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>Компоненты Match Score</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {[
-          { icon: Target, label: 'Ключевые слова', value: Math.round(score * 0.4 / 0.4), weight: '40%', color: 'var(--primary)' },
-          { icon: TrendingUp, label: 'Опыт', value: Math.round(score * 0.95), weight: '25%', color: 'var(--success)' },
-          { icon: Award, label: 'Структура', value: Math.round(score * 0.9), weight: '20%', color: 'var(--info)' },
-          { icon: BookOpen, label: 'Читаемость', value: Math.round(score * 0.85), weight: '15%', color: '#D97706' },
+          { icon: Target, label: 'Ключевые слова', value: Math.round((result.score_breakdown?.keywords ?? score / 100) * 100), weight: '40%', color: 'var(--primary)' },
+          { icon: TrendingUp, label: 'Опыт', value: Math.round((result.score_breakdown?.experience ?? score / 100) * 100), weight: '25%', color: 'var(--success)' },
+          { icon: Award, label: 'Структура', value: Math.round((result.score_breakdown?.structure ?? score / 100) * 100), weight: '20%', color: 'var(--info)' },
+          { icon: BookOpen, label: 'Читаемость', value: Math.round((result.score_breakdown?.readability ?? score / 100) * 100), weight: '15%', color: '#D97706' },
         ].map((m, i) => (
           <div key={i} className="card" style={{ padding: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -391,7 +392,7 @@ export default function ResultsPage() {
                   <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Описание</div>
                   <div
                     style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}
-                    dangerouslySetInnerHTML={{ __html: vacancy.description }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(vacancy.description) }}
                   />
                 </div>
 

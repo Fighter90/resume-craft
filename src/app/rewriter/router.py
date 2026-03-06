@@ -38,7 +38,10 @@ async def create_rewrite(
     """Создание задачи оптимизации → Celery queue."""
     # Проверка тарифного лимита
     if not current_user.can_optimize:
-        raise TariffLimitExceeded()
+        raise TariffLimitExceeded(
+            used=current_user.optimizations_used,
+            limit=current_user.optimization_limit or 0,
+        )
 
     task = await rewrite_service.create_rewrite_task(
         session,
@@ -49,14 +52,38 @@ async def create_rewrite(
         sub_model=data.sub_model,
     )
 
-    # Обновление счётчика оптимизаций
-    current_user.optimizations_used += 1
-    await session.flush()
+    # API-001/LIVE-003: НЕ инкрементируем счётчик здесь.
+    # Счётчик обновляется в Celery-задаче ТОЛЬКО при status=COMPLETED.
 
     # Отправка в Celery (async)
     execute_rewrite_task.delay(str(task.id))
 
     return RewriteTaskResponse(task_id=task.id, status=task.status)
+
+
+# API-009: Статический маршрут /history ПЕРЕД динамическим /{task_id}
+@router.get(
+    '/history',
+    response_model=RewriteHistoryResponse,
+    summary='История оптимизаций',
+)
+async def list_history(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> RewriteHistoryResponse:
+    """Список всех оптимизаций пользователя."""
+    items, total = await rewrite_service.list_history(
+        session,
+        user_id=current_user.id,
+        limit=limit,
+        offset=offset,
+    )
+    return RewriteHistoryResponse(
+        items=[RewriteResultResponse.model_validate(i) for i in items],
+        total=total,
+    )
 
 
 @router.get(
@@ -106,27 +133,3 @@ async def get_rewrite_result(
     """Получение полного результата оптимизации."""
     task = await rewrite_service.get_task(session, task_id=task_id, user_id=current_user.id)
     return RewriteResultResponse.model_validate(task)
-
-
-@router.get(
-    '/history',
-    response_model=RewriteHistoryResponse,
-    summary='История оптимизаций',
-)
-async def list_history(
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0),
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> RewriteHistoryResponse:
-    """Список всех оптимизаций пользователя."""
-    items, total = await rewrite_service.list_history(
-        session,
-        user_id=current_user.id,
-        limit=limit,
-        offset=offset,
-    )
-    return RewriteHistoryResponse(
-        items=[RewriteResultResponse.model_validate(i) for i in items],
-        total=total,
-    )

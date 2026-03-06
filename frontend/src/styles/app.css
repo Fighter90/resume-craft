@@ -306,6 +306,10 @@
     gap: 1.5rem;
 }
 
+/* LIVE-010: Responsive tab labels */
+.tab-short-label { display: none; }
+.tab-full-label { display: inline; }
+
 /* Mobile resume cards (hidden on desktop) */
 .mobile-resume-cards { display: none; }
 
@@ -323,4 +327,6 @@
     .vacancy-results { grid-template-columns: 1fr; }
     .landing-footer-grid { grid-template-columns: 1fr; }
     .mobile-resume-cards { display: block; }
+    .tab-full-label { display: none; }
+    .tab-short-label { display: inline; }
 }

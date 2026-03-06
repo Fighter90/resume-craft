@@ -52,6 +52,7 @@ export default function AuthPage() {
   const [tab, setTab] = useState<'login' | 'register'>(searchParams.get('tab') === 'register' ? 'register' : 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -66,6 +67,11 @@ export default function AuthPage() {
       if (tab === 'login') {
         await login(email, password)
       } else {
+        if (password !== confirmPassword) {
+          setError('Пароли не совпадают')
+          setLoading(false)
+          return
+        }
         await register(email, password, fullName || undefined)
       }
       navigate('/app/dashboard')
@@ -176,6 +182,15 @@ export default function AuthPage() {
                     </div>
                   )}
                 </div>
+                {tab === 'register' && (
+                  <div className="input-group">
+                    <label className="input-label">Подтвердите пароль</label>
+                    <input
+                      type="password" className="input-field" placeholder="Повторите пароль"
+                      value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required minLength={8}
+                    />
+                  </div>
+                )}
                 <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
                   {loading ? 'Загрузка...' : tab === 'login' ? 'Войти' : 'Создать аккаунт'}
                 </button>

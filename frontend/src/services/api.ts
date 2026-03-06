@@ -26,12 +26,47 @@ export class ApiClient {
       headers: this.headers(),
       body: body ? JSON.stringify(body) : undefined,
     })
+
+    // UI-005: Автоматический refresh при 401
+    if (res.status === 401 && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
+      const refreshed = await this.tryRefreshToken()
+      if (refreshed) {
+        // Повторяем исходный запрос с новым токеном
+        const retry = await fetch(`${API_BASE}${path}`, {
+          method,
+          headers: this.headers(),
+          body: body ? JSON.stringify(body) : undefined,
+        })
+        if (!retry.ok) {
+          const err = await retry.json().catch(() => ({ message: retry.statusText }))
+          throw new Error(err.message || err.detail || retry.statusText)
+        }
+        if (retry.status === 204) return undefined as T
+        return retry.json()
+      }
+    }
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: res.statusText }))
       throw new Error(err.message || err.detail || res.statusText)
     }
     if (res.status === 204) return undefined as T
     return res.json()
+  }
+
+  private async tryRefreshToken(): Promise<boolean> {
+    try {
+      const rt = localStorage.getItem('refresh_token')
+      if (!rt) return false
+      const data = await this.refreshToken(rt)
+      this.setToken(data.access_token)
+      if (data.refresh_token) localStorage.setItem('refresh_token', data.refresh_token)
+      return true
+    } catch {
+      this.clearToken()
+      localStorage.removeItem('refresh_token')
+      return false
+    }
   }
 
   async login(email: string, password: string) {
@@ -196,10 +231,9 @@ export class ApiClient {
     return this.request<void>('DELETE', '/auth/me')
   }
 
+  /** @deprecated Используйте createVacancyFromUrl. Оставлено для обратной совместимости. */
   async selectSearchVacancy(hhUrl: string) {
-    return this.request<{ id: string }>(
-      'POST', '/vacancies/from-url', { url: hhUrl }
-    )
+    return this.createVacancyFromUrl(hhUrl)
   }
 }
 

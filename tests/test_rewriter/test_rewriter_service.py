@@ -147,12 +147,12 @@ class TestCreateRewriteTask:
                 vacancy_id=uuid4(),
             )
 
-    async def test_raw_text_none_uses_empty_string(
+    async def test_raw_text_none_raises_value_error(
         self,
         session: AsyncSession,
         test_user: User,
     ) -> None:
-        """raw_text=None → original_text='' (не должен падать на NOT NULL)."""
+        """raw_text=None → ValueError (API-002: блокируем пустой текст)."""
         resume = Resume(
             user_id=test_user.id,
             title='CV',
@@ -169,14 +169,13 @@ class TestCreateRewriteTask:
         session.add_all([resume, vacancy])
         await session.flush()
 
-        task = await create_rewrite_task(
-            session,
-            user_id=test_user.id,
-            resume_id=resume.id,
-            vacancy_id=vacancy.id,
-        )
-        assert task.original_text == ''
-        assert task.status == RewriteStatus.PENDING
+        with pytest.raises(ValueError, match='текста'):
+            await create_rewrite_task(
+                session,
+                user_id=test_user.id,
+                resume_id=resume.id,
+                vacancy_id=vacancy.id,
+            )
 
 
 class TestExecuteRewrite:

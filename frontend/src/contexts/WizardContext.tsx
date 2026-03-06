@@ -18,6 +18,12 @@ export interface RewriteResult {
   tokens_used: number | null
   error_message: string | null
   created_at: string | null
+  score_breakdown?: {
+    keywords?: number
+    experience?: number
+    structure?: number
+    readability?: number
+  }
 }
 
 interface WizardState {

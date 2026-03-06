@@ -57,10 +57,11 @@ async def create_rewrite_task(
     if not vacancy:
         raise VacancyNotFound()
 
-    # Проверка наличия текста резюме (защита от NOT NULL constraint)
+    # Проверка наличия текста резюме (API-002: блокируем пустой текст)
     original_text = resume.raw_text or ''
     if not original_text.strip():
-        logger.warning('Resume %s has no raw_text, using empty string', resume_id)
+        msg = 'Резюме не содержит текста для оптимизации'
+        raise ValueError(msg)
 
     # Сохраняем sub-model в model_name (provider:model_id)
     effective_model = model_name
@@ -182,6 +183,13 @@ async def execute_rewrite(
             resume.status = ResumeStatus.OPTIMIZED
 
         task.status = RewriteStatus.COMPLETED
+
+        # API-001/LIVE-003: Инкрементируем счётчик ТОЛЬКО при успешном завершении
+        from app.auth.models import User
+
+        user = await session.get(User, task.user_id)
+        if user:
+            user.optimizations_used += 1
 
     except Exception as exc:
         task.status = RewriteStatus.FAILED

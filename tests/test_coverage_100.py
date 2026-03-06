@@ -642,6 +642,7 @@ class TestExecuteRewriteEdgeCases:
         task_id = uuid4()
         mock_task = MagicMock(spec=RewriteHistory)
         mock_task.id = task_id
+        mock_task.user_id = uuid4()
         mock_task.model_name = 'openai:gpt-4o'
         mock_task.original_text = 'Python разработчик с опытом работы'
         mock_task.vacancy_id = uuid4()
@@ -662,6 +663,9 @@ class TestExecuteRewriteEdgeCases:
         mock_resume = MagicMock()
         mock_resume.parsed_data = None
 
+        mock_user = MagicMock()
+        mock_user.optimizations_used = 0
+
         mock_llm_client = AsyncMock()
         mock_llm_client.complete = AsyncMock(
             return_value='{"summary": "Test", "keywords_added": ["Python"]}'
@@ -669,7 +673,7 @@ class TestExecuteRewriteEdgeCases:
         mock_llm_client.close = AsyncMock()
 
         mock_session = AsyncMock()
-        mock_session.get = AsyncMock(side_effect=[mock_task, mock_vacancy, mock_resume])
+        mock_session.get = AsyncMock(side_effect=[mock_task, mock_vacancy, mock_resume, mock_user])
         mock_session.flush = AsyncMock()
 
         with patch(

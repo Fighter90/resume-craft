@@ -130,12 +130,16 @@ export default function UploadPage() {
 
       {/* Tabs */}
       <div className="tab-bar" style={{ marginBottom: '1.5rem' }}>
-        {['Загрузить файл', 'Ссылка hh.ru', 'Вставить текст'].map((label, i) => (
-          <div key={i} className={`tab-bar-item${tab === i ? ' active' : ''}`} onClick={() => { setTab(i); setError(null) }}>
-            {i === 0 && <Upload size={14} style={{ marginRight: 4 }} />}
-            {i === 1 && <Link2 size={14} style={{ marginRight: 4 }} />}
-            {i === 2 && <ClipboardPaste size={14} style={{ marginRight: 4 }} />}
-            {label}
+        {[
+          { full: 'Загрузить файл', short: 'Файл', icon: Upload },
+          { full: 'Ссылка hh.ru', short: 'Ссылка', icon: Link2 },
+          { full: 'Вставить текст', short: 'Текст', icon: ClipboardPaste },
+        ].map((item, i) => (
+          <div key={i} className={`tab-bar-item${tab === i ? ' active' : ''}`} onClick={() => { setTab(i); setError(null) }}
+            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <item.icon size={14} style={{ marginRight: 4, flexShrink: 0 }} />
+            <span className="tab-full-label">{item.full}</span>
+            <span className="tab-short-label">{item.short}</span>
           </div>
         ))}
       </div>

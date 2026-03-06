@@ -28,6 +28,21 @@ def calculate_match_score(
     Returns:
         Итоговый балл от 0.0 до 1.0.
     """
+    return calculate_match_score_detailed(resume_text=resume_text, vacancy_text=vacancy_text)[
+        'total'
+    ]
+
+
+def calculate_match_score_detailed(
+    *,
+    resume_text: str,
+    vacancy_text: str,
+) -> dict[str, float]:
+    """Расчёт Match Score с покомпонентной детализацией.
+
+    Returns:
+        Словарь с ключами: total, keywords, experience, structure, readability (0.0–1.0).
+    """
     keywords_score = _keywords_score(resume_text, vacancy_text)
     experience_score = _experience_score(resume_text, vacancy_text)
     structure_score = _structure_score(resume_text)
@@ -40,7 +55,13 @@ def calculate_match_score(
         + readability_score * 0.15
     )
 
-    return round(min(max(total, 0.0), 1.0), 3)
+    return {
+        'total': round(min(max(total, 0.0), 1.0), 3),
+        'keywords': round(keywords_score, 3),
+        'experience': round(experience_score, 3),
+        'structure': round(structure_score, 3),
+        'readability': round(readability_score, 3),
+    }
 
 
 def _tokenize(text: str) -> list[str]:

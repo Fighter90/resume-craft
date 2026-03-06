@@ -49,5 +49,8 @@ async def export_docx(
     return Response(
         content=docx_bytes,
         media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        headers={'Content-Disposition': f'attachment; filename="resume_{task_id}.docx"'},
+        headers={
+            'Content-Disposition': f'attachment; filename="resume_{task_id}.docx"',
+            'Content-Length': str(len(docx_bytes)),
+        },
     )

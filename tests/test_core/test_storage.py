@@ -74,3 +74,13 @@ class TestFileStorage:
         assert p1 != p2
         assert await tmp_storage.read(p1) == b'user1'
         assert await tmp_storage.read(p2) == b'user2'
+
+    async def test_path_traversal_read_blocked(self, tmp_storage: FileStorage) -> None:
+        """SEC-006: Чтение с path traversal → PermissionError."""
+        with pytest.raises(PermissionError, match='path traversal'):
+            await tmp_storage.read('../../etc/passwd')
+
+    async def test_path_traversal_delete_blocked(self, tmp_storage: FileStorage) -> None:
+        """SEC-006: Удаление с path traversal → PermissionError."""
+        with pytest.raises(PermissionError, match='path traversal'):
+            await tmp_storage.delete('../../../root/.ssh/id_rsa')

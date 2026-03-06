@@ -10,6 +10,7 @@ export default function SettingsSecurityPage() {
   const [showDelete, setShowDelete] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' })
   const [pwMessage, setPwMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [pwLoading, setPwLoading] = useState(false)
@@ -19,12 +20,13 @@ export default function SettingsSecurityPage() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm !== 'УДАЛИТЬ') return
     setDeleteLoading(true)
+    setDeleteError(null)
     try {
       await api.deleteAccount()
       logout()
       navigate('/')
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Ошибка удаления аккаунта')
+      setDeleteError(err instanceof Error ? err.message : 'Ошибка удаления аккаунта')
     } finally {
       setDeleteLoading(false)
     }
@@ -122,6 +124,12 @@ export default function SettingsSecurityPage() {
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           Удаление аккаунта безвозвратно. Все данные, резюме и история будут потеряны.
         </p>
+        {deleteError && (
+          <div style={{ padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', fontSize: '0.9rem',
+            background: 'var(--danger-light, #FEF2F2)', color: 'var(--danger, #EF4444)' }}>
+            {deleteError}
+          </div>
+        )}
         {!showDelete ? (
           <button className="btn" onClick={() => setShowDelete(true)} style={{ background: 'var(--danger)', color: '#fff' }}>
             Удалить аккаунт

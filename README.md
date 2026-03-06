@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.5.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.6.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.5  
+> **Версия:** 1.6  
 > **Дата:** Март 2026  
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -1046,6 +1046,57 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.6.0 (Март 2026) — QA: 43 дефекта исправлено
+
+**Безопасность (7 исправлений):**
+- Swagger UI и ReDoc отключены в production (SEC-003 / LIVE-011)
+- SECRET_KEY валидация при запуске — отказ старта с placeholder-ключом (SEC-002)
+- Rate limiting через slowapi: login 5/min, register 3/min, rewrite 10/hour (SEC-005 / LIVE-012)
+- Path traversal protection в FileStorage через `.resolve()` + prefix check (SEC-006)
+- XSS: DOMPurify.sanitize() на всех 4 dangerouslySetInnerHTML (SEC-007 / UI-001)
+- Docker-порты привязаны к 127.0.0.1 вместо 0.0.0.0 (SEC-010 / ARCH-001)
+- RabbitMQ credentials через env vars вместо guest/guest (SEC-011 / ARCH-002)
+
+**Backend API (8 исправлений):**
+- Counter оптимизаций инкрементируется только при COMPLETED (API-001 / LIVE-003)
+- Пустое резюме блокируется с ValueError до отправки в LLM (API-002)
+- Health check доступен по /health и /api/v1/health (API-005 / LIVE-015)
+- Content-Length в DOCX-экспорте для прогресса скачивания (API-006)
+- TariffLimitExceeded передаёт used/limit пользователю (API-008)
+- Маршрут /history перед /{task_id}/* для корректного роутинга (API-009)
+- Email enumeration предотвращён — единое сообщение при регистрации (API-010 / LIVE-013)
+- Расширенные prompt injection паттерны (16 новых) + Unicode NFKC нормализация (API-011)
+
+**Frontend (9 исправлений):**
+- Match Score breakdown — реальные компоненты от API вместо фейковых формул (UI-002 / LIVE-009)
+- Подтверждение пароля при регистрации (UI-003)
+- Auto-refresh token при 401 с retry оригинального запроса (UI-005)
+- alert() заменён на state-based UI notification (UI-006)
+- Polling с maxRetries (60 × 3с = 3мин) вместо бесконечного (UI-008)
+- ErrorBoundary оборачивает все routes с fallback UI (UI-010)
+- EditorPage redirect при пустых данных → /app/upload (UI-012)
+- Modal закрывается по Escape и кнопке X (LIVE-001)
+- Responsive tab labels на мобильном (LIVE-010)
+
+**UX/UI:**
+- Email overflow fix в профиле (LIVE-007)
+- Зелёные галочки только при реальной доступности провайдера (LIVE-004)
+- LLM error message «all» заменён на человекочитаемое сообщение (LIVE-006)
+- Дубликат API метода selectSearchVacancy → @deprecated delegate (ARCH-012)
+- get_settings() кэшируется через @lru_cache (AUTH-008 / ARCH-004)
+- Файлы удаляются при удалении аккаунта — ФЗ-152 (AUTH-001)
+
+**Инфраструктура:**
+- slowapi==0.1.9 + Redis storage для rate limiting
+- dompurify + @types/dompurify для XSS-защиты
+- calculate_match_score_detailed() в scoring.py для компонентного скоринга
+
+**Тесты:**
+- +tests/test_qa_fixes.py: email enum, LLM messages, tariff details, 16 sanitize patterns, match score
+- +tests/test_core/test_storage.py: path traversal read/delete blocked
+- +frontend/src/test/qa-fixes.test.tsx: ErrorBoundary, auth confirm, API, security, tabs
+- QA отчёты обновлены: 43/71 дефектов ✅ FIXED, 28 → Phase 2
 
 ### v1.5.0 (Март 2026)
 

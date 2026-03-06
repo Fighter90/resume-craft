@@ -1,6 +1,7 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Search, AlertCircle, Loader, X, MapPin, DollarSign, Clock, ExternalLink, Briefcase, Info, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import DOMPurify from 'dompurify'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
 
@@ -34,6 +35,15 @@ export default function VacancyPage() {
   // Vacancy details modal
   const [detailVacancy, setDetailVacancy] = useState<any>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+
+  // LIVE-001: Закрытие модалки по Escape
+  const closeModal = useCallback(() => setDetailVacancy(null), [])
+  useEffect(() => {
+    if (!detailVacancy) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [detailVacancy, closeModal])
 
   // URL state
   const [url, setUrl] = useState('')
@@ -389,7 +399,7 @@ export default function VacancyPage() {
                   <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Описание</div>
                   <div
                     style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap' }}
-                    dangerouslySetInnerHTML={{ __html: detailVacancy.description }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(detailVacancy.description) }}
                   />
                 </div>
               )}
@@ -399,7 +409,7 @@ export default function VacancyPage() {
                   <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Требования</div>
                   <div
                     style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}
-                    dangerouslySetInnerHTML={{ __html: detailVacancy.snippet.requirement }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(detailVacancy.snippet.requirement) }}
                   />
                 </div>
               )}
@@ -409,7 +419,7 @@ export default function VacancyPage() {
                   <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Обязанности</div>
                   <div
                     style={{ fontSize: '0.85rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}
-                    dangerouslySetInnerHTML={{ __html: detailVacancy.snippet.responsibility }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(detailVacancy.snippet.responsibility) }}
                   />
                 </div>
               )}

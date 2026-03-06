@@ -194,12 +194,8 @@ export default function SettingsAiPage() {
   }, [model, apiKeys]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getServerAvailability = (modelId: string): boolean | null => {
-    // First check if user has a local API key set
-    const model = MODELS.find(m => m.id === modelId)
-    if (model && apiKeys[model.apiKeyField]?.trim()) {
-      return true // User has provided an API key locally
-    }
-    // Fall back to server-reported availability
+    // LIVE-004: Показываем статус ТОЛЬКО на основе серверной доступности,
+    // не показываем зелёную галочку только потому, что пользователь ввёл ключ локально
     const m = serverModels.find((s: any) => s.id === modelId)
     return m ? m.available ?? null : null
   }

@@ -9,10 +9,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.auth.router import router as auth_router
 from app.core.config import get_settings
 from app.core.exceptions import AppError
+from app.core.limiter import limiter
 from app.core.seed import seed_test_user
 from app.export.router import router as export_router
 from app.ml.router import router as models_router
@@ -42,14 +45,28 @@ def create_app() -> FastAPI:
     """Фабрика FastAPI-приложения."""
     settings = get_settings()
 
+    # SEC-003/LIVE-011: Отключаем Swagger/ReDoc в production
+    docs_url = '/docs' if not settings.is_production else None
+    redoc_url = '/redoc' if not settings.is_production else None
+
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
         description='AI-реврайтер резюме для российского рынка труда',
-        docs_url='/docs',
-        redoc_url='/redoc',
+        docs_url=docs_url,
+        redoc_url=redoc_url,
         lifespan=lifespan,
     )
+
+    # --- Rate Limiting (SEC-005/ARCH-010/LIVE-012) ---
+    storage_uri = (
+        'memory://'
+        if settings.environment in ('testing', 'test')
+        else (settings.redis_url or 'memory://')
+    )
+    limiter._storage_uri = storage_uri
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     # --- Middleware ---
     app.add_middleware(
@@ -94,8 +111,9 @@ def create_app() -> FastAPI:
     app.include_router(export_router, prefix=api_prefix)
     app.include_router(models_router, prefix=api_prefix)
 
-    # --- Health Check ---
+    # --- Health Check (API-005/LIVE-015: доступен и с префиксом и без) ---
     @app.get('/health', tags=['system'], summary='Health Check')
+    @app.get(f'{settings.api_v1_prefix}/health', tags=['system'], include_in_schema=False)
     async def health() -> dict[str, str]:
         return {'status': 'healthy', 'version': settings.app_version}
 

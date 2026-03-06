@@ -178,6 +178,19 @@ async def delete_user_account(
     *,
     user: User,
 ) -> None:
-    """Полное удаление аккаунта пользователя и всех связанных данных (ФЗ-152)."""
+    """Полное удаление аккаунта пользователя и всех связанных данных (ФЗ-152).
+
+    AUTH-001: Удаляет файлы пользователя с диска перед удалением из БД.
+    """
+    import logging
+
+    from app.core.storage import file_storage
+
+    logger = logging.getLogger(__name__)
+    try:
+        await file_storage.delete_user_files(user.id)
+    except Exception:
+        logger.warning('Failed to delete user files for %s', user.id, exc_info=True)
+
     await session.delete(user)
     await session.flush()

@@ -31,6 +31,14 @@ const AI_HINTS = [
 export default function EditorPage() {
   const navigate = useNavigate()
   const { result, resumeId } = useWizard()
+
+  // UI-012: Редирект если нет данных для редактирования
+  useEffect(() => {
+    if (!result && !resumeId) {
+      navigate('/app/upload', { replace: true })
+    }
+  }, [result, resumeId, navigate])
+
   const [activeSection, setActiveSection] = useState('header')
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)

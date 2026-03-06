@@ -15,7 +15,7 @@ class FileStorage:
     """Локальное файловое хранилище с Docker volume."""
 
     def __init__(self, base_dir: str | None = None) -> None:
-        self._base_dir = Path(base_dir or settings.upload_dir)
+        self._base_dir = Path(base_dir or settings.upload_dir).resolve()
         self._base_dir.mkdir(parents=True, exist_ok=True)
 
     def _user_dir(self, user_id: UUID) -> Path:
@@ -23,6 +23,14 @@ class FileStorage:
         user_dir = self._base_dir / str(user_id)
         user_dir.mkdir(parents=True, exist_ok=True)
         return user_dir
+
+    def _safe_resolve(self, relative_path: str) -> Path:
+        """Безопасное разрешение пути с защитой от path traversal (SEC-006)."""
+        file_path = (self._base_dir / relative_path).resolve()
+        if not str(file_path).startswith(str(self._base_dir)):
+            msg = 'Access denied: path traversal detected'
+            raise PermissionError(msg)
+        return file_path
 
     async def save(
         self,
@@ -38,7 +46,7 @@ class FileStorage:
 
     async def read(self, relative_path: str) -> bytes:
         """Чтение файла по относительному пути."""
-        file_path = self._base_dir / relative_path
+        file_path = self._safe_resolve(relative_path)
         if not file_path.exists():
             msg = f'File not found: {relative_path}'
             raise FileNotFoundError(msg)
@@ -46,7 +54,7 @@ class FileStorage:
 
     async def delete(self, relative_path: str) -> None:
         """Удаление файла."""
-        file_path = self._base_dir / relative_path
+        file_path = self._safe_resolve(relative_path)
         if file_path.exists():
             file_path.unlink()
 

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import { WizardProvider } from './contexts/WizardContext'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Layouts
 import AppLayout from './components/layout/AppLayout'
@@ -56,6 +57,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <Routes>
       {/* Public routes */}
       <Route element={<PublicLayout />}>
@@ -111,5 +113,6 @@ export default function App() {
       {/* 404 */}
       <Route path="*" element={<ErrorPage />} />
     </Routes>
+    </ErrorBoundary>
   )
 }

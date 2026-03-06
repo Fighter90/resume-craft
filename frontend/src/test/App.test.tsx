@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi } from 'vitest'
 import App from '../App'
@@ -118,9 +118,12 @@ describe('App Router', () => {
     expect(screen.getByText(/нет данных/i)).toBeInTheDocument()
   })
 
-  it('renders editor at /app/editor', () => {
+  it('renders editor at /app/editor — redirects to upload without data (UI-012)', async () => {
     renderApp('/app/editor')
-    expect(screen.getByRole('heading', { name: /редактор резюме/i })).toBeInTheDocument()
+    // EditorPage guard redirects to /app/upload when no result/resumeId
+    await waitFor(() => {
+      expect(screen.getByText(/загрузите ваше резюме/i)).toBeInTheDocument()
+    })
   })
 
   it('renders export at /app/export', () => {

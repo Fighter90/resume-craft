@@ -61,12 +61,13 @@ class TestAuthExceptions:
     def test_user_already_exists_default(self) -> None:
         err = UserAlreadyExists()
         assert err.status_code == 409
-        assert 'уже существует' in err.message
+        assert 'email' in err.message.lower()
 
     def test_user_already_exists_with_email(self) -> None:
         err = UserAlreadyExists('test@example.com')
-        assert 'test@example.com' in err.message
+        # After email enumeration fix, message should NOT contain actual email
         assert err.status_code == 409
+        assert 'email' in err.message.lower()
 
     def test_user_not_found(self) -> None:
         err = UserNotFound()

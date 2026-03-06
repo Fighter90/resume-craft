@@ -51,13 +51,9 @@ class TokenInvalid(AppError):
 
 class UserAlreadyExists(AppError):
     def __init__(self, email: str = '') -> None:
-        msg = (
-            f'Пользователь с email {email} уже существует'
-            if email
-            else 'Пользователь уже существует'
-        )
+        # API-010/LIVE-013: Не раскрываем email для предотвращения enumeration
         super().__init__(
-            message=msg,
+            message='Не удалось создать аккаунт с указанным email',
             status_code=409,
             error_code='USER_ALREADY_EXISTS',
         )
@@ -166,10 +162,20 @@ class RewriteTaskNotFound(AppError):
 
 class LLMProviderUnavailable(AppError):
     def __init__(self, provider: str) -> None:
+        # LIVE-006: Человекочитаемое сообщение вместо технического 'all'
+        if provider == 'all':
+            msg = 'Все LLM-провайдеры временно недоступны'
+            detail_msg = (
+                'Ни один LLM-провайдер не настроен. Перейдите в настройки AI и добавьте API-ключ.'
+            )
+        else:
+            msg = f'LLM-провайдер {provider} временно недоступен'
+            detail_msg = None
         super().__init__(
-            message=f'LLM-провайдер {provider} временно недоступен',
+            message=msg,
             status_code=503,
             error_code='LLM_UNAVAILABLE',
+            detail=detail_msg,
         )
 
 
