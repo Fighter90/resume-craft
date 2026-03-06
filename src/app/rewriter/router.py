@@ -1,7 +1,5 @@
 """Роутер оптимизации: /api/v1/rewrite/*."""
 
-from __future__ import annotations
-
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request, status

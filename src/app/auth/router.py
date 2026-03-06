@@ -1,7 +1,5 @@
 """Роутер аутентификации: /api/v1/auth/*."""
 
-from __future__ import annotations
-
 from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
