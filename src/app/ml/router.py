@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
+from app.core.database import get_session
+from app.core.dependencies import get_optional_user
+
+if TYPE_CHECKING:
+    from app.auth.models import User
 
 router = APIRouter(prefix='/models', tags=['models'])
 
@@ -22,23 +28,60 @@ _KEY_FIELDS: dict[str, str] = {
     'openrouter': 'openrouter_api_key',
 }
 
+# Маппинг имени модели → имя провайдера для БД
+_MODEL_TO_PROVIDER: dict[str, str] = {
+    'gigachat': 'gigachat',
+    'openai': 'openai',
+    'anthropic': 'anthropic',
+    'openrouter': 'openrouter',
+}
+
+
+async def _get_user_keys(
+    session: AsyncSession | None,
+    user: User | None,
+) -> dict[str, bool]:
+    """Проверить наличие пользовательских ключей в БД."""
+    user_has: dict[str, bool] = {p: False for p in _KEY_FIELDS}
+    if not user or not session:
+        return user_has
+
+    from app.settings.service import get_setting
+
+    for provider in _KEY_FIELDS:
+        setting = await get_setting(
+            session, user_id=user.id, category='ai_keys', key=provider,
+        )
+        user_has[provider] = bool(setting and setting.value)
+
+    return user_has
+
 
 @router.get(
     '',
     summary='Список доступных AI-моделей',
 )
-async def list_models() -> dict[str, object]:
-    """Возвращает модели с флагом доступности (настроен ли API-ключ).
+async def list_models(
+    session: AsyncSession = Depends(get_session),
+    current_user: User | None = Depends(get_optional_user),
+) -> dict[str, object]:
+    """Возвращает модели с флагом доступности.
 
-    Провайдеры OpenAI, Anthropic, OpenRouter поддерживают 2-шаговый выбор:
-    используйте GET /models/{provider}/sub-models для получения подмоделей.
+    Доступность определяется: пользовательский ключ в БД ИЛИ ключ в env-настройках.
     """
     settings = get_settings()
 
-    available: dict[str, bool] = {}
+    env_available: dict[str, bool] = {}
     for provider, field in _KEY_FIELDS.items():
         val = getattr(settings, field, '')
-        available[provider] = bool(val and val.strip())
+        env_available[provider] = bool(val and val.strip())
+
+    # Проверка пользовательских ключей в БД
+    user_has = await _get_user_keys(session, current_user)
+
+    available: dict[str, bool] = {}
+    for provider in _KEY_FIELDS:
+        available[provider] = env_available[provider] or user_has[provider]
 
     models = [
         {
@@ -82,20 +125,36 @@ async def list_models() -> dict[str, object]:
     '/{provider}/sub-models',
     summary='Получить доступные подмодели провайдера',
 )
-async def get_sub_models(provider: str) -> dict[str, object]:
+async def get_sub_models(
+    provider: str,
+    session: AsyncSession = Depends(get_session),
+    current_user: User | None = Depends(get_optional_user),
+) -> dict[str, object]:
     """Динамически запрашивает список доступных моделей у провайдера через его API.
 
     Поддерживаемые провайдеры: openai, anthropic, openrouter.
-    Требует настроенного API-ключа.
+    Требует настроенного API-ключа (в env или в личных настройках).
     """
+    # Получаем пользовательский ключ из БД (если авторизован)
+    user_key = ''
+    if current_user and session:
+        from app.settings.service import get_decrypted_value
+
+        user_key = await get_decrypted_value(
+            session, user_id=current_user.id, category='ai_keys', key=provider,
+        )
+
     settings = get_settings()
 
     if provider == 'openai':
-        return await _fetch_openai_models(settings.openai_api_key)
+        key = user_key or settings.openai_api_key
+        return await _fetch_openai_models(key)
     if provider == 'anthropic':
-        return await _fetch_anthropic_models(settings.anthropic_api_key)
+        key = user_key or settings.anthropic_api_key
+        return await _fetch_anthropic_models(key)
     if provider == 'openrouter':
-        return await _fetch_openrouter_models(settings.openrouter_api_key)
+        key = user_key or settings.openrouter_api_key
+        return await _fetch_openrouter_models(key)
 
     return {'sub_models': [], 'error': f'Провайдер {provider} не поддерживает выбор подмоделей'}
 

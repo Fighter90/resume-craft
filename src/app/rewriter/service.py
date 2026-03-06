@@ -132,9 +132,38 @@ async def execute_rewrite(
         if ':' in provider_name:
             provider_name, sub_model_value = provider_name.split(':', 1)
 
+        # Получение пользовательских API-ключей из БД
+        from app.settings.service import get_user_setting
+
+        user_keys: dict[str, str] = {}
+        # Маппинг провайдера для поиска ключа в БД
+        _provider_key_map: dict[str, str] = {
+            'gigachat-pro': 'gigachat',
+            'gigachat-lite': 'gigachat',
+            'openai': 'openai',
+            'gpt-4o-mini': 'openai',
+            'gpt-4o': 'openai',
+            'anthropic': 'anthropic',
+            'claude-sonnet': 'anthropic',
+            'claude-haiku': 'anthropic',
+            'openrouter': 'openrouter',
+        }
+        for prov_name, db_key in _provider_key_map.items():
+            if db_key not in user_keys:
+                key_val = await get_user_setting(
+                    session, user_id=task.user_id, provider=db_key,
+                )
+                if key_val:
+                    user_keys[prov_name] = key_val
+                    # Также добавить для группы (напр. 'gigachat-pro' → 'gigachat-lite')
+                    for alias, alias_key in _provider_key_map.items():
+                        if alias_key == db_key and alias not in user_keys:
+                            user_keys[alias] = key_val
+
         llm_client = LLMClientFactory.create_with_fallback(
             preferred=provider_name,
             sub_model=sub_model_value,
+            user_keys=user_keys,
         )
         try:
             user_prompt = f'РЕЗЮМЕ:\n{sanitized_resume}\n\nВАКАНСИЯ:\n{sanitized_vacancy}'

@@ -76,8 +76,9 @@ class BaseLLMClient(ABC):
 class GigaChatClient(BaseLLMClient):
     """Клиент GigaChat (Сбер) — #1 MERA для русского языка."""
 
-    def __init__(self, model: str = 'GigaChat-Pro') -> None:
+    def __init__(self, model: str = 'GigaChat-Pro', *, api_key: str | None = None) -> None:
         self._model = model
+        self._api_key = api_key
         self._client: Any = None
 
     def _get_client(self) -> Any:
@@ -85,8 +86,9 @@ class GigaChatClient(BaseLLMClient):
         if self._client is None:
             from gigachat import GigaChat
 
+            credentials = self._api_key or settings.gigachat_credentials
             self._client = GigaChat(
-                credentials=settings.gigachat_credentials,
+                credentials=credentials,
                 scope=settings.gigachat_scope,
                 model=self._model,
                 verify_ssl_certs=False,
@@ -139,8 +141,9 @@ class GigaChatClient(BaseLLMClient):
 class OpenAIClient(BaseLLMClient):
     """Клиент OpenAI GPT-4o-mini — резервный."""
 
-    def __init__(self, model: str = 'gpt-4o-mini') -> None:
+    def __init__(self, model: str = 'gpt-4o-mini', *, api_key: str | None = None) -> None:
         self._model = model
+        self._api_key = api_key
         self._client: Any = None
 
     def _get_client(self) -> Any:
@@ -148,7 +151,7 @@ class OpenAIClient(BaseLLMClient):
         if self._client is None:
             from openai import AsyncOpenAI
 
-            self._client = AsyncOpenAI(api_key=settings.openai_api_key)
+            self._client = AsyncOpenAI(api_key=self._api_key or settings.openai_api_key)
         return self._client
 
     async def complete(
@@ -189,8 +192,9 @@ class OpenAIClient(BaseLLMClient):
 class AnthropicClient(BaseLLMClient):
     """Клиент Anthropic Claude — прямой доступ к Claude моделям."""
 
-    def __init__(self, model: str = 'claude-sonnet-4-20250514') -> None:
+    def __init__(self, model: str = 'claude-sonnet-4-20250514', *, api_key: str | None = None) -> None:
         self._model = model
+        self._api_key = api_key
         self._client: Any = None
 
     def _get_client(self) -> Any:
@@ -199,7 +203,7 @@ class AnthropicClient(BaseLLMClient):
             import anthropic
 
             self._client = anthropic.AsyncAnthropic(
-                api_key=settings.anthropic_api_key,
+                api_key=self._api_key or settings.anthropic_api_key,
             )
         return self._client
 
@@ -245,8 +249,9 @@ class AnthropicClient(BaseLLMClient):
 class OpenRouterClient(BaseLLMClient):
     """Клиент OpenRouter — доступ к 100+ моделям через единый API."""
 
-    def __init__(self, model: str = 'anthropic/claude-3.5-sonnet') -> None:
+    def __init__(self, model: str = 'anthropic/claude-3.5-sonnet', *, api_key: str | None = None) -> None:
         self._model = model
+        self._api_key = api_key
         self._client: Any = None
 
     def _get_client(self) -> Any:
@@ -255,7 +260,7 @@ class OpenRouterClient(BaseLLMClient):
             from openai import AsyncOpenAI
 
             self._client = AsyncOpenAI(
-                api_key=settings.openrouter_api_key,
+                api_key=self._api_key or settings.openrouter_api_key,
                 base_url='https://openrouter.ai/api/v1',
                 default_headers={
                     'HTTP-Referer': 'https://resumecraft.ru',

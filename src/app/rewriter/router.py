@@ -43,6 +43,41 @@ async def create_rewrite(
             limit=current_user.optimization_limit or 0,
         )
 
+    # Проверка наличия API-ключа для выбранного провайдера ДО начала оптимизации
+    from app.core.config import get_settings
+    from app.settings.service import get_user_setting
+
+    # Маппинг модели → имя провайдера в БД и поле в env
+    _model_to_db_provider: dict[str, str] = {
+        'gigachat-pro': 'gigachat', 'gigachat-lite': 'gigachat',
+        'openai': 'openai', 'gpt-4o-mini': 'openai', 'gpt-4o': 'openai',
+        'anthropic': 'anthropic', 'claude-sonnet': 'anthropic', 'claude-haiku': 'anthropic',
+        'openrouter': 'openrouter',
+    }
+    _model_to_env_field: dict[str, str] = {
+        'gigachat-pro': 'gigachat_credentials', 'gigachat-lite': 'gigachat_credentials',
+        'openai': 'openai_api_key', 'gpt-4o-mini': 'openai_api_key', 'gpt-4o': 'openai_api_key',
+        'anthropic': 'anthropic_api_key', 'claude-sonnet': 'anthropic_api_key',
+        'claude-haiku': 'anthropic_api_key', 'openrouter': 'openrouter_api_key',
+    }
+
+    db_provider = _model_to_db_provider.get(data.model, data.model)
+    user_key = await get_user_setting(
+        session, user_id=current_user.id, provider=db_provider,
+    )
+    env_field = _model_to_env_field.get(data.model, '')
+    settings = get_settings()
+    env_key = getattr(settings, env_field, '') if env_field else ''
+
+    if not user_key and not (env_key and env_key.strip()):
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=400,
+            detail=f'API-ключ для {data.model} не настроен. '
+                   f'Перейдите в Настройки → AI-модели для настройки.',
+        )
+
     task = await rewrite_service.create_rewrite_task(
         session,
         user_id=current_user.id,

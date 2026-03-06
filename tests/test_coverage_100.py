@@ -676,14 +676,25 @@ class TestExecuteRewriteEdgeCases:
         mock_session.get = AsyncMock(side_effect=[mock_task, mock_vacancy, mock_resume, mock_user])
         mock_session.flush = AsyncMock()
 
-        with patch(
-            'app.rewriter.service.LLMClientFactory.create_with_fallback',
-            return_value=mock_llm_client,
-        ) as mock_factory:
+        with (
+            patch(
+                'app.rewriter.service.LLMClientFactory.create_with_fallback',
+                return_value=mock_llm_client,
+            ) as mock_factory,
+            patch(
+                'app.settings.service.get_user_setting',
+                new_callable=AsyncMock,
+                return_value='',
+            ),
+        ):
             result = await execute_rewrite(mock_session, task_id=task_id)
 
         # Проверяем что factory вызван с правильными аргументами (sub_model split)
-        mock_factory.assert_called_once_with(preferred='openai', sub_model='gpt-4o')
+        mock_factory.assert_called_once()
+        call_kwargs = mock_factory.call_args[1]
+        assert call_kwargs['preferred'] == 'openai'
+        assert call_kwargs['sub_model'] == 'gpt-4o'
+        assert 'user_keys' in call_kwargs
         assert result.status == RewriteStatus.COMPLETED
 
     async def test_execute_rewrite_app_error_with_detail(self) -> None:
@@ -724,9 +735,16 @@ class TestExecuteRewriteEdgeCases:
         )
         app_error.detail = 'Все провайдеры временно недоступны'
 
-        with patch(
-            'app.rewriter.service.LLMClientFactory.create_with_fallback',
-            side_effect=app_error,
+        with (
+            patch(
+                'app.rewriter.service.LLMClientFactory.create_with_fallback',
+                side_effect=app_error,
+            ),
+            patch(
+                'app.settings.service.get_user_setting',
+                new_callable=AsyncMock,
+                return_value='',
+            ),
         ):
             result = await execute_rewrite(mock_session, task_id=task_id)
 

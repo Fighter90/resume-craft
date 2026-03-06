@@ -76,12 +76,14 @@ class LLMClientFactory:
         provider_name: str,
         *,
         sub_model: str | None = None,
+        api_key: str | None = None,
     ) -> BaseLLMClient:
         """Создание LLM-клиента по имени провайдера.
 
         Args:
             provider_name: Имя провайдера ('gigachat-pro', 'openai', 'anthropic', 'openrouter').
             sub_model: Конкретная модель провайдера (напр. 'gpt-4o', 'claude-sonnet-4-20250514').
+            api_key: Пользовательский API-ключ (из БД). Если не передан — используются env-настройки.
 
         Returns:
             Экземпляр LLM-клиента.
@@ -93,15 +95,19 @@ class LLMClientFactory:
         if not provider_class:
             raise LLMProviderUnavailable(provider_name)
 
-        # Проверка наличия API-ключа
-        key_field = _PROVIDER_KEY_FIELDS.get(provider_name)
-        if key_field:
-            settings = get_settings()
-            key_value = getattr(settings, key_field, '')
-            if not key_value or not key_value.strip():
-                from app.core.exceptions import LLMAuthError
+        # Проверка наличия API-ключа: пользовательский → env
+        effective_key = api_key
+        if not effective_key or not effective_key.strip():
+            key_field = _PROVIDER_KEY_FIELDS.get(provider_name)
+            if key_field:
+                settings = get_settings()
+                env_value = getattr(settings, key_field, '')
+                if env_value and env_value.strip():
+                    effective_key = env_value
+                else:
+                    from app.core.exceptions import LLMAuthError
 
-                raise LLMAuthError(provider_name)
+                    raise LLMAuthError(provider_name)
 
         # Подмодель для провайдеров с 2-шаговым выбором
         if provider_name in SUB_MODEL_PROVIDERS and sub_model:
@@ -110,18 +116,24 @@ class LLMClientFactory:
             model_name = _MODEL_NAMES.get(provider_name, provider_name)
 
         logger.info('Creating LLM client: %s (model=%s)', provider_name, model_name)
-        return provider_class(model=model_name)  # type: ignore[call-arg]
+        return provider_class(model=model_name, api_key=effective_key)  # type: ignore[call-arg]
 
     @staticmethod
     def create_with_fallback(
         *,
         preferred: str | None = None,
         sub_model: str | None = None,
+        user_keys: dict[str, str] | None = None,
     ) -> BaseLLMClient:
         """Создание клиента с автоматическим fallback.
 
         Порядок: preferred → GigaChat Pro → Anthropic → OpenRouter → OpenAI.
         Пропускает провайдеров без настроенных ключей.
+
+        Args:
+            preferred: Предпочтительный провайдер (ставится первым в очереди).
+            sub_model: Подмодель для провайдеров с 2-шаговым выбором.
+            user_keys: Словарь {provider_name: api_key} — пользовательские ключи из БД.
 
         Raises:
             LLMProviderUnavailable: все провайдеры недоступны.
@@ -135,9 +147,12 @@ class LLMClientFactory:
 
         for provider_name in order:
             try:
+                # Пользовательский ключ из БД (если есть)
+                user_key = (user_keys or {}).get(provider_name, '')
                 client = LLMClientFactory.create(
                     provider_name,
                     sub_model=sub_model if provider_name in SUB_MODEL_PROVIDERS else None,
+                    api_key=user_key or None,
                 )
                 logger.info('Using LLM provider: %s', provider_name)
                 return client

@@ -76,65 +76,45 @@ export default function ModelsPage() {
   const navigate = useNavigate()
   const { resumeId, vacancyId, setModel, setTaskId } = useWizard()
 
-  // Read default model from settings
-  const getDefaultModel = (): string => {
-    try {
-      const settings = JSON.parse(localStorage.getItem('ai_settings') || '{}')
-      if (settings.model && typeof settings.model === 'string') return settings.model
-    } catch { /* ignore */ }
-    return 'gigachat-pro'
-  }
-
-  const [selected, setSelected] = useState(getDefaultModel())
+  const [selected, setSelected] = useState('gigachat-pro')
   const [subModel, setSubModel] = useState('')
   const [subModels, setSubModels] = useState<SubModel[]>([])
   const [loadingSubModels, setLoadingSubModels] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [models, setModels] = useState<ModelInfo[]>(FALLBACK_MODELS)
-  const [loadingModels, setLoadingModels] = useState(false)
-
-  // Map provider id to localStorage API key field
-  const LOCAL_KEY_MAP: Record<string, string> = {
-    'gigachat-pro': 'gigachat', 'openai': 'openai', 'anthropic': 'anthropic', 'openrouter': 'openrouter',
-  }
-
-  // Check if user has local API key set for a given model
-  const hasLocalKey = (modelId: string): boolean => {
-    try {
-      const settings = JSON.parse(localStorage.getItem('ai_settings') || '{}')
-      const keys = settings.apiKeys || {}
-      const field = LOCAL_KEY_MAP[modelId]
-      return !!(field && keys[field]?.trim())
-    } catch { return false }
-  }
+  const [loadingModels, setLoadingModels] = useState(true)
 
   useEffect(() => {
     const load = async () => {
       try {
+        // Загружаем модели с сервера — availability уже учитывает ключи пользователя в БД
         const res = await api.getModels()
         const list = res.models || []
         if (list.length > 0) {
-          // Merge server availability with local keys
-          const merged = list.map((m: ModelInfo) => ({
-            ...m,
-            available: m.available || hasLocalKey(m.id),
-          }))
-          setModels(merged)
-          const first = merged.find((m: ModelInfo) => m.available)
-          if (first) setSelected(first.id)
-        } else {
-          // No server models — use fallback with local key check
-          setModels(FALLBACK_MODELS.map(m => ({ ...m, available: m.available || hasLocalKey(m.id) })))
+          setModels(list)
+          // Загружаем выбранную модель из серверных настроек
+          try {
+            const modelRes = await api.getSelectedModel()
+            const savedModel = (modelRes as any)?.model || ''
+            if (savedModel && list.find((m: ModelInfo) => m.id === savedModel && m.available)) {
+              setSelected(savedModel)
+            } else {
+              const first = list.find((m: ModelInfo) => m.available)
+              if (first) setSelected(first.id)
+            }
+          } catch {
+            const first = list.find((m: ModelInfo) => m.available)
+            if (first) setSelected(first.id)
+          }
         }
       } catch {
-        // Server unavailable — use fallback with local key check
-        setModels(FALLBACK_MODELS.map(m => ({ ...m, available: m.available || hasLocalKey(m.id) })))
+        setModels(FALLBACK_MODELS)
       }
       setLoadingModels(false)
     }
     load()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Загрузка подмоделей при выборе провайдера с has_sub_models
   useEffect(() => {

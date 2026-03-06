@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from app.auth.models import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/v1/auth/login')
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl='/api/v1/auth/login', auto_error=False)
 
 
 @lru_cache
@@ -72,5 +73,44 @@ async def get_current_user(
 
     if not user.is_active:
         raise InactiveUser()
+
+    return user
+
+
+async def get_optional_user(
+    token: str | None = Depends(oauth2_scheme_optional),
+    session: AsyncSession = Depends(get_session),
+) -> User | None:
+    """Получение текущего пользователя из JWT (опционально).
+
+    Если токен не передан или невалиден — возвращает None (без ошибки).
+    """
+    if not token:
+        return None
+
+    from app.auth.models import User
+
+    try:
+        payload = decode_token(token)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return None
+
+    if payload.get('type') != 'access':
+        return None
+
+    user_id_str = payload.get('sub')
+    if not user_id_str:
+        return None
+
+    try:
+        user_id = UUID(user_id_str)
+    except ValueError:
+        return None
+
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if user is None or not user.is_active:
+        return None
 
     return user
