@@ -159,6 +159,24 @@ export class ApiClient {
     return res.blob()
   }
 
+  async exportPdf(id: string) {
+    const tok = this.token || localStorage.getItem('access_token')
+    const res = await fetch(`${API_BASE}/export/${id}/pdf`, {
+      headers: tok ? { 'Authorization': `Bearer ${tok}` } : {},
+    })
+    if (!res.ok) throw new Error('Export failed')
+    return res.blob()
+  }
+
+  async exportTxt(id: string) {
+    const tok = this.token || localStorage.getItem('access_token')
+    const res = await fetch(`${API_BASE}/export/${id}/txt`, {
+      headers: tok ? { 'Authorization': `Bearer ${tok}` } : {},
+    })
+    if (!res.ok) throw new Error('Export failed')
+    return res.blob()
+  }
+
   async downloadResumeFile(id: string) {
     const tok = this.token || localStorage.getItem('access_token')
     const res = await fetch(`${API_BASE}/resumes/${id}/file`, {

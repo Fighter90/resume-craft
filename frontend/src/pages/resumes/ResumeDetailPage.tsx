@@ -80,13 +80,20 @@ export default function ResumeDetailPage() {
     setShowFormatMenu(false)
     const format = targetFormat || (resume.file_format || 'txt').toLowerCase()
     try {
-      // For optimized resumes — export DOCX from rewrite result
-      if (resume.status === 'optimized' && format === 'docx') {
+      // For optimized resumes — export from rewrite result via /export/{task_id}/{format}
+      if (resume.status === 'optimized') {
         const history = await api.getRewriteHistory()
         const task = (history as any[]).find((h: any) => h.resume_id === id && h.status === 'completed')
         if (task) {
-          const blob = await api.exportDocx(task.id)
-          triggerDownload(blob, `${resume.title || 'resume'}_optimized.docx`)
+          let blob: Blob
+          if (format === 'pdf') {
+            blob = await api.exportPdf(task.id)
+          } else if (format === 'txt') {
+            blob = await api.exportTxt(task.id)
+          } else {
+            blob = await api.exportDocx(task.id)
+          }
+          triggerDownload(blob, `${resume.title || 'resume'}_optimized.${format}`)
           return
         }
       }

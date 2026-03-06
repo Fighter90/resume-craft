@@ -55,11 +55,19 @@ export default function ExportPage() {
     setDownloading(true)
     setError(null)
     try {
-      const blob = await api.exportDocx(exportId)
+      let blob: Blob
+      if (format === 'pdf') {
+        blob = await api.exportPdf(exportId)
+      } else if (format === 'docx') {
+        blob = await api.exportDocx(exportId)
+      } else {
+        // hh format — fallback to docx for now
+        blob = await api.exportDocx(exportId)
+      }
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `resume_optimized.${format}`
+      a.download = `resume_optimized.${format === 'hh' ? 'docx' : format}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
