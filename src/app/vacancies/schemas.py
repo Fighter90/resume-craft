@@ -63,6 +63,13 @@ class HHSearchParams(BaseModel):
     per_page: int = Field(20, ge=1, le=100, description='Кол-во результатов')
 
 
+class HHSnippet(BaseModel):
+    """Сниппеты из поиска hh.ru."""
+
+    requirement: str | None = None
+    responsibility: str | None = None
+
+
 class HHVacancyItem(BaseModel):
     """Краткая информация о вакансии с hh.ru."""
 
@@ -72,6 +79,10 @@ class HHVacancyItem(BaseModel):
     city: str | None = None
     salary_from: int | None = None
     salary_to: int | None = None
+    experience: str | None = None
+    key_skills: list[str] | None = None
+    snippet: HHSnippet | None = None
+    description: str | None = None
     url: str
 
 

@@ -287,7 +287,7 @@ describe('SettingsSecurityPage', () => {
     fireEvent.change(inputs[1], { target: { value: 'Newpass1234' } })
     fireEvent.click(screen.getByText('Обновить пароль'))
     await waitFor(() => {
-      expect(screen.getByText('Пароль успешно обновлён')).toBeInTheDocument()
+      expect(screen.getByText(/Пароль обновлён/)).toBeInTheDocument()
     })
   })
 
@@ -1200,7 +1200,7 @@ describe('SettingsSecurityPage password change', () => {
     fireEvent.change(inputs[1], { target: { value: 'Newpassword1' } })
     fireEvent.click(screen.getByText('Обновить пароль'))
     await waitFor(() => {
-      expect(screen.getByText('Пароль успешно обновлён')).toBeInTheDocument()
+      expect(screen.getByText(/Пароль обновлён/)).toBeInTheDocument()
     })
   })
 

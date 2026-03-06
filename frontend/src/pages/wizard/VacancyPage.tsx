@@ -33,6 +33,7 @@ export default function VacancyPage() {
 
   // Vacancy details modal
   const [detailVacancy, setDetailVacancy] = useState<any>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   // URL state
   const [url, setUrl] = useState('')
@@ -48,6 +49,21 @@ export default function VacancyPage() {
   const [manualError, setManualError] = useState<string | null>(null)
 
   const AREA_MAP: Record<string, string> = { 'Москва': '1', 'Санкт-Петербург': '2', 'Удалённо': '113' }
+
+  const handleShowDetails = async (v: any) => {
+    setDetailVacancy(v)
+    if (!v.description) {
+      setDetailLoading(true)
+      try {
+        const full = await api.getHHVacancyDetail(v.hh_id)
+        setDetailVacancy({ ...v, ...full })
+      } catch {
+        // keep partial data from search
+      } finally {
+        setDetailLoading(false)
+      }
+    }
+  }
 
   const handleSearch = async (page = 1) => {
     if (!searchQuery.trim()) return
@@ -199,7 +215,7 @@ export default function VacancyPage() {
                 )}
                 {/* Per-card action buttons */}
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }} onClick={e => e.stopPropagation()}>
-                  <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => setDetailVacancy(v)}>
+                  <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => handleShowDetails(v)}>
                     <Info size={14} /> Подробнее
                   </button>
                   <button className="btn btn-primary btn-sm" style={{ flex: 1 }} onClick={() => selectVacancyAndNavigate(v)} disabled={searching}>
@@ -359,6 +375,12 @@ export default function VacancyPage() {
                       <span key={s} className="badge badge-indigo">{s}</span>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {detailLoading && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                  <Loader size={14} className="spin" /> Загрузка полных данных...
                 </div>
               )}
 

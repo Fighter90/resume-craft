@@ -172,6 +172,10 @@ export class ApiClient {
     return this.request<Record<string, unknown>>('GET', `/vacancies/${id}`)
   }
 
+  async getHHVacancyDetail(hhId: string) {
+    return this.request<Record<string, unknown>>('GET', `/vacancies/hh/${hhId}`)
+  }
+
   async deleteVacancy(id: string) {
     return this.request<void>('DELETE', `/vacancies/${id}`)
   }

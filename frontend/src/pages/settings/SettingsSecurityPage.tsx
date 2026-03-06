@@ -47,8 +47,12 @@ export default function SettingsSecurityPage() {
     setPwLoading(true)
     try {
       await api.changePassword({ current_password: pwForm.current, new_password: pwForm.newPw })
-      setPwMessage({ type: 'success', text: 'Пароль успешно обновлён' })
       setPwForm({ current: '', newPw: '', confirm: '' })
+      setPwMessage({ type: 'success', text: 'Пароль обновлён. Выполняется выход...' })
+      setTimeout(() => {
+        logout()
+        navigate('/auth', { state: { message: 'Пароль успешно изменён. Войдите с новым паролем.' } })
+      }, 1500)
     } catch (err) {
       setPwMessage({ type: 'error', text: err instanceof Error ? err.message : 'Ошибка смены пароля' })
     } finally {

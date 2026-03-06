@@ -189,7 +189,7 @@ describe('ResumeDetailPage (v3)', () => {
     await waitFor(() => {
       expect(screen.getByText('Python Dev')).toBeTruthy()
     })
-    const downloadBtn = screen.getByText('Скачать')
+    const downloadBtn = screen.getByText(/Скачать/)
     expect(downloadBtn).toBeTruthy()
     expect(downloadBtn.closest('button')).not.toBeNull()
   })
@@ -267,7 +267,9 @@ describe('ResumeDetailPage (v3)', () => {
     await waitFor(() => {
       expect(screen.getByText('Python Dev')).toBeTruthy()
     })
-    fireEvent.click(screen.getByText('Скачать'))
+    fireEvent.click(screen.getByText(/Скачать/))
+    await waitFor(() => expect(screen.getByText('PDF (.pdf)', { exact: false })).toBeTruthy())
+    fireEvent.click(screen.getByText('PDF (.pdf)', { exact: false }))
     await waitFor(() => {
       expect(mockDownloadResumeFile).toHaveBeenCalled()
     })
@@ -279,7 +281,9 @@ describe('ResumeDetailPage (v3)', () => {
     await waitFor(() => {
       expect(screen.getByText('Python Dev')).toBeTruthy()
     })
-    fireEvent.click(screen.getByText('Скачать'))
+    fireEvent.click(screen.getByText(/Скачать/))
+    await waitFor(() => expect(screen.getByText('DOCX (.docx)', { exact: false })).toBeTruthy())
+    fireEvent.click(screen.getByText('DOCX (.docx)', { exact: false }))
     await waitFor(() => {
       expect(mockGetRewriteHistory).toHaveBeenCalled()
     })
@@ -291,7 +295,9 @@ describe('ResumeDetailPage (v3)', () => {
     await waitFor(() => {
       expect(screen.getByText('Python Dev')).toBeTruthy()
     })
-    fireEvent.click(screen.getByText('Скачать'))
+    fireEvent.click(screen.getByText(/Скачать/))
+    await waitFor(() => expect(screen.getByText('PDF (.pdf)', { exact: false })).toBeTruthy())
+    fireEvent.click(screen.getByText('PDF (.pdf)', { exact: false }))
     // Should not throw, falls back to raw_text
     await waitFor(() => {
       expect(mockDownloadResumeFile).toHaveBeenCalled()
@@ -709,9 +715,10 @@ describe('SettingsProfilePage (v3)', () => {
     // The avatar container should prevent overlapping
     const avatarCircle = document.querySelector('[style*="border-radius: 50%"]') as HTMLElement
     expect(avatarCircle).not.toBeNull()
-    expect(avatarCircle?.style.minWidth).toBe('72px')
-    expect(avatarCircle?.style.minHeight).toBe('72px')
-    expect(avatarCircle?.style.flexShrink).toBe('0')
+    const avatarContainer = avatarCircle?.parentElement as HTMLElement
+    expect(avatarContainer?.style.minWidth).toBe('72px')
+    expect(avatarContainer?.style.minHeight).toBe('72px')
+    expect(avatarContainer?.style.flexShrink).toBe('0')
   })
 
   it('text section has overflow ellipsis', () => {
@@ -838,9 +845,11 @@ describe('Edge Cases', () => {
     mockDownloadResumeFile.mockRejectedValue(new Error('not found'))
     renderWithRouter(<ResumeDetailPage />, { route: '/app/resumes/res-1' })
     await waitFor(() => {
-      expect(screen.getByText('Скачать')).toBeTruthy()
+      expect(screen.getByText(/Скачать/)).toBeTruthy()
     })
-    fireEvent.click(screen.getByText('Скачать'))
+    fireEvent.click(screen.getByText(/Скачать/))
+    await waitFor(() => expect(screen.getByText('PDF (.pdf)', { exact: false })).toBeTruthy())
+    fireEvent.click(screen.getByText('PDF (.pdf)', { exact: false }))
     await waitFor(() => {
       expect(window.alert).toHaveBeenCalledWith('Файл недоступен для скачивания')
     })

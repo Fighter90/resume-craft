@@ -14,6 +14,7 @@ from app.vacancies import service as vacancy_service
 from app.vacancies.schemas import (
     HHSearchParams,
     HHSearchResponse,
+    HHVacancyItem,
     VacancyFromUrlRequest,
     VacancyManualRequest,
     VacancyResponse,
@@ -33,6 +34,19 @@ async def search_vacancies(
 ) -> HHSearchResponse:
     """Проксирование поиска вакансий через hh.ru API."""
     return await vacancy_service.search_hh(params)
+
+
+@router.get(
+    '/hh/{hh_id}',
+    response_model=HHVacancyItem,
+    summary='Полная информация о вакансии hh.ru по ID',
+)
+async def get_hh_vacancy_details(
+    hh_id: str,
+    _current_user: User = Depends(get_current_user),
+) -> HHVacancyItem:
+    """Получение полных данных вакансии напрямую с hh.ru."""
+    return await vacancy_service.get_hh_vacancy_detail(hh_id)
 
 
 @router.post(

@@ -74,20 +74,21 @@ export default function SettingsProfilePage() {
 
       {/* Avatar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <div style={{
-          width: 72, height: 72, minWidth: 72, minHeight: 72, borderRadius: '50%',
-          background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : 'var(--primary-gradient)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontSize: '1.5rem', fontWeight: 700, position: 'relative',
-          overflow: 'hidden', flexShrink: 0,
-        }}>
-          {!avatarUrl && 'АП'}
+        <div style={{ width: 72, height: 72, minWidth: 72, minHeight: 72, position: 'relative', flexShrink: 0 }}>
+          <div style={{
+            width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden',
+            background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : 'var(--primary-gradient)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontSize: '1.5rem', fontWeight: 700,
+          }}>
+            {!avatarUrl && 'АП'}
+          </div>
           <button
             onClick={() => fileInputRef.current?.click()}
             style={{
-              position: 'absolute', bottom: -2, right: -2, width: 26, height: 26, borderRadius: '50%',
+              position: 'absolute', bottom: 0, right: 0, width: 26, height: 26, borderRadius: '50%',
               background: 'var(--card-bg)', border: '2px solid var(--border)', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
+              alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, zIndex: 1,
             }}
           >
             <Camera size={12} />
@@ -95,9 +96,9 @@ export default function SettingsProfilePage() {
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{form.firstName} {form.lastName}</div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{form.email}</span>
-            <CheckCircle size={14} style={{ color: 'var(--success)' }} />
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem', maxWidth: '100%' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: '1 1 auto' }}>{form.email}</span>
+            <CheckCircle size={14} style={{ color: 'var(--success)', flexShrink: 0 }} />
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
@@ -112,7 +113,7 @@ export default function SettingsProfilePage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="profile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
         <div className="input-group">
           <label className="input-label">Имя</label>
           <input className="input-field" value={form.firstName} onChange={e => onChange('firstName', e.target.value)} />
@@ -124,8 +125,8 @@ export default function SettingsProfilePage() {
         <div className="input-group">
           <label className="input-label">Email</label>
           <div style={{ position: 'relative' }}>
-            <input className="input-field" type="email" value={form.email} onChange={e => onChange('email', e.target.value)} />
-            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--success)', fontSize: '0.75rem' }}>
+            <input className="input-field" type="email" value={form.email} onChange={e => onChange('email', e.target.value)} style={{ paddingRight: '7.5rem' }} />
+            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--success)', fontSize: '0.75rem', background: 'var(--card-bg, #fff)', paddingLeft: 4 }}>
               <CheckCircle size={14} /> Подтверждён
             </span>
           </div>

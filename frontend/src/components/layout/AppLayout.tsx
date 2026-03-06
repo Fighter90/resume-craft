@@ -1,12 +1,13 @@
 import { Outlet, NavLink, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { LayoutGrid, FileText, Clock, Settings, File, Menu, X, Home, Plus, LogOut, User, ChevronUp } from 'lucide-react'
+import { LayoutGrid, FileText, Clock, Settings, File, Menu, X, Home, Plus, LogOut, User, ChevronUp, HelpCircle } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 const NAV_ITEMS = [
   { to: '/app/dashboard', icon: LayoutGrid, label: 'Дашборд', id: 'dashboard' },
   { to: '/app/resumes', icon: FileText, label: 'Мои резюме', id: 'resumes' },
   { to: '/app/history', icon: Clock, label: 'История', id: 'history' },
+  { to: '/app/help', icon: HelpCircle, label: 'Справка', id: 'help' },
   { to: '/app/settings', icon: Settings, label: 'Настройки', id: 'settings' },
 ]
 

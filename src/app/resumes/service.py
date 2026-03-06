@@ -222,11 +222,12 @@ async def delete_resume(
     """
     resume = await get_resume(session, resume_id=resume_id, user_id=user_id)
 
-    # Удаление файла
-    try:
-        await file_storage.delete(resume.file_path)
-    except FileNotFoundError:
-        logger.warning('File not found during delete: %s', resume.file_path)
+    # Удаление файла (пропускаем для резюме из текста без файла)
+    if resume.file_path:
+        try:
+            await file_storage.delete(resume.file_path)
+        except (FileNotFoundError, IsADirectoryError, PermissionError):
+            logger.warning('File cleanup failed for: %r', resume.file_path)
 
     await session.delete(resume)
     await session.flush()

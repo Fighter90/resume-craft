@@ -148,8 +148,11 @@ describe('ResultsPage with URL param', () => {
     renderWithRoute(<ResultsPage />, '/app/results/:id', '/app/results/aaa-bbb-ccc')
     await waitFor(() => expect(screen.getByText('Оригинал')).toBeInTheDocument())
     expect(screen.getByText('Оптимизировано')).toBeInTheDocument()
-    expect(screen.getByText('Оригинальный текст резюме кандидата')).toBeInTheDocument()
-    expect(screen.getByText('Оптимизированный текст резюме кандидата')).toBeInTheDocument()
+    // computeWordDiff splits text into per-word <span> elements,
+    // so getByText can't find the full phrase. Check textContent instead.
+    const diffPanels = document.querySelectorAll('.diff-content')
+    expect(diffPanels[0]?.textContent).toContain('Оригинальный')
+    expect(diffPanels[1]?.textContent).toContain('Оптимизированный')
   })
 
   it('renders action buttons', async () => {

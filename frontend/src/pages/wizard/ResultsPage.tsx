@@ -6,6 +6,27 @@ import { api } from '../../services/api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/** Simple word-level diff for highlighting changes between original and optimized text */
+function computeWordDiff(original: string, rewritten: string): { origTokens: { text: string; removed: boolean }[]; newTokens: { text: string; added: boolean }[] } {
+  const tokenize = (t: string) => t.split(/(\s+)/).filter(Boolean)
+  const origWords = tokenize(original)
+  const newWords = tokenize(rewritten)
+
+  const origSet = new Set(origWords.filter(w => w.trim()).map(w => w.trim().toLowerCase()))
+  const newSet = new Set(newWords.filter(w => w.trim()).map(w => w.trim().toLowerCase()))
+
+  const origTokens = origWords.map(w => ({
+    text: w,
+    removed: w.trim() ? !newSet.has(w.trim().toLowerCase()) : false,
+  }))
+  const newTokens = newWords.map(w => ({
+    text: w,
+    added: w.trim() ? !origSet.has(w.trim().toLowerCase()) : false,
+  }))
+
+  return { origTokens, newTokens }
+}
+
 export default function ResultsPage() {
   const navigate = useNavigate()
   const { id: urlId } = useParams<{ id: string }>()
@@ -216,8 +237,18 @@ export default function ResultsPage() {
             <span style={{ fontWeight: 600 }}>Оригинал</span>
             <span className="badge badge-gray">{Math.round(scoreBefore)} баллов</span>
           </div>
-          <div className="diff-content" style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
-            {originalText || 'Текст оригинала недоступен'}
+          <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
+            {originalText && rewrittenText ? (
+              computeWordDiff(originalText, rewrittenText).origTokens.map((t, i) =>
+                t.removed ? (
+                  <span key={i} style={{ background: 'rgba(239,68,68,0.15)', borderRadius: 2, padding: '0 1px', textDecoration: 'line-through', textDecorationColor: 'rgba(239,68,68,0.5)' }}>{t.text}</span>
+                ) : (
+                  <span key={i}>{t.text}</span>
+                )
+              )
+            ) : (
+              <span style={{ whiteSpace: 'pre-wrap' }}>{originalText || 'Текст оригинала недоступен'}</span>
+            )}
           </div>
         </div>
         <div className="diff-panel">
@@ -225,8 +256,18 @@ export default function ResultsPage() {
             <span style={{ fontWeight: 600 }}>Оптимизировано</span>
             <span className="badge badge-green">{Math.round(score)} баллов</span>
           </div>
-          <div className="diff-content" style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
-            {rewrittenText || 'Оптимизированный текст недоступен'}
+          <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
+            {originalText && rewrittenText ? (
+              computeWordDiff(originalText, rewrittenText).newTokens.map((t, i) =>
+                t.added ? (
+                  <span key={i} style={{ background: 'rgba(16,185,129,0.15)', borderRadius: 2, padding: '0 1px' }}>{t.text}</span>
+                ) : (
+                  <span key={i}>{t.text}</span>
+                )
+              )
+            ) : (
+              <span style={{ whiteSpace: 'pre-wrap' }}>{rewrittenText || 'Оптимизированный текст недоступен'}</span>
+            )}
           </div>
         </div>
       </div>

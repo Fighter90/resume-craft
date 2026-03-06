@@ -22,7 +22,17 @@ const STEP_MAP: Record<string, number> = {
 
 function isAuthError(msg: string): boolean {
   const lower = msg.toLowerCase()
-  return lower.includes('api-ключ') || lower.includes('не настроен') || lower.includes('unauthorized') || lower.includes('auth')
+  return lower.includes('api-ключ') || lower.includes('не настроен') || lower.includes('unauthorized') || lower.includes('auth') || lower.includes('провайдер all') || lower.includes('provider all') || lower.includes('unavailable')
+}
+
+function friendlyError(msg: string): string {
+  if (/провайдер all|provider all|unavailable/i.test(msg)) {
+    return 'Ни один LLM-провайдер не настроен. Перейдите в настройки AI и добавьте API-ключ хотя бы для одного провайдера (OpenAI, Anthropic, OpenRouter или GigaChat).'
+  }
+  if (/payment|402|billing/i.test(msg)) {
+    return 'Ошибка тарификации у поставщика модели. Проверьте баланс аккаунта или выберите другую модель.'
+  }
+  return msg
 }
 
 export default function ProcessingPage() {
@@ -104,17 +114,15 @@ export default function ProcessingPage() {
             </span>
           </div>
           <p style={{ color: '#7F1D1D', fontSize: '0.875rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
-            {error}
+            {friendlyError(error)}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/app/models')} className="btn btn-primary btn-sm">
               <RotateCcw size={14} /> Выбрать другую модель
             </button>
-            {isAuthError(error) && (
-              <Link to="/app/settings/ai" className="btn btn-secondary btn-sm">
-                <Settings size={14} /> Настроить ключи
-              </Link>
-            )}
+            <Link to="/app/settings/ai" className="btn btn-secondary btn-sm">
+              <Settings size={14} /> Настроить ключи
+            </Link>
           </div>
         </div>
       )}

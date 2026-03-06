@@ -35,6 +35,7 @@ export default function ResumeDetailPage() {
   const [fileUrl, setFileUrl] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [downloading, setDownloading] = useState(false)
+  const [showFormatMenu, setShowFormatMenu] = useState(false)
 
   useEffect(() => {
     if (!id) { setError('ID резюме не указан'); setLoading(false); return }
@@ -73,12 +74,14 @@ export default function ResumeDetailPage() {
     }
   }
 
-  const handleDownload = async () => {
+  const handleDownload = async (targetFormat?: string) => {
     if (!id || !resume) return
     setDownloading(true)
+    setShowFormatMenu(false)
+    const format = targetFormat || (resume.file_format || 'txt').toLowerCase()
     try {
-      const fmt = (resume.file_format || 'txt').toLowerCase()
-      if (resume.status === 'optimized') {
+      // For optimized resumes — export DOCX from rewrite result
+      if (resume.status === 'optimized' && format === 'docx') {
         const history = await api.getRewriteHistory()
         const task = (history as any[]).find((h: any) => h.resume_id === id && h.status === 'completed')
         if (task) {
@@ -87,16 +90,22 @@ export default function ResumeDetailPage() {
           return
         }
       }
-      try {
-        const blob = await api.downloadResumeFile(id)
-        triggerDownload(blob, `${resume.title || 'resume'}.${fmt}`)
-      } catch {
-        if (resume.raw_text) {
-          const blob = new Blob([resume.raw_text], { type: 'text/plain;charset=utf-8' })
-          triggerDownload(blob, `${resume.title || 'resume'}.txt`)
-        } else {
-          alert('Файл недоступен для скачивания')
-        }
+
+      // Try downloading original file
+      if (format !== 'txt') {
+        try {
+          const blob = await api.downloadResumeFile(id)
+          triggerDownload(blob, `${resume.title || 'resume'}.${format}`)
+          return
+        } catch { /* fallback to text */ }
+      }
+
+      // Fallback: download as TXT from raw_text
+      if (resume.raw_text) {
+        const blob = new Blob([resume.raw_text], { type: 'text/plain;charset=utf-8' })
+        triggerDownload(blob, `${resume.title || 'resume'}.txt`)
+      } else {
+        alert('Файл недоступен для скачивания')
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка скачивания')
@@ -148,9 +157,35 @@ export default function ResumeDetailPage() {
           <Link to={`/app/vacancy?resumeId=${id}`} className="btn btn-primary">
             <Eye size={16} /> Оптимизировать
           </Link>
-          <button className="btn btn-secondary" onClick={handleDownload} disabled={downloading}>
-            {downloading ? <><Loader size={16} className="spin" /> Скачивание...</> : <><Download size={16} /> Скачать</>}
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button className="btn btn-secondary" onClick={() => setShowFormatMenu(!showFormatMenu)} disabled={downloading}>
+              {downloading ? <><Loader size={16} className="spin" /> Скачивание...</> : <><Download size={16} /> Скачать ▾</>}
+            </button>
+            {showFormatMenu && (
+              <div style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 4, background: 'var(--card-bg, #fff)',
+                border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                zIndex: 100, minWidth: 160, overflow: 'hidden',
+              }}>
+                {[
+                  { fmt: 'pdf', label: 'PDF (.pdf)', icon: '📄' },
+                  { fmt: 'docx', label: 'DOCX (.docx)', icon: '📝' },
+                  { fmt: 'txt', label: 'Текст (.txt)', icon: '📋' },
+                ].map(({ fmt: f, label, icon }) => (
+                  <button key={f} onClick={() => handleDownload(f)} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem',
+                    width: '100%', border: 'none', background: 'none', cursor: 'pointer',
+                    fontSize: '0.85rem', textAlign: 'left', color: 'var(--text)',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #F3F4F6)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  >
+                    {icon} {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={handleDelete} disabled={deleting}>
             {deleting ? <><Loader size={16} className="spin" /> Удаление...</> : <><Trash2 size={16} /> Удалить</>}
           </button>
@@ -229,14 +264,26 @@ export default function ResumeDetailPage() {
         </div>
       )}
 
-      {/* Raw text — always show when available */}
+      {/* Raw text — always show when available, with simple formatting */}
       {rawText && (
         <div className="card" style={{ padding: '1.25rem', marginBottom: '2rem' }}>
           <h3 style={{ fontWeight: 600, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FileText size={16} /> Текст резюме
           </h3>
-          <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-            {rawText}
+          <div style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+            {rawText.split('\n').map((line: string, i: number) => {
+              const trimmed = line.trim()
+              if (!trimmed) return <br key={i} />
+              // Detect section headings (all caps lines, or lines ending with colon)
+              const isHeading = (trimmed.length > 2 && trimmed.length < 80 && (
+                trimmed === trimmed.toUpperCase() && /[А-ЯA-Z]/.test(trimmed) ||
+                /^(опыт|образование|навыки|проекты|сертификат|достижения|контакт|о себе|summary|experience|education|skills)/i.test(trimmed)
+              ))
+              if (isHeading) return <div key={i} style={{ fontWeight: 700, color: 'var(--text)', marginTop: '0.75rem', marginBottom: '0.25rem', fontSize: '0.95rem' }}>{trimmed}</div>
+              // Detect bullet points
+              if (/^[-•●▪]/.test(trimmed)) return <div key={i} style={{ paddingLeft: '1rem' }}>{trimmed}</div>
+              return <div key={i}>{line}</div>
+            })}
           </div>
         </div>
       )}

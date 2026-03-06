@@ -37,6 +37,7 @@ import SettingsProfilePage from './pages/settings/SettingsProfilePage'
 import SettingsAiPage from './pages/settings/SettingsAiPage'
 import SettingsSubscriptionPage from './pages/settings/SettingsSubscriptionPage'
 import SettingsSecurityPage from './pages/settings/SettingsSecurityPage'
+import HelpPage from './pages/HelpPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { loading, isAuthenticated } = useAuth()
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="export" element={<ExportPage />} />
         <Route path="export/:id" element={<ExportPage />} />
         <Route path="history" element={<HistoryPage />} />
+        <Route path="help" element={<HelpPage />} />
         <Route path="settings" element={<SettingsLayout />}>
           <Route index element={<Navigate to="profile" replace />} />
           <Route path="profile" element={<SettingsProfilePage />} />

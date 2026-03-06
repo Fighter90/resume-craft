@@ -14,6 +14,7 @@ from app.vacancies.models import Vacancy
 from app.vacancies.schemas import (
     HHSearchParams,
     HHSearchResponse,
+    HHSnippet,
     HHVacancyItem,
     VacancyManualRequest,
 )
@@ -33,24 +34,68 @@ async def search_hh(params: HHSearchParams) -> HHSearchResponse:
     finally:
         await client.close()
 
-    items = [
-        HHVacancyItem(
+    items = []
+    for item in data.get('items', []):
+        snippet_data = item.get('snippet')
+        snippet = HHSnippet(
+            requirement=snippet_data.get('requirement') if snippet_data else None,
+            responsibility=snippet_data.get('responsibility') if snippet_data else None,
+        ) if snippet_data else None
+
+        exp = item.get('experience')
+        experience_name = exp.get('name') if isinstance(exp, dict) else None
+
+        key_skills_raw = item.get('key_skills') or []
+        key_skills = [s.get('name', s) if isinstance(s, dict) else str(s) for s in key_skills_raw] or None
+
+        items.append(HHVacancyItem(
             hh_id=str(item['id']),
             title=item.get('name', ''),
             company=item.get('employer', {}).get('name') if item.get('employer') else None,
             city=item.get('area', {}).get('name') if item.get('area') else None,
             salary_from=item.get('salary', {}).get('from') if item.get('salary') else None,
             salary_to=item.get('salary', {}).get('to') if item.get('salary') else None,
+            experience=experience_name,
+            key_skills=key_skills,
+            snippet=snippet,
+            description=item.get('description'),
             url=item.get('alternate_url', ''),
-        )
-        for item in data.get('items', [])
-    ]
+        ))
 
     return HHSearchResponse(
         items=items,
         found=data.get('found', 0),
         page=data.get('page', 0),
         pages=data.get('pages', 0),
+    )
+
+
+async def get_hh_vacancy_detail(hh_id: str) -> HHVacancyItem:
+    """Получение полных данных вакансии с hh.ru по ID."""
+    client = HHClient()
+    try:
+        data = await client.get_vacancy(hh_id)
+    finally:
+        await client.close()
+
+    salary = data.get('salary') or {}
+    employer = data.get('employer') or {}
+    area = data.get('area') or {}
+    experience = data.get('experience') or {}
+    key_skills_raw = data.get('key_skills') or []
+    key_skills = [s.get('name', s) if isinstance(s, dict) else str(s) for s in key_skills_raw] or None
+
+    return HHVacancyItem(
+        hh_id=str(data.get('id', '')),
+        title=data.get('name', ''),
+        company=employer.get('name'),
+        city=area.get('name'),
+        salary_from=salary.get('from'),
+        salary_to=salary.get('to'),
+        experience=experience.get('name'),
+        key_skills=key_skills,
+        description=data.get('description'),
+        url=data.get('alternate_url', ''),
     )
 
 
