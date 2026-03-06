@@ -21,6 +21,7 @@ from app.export.router import router as export_router
 from app.ml.router import router as models_router
 from app.resumes.router import router as resumes_router
 from app.rewriter.router import router as rewrite_router
+from app.settings.router import router as settings_router
 from app.vacancies.router import router as vacancies_router
 
 logger = logging.getLogger(__name__)
@@ -110,6 +111,7 @@ def create_app() -> FastAPI:
     app.include_router(rewrite_router, prefix=api_prefix)
     app.include_router(export_router, prefix=api_prefix)
     app.include_router(models_router, prefix=api_prefix)
+    app.include_router(settings_router, prefix=api_prefix)
 
     # --- Health Check (API-005/LIVE-015: доступен и с префиксом и без) ---
     @app.get('/health', tags=['system'], summary='Health Check')

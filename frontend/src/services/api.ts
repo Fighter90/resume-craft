@@ -231,6 +231,35 @@ export class ApiClient {
     return this.request<{ message: string }>('DELETE', '/auth/me', { password })
   }
 
+  // --- Settings API ---
+  async getAIKeys() {
+    return this.request<{ keys: Array<{ provider: string; has_key: boolean; masked_key: string }> }>('GET', '/settings/ai-keys')
+  }
+
+  async saveAIKey(provider: string, apiKey: string) {
+    return this.request<{ provider: string; has_key: boolean; masked_key: string }>('PUT', `/settings/ai-keys/${provider}`, { api_key: apiKey })
+  }
+
+  async deleteAIKey(provider: string) {
+    return this.request<void>('DELETE', `/settings/ai-keys/${provider}`)
+  }
+
+  async getAIToggles() {
+    return this.request<{ toggles: Record<string, boolean> }>('GET', '/settings/ai-toggles')
+  }
+
+  async saveAIToggles(toggles: Array<{ key: string; value: boolean }>) {
+    return this.request<{ toggles: Record<string, boolean> }>('PUT', '/settings/ai-toggles', { toggles })
+  }
+
+  async getSelectedModel() {
+    return this.request<{ model: string; sub_model: string | null }>('GET', '/settings/ai-model')
+  }
+
+  async saveSelectedModel(model: string, subModel?: string) {
+    return this.request<{ model: string; sub_model: string | null }>('PUT', '/settings/ai-model', { model, sub_model: subModel || null })
+  }
+
   /** @deprecated Используйте createVacancyFromUrl. Оставлено для обратной совместимости. */
   async selectSearchVacancy(hhUrl: string) {
     return this.createVacancyFromUrl(hhUrl)

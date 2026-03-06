@@ -19,6 +19,7 @@ from app.core.config import get_settings
 from app.core.database import Base
 from app.resumes.models import Resume  # noqa: F401
 from app.rewriter.models import RewriteHistory  # noqa: F401
+from app.settings.models import UserSetting  # noqa: F401
 from app.vacancies.models import Vacancy  # noqa: F401
 
 # Alembic Config

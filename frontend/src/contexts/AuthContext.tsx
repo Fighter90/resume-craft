@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api.clearToken()
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('ai_settings')
   }, [])
 
   const refreshUser = useCallback(async () => {

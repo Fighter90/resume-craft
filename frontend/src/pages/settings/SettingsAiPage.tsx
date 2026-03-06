@@ -119,23 +119,47 @@ async function fetchLiveModels(provider: string, apiKey: string): Promise<SubMod
 }
 
 export default function SettingsAiPage() {
-  // Load from localStorage
-  const savedSettings = (() => {
-    try { return JSON.parse(localStorage.getItem('ai_settings') || '{}') } catch { return {} }
-  })()
-  const [model, setModel] = useState(savedSettings.model || 'gigachat-pro')
-  const [apiKeys, setApiKeys] = useState<Record<string, string>>(savedSettings.apiKeys || {
+  const [model, setModel] = useState('gigachat-pro')
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({
     gigachat: '', openai: '', anthropic: '', openrouter: '',
   })
+  const [serverKeyStatus, setServerKeyStatus] = useState<Record<string, { has_key: boolean; masked_key: string }>>({})
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({})
   const [toggles, setToggles] = useState<Record<string, boolean>>(
-    savedSettings.toggles || Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
+    Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
   )
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [serverModels, setServerModels] = useState<ModelOption[]>([])
   const [subModels, setSubModels] = useState<SubModel[]>([])
-  const [selectedSubModel, setSelectedSubModel] = useState<string>(savedSettings.subModel || '')
+  const [selectedSubModel, setSelectedSubModel] = useState<string>('')
   const [loadingSubModels, setLoadingSubModels] = useState(false)
+
+  // Load settings from server
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const [keysRes, togglesRes, modelRes] = await Promise.all([
+          api.getAIKeys().catch(() => null),
+          api.getAIToggles().catch(() => null),
+          api.getSelectedModel().catch(() => null),
+        ])
+        if (keysRes?.keys) {
+          const status: Record<string, { has_key: boolean; masked_key: string }> = {}
+          keysRes.keys.forEach(k => { status[k.provider] = { has_key: k.has_key, masked_key: k.masked_key } })
+          setServerKeyStatus(status)
+        }
+        if (togglesRes?.toggles) setToggles(togglesRes.toggles)
+        if (modelRes) {
+          setModel(modelRes.model || 'gigachat-pro')
+          setSelectedSubModel(modelRes.sub_model || '')
+        }
+      } catch { /* server unavailable, continue with defaults */ }
+      // Clear legacy localStorage keys
+      localStorage.removeItem('ai_settings')
+    }
+    loadSettings()
+  }, [])
 
   // Fetch server-side model availability
   useEffect(() => {
@@ -202,18 +226,48 @@ export default function SettingsAiPage() {
 
   const toggle = (id: string) => setToggles({ ...toggles, [id]: !toggles[id] })
 
-  const handleSave = () => {
-    localStorage.setItem('ai_settings', JSON.stringify({ model, apiKeys, toggles, subModel: selectedSubModel }))
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      // Save API keys to server (encrypted)
+      for (const m of MODELS) {
+        const key = apiKeys[m.apiKeyField]?.trim()
+        if (key) {
+          await api.saveAIKey(m.apiKeyField, key)
+        }
+      }
+      // Save toggles to server
+      await api.saveAIToggles(Object.entries(toggles).map(([key, value]) => ({ key, value })))
+      // Save selected model to server
+      await api.saveSelectedModel(model, selectedSubModel || undefined)
+      // Clear local input keys (server has them now)
+      setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '' })
+      // Refresh server key status
+      const keysRes = await api.getAIKeys().catch(() => null)
+      if (keysRes?.keys) {
+        const status: Record<string, { has_key: boolean; masked_key: string }> = {}
+        keysRes.keys.forEach(k => { status[k.provider] = { has_key: k.has_key, masked_key: k.masked_key } })
+        setServerKeyStatus(status)
+      }
+      // Clear legacy localStorage
+      localStorage.removeItem('ai_settings')
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch { /* save error */ }
+    finally { setSaving(false) }
   }
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setModel('gigachat-pro')
     setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
     setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '' })
     setSelectedSubModel('')
     localStorage.removeItem('ai_settings')
+    // Delete all keys from server
+    for (const provider of ['gigachat', 'openai', 'anthropic', 'openrouter']) {
+      await api.deleteAIKey(provider).catch(() => {})
+    }
+    setServerKeyStatus({})
   }
 
   return (
@@ -309,14 +363,23 @@ export default function SettingsAiPage() {
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           Подключите свои ключи для использования моделей. Ключи хранятся в зашифрованном виде.
         </p>
-        {MODELS.map(m => (
+        {MODELS.map(m => {
+          const status = serverKeyStatus[m.apiKeyField]
+          return (
           <div key={m.apiKeyField} className="input-group" style={{ marginBottom: '1rem' }}>
-            <label className="input-label">{m.name} ({m.provider})</label>
+            <label className="input-label">
+              {m.name} ({m.provider})
+              {status?.has_key && (
+                <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: 'var(--success, #059669)' }}>
+                  ✓ Сохранён: {status.masked_key}
+                </span>
+              )}
+            </label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input
                 className="input-field"
                 type={showKeys[m.apiKeyField] ? 'text' : 'password'}
-                placeholder={m.apiKeyPlaceholder}
+                placeholder={status?.has_key ? `Текущий: ${status.masked_key}` : m.apiKeyPlaceholder}
                 value={apiKeys[m.apiKeyField]}
                 onChange={e => setApiKeys({ ...apiKeys, [m.apiKeyField]: e.target.value })}
                 style={{ flex: 1 }}
@@ -334,7 +397,8 @@ export default function SettingsAiPage() {
               </button>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Toggles */}
@@ -359,8 +423,8 @@ export default function SettingsAiPage() {
 
       {/* Buttons */}
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-        <button className="btn btn-primary" onClick={handleSave}>
-          <Save size={16} /> {saved ? '✓ Сохранено' : 'Сохранить'}
+        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+          <Save size={16} /> {saving ? 'Сохранение...' : saved ? '✓ Сохранено' : 'Сохранить'}
         </button>
         <button className="btn btn-secondary" onClick={handleReset}>
           <RotateCcw size={16} /> Сбросить
