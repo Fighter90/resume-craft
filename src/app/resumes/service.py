@@ -176,7 +176,9 @@ async def get_resume(
     Raises:
         ResumeNotFound: резюме не найдено или принадлежит другому пользователю.
     """
-    stmt = select(Resume).where(Resume.id == resume_id, Resume.user_id == user_id, Resume.deleted_at.is_(None))
+    stmt = select(Resume).where(
+        Resume.id == resume_id, Resume.user_id == user_id, Resume.deleted_at.is_(None),
+    )
     result = await session.execute(stmt)
     resume = result.scalar_one_or_none()
     if not resume:

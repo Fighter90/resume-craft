@@ -42,7 +42,7 @@ async def _get_user_keys(
     user: User | None,
 ) -> dict[str, bool]:
     """Проверить наличие пользовательских ключей в БД."""
-    user_has: dict[str, bool] = {p: False for p in _KEY_FIELDS}
+    user_has: dict[str, bool] = dict.fromkeys(_KEY_FIELDS, False)
     if not user or not session:
         return user_has
 

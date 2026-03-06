@@ -303,5 +303,5 @@ class TestDeleteResume:
         await session.flush()
 
         await delete_resume(session, resume_id=resume.id, user_id=test_user.id)
-        resumes, total = await list_resumes(session, user_id=test_user.id)
+        resumes, _total = await list_resumes(session, user_id=test_user.id)
         assert all(r.id != resume.id for r in resumes)

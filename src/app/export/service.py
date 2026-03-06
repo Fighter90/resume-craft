@@ -271,7 +271,7 @@ def generate_txt(rewritten_data: dict[str, Any] | None, *, raw_text: str | None 
         return _build_structured_txt(rewritten_data).encode('utf-8')
     if raw_text:
         return raw_text.encode('utf-8')
-    return 'Данные для экспорта отсутствуют.'.encode('utf-8')
+    return 'Данные для экспорта отсутствуют.'.encode()
 
 
 def _build_structured_txt(data: dict[str, Any]) -> str:

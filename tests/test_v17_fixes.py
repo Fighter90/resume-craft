@@ -23,7 +23,6 @@ from app.resumes.models import Resume
 from app.resumes.service import restore_resume
 from app.rewriter.models import RewriteHistory, RewriteStatus
 
-
 # ═══════════════════════════════════════════════════════════════════
 # FIX-007: Email Verification — security tokens
 # ═══════════════════════════════════════════════════════════════════
@@ -311,7 +310,7 @@ class TestGenerateTxt:
     def test_plain_text_fallback(self) -> None:
         """TXT из plain text."""
         result = generate_txt(None, raw_text='Простой текст резюме')
-        assert result == 'Простой текст резюме'.encode('utf-8')
+        assert result == 'Простой текст резюме'.encode()
 
     def test_empty_data(self) -> None:
         """Пустые данные → сообщение."""
@@ -322,7 +321,8 @@ class TestGenerateTxt:
         """Секция образования в TXT."""
         data = {
             'education': [
-                {'institution': 'МФТИ', 'degree': 'Бакалавр', 'specialization': 'CS', 'year': 2019},
+                {'institution': 'МФТИ', 'degree': 'Бакалавр',
+                 'specialization': 'CS', 'year': 2019},
             ],
         }
         result = generate_txt(data)

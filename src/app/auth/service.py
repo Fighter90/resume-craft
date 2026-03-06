@@ -68,8 +68,8 @@ async def register(
     session.add(user)
     await session.flush()
 
-    verification_token = create_verification_token(data.email)
-    logger.info('Verification token created for %s', data.email)
+    _token = create_verification_token(data.email)  # TODO: отправить по email
+    logger.info('Verification token created for %s (length=%d)', data.email, len(_token))
 
     return TokenResponse(
         access_token=create_access_token(user.id),

@@ -83,7 +83,8 @@ class LLMClientFactory:
         Args:
             provider_name: Имя провайдера ('gigachat-pro', 'openai', 'anthropic', 'openrouter').
             sub_model: Конкретная модель провайдера (напр. 'gpt-4o', 'claude-sonnet-4-20250514').
-            api_key: Пользовательский API-ключ (из БД). Если не передан — используются env-настройки.
+            api_key: Пользовательский API-ключ (из БД).
+                Если не передан — используются env-настройки.
 
         Returns:
             Экземпляр LLM-клиента.

@@ -192,7 +192,9 @@ class OpenAIClient(BaseLLMClient):
 class AnthropicClient(BaseLLMClient):
     """Клиент Anthropic Claude — прямой доступ к Claude моделям."""
 
-    def __init__(self, model: str = 'claude-sonnet-4-20250514', *, api_key: str | None = None) -> None:
+    def __init__(
+        self, model: str = 'claude-sonnet-4-20250514', *, api_key: str | None = None,
+    ) -> None:
         self._model = model
         self._api_key = api_key
         self._client: Any = None
@@ -249,7 +251,9 @@ class AnthropicClient(BaseLLMClient):
 class OpenRouterClient(BaseLLMClient):
     """Клиент OpenRouter — доступ к 100+ моделям через единый API."""
 
-    def __init__(self, model: str = 'anthropic/claude-3.5-sonnet', *, api_key: str | None = None) -> None:
+    def __init__(
+        self, model: str = 'anthropic/claude-3.5-sonnet', *, api_key: str | None = None,
+    ) -> None:
         self._model = model
         self._api_key = api_key
         self._client: Any = None

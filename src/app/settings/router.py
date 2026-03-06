@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
@@ -10,8 +10,8 @@ from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.settings import service as settings_service
 from app.settings.schemas import (
-    AIKeyStatus,
     AIKeysResponse,
+    AIKeyStatus,
     AIKeyUpdate,
     AITogglesResponse,
     AITogglesUpdate,
@@ -68,6 +68,7 @@ async def save_ai_key(
 @router.delete(
     '/ai-keys/{provider}',
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary='Удалить API-ключ провайдера',
 )
 async def delete_ai_key(
