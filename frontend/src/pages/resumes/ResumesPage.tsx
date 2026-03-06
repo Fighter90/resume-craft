@@ -39,6 +39,9 @@ export default function ResumesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('Все статусы')
   const [sortBy, setSortBy] = useState('По дате (новые)')
+  // P2-2: Modal delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -51,13 +54,22 @@ export default function ResumesPage() {
     load()
   }, [])
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Удалить резюме "${title}"?`)) return
+  // P2-2: Modal-based delete instead of window.confirm
+  const handleDelete = (id: string, title: string) => {
+    setDeleteTarget({ id, title })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
     try {
-      await api.deleteResume(id)
-      setResumes(prev => prev.filter(r => r.id !== id))
+      await api.deleteResume(deleteTarget.id)
+      setResumes(prev => prev.filter(r => r.id !== deleteTarget.id))
+      setDeleteTarget(null)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка удаления')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -239,6 +251,34 @@ export default function ResumesPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Показано {filtered.length} из {resumes.length}</span>
       </div>
+
+      {/* P2-2: Delete confirmation modal */}
+      {deleteTarget && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}
+          onClick={() => !deleting && setDeleteTarget(null)}>
+          <div style={{ background: 'var(--surface)', borderRadius: '1rem', padding: '2rem', maxWidth: 420, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.15rem' }}>Удалить резюме?</h3>
+              <button onClick={() => setDeleteTarget(null)} disabled={deleting}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '0.25rem' }}
+                aria-label="Закрыть">
+                <X size={20} />
+              </button>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', margin: '0 0 1.5rem', lineHeight: 1.5 }}>
+              Резюме <strong>«{deleteTarget.title}»</strong> будет удалено без возможности восстановления.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button className="btn btn-ghost" onClick={() => setDeleteTarget(null)} disabled={deleting}>Отмена</button>
+              <button className="btn" onClick={confirmDelete} disabled={deleting}
+                style={{ background: 'var(--danger)', color: '#fff', opacity: deleting ? 0.7 : 1 }}>
+                {deleting ? 'Удаление…' : 'Удалить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

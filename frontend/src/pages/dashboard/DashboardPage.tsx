@@ -32,12 +32,26 @@ export default function DashboardPage() {
   const totalResumes = resumes.length
   const totalOptimizations = history.filter((h: any) => h.status === 'completed').length
   const scored = history.filter((h: any) => h.match_score_after != null && h.match_score_after > 0)
-  const avgScore = scored.length > 0
-    ? Math.round(scored.reduce((acc: number, h: any) => acc + h.match_score_after, 0) / scored.length)
+  const avgScoreRaw = scored.length > 0
+    ? scored.reduce((acc: number, h: any) => acc + h.match_score_after, 0) / scored.length
     : 0
+  // API returns decimals (0.773), convert to percentage
+  const avgScore = Math.round(avgScoreRaw <= 1 ? avgScoreRaw * 100 : avgScoreRaw)
 
   return (
     <>
+      {/* P2-4: Email verification banner */}
+      {user && user.is_verified === false && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '0.85rem 1.25rem', marginBottom: '1.25rem', borderRadius: 12,
+          background: '#FEF3C7', border: '1px solid #FCD34D', fontSize: '0.9rem',
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>📧</span>
+          <span>Подтвердите email <strong>{user.email}</strong> для полного доступа ко всем функциям.</span>
+        </div>
+      )}
+
       <div className="page-header">
         <div>
           <h1>Добрый день, {displayName}</h1>

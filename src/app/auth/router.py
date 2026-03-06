@@ -24,6 +24,44 @@ from app.core.limiter import limiter
 router = APIRouter(prefix='/auth', tags=['auth'])
 
 
+async def _parse_login_data(request: Request) -> tuple[str, str]:
+    """Извлечение email/password из JSON или form-data (P1-4).
+
+    Поддерживает:
+    - application/json: {"email": "...", "password": "..."}
+    - application/x-www-form-urlencoded: email/username + password
+    - multipart/form-data: email/username + password
+    """
+    from fastapi import HTTPException
+
+    content_type = request.headers.get('content-type', '')
+
+    if 'application/json' in content_type:
+        try:
+            data = await request.json()
+        except Exception:
+            raise HTTPException(status_code=422, detail='Некорректный JSON')
+        email = data.get('email', '')
+        password = data.get('password', '')
+    elif 'application/x-www-form-urlencoded' in content_type or 'multipart/form-data' in content_type:
+        form = await request.form()
+        email = str(form.get('email') or form.get('username') or '')
+        password = str(form.get('password') or '')
+    else:
+        # Default: try JSON parsing (backwards compatible)
+        try:
+            data = await request.json()
+            email = data.get('email', '')
+            password = data.get('password', '')
+        except Exception:
+            raise HTTPException(status_code=415, detail='Unsupported Content-Type')
+
+    if not email or not password:
+        raise HTTPException(status_code=422, detail='Email и пароль обязательны')
+
+    return email, password
+
+
 @router.post(
     '/register',
     response_model=TokenResponse | MessageResponse,
@@ -69,14 +107,14 @@ async def verify_email(
 @limiter.limit('5/minute')
 async def login(
     request: Request,
-    data: LoginRequest,
     session: AsyncSession = Depends(get_session),
 ) -> TokenResponse:
-    """Получение JWT-токенов."""
+    """Получение JWT-токенов. Принимает JSON и form-data (P1-4)."""
+    email, password = await _parse_login_data(request)
     return await auth_service.authenticate(
         session,
-        email=data.email,
-        password=data.password,
+        email=email,
+        password=password,
     )
 
 

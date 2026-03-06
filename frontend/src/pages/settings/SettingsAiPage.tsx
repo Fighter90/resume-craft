@@ -120,6 +120,7 @@ export default function SettingsAiPage() {
   const [subModels, setSubModels] = useState<SubModel[]>([])
   const [selectedSubModel, setSelectedSubModel] = useState<string>('')
   const [loadingSubModels, setLoadingSubModels] = useState(false)
+  const [subModelSearch, setSubModelSearch] = useState('')
 
   // Load settings from server
   useEffect(() => {
@@ -164,6 +165,7 @@ export default function SettingsAiPage() {
   useEffect(() => {
     if (!currentModel?.hasSubModels) {
       setSubModels([])
+      setSubModelSearch('')
       return
     }
     const fetchSub = async () => {
@@ -310,16 +312,49 @@ export default function SettingsAiPage() {
               <Loader size={14} className="spin" /> Загрузка доступных моделей...
             </div>
           ) : subModels.length > 0 ? (
-            <select
-              className="input-field"
-              value={selectedSubModel}
-              onChange={e => setSelectedSubModel(e.target.value)}
-              style={{ width: '100%' }}
-            >
-              {subModels.map(sm => (
-                <option key={sm.id} value={sm.id}>{sm.name} — {sm.provider}</option>
-              ))}
-            </select>
+            <>
+              {/* P3-1: Search filter for long model lists */}
+              {subModels.length > 6 && (
+                <input
+                  className="input-field"
+                  placeholder="Поиск модели..."
+                  value={subModelSearch}
+                  onChange={e => setSubModelSearch(e.target.value)}
+                  style={{ width: '100%', marginBottom: '0.5rem' }}
+                />
+              )}
+              <select
+                className="input-field"
+                value={selectedSubModel}
+                onChange={e => setSelectedSubModel(e.target.value)}
+                style={{ width: '100%' }}
+              >
+                {(() => {
+                  const q = subModelSearch.toLowerCase()
+                  const filtered = q ? subModels.filter(sm => sm.name.toLowerCase().includes(q) || sm.id.toLowerCase().includes(q)) : subModels
+                  // Group by provider prefix (e.g. 'anthropic/', 'google/', 'openai/')
+                  const groups: Record<string, SubModel[]> = {}
+                  for (const sm of filtered) {
+                    const slash = sm.id.indexOf('/')
+                    const group = slash > 0 ? sm.id.slice(0, slash) : sm.provider
+                    ;(groups[group] ??= []).push(sm)
+                  }
+                  const keys = Object.keys(groups)
+                  if (keys.length <= 1) {
+                    return filtered.map(sm => (
+                      <option key={sm.id} value={sm.id}>{sm.name}</option>
+                    ))
+                  }
+                  return keys.map(g => (
+                    <optgroup key={g} label={g.charAt(0).toUpperCase() + g.slice(1)}>
+                      {groups[g].map(sm => (
+                        <option key={sm.id} value={sm.id}>{sm.name}</option>
+                      ))}
+                    </optgroup>
+                  ))
+                })()}
+              </select>
+            </>
           ) : (
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
               Не удалось загрузить список моделей

@@ -114,6 +114,47 @@ class TestLogin:
         assert response.status_code == 401
 
 
+class TestLoginFormData:
+    """P1-4: Тесты POST /auth/login с form-data и form-urlencoded."""
+
+    async def test_login_form_urlencoded(self, client: AsyncClient, test_user: User) -> None:
+        """Логин через application/x-www-form-urlencoded → 200."""
+        response = await client.post(
+            '/api/v1/auth/login',
+            data={
+                'email': test_user.email,
+                'password': 'TestPass123',
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert 'access_token' in data
+
+    async def test_login_form_oauth2_username_field(self, client: AsyncClient, test_user: User) -> None:
+        """OAuth2 form: поле username вместо email → 200."""
+        response = await client.post(
+            '/api/v1/auth/login',
+            data={
+                'username': test_user.email,
+                'password': 'TestPass123',
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert 'access_token' in data
+
+    async def test_login_json_still_works(self, client: AsyncClient, test_user: User) -> None:
+        """JSON-логин по-прежнему работает → 200."""
+        response = await client.post(
+            '/api/v1/auth/login',
+            json={
+                'email': test_user.email,
+                'password': 'TestPass123',
+            },
+        )
+        assert response.status_code == 200
+
+
 class TestMe:
     """Тесты GET /auth/me."""
 

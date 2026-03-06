@@ -133,7 +133,7 @@ export default function SettingsProfilePage() {
         </div>
         <div className="input-group">
           <label className="input-label">Телефон</label>
-          <input className="input-field" placeholder="Скоро" disabled style={{ opacity: 0.6 }} />
+          <input className="input-field" placeholder="+7 (___) ___-__-__" disabled style={{ opacity: 0.6 }} title="Функция в разработке" />
         </div>
         <div className="input-group">
           <label className="input-label">Город</label>
@@ -145,14 +145,6 @@ export default function SettingsProfilePage() {
             <option>Казань</option>
             <option>Другой</option>
           </select>
-        </div>
-        <div className="input-group">
-          <label className="input-label">Текущая должность</label>
-          <input className="input-field" placeholder="Скоро" disabled style={{ opacity: 0.6 }} />
-        </div>
-        <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-          <label className="input-label">О себе</label>
-          <textarea className="input-field" rows={3} placeholder="Скоро" disabled style={{ opacity: 0.6 }} />
         </div>
       </div>
 

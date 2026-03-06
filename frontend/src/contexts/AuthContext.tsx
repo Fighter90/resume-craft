@@ -8,6 +8,7 @@ interface User {
   plan: 'free' | 'standard' | 'pro'
   optimizations_used: number
   is_active: boolean
+  is_verified?: boolean
 }
 
 interface AuthContextType {
@@ -27,6 +28,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('access_token'))
   const [loading, setLoading] = useState(true)
+
+  /**
+   * P2-3: Очистка данных других пользователей из localStorage.
+   * Удаляет аватары с чужими UUID для предотвращения утечки данных.
+   */
+  const cleanupOtherUserData = (currentUserId: string) => {
+    const keysToRemove: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith('user_avatar_') && !key.includes(currentUserId)) {
+        keysToRemove.push(key)
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key))
+  }
 
   const logout = useCallback(() => {
     // Call server-side logout to invalidate refresh token
@@ -72,6 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api.setToken(data.access_token)
     const me = await api.getMe()
     setUser(me)
+    // P2-3: Очистка аватаров других пользователей из localStorage
+    cleanupOtherUserData(me.id)
   }
 
   const register = async (email: string, password: string, fullName?: string) => {
@@ -82,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api.setToken(data.access_token)
     const me = await api.getMe()
     setUser(me)
+    cleanupOtherUserData(me.id)
   }
 
   return (

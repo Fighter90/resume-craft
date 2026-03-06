@@ -85,15 +85,55 @@ export default function ResultsPage() {
     </div>
   )
 
-  const score = result.match_score_after ?? 0
-  const scoreBefore = result.match_score_before ?? 0
-  const improvement = Math.round(score - scoreBefore)
+  // API returns decimals (0.773), convert to percentage
+  const scoreRaw = result.match_score_after ?? 0
+  const scoreBeforeRaw = result.match_score_before ?? 0
+  const score = Math.round(scoreRaw <= 1 ? scoreRaw * 100 : scoreRaw)
+  const scoreBefore = Math.round(scoreBeforeRaw <= 1 ? scoreBeforeRaw * 100 : scoreBeforeRaw)
+  const improvement = score - scoreBefore
   const atsRating = result.ats_rating || 'N/A'
   const modelName = result.model_name || 'AI'
   const processingTime = result.processing_time_ms ? Math.round(result.processing_time_ms / 1000) : '—'
   const keywordsAdded: string[] = result.keywords_added || []
   const originalText = result.original_text || ''
-  const rewrittenText = result.rewritten_text || ''
+  const rewrittenRaw = result.rewritten_text || ''
+  // P0-3: Detect if rewritten_text is raw JSON and convert to readable text
+  const rewrittenData = result.rewritten_data
+  const rewrittenText = (() => {
+    // If rewritten_text looks like JSON, try to format it as readable text
+    const trimmed = rewrittenRaw.trim()
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const parsed = typeof rewrittenData === 'object' && rewrittenData ? rewrittenData : JSON.parse(trimmed)
+        const parts: string[] = []
+        if (parsed.summary) parts.push(parsed.summary, '')
+        if (parsed.experience?.length) {
+          parts.push('ОПЫТ РАБОТЫ', '')
+          for (const exp of parsed.experience) {
+            parts.push(`${exp.position || exp.title || ''} — ${exp.company || ''}`)
+            if (exp.period || exp.dates) parts.push(exp.period || exp.dates)
+            if (exp.achievements?.length) {
+              for (const a of exp.achievements) parts.push(`• ${a}`)
+            }
+            if (exp.description) parts.push(exp.description)
+            parts.push('')
+          }
+        }
+        if (parsed.education?.length) {
+          parts.push('ОБРАЗОВАНИЕ', '')
+          for (const edu of parsed.education) {
+            parts.push(`${edu.institution || ''} — ${edu.degree || ''} ${edu.specialization || ''}${edu.year ? `, ${edu.year}` : ''}`)
+          }
+          parts.push('')
+        }
+        if (parsed.skills?.length) {
+          parts.push('НАВЫКИ', '', parsed.skills.join(', '))
+        }
+        return parts.join('\n')
+      } catch { /* not valid JSON, use as-is */ }
+    }
+    return rewrittenRaw
+  })()
   const radius = 54
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (score / 100) * circumference
@@ -185,10 +225,10 @@ export default function ResultsPage() {
       <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>Компоненты Match Score</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {[
-          { icon: Target, label: 'Ключевые слова', value: Math.round((result.score_breakdown?.keywords ?? score / 100) * 100), weight: '40%', color: 'var(--primary)' },
-          { icon: TrendingUp, label: 'Опыт', value: Math.round((result.score_breakdown?.experience ?? score / 100) * 100), weight: '25%', color: 'var(--success)' },
-          { icon: Award, label: 'Структура', value: Math.round((result.score_breakdown?.structure ?? score / 100) * 100), weight: '20%', color: 'var(--info)' },
-          { icon: BookOpen, label: 'Читаемость', value: Math.round((result.score_breakdown?.readability ?? score / 100) * 100), weight: '15%', color: '#D97706' },
+          { icon: Target, label: 'Ключевые слова', value: Math.round((result.score_breakdown?.keywords ?? scoreRaw) <= 1 ? (result.score_breakdown?.keywords ?? scoreRaw) * 100 : (result.score_breakdown?.keywords ?? scoreRaw)), weight: '40%', color: 'var(--primary)' },
+          { icon: TrendingUp, label: 'Опыт', value: Math.round((result.score_breakdown?.experience ?? scoreRaw) <= 1 ? (result.score_breakdown?.experience ?? scoreRaw) * 100 : (result.score_breakdown?.experience ?? scoreRaw)), weight: '25%', color: 'var(--success)' },
+          { icon: Award, label: 'Структура', value: Math.round((result.score_breakdown?.structure ?? scoreRaw) <= 1 ? (result.score_breakdown?.structure ?? scoreRaw) * 100 : (result.score_breakdown?.structure ?? scoreRaw)), weight: '20%', color: 'var(--info)' },
+          { icon: BookOpen, label: 'Читаемость', value: Math.round((result.score_breakdown?.readability ?? scoreRaw) <= 1 ? (result.score_breakdown?.readability ?? scoreRaw) * 100 : (result.score_breakdown?.readability ?? scoreRaw)), weight: '15%', color: '#D97706' },
         ].map((m, i) => (
           <div key={i} className="card" style={{ padding: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -236,7 +276,7 @@ export default function ResultsPage() {
         <div className="diff-panel">
           <div className="diff-header">
             <span style={{ fontWeight: 600 }}>Оригинал</span>
-            <span className="badge badge-gray">{Math.round(scoreBefore)} баллов</span>
+            <span className="badge badge-gray">{scoreBefore} баллов</span>
           </div>
           <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
             {originalText && rewrittenText ? (
@@ -255,7 +295,7 @@ export default function ResultsPage() {
         <div className="diff-panel">
           <div className="diff-header">
             <span style={{ fontWeight: 600 }}>Оптимизировано</span>
-            <span className="badge badge-green">{Math.round(score)} баллов</span>
+            <span className="badge badge-green">{score} баллов</span>
           </div>
           <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
             {originalText && rewrittenText ? (

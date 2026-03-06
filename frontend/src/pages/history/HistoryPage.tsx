@@ -55,7 +55,7 @@ export default function HistoryPage() {
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                   {item.status === 'completed' ? (
-                    <>Match: {Math.round(item.match_score_before || 0)}% → {Math.round(item.match_score_after || 0)}% · ATS: {item.ats_rating || '—'}</>
+                    <>Match: {Math.round((item.match_score_before || 0) <= 1 ? (item.match_score_before || 0) * 100 : (item.match_score_before || 0))}% → {Math.round((item.match_score_after || 0) <= 1 ? (item.match_score_after || 0) * 100 : (item.match_score_after || 0))}% · ATS: {item.ats_rating || '—'}</>
                   ) : item.status === 'failed' ? (
                     <span style={{ color: 'var(--error)' }}>Ошибка: {item.error_message || 'Неизвестная ошибка'}</span>
                   ) : (

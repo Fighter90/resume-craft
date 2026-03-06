@@ -175,7 +175,7 @@ export default function ExportPage() {
             <span style={{ fontWeight: 500 }}>~48 КБ</span>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <span className="badge badge-green">Match {Math.round(result?.match_score_after ?? 0)}%</span>
+            <span className="badge badge-green">Match {Math.round((result?.match_score_after ?? 0) <= 1 ? (result?.match_score_after ?? 0) * 100 : (result?.match_score_after ?? 0))}%</span>
             <span className="badge badge-green">ATS {result?.ats_rating || '—'}</span>
           </div>
         </div>

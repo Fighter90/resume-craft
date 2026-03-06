@@ -128,6 +128,80 @@ class TestOpenAIClient:
         result = await client.complete(system='sys', user='usr')
         assert result == 'GPT response'
 
+    @patch('app.ml.llm_client.OpenAIClient._get_client')
+    async def test_complete_gpt4o_uses_max_tokens(self, mock_get: MagicMock) -> None:
+        """P0-4: GPT-4o (не o-серия) использует max_tokens и temperature."""
+        mock_completion = MagicMock()
+        mock_completion.choices = [MagicMock(message=MagicMock(content='ok'))]
+        mock_completion.usage = None
+
+        mock_sdk = AsyncMock()
+        mock_sdk.chat.completions.create = AsyncMock(return_value=mock_completion)
+        mock_get.return_value = mock_sdk
+
+        client = OpenAIClient(model='gpt-4o')
+        await client.complete(system='sys', user='usr')
+
+        call_kwargs = mock_sdk.chat.completions.create.call_args[1]
+        assert 'max_tokens' in call_kwargs
+        assert 'temperature' in call_kwargs
+        assert 'max_completion_tokens' not in call_kwargs
+
+    @patch('app.ml.llm_client.OpenAIClient._get_client')
+    async def test_complete_o3_uses_max_completion_tokens(self, mock_get: MagicMock) -> None:
+        """P0-4: o3 модель использует max_completion_tokens, без temperature."""
+        mock_completion = MagicMock()
+        mock_completion.choices = [MagicMock(message=MagicMock(content='ok'))]
+        mock_completion.usage = None
+
+        mock_sdk = AsyncMock()
+        mock_sdk.chat.completions.create = AsyncMock(return_value=mock_completion)
+        mock_get.return_value = mock_sdk
+
+        client = OpenAIClient(model='o3')
+        await client.complete(system='sys', user='usr')
+
+        call_kwargs = mock_sdk.chat.completions.create.call_args[1]
+        assert 'max_completion_tokens' in call_kwargs
+        assert 'temperature' not in call_kwargs
+        assert 'max_tokens' not in call_kwargs
+
+    @patch('app.ml.llm_client.OpenAIClient._get_client')
+    async def test_complete_o4_mini_uses_max_completion_tokens(self, mock_get: MagicMock) -> None:
+        """P0-4: o4-mini модель также использует max_completion_tokens."""
+        mock_completion = MagicMock()
+        mock_completion.choices = [MagicMock(message=MagicMock(content='ok'))]
+        mock_completion.usage = None
+
+        mock_sdk = AsyncMock()
+        mock_sdk.chat.completions.create = AsyncMock(return_value=mock_completion)
+        mock_get.return_value = mock_sdk
+
+        client = OpenAIClient(model='o4-mini')
+        await client.complete(system='sys', user='usr')
+
+        call_kwargs = mock_sdk.chat.completions.create.call_args[1]
+        assert 'max_completion_tokens' in call_kwargs
+        assert 'temperature' not in call_kwargs
+
+    @patch('app.ml.llm_client.OpenAIClient._get_client')
+    async def test_complete_o1_uses_max_completion_tokens(self, mock_get: MagicMock) -> None:
+        """P0-4: o1 модель использует max_completion_tokens."""
+        mock_completion = MagicMock()
+        mock_completion.choices = [MagicMock(message=MagicMock(content='ok'))]
+        mock_completion.usage = None
+
+        mock_sdk = AsyncMock()
+        mock_sdk.chat.completions.create = AsyncMock(return_value=mock_completion)
+        mock_get.return_value = mock_sdk
+
+        client = OpenAIClient(model='o1-mini')
+        await client.complete(system='sys', user='usr')
+
+        call_kwargs = mock_sdk.chat.completions.create.call_args[1]
+        assert 'max_completion_tokens' in call_kwargs
+        assert 'temperature' not in call_kwargs
+
     async def test_close(self) -> None:
         client = OpenAIClient()
         mock_sdk = AsyncMock()

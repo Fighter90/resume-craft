@@ -165,16 +165,26 @@ class OpenAIClient(BaseLLMClient):
         """Запрос к OpenAI API."""
         client = self._get_client()
 
+        # P0-4: O-серия моделей (o1, o3, o4) требует max_completion_tokens
+        # вместо max_tokens и НЕ поддерживает temperature
+        is_o_series = self._model.startswith(('o1', 'o3', 'o4'))
+        api_params: dict[str, Any] = {
+            'model': self._model,
+            'messages': [
+                {'role': 'system', 'content': system},
+                {'role': 'user', 'content': user},
+            ],
+        }
+
+        if is_o_series:
+            api_params['max_completion_tokens'] = max_tokens
+            # o-серия не поддерживает temperature (использует внутренний CoT)
+        else:
+            api_params['temperature'] = temperature
+            api_params['max_tokens'] = max_tokens
+
         try:
-            response = await client.chat.completions.create(
-                model=self._model,
-                messages=[
-                    {'role': 'system', 'content': system},
-                    {'role': 'user', 'content': user},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
+            response = await client.chat.completions.create(**api_params)
         except Exception as exc:
             _handle_llm_error(exc, provider='openai')
 
