@@ -46,7 +46,10 @@ async def search_hh(params: HHSearchParams) -> HHSearchResponse:
         experience_name = exp.get('name') if isinstance(exp, dict) else None
 
         key_skills_raw = item.get('key_skills') or []
-        key_skills = [s.get('name', s) if isinstance(s, dict) else str(s) for s in key_skills_raw] or None
+        key_skills = [
+            s.get('name', s) if isinstance(s, dict) else str(s)
+            for s in key_skills_raw
+        ] or None
 
         items.append(HHVacancyItem(
             hh_id=str(item['id']),
@@ -83,7 +86,10 @@ async def get_hh_vacancy_detail(hh_id: str) -> HHVacancyItem:
     area = data.get('area') or {}
     experience = data.get('experience') or {}
     key_skills_raw = data.get('key_skills') or []
-    key_skills = [s.get('name', s) if isinstance(s, dict) else str(s) for s in key_skills_raw] or None
+    key_skills = [
+        s.get('name', s) if isinstance(s, dict) else str(s)
+        for s in key_skills_raw
+    ] or None
 
     return HHVacancyItem(
         hh_id=str(data.get('id', '')),
