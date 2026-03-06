@@ -42,7 +42,10 @@ export default function HistoryPage() {
         <div className="timeline" style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', left: '1.85rem', top: 0, bottom: 0, width: 2, background: 'var(--border)', zIndex: 0 }} />
           {history.map((item: any, i: number) => (
-            <div key={item.id || i} style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start', padding: '0.85rem 1rem', marginBottom: '0.5rem', borderRadius: 'var(--radius-sm)', background: 'var(--card-bg)', border: '1px solid var(--border)', position: 'relative', zIndex: 1 }}>
+            <div key={item.id || i} onClick={() => item.status === 'completed' && item.id ? navigate(`/app/results/${item.id}`) : undefined} style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start', padding: '0.85rem 1rem', marginBottom: '0.5rem', borderRadius: 'var(--radius-sm)', background: 'var(--card-bg)', border: '1px solid var(--border)', position: 'relative', zIndex: 1, cursor: item.status === 'completed' ? 'pointer' : 'default', transition: 'box-shadow 0.15s' }}
+              onMouseEnter={e => { if (item.status === 'completed') e.currentTarget.style.boxShadow = '0 2px 8px rgba(86,90,221,0.12)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
+            >
               <div style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(86,90,221,0.1)', flexShrink: 0 }}>
                 <FileText size={16} style={{ color: 'var(--primary)' }} />
               </div>

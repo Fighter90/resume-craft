@@ -46,9 +46,10 @@ def create_app() -> FastAPI:
     """Фабрика FastAPI-приложения."""
     settings = get_settings()
 
-    # SEC-003/LIVE-011: Отключаем Swagger/ReDoc в production
+    # SEC-003/LIVE-011: Отключаем Swagger/ReDoc/OpenAPI в production
     docs_url = '/docs' if not settings.is_production else None
     redoc_url = '/redoc' if not settings.is_production else None
+    openapi_url = '/openapi.json' if not settings.is_production else None
 
     app = FastAPI(
         title=settings.app_name,
@@ -56,6 +57,7 @@ def create_app() -> FastAPI:
         description='AI-реврайтер резюме для российского рынка труда',
         docs_url=docs_url,
         redoc_url=redoc_url,
+        openapi_url=openapi_url,
         lifespan=lifespan,
     )
 
