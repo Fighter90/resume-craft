@@ -212,6 +212,33 @@ describe('SettingsAIPage', () => {
     })
   })
 
+  it('shows GigaChat sub-model picker with fallback models', async () => {
+    mockGetSubModels.mockRejectedValue(new Error('unavailable'))
+    renderInRouter(<SettingsAiPage />)
+    // GigaChat is selected by default — sub-model picker should appear
+    await waitFor(() => {
+      expect(screen.getByText(/Модель GigaChat Pro/)).toBeInTheDocument()
+    })
+    await waitFor(() => {
+      expect(screen.getByText(/GigaChat-Pro/)).toBeInTheDocument()
+    })
+  })
+
+  it('shows comprehensive fallback with 10+ OpenAI models', async () => {
+    mockGetSubModels.mockRejectedValue(new Error('unavailable'))
+    renderInRouter(<SettingsAiPage />)
+    fireEvent.click(screen.getByText('OpenAI'))
+
+    await waitFor(() => {
+      expect(screen.getByText(/GPT-4o/)).toBeInTheDocument()
+    })
+    // Should show more than 4 fallback models
+    await waitFor(() => {
+      const options = screen.getAllByRole('option')
+      expect(options.length).toBeGreaterThanOrEqual(8)
+    })
+  })
+
   it('shows availability check mark for locally configured API key', async () => {
     localStorage.setItem('ai_settings', JSON.stringify({
       model: 'gigachat-pro',

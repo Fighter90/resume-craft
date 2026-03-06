@@ -24,13 +24,18 @@ const MODEL_META: Record<string, { badge: string; badgeClass: string; quality: n
 }
 
 const FALLBACK_MODELS: ModelInfo[] = [
-  { id: 'gigachat-pro', name: 'GigaChat Pro', provider: 'Сбер', available: true, description: '#1 в MERA бенчмарке для русского языка. Лучшее понимание российского рынка труда.', has_sub_models: false },
+  { id: 'gigachat-pro', name: 'GigaChat Pro', provider: 'Сбер', available: true, description: '#1 в MERA бенчмарке для русского языка. Лучшее понимание российского рынка труда.', has_sub_models: true },
   { id: 'openai', name: 'OpenAI', provider: 'OpenAI', available: true, description: 'GPT-4o, GPT-4o-mini и другие модели OpenAI. 128K контекст.', has_sub_models: true },
   { id: 'anthropic', name: 'Anthropic Claude', provider: 'Anthropic', available: true, description: 'Claude Sonnet 4, Claude Haiku — отличный русский, 200K контекст.', has_sub_models: true },
   { id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter', available: true, description: '100+ моделей через единый API. Claude, Gemini, Mistral и другие.', has_sub_models: true },
 ]
 
 const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
+  'gigachat-pro': [
+    { id: 'GigaChat-Pro', name: 'GigaChat-Pro', provider: 'GigaChat' },
+    { id: 'GigaChat', name: 'GigaChat', provider: 'GigaChat' },
+    { id: 'GigaChat-Max', name: 'GigaChat-Max', provider: 'GigaChat' },
+  ],
   'openai': [
     { id: 'gpt-4o', name: 'GPT-4o', provider: 'OpenAI' },
     { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'OpenAI' },
