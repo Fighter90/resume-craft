@@ -518,7 +518,7 @@ export default function ResumeViewerModal({ resumeId, onClose }: ResumeViewerMod
                     }}>
                       <span>Оригинал</span>
                     </div>
-                    <div style={{ padding: '1rem', fontSize: '0.85rem', lineHeight: 1.7, maxHeight: '60vh', overflowY: 'auto' }}>
+                    <div style={{ padding: '1rem', fontSize: '0.85rem', lineHeight: 1.7, maxHeight: '60vh', overflowY: 'auto', whiteSpace: 'pre-wrap' }}>
                       {(() => {
                         const origText = latestRewrite.original_text || preview?.original_text || ''
                         const optText = optimizedPlainText || ''
@@ -529,7 +529,7 @@ export default function ResumeViewerModal({ resumeId, onClose }: ResumeViewerMod
                             ) : <span key={i}>{t.text}</span>
                           )
                         }
-                        return <span style={{ whiteSpace: 'pre-wrap' }}>{origText || 'Текст недоступен'}</span>
+                        return <span>{origText || 'Текст недоступен'}</span>
                       })()}
                     </div>
                   </div>
@@ -541,7 +541,7 @@ export default function ResumeViewerModal({ resumeId, onClose }: ResumeViewerMod
                     }}>
                       <span>Оптимизировано</span>
                     </div>
-                    <div style={{ padding: '1rem', fontSize: '0.85rem', lineHeight: 1.7, maxHeight: '60vh', overflowY: 'auto' }}>
+                    <div style={{ padding: '1rem', fontSize: '0.85rem', lineHeight: 1.7, maxHeight: '60vh', overflowY: 'auto', whiteSpace: 'pre-wrap' }}>
                       {(() => {
                         const origText = latestRewrite.original_text || preview?.original_text || ''
                         const optText = optimizedPlainText || ''
@@ -552,7 +552,7 @@ export default function ResumeViewerModal({ resumeId, onClose }: ResumeViewerMod
                             ) : <span key={i}>{t.text}</span>
                           )
                         }
-                        return <span style={{ whiteSpace: 'pre-wrap' }}>{optText || 'Текст недоступен'}</span>
+                        return <span>{optText || 'Текст недоступен'}</span>
                       })()}
                     </div>
                   </div>

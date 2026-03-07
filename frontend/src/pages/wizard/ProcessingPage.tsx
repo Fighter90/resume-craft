@@ -43,8 +43,26 @@ export default function ProcessingPage() {
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const animRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const retriesRef = useRef(0)
+  const startTimeRef = useRef(Date.now())
   const MAX_RETRIES = 60 // 60 × 3 сек = 3 мин максимум
+
+  // Simulated progress animation (advances smoothly to ~92% over ~30s)
+  useEffect(() => {
+    startTimeRef.current = Date.now()
+    animRef.current = setInterval(() => {
+      const elapsed = (Date.now() - startTimeRef.current) / 1000
+      // Logarithmic curve: fast start, slows down, asymptotes at ~92%
+      const simulated = Math.min(92, Math.round(92 * (1 - Math.exp(-elapsed / 12))))
+      setProgress(prev => Math.max(prev, simulated))
+      // Advance steps based on simulated progress
+      if (simulated >= 75) setCurrent(3)
+      else if (simulated >= 45) setCurrent(2)
+      else if (simulated >= 20) setCurrent(1)
+    }, 300)
+    return () => { if (animRef.current) clearInterval(animRef.current) }
+  }, [])
 
   useEffect(() => {
     if (!taskId) {
@@ -55,14 +73,16 @@ export default function ProcessingPage() {
     const poll = async () => {
       try {
         const status = await api.getRewriteStatus(taskId) as any
-        if (status.progress !== undefined) {
-          setProgress(Math.min(status.progress, 100))
+        // Use real progress if provided and greater than simulated
+        if (status.progress !== undefined && status.progress > 0) {
+          setProgress(prev => Math.max(prev, Math.min(status.progress, 100)))
         }
         if (status.step) {
           const stepIdx = STEP_MAP[status.step.toLowerCase()] ?? current
-          setCurrent(stepIdx)
+          setCurrent(prev => Math.max(prev, stepIdx))
         }
         if (status.status === 'completed') {
+          if (animRef.current) clearInterval(animRef.current)
           setProgress(100)
           setCurrent(3)
           if (pollingRef.current) clearInterval(pollingRef.current)
@@ -72,12 +92,14 @@ export default function ProcessingPage() {
           } catch { /* result will be fetched on results page */ }
           setDone(true)
         } else if (status.status === 'failed') {
+          if (animRef.current) clearInterval(animRef.current)
           if (pollingRef.current) clearInterval(pollingRef.current)
           setError(status.error_message || 'Ошибка обработки. Попробуйте выбрать другую модель.')
         }
       } catch (err) {
         retriesRef.current++
         if (retriesRef.current >= MAX_RETRIES) {
+          if (animRef.current) clearInterval(animRef.current)
           if (pollingRef.current) clearInterval(pollingRef.current)
           setError('Превышено время ожидания. Задача обработки не завершена. Попробуйте ещё раз.')
         }
@@ -142,7 +164,7 @@ export default function ProcessingPage() {
             <span>~{Math.max(0, Math.round((100 - progress) * 0.15))} сек</span>
           </div>
           <div className="progress-bar" style={{ height: 8 }}>
-            <div className="progress-fill" style={{ width: `${progress}%`, transition: 'width 0.1s linear' }} />
+            <div className="progress-fill" style={{ width: `${progress}%`, transition: 'width 0.3s ease-out' }} />
           </div>
         </div>
       )}

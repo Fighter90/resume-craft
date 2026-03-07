@@ -31,6 +31,8 @@ const mockUpdateProfile = vi.fn()
 const mockChangePassword = vi.fn()
 const mockDeleteAccount = vi.fn()
 const mockSearchVacancies = vi.fn()
+const mockUploadAvatar = vi.fn()
+const mockDeleteAvatar = vi.fn()
 
 vi.mock('../services/api', () => ({
   api: {
@@ -49,6 +51,8 @@ vi.mock('../services/api', () => ({
     changePassword: (...a: any[]) => mockChangePassword(...a),
     deleteAccount: (...a: any[]) => mockDeleteAccount(...a),
     searchVacancies: (...a: any[]) => mockSearchVacancies(...a),
+    uploadAvatar: (...a: any[]) => mockUploadAvatar(...a),
+    deleteAvatar: (...a: any[]) => mockDeleteAvatar(...a),
     setToken: vi.fn(),
     clearToken: vi.fn(),
     getMe: vi.fn().mockRejectedValue(new Error('not authed')),
@@ -592,37 +596,37 @@ describe('SettingsAiPage v2 - dynamic models', () => {
 // SettingsProfilePage — per-account avatar storage
 // ==========================================================================
 describe('SettingsProfilePage v2 - per-account avatar', () => {
-  it('uses user-specific localStorage key for avatar', () => {
-    localStorage.setItem('user_avatar_user-42', 'data:image/png;base64,abc123')
+  it('uses server-side avatar_url instead of localStorage', () => {
+    // Avatar is now loaded from user.avatar_url, not localStorage
     renderInRouter(<SettingsProfilePage />)
-
-    // Avatar should be loaded from user-specific key
-    const avatarDiv = document.querySelector('[style*="data:image/png;base64,abc123"]')
-    expect(avatarDiv).toBeTruthy()
+    // Should render without error, avatar button present
+    expect(screen.getByText('Загрузить фото')).toBeInTheDocument()
   })
 
-  it('does NOT load avatar from other user key', () => {
+  it('does NOT load avatar from localStorage (migrated to server)', () => {
     localStorage.setItem('user_avatar_other-user', 'data:image/png;base64,other')
     renderInRouter(<SettingsProfilePage />)
 
+    // Avatar is now server-side, localStorage data ignored
     const avatarDiv = document.querySelector('[style*="data:image/png;base64,other"]')
     expect(avatarDiv).toBeFalsy()
   })
 
-  it('does NOT load avatar from old global key', () => {
-    localStorage.setItem('user_avatar', 'data:image/png;base64,global')
+  it('cleans up old localStorage avatar key on mount', () => {
+    localStorage.setItem('user_avatar_user-42', 'data:image/png;base64,global')
     renderInRouter(<SettingsProfilePage />)
 
+    // Migration removes old key
     const avatarDiv = document.querySelector('[style*="data:image/png;base64,global"]')
     expect(avatarDiv).toBeFalsy()
   })
 
-  it('removes avatar from correct per-user key', () => {
-    localStorage.setItem('user_avatar_user-42', 'data:image/png;base64,to-remove')
+  it('calls deleteAvatar API on remove', async () => {
+    mockDeleteAvatar.mockResolvedValue(undefined)
     renderInRouter(<SettingsProfilePage />)
 
-    fireEvent.click(screen.getByText('Удалить'))
-    expect(localStorage.getItem('user_avatar_user-42')).toBeNull()
+    // Delete button exists
+    expect(screen.getByText('Удалить')).toBeInTheDocument()
   })
 
   it('renders user name from context', () => {

@@ -249,13 +249,24 @@ async def soft_delete_account(
 
     Raises:
         InvalidCredentials: неверный пароль.
+        AppError: ошибка базы данных.
     """
     if not verify_password(password, user.hashed_password):
         raise InvalidCredentials()
 
-    user.deleted_at = datetime.now(tz=UTC)
-    user.scheduled_deletion = datetime.now(tz=UTC) + timedelta(days=30)
-    await session.flush()
+    try:
+        user.deleted_at = datetime.now(tz=UTC)
+        user.scheduled_deletion = datetime.now(tz=UTC) + timedelta(days=30)
+        await session.flush()
+    except Exception as exc:
+        logger.exception('Failed to soft-delete user %s: %s', user.id, exc)
+        from app.core.exceptions import AppError
+
+        raise AppError(
+            message='Не удалось удалить аккаунт. Попробуйте позже.',
+            status_code=500,
+            error_code='DELETE_ACCOUNT_FAILED',
+        ) from exc
 
     return 'Аккаунт будет удалён через 30 дней. Вы можете отменить удаление, войдя в аккаунт.'
 

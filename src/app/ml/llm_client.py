@@ -300,16 +300,26 @@ class OpenRouterClient(BaseLLMClient):
         """Запрос к OpenRouter API."""
         client = self._get_client()
 
+        # Определяем модель без провайдера (openai/o3 → o3)
+        model_short = self._model.split('/')[-1] if '/' in self._model else self._model
+        is_o_series = model_short.startswith(('o1', 'o3', 'o4'))
+
+        # o-series: max_completion_tokens вместо max_tokens, без temperature
+        params: dict[str, object] = {
+            'model': self._model,
+            'messages': [
+                {'role': 'system', 'content': system},
+                {'role': 'user', 'content': user},
+            ],
+        }
+        if is_o_series:
+            params['max_completion_tokens'] = max_tokens
+        else:
+            params['temperature'] = temperature
+            params['max_tokens'] = max_tokens
+
         try:
-            response = await client.chat.completions.create(
-                model=self._model,
-                messages=[
-                    {'role': 'system', 'content': system},
-                    {'role': 'user', 'content': user},
-                ],
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
+            response = await client.chat.completions.create(**params)  # type: ignore[arg-type]
         except Exception as exc:
             _handle_llm_error(exc, provider='openrouter')
 

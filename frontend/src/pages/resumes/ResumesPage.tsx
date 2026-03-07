@@ -201,7 +201,7 @@ export default function ResumesPage() {
       </div>
 
       {/* Desktop Table */}
-      <div className="card resumes-desktop-table" style={{ overflow: 'auto' }}>
+      <div className="card resumes-desktop-table" style={{ overflowX: 'auto', overflowY: 'visible' }}>
         {loading ? (
           <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
             <Loader size={16} className="spin" /> Загрузка...

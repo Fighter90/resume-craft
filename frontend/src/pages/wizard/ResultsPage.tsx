@@ -278,7 +278,7 @@ export default function ResultsPage() {
             <span style={{ fontWeight: 600 }}>Оригинал</span>
             <span className="badge badge-gray">{scoreBefore} баллов</span>
           </div>
-          <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
+          <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem', whiteSpace: 'pre-wrap' }}>
             {originalText && rewrittenText ? (
               computeWordDiff(originalText, rewrittenText).origTokens.map((t, i) =>
                 t.removed ? (
@@ -288,7 +288,7 @@ export default function ResultsPage() {
                 )
               )
             ) : (
-              <span style={{ whiteSpace: 'pre-wrap' }}>{originalText || 'Текст оригинала недоступен'}</span>
+              <span>{originalText || 'Текст оригинала недоступен'}</span>
             )}
           </div>
         </div>
@@ -297,7 +297,7 @@ export default function ResultsPage() {
             <span style={{ fontWeight: 600 }}>Оптимизировано</span>
             <span className="badge badge-green">{score} баллов</span>
           </div>
-          <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem' }}>
+          <div className="diff-content" style={{ fontSize: '0.85rem', lineHeight: 1.7, padding: '1rem', whiteSpace: 'pre-wrap' }}>
             {originalText && rewrittenText ? (
               computeWordDiff(originalText, rewrittenText).newTokens.map((t, i) =>
                 t.added ? (
@@ -307,7 +307,7 @@ export default function ResultsPage() {
                 )
               )
             ) : (
-              <span style={{ whiteSpace: 'pre-wrap' }}>{rewrittenText || 'Оптимизированный текст недоступен'}</span>
+              <span>{rewrittenText || 'Оптимизированный текст недоступен'}</span>
             )}
           </div>
         </div>

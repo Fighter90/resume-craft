@@ -263,6 +263,27 @@ export class ApiClient {
     return this.request<{ message: string }>('DELETE', '/auth/me', { password })
   }
 
+  // --- Avatar API ---
+  async uploadAvatar(file: File): Promise<{ message: string }> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const tok = this.token || localStorage.getItem('access_token')
+    const res = await fetch(`${API_BASE}/auth/me/avatar`, {
+      method: 'POST',
+      headers: tok ? { Authorization: `Bearer ${tok}` } : {},
+      body: formData,
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }))
+      throw new Error(err.message || err.detail || res.statusText)
+    }
+    return res.json()
+  }
+
+  async deleteAvatar(): Promise<void> {
+    await this.request<undefined>('DELETE', '/auth/me/avatar')
+  }
+
   // --- Settings API ---
   async getAIKeys() {
     return this.request<{ keys: Array<{ provider: string; has_key: boolean; masked_key: string }> }>('GET', '/settings/ai-keys')

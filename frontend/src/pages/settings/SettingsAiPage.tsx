@@ -168,19 +168,22 @@ export default function SettingsAiPage() {
       setSubModelSearch('')
       return
     }
+    let cancelled = false
     const fetchSub = async () => {
       setLoadingSubModels(true)
       try {
         // 1. Try server-side sub-models (uses saved API keys from DB or env)
         const res = await api.getSubModels(model)
-        const list = res.sub_models || []
-        if (list.length > 0) {
+        const list = (res.sub_models || []) as SubModel[]
+        // Only use server list if it has models AND isn't a fallback/error response
+        if (!cancelled && list.length > 0 && !res.error) {
           setSubModels(list)
-          if (!selectedSubModel || !list.find(m => m.id === selectedSubModel)) setSelectedSubModel(list[0].id)
+          if (!selectedSubModel || !list.find((m: SubModel) => m.id === selectedSubModel)) setSelectedSubModel(list[0].id)
           setLoadingSubModels(false)
           return
         }
       } catch { /* server unavailable, fall through to fallback */ }
+      if (cancelled) return
       // 2. Use comprehensive fallback list
       const fallback = FALLBACK_SUB_MODELS[model] || []
       setSubModels(fallback)
@@ -188,6 +191,7 @@ export default function SettingsAiPage() {
       setLoadingSubModels(false)
     }
     fetchSub()
+    return () => { cancelled = true }
   }, [model]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getServerAvailability = (modelId: string): boolean | null => {

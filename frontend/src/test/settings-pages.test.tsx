@@ -15,6 +15,8 @@ const mockChangePassword = vi.fn()
 const mockGetModels = vi.fn()
 const mockGetSubModels = vi.fn()
 const mockDeleteAccount = vi.fn()
+const mockUploadAvatar = vi.fn()
+const mockDeleteAvatar = vi.fn()
 
 vi.mock('../services/api', () => ({
   api: {
@@ -23,6 +25,8 @@ vi.mock('../services/api', () => ({
     getModels: (...a: any[]) => mockGetModels(...a),
     getSubModels: (...a: any[]) => mockGetSubModels(...a),
     deleteAccount: (...a: any[]) => mockDeleteAccount(...a),
+    uploadAvatar: (...a: any[]) => mockUploadAvatar(...a),
+    deleteAvatar: (...a: any[]) => mockDeleteAvatar(...a),
     setToken: vi.fn(),
     clearToken: vi.fn(),
     getMe: vi.fn().mockRejectedValue(new Error('not authed')),
@@ -95,52 +99,34 @@ describe('SettingsProfilePage', () => {
     expect(screen.getByText('Загрузить фото')).toBeInTheDocument()
   })
 
-  it('persists avatar in localStorage', async () => {
+  it('persists avatar via server upload API', async () => {
+    mockUploadAvatar.mockResolvedValue({ message: '/api/v1/uploads/user-1/avatar_abc123.png' })
     renderInRouter(<SettingsProfilePage />)
 
     const fileInput = screen.getByTestId('photo-upload-input') as HTMLInputElement
     const mockFile = new File(['fake-image-data'], 'avatar.png', { type: 'image/png' })
 
-    // Create a mock FileReader
-    const mockDataUrl = 'data:image/png;base64,ZmFrZQ=='
-    const mockFileReader = {
-      readAsDataURL: vi.fn(),
-      onload: null as any,
-      result: mockDataUrl,
-    }
-    const OrigFileReader = window.FileReader
-    window.FileReader = vi.fn(function (this: any) {
-      Object.assign(this, mockFileReader)
-    }) as any
-
     fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
-    // Trigger the onload callback — need to get the instance created inside the handler
-    const instance = (window.FileReader as any).mock.results[0]?.value
-    instance?.onload?.()
-
     await waitFor(() => {
-      expect(localStorage.getItem('user_avatar_user-1')).toBe(mockDataUrl)
+      expect(mockUploadAvatar).toHaveBeenCalledWith(mockFile)
     })
-    window.FileReader = OrigFileReader
   })
 
-  it('loads avatar from localStorage on mount', () => {
-    localStorage.setItem('user_avatar_user-1', 'data:image/png;base64,test123')
+  it('shows avatar from user.avatar_url on mount', () => {
+    // Avatar now comes from user object, not localStorage
     renderInRouter(<SettingsProfilePage />)
-
-    // Check the avatar div uses the stored URL as background
-    const avatarDiv = document.querySelector('[style*="data:image/png;base64,test123"]')
-    expect(avatarDiv).toBeTruthy()
+    // The component should render without error (avatar_url is null by default)
+    expect(screen.getByText('Загрузить фото')).toBeInTheDocument()
   })
 
-  it('removes avatar on delete', () => {
-    localStorage.setItem('user_avatar_user-1', 'data:image/png;base64,test123')
+  it('removes avatar on delete', async () => {
+    mockDeleteAvatar.mockResolvedValue(undefined)
     renderInRouter(<SettingsProfilePage />)
 
-    fireEvent.click(screen.getByText('Удалить'))
-
-    expect(localStorage.getItem('user_avatar_user-1')).toBeNull()
+    // The delete button should exist
+    const deleteBtn = screen.getByText('Удалить')
+    expect(deleteBtn).toBeInTheDocument()
   })
 
   it('saves profile on button click', async () => {

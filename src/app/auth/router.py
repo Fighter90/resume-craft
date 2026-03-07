@@ -1,6 +1,9 @@
 """Роутер аутентификации: /api/v1/auth/*."""
 
-from fastapi import APIRouter, Depends, Request, Response, status
+import logging
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, Request, Response, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import service as auth_service
@@ -238,3 +241,90 @@ async def restore_me(
     """Отмена удаления аккаунта в течение 30-дневного периода."""
     result = await auth_service.restore_account(session, user=current_user)
     return MessageResponse(message=result)
+
+
+logger = logging.getLogger(__name__)
+
+AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB
+AVATAR_ALLOWED_TYPES: frozenset[str] = frozenset({'image/jpeg', 'image/png', 'image/webp'})
+
+
+@router.post(
+    '/me/avatar',
+    response_model=MessageResponse,
+    summary='Загрузка аватара пользователя',
+)
+async def upload_avatar(
+    file: UploadFile,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> MessageResponse:
+    """Загрузка аватара (JPEG/PNG/WebP, ≤ 2 MB)."""
+    from app.core.config import get_settings
+    from app.core.storage import file_storage
+
+    if not file.content_type or file.content_type not in AVATAR_ALLOWED_TYPES:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=400, detail='Допустимые форматы: JPEG, PNG, WebP')
+
+    content = await file.read()
+    if len(content) > AVATAR_MAX_SIZE:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=413, detail='Максимальный размер аватара — 2 MB')
+
+    # Определяем расширение из content-type
+    ext_map = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp'}
+    ext = ext_map.get(file.content_type, 'jpg')
+    filename = f'avatar_{uuid4().hex[:8]}.{ext}'
+
+    # Удаляем старый аватар
+    if current_user.avatar_url:
+        try:
+            old_path = current_user.avatar_url.split('/uploads/', 1)[-1]
+            await file_storage.delete(old_path)
+        except Exception:
+            logger.warning(
+                'Failed to delete old avatar for user %s',
+                current_user.id,
+                exc_info=True,
+            )
+
+    relative_path = await file_storage.save(current_user.id, filename, content)
+    settings = get_settings()
+    avatar_url = f'{settings.api_v1_prefix}/uploads/{relative_path}'
+
+    current_user.avatar_url = avatar_url
+    await session.flush()
+
+    return MessageResponse(message=avatar_url)
+
+
+@router.delete(
+    '/me/avatar',
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary='Удаление аватара',
+)
+async def delete_avatar(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> Response:
+    """Удаление аватара пользователя."""
+    from app.core.storage import file_storage
+
+    if current_user.avatar_url:
+        try:
+            old_path = current_user.avatar_url.split('/uploads/', 1)[-1]
+            await file_storage.delete(old_path)
+        except Exception:
+            logger.warning(
+                'Failed to delete avatar file for user %s',
+                current_user.id,
+                exc_info=True,
+            )
+
+    current_user.avatar_url = None
+    await session.flush()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

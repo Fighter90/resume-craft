@@ -12,35 +12,47 @@ export default function SettingsProfilePage() {
     email: user?.email || '',
   })
 
-  // Load avatar from localStorage on mount (per-account)
-  const avatarKey = `user_avatar_${user?.id || 'default'}`
-  const savedAvatar = (() => {
-    try { return localStorage.getItem(avatarKey) || null } catch { return null }
-  })()
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(savedAvatar)
+  // Avatar from server (user.avatar_url), with localStorage migration
+  const [avatarUrl, setAvatarUrl] = useState<string | null>((user as any)?.avatar_url || null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Migrate old localStorage avatar on mount (one-time)
+  useState(() => {
+    const oldKey = `user_avatar_${user?.id || 'default'}`
+    try { localStorage.removeItem(oldKey) } catch { /* ignore */ }
+  })
+
   const onChange = (key: string, value: string) => setForm({ ...form, [key]: value })
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file && file.type.startsWith('image/')) {
-      // Convert to base64 and persist in localStorage
-      const reader = new FileReader()
-      reader.onload = () => {
-        const dataUrl = reader.result as string
-        setAvatarUrl(dataUrl)
-        try { localStorage.setItem(avatarKey, dataUrl) } catch { /* quota exceeded */ }
+      setAvatarUploading(true)
+      try {
+        const res = await api.uploadAvatar(file)
+        // Server returns avatar URL in message field
+        setAvatarUrl(res.message)
+        await refreshUser()
+      } catch (err) {
+        setSaveMsg(err instanceof Error ? err.message : 'Ошибка загрузки аватара')
+        setTimeout(() => setSaveMsg(null), 3000)
+      } finally {
+        setAvatarUploading(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
-  const handleRemovePhoto = () => {
-    setAvatarUrl(null)
-    try { localStorage.removeItem(avatarKey) } catch { /* ignore */ }
+  const handleRemovePhoto = async () => {
+    setAvatarUploading(true)
+    try {
+      await api.deleteAvatar()
+      setAvatarUrl(null)
+      await refreshUser()
+    } catch { /* ignore */ }
+    finally { setAvatarUploading(false) }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -103,10 +115,10 @@ export default function SettingsProfilePage() {
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
             <button className="btn btn-secondary btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
               onClick={() => fileInputRef.current?.click()}>
-              <Upload size={12} /> Загрузить фото
+              <Upload size={12} /> {avatarUploading ? 'Загрузка...' : 'Загрузить фото'}
             </button>
             <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', color: 'var(--danger)' }}
-              onClick={handleRemovePhoto} disabled={!avatarUrl}>
+              onClick={handleRemovePhoto} disabled={!avatarUrl || avatarUploading}>
               <Trash2 size={12} /> Удалить
             </button>
           </div>

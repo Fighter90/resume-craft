@@ -117,6 +117,15 @@ def create_app() -> FastAPI:
     app.include_router(models_router, prefix=api_prefix)
     app.include_router(settings_router, prefix=api_prefix)
 
+    # --- Static files: uploads (avatars, etc.) ---
+    from pathlib import Path
+
+    from starlette.staticfiles import StaticFiles
+
+    uploads_dir = Path(settings.upload_dir).resolve()
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    app.mount(f'{api_prefix}/uploads', StaticFiles(directory=str(uploads_dir)), name='uploads')
+
     # --- Health Check (API-005/LIVE-015: доступен и с префиксом и без) ---
     @app.get('/health', tags=['system'], summary='Health Check')
     @app.get(f'{settings.api_v1_prefix}/health', tags=['system'], include_in_schema=False)
