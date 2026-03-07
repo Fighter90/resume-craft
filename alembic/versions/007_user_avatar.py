@@ -14,7 +14,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '007_user_avatar'
-down_revision: str = '006_fix_llm_provider_all_messages'
+down_revision: str = '006_fix_llm_all_msg'
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
