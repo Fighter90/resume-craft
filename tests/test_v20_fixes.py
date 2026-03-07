@@ -476,6 +476,7 @@ class TestOpenRouterModels:
     def test_models_router_exists(self) -> None:
         """Роутер /models существует и импортируется."""
         from app.ml.router import router
+
         assert router is not None
 
 
