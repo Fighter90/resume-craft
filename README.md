@@ -1084,34 +1084,56 @@ pip-audit
 
 ## Changelog
 
-### v1.8.0 (Март 2026) — QA v3: 9 FIX-пакетов, документация
+### v1.8.0 (Март 2026) — QA v3 + v4: 28 FIX-пакетов, hh.ru export removal, 120 новых тестов, аудит документации
 
-**Backend (5 исправлений):**
-- P0-3: Эндпойнты `GET /auth/me` и `GET /rewrite/history` возвращают JSON вместо неформатированного текста
-- P0-4: OpenRouterClient корректно обрабатывает o-series модели (max_completion_tokens вместо max_tokens)
+**Backend — QA v3 (8 исправлений):**
+- P0-2: Match Score ×100 (Dashboard, Results, History, Export)
+- P0-3: `GET /auth/me` и `GET /rewrite/history` возвращают JSON вместо неформатированного текста
+- P0-4: OpenAI/OpenRouter o-series модели используют `max_completion_tokens` вместо `max_tokens`
 - P1-2: `soft_delete_account` возвращает JSON-ошибку при неверном пароле (не HTML)
 - P1-4: Обновлён список моделей OpenRouter (deepseek-r1, llama-4 и др.)
-- P1-6: Аватар мигрирован из localStorage на сервер (POST/DELETE /auth/me/avatar)
+- P1-6: Аватар мигрирован из localStorage на сервер (POST/DELETE `/auth/me/avatar`)
+- Login: поддержка JSON + form-data
+- OpenRouter: search + optgroup-группировка моделей
 
-**Frontend (4 исправления):**
+**Backend — V19: парсинг и экспорт (4 новых возможности):**
+- `GET /resumes/{id}/file` — скачивание оригинального файла резюме
+- `GET /resumes/{id}/preview` — preview текста резюме (Markdown/HTML)
+- `GET /export/{id}/txt` — экспорт результата в TXT
+- Content-Disposition: RFC 5987 кодировка для кириллических имён файлов (UnicodeEncodeError fix)
+
+**Frontend — QA v3 (8 исправлений):**
+- P0-2: Match Score ×100 в Dashboard, Results, History, Export
+- P0-3: RAW JSON → форматированный текст в ResultsPage
 - P1-1: Выпадающее меню подмоделей: z-index=1000 и overflow-visible
 - P1-6: Аватар на сервере (upload/delete через API) вместо localStorage
 - P2-1: Прогресс-бар с плавной CSS-анимацией (transition 0.5s ease-in-out)
-- P2-2: Корректное отображение diff с пробелами и \n
+- P2-2: Корректное отображение diff с пробелами и `\n`
+- P2-3: Очистка avatar в localStorage при миграции
+- P3-1: OpenRouter search + optgroup-группировка
+
+**Frontend — V19: hh.ru export removal + viewer (3 изменения):**
+- Удалён формат hh.ru из ExportPage (карточка, ExternalLink, hh download logic)
+- DOCX описание: «рекомендуем для hh.ru» → «рекомендуемый формат»
+- ResumeViewerModal: модальный просмотр файла резюме (DOCX/PDF/TXT)
 
 **Инфраструктура:**
-- Alembic 007: avatar_url VARCHAR(500) → users
-- Alembic 006: Исправлен down_revision для портативности
+- Alembic 007: `avatar_url VARCHAR(500)` → users
+- Alembic 006: Исправлен `down_revision` для портативности
+- Deps: `openai` 1.59.9 → 2.24.0, `python-docx` 1.1.2 → 1.2.0
+- CI: ruff format + lint все файлы
 
 **Документация:**
 - Полный аудит кодовой базы vs документации
-- BASELINE.md обновлён: схема БД (5 таблиц), API (40+ эндпойнтов), зависимости, границы
-- README.md обновлён: схема БД, API пути, дерево каталогов, метрики тестов
+- BASELINE.md: схема БД (5 таблиц), API (40+ эндпойнтов), зависимости, границы MVP
+- README.md: схема БД, API пути, дерево каталогов, метрики тестов, секции Settings/Models API
 
 **Тесты:**
-- +30 новых backend-тестов (`test_v20_fixes.py`): аватар, o-series, dropdown, diff
-- +38 новых frontend-тестов: V20 fixes
-- Итого: **691 backend-тестов**, **525 frontend-тестов**, **1216 всего**
+- +34 новых backend-тестов (`test_v20_fixes.py`): аватар (12), o-series (8), soft-delete (3), JSON (4), OpenRouter (3), LLM edge cases (4)
+- +50 новых backend-тестов (V19): TXT export (27), resume file preview (23)
+- +36 новых frontend-тестов (`export-v19.test.tsx`): unit, functional, integration, acceptance
+- +8 новых backend-тестов (V18): o-series (4), form-data (3), json (1)
+- Итого: **725 backend-тестов**, **525 frontend-тестов**, **1250 всего**
 
 ### v1.7.0 (Март 2026) — QA v2: 12 FIX пакетов, 50 новых тестов
 
