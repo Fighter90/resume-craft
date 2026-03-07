@@ -7,7 +7,6 @@ from app.auth import service as auth_service
 from app.auth.models import User
 from app.auth.schemas import (
     DeleteAccountRequest,
-    LoginRequest,
     MessageResponse,
     PasswordChangeRequest,
     RefreshRequest,
@@ -40,10 +39,13 @@ async def _parse_login_data(request: Request) -> tuple[str, str]:
         try:
             data = await request.json()
         except Exception:
-            raise HTTPException(status_code=422, detail='Некорректный JSON')
+            raise HTTPException(status_code=422, detail='Некорректный JSON') from None
         email = data.get('email', '')
         password = data.get('password', '')
-    elif 'application/x-www-form-urlencoded' in content_type or 'multipart/form-data' in content_type:
+    elif (
+        'application/x-www-form-urlencoded' in content_type
+        or 'multipart/form-data' in content_type
+    ):
         form = await request.form()
         email = str(form.get('email') or form.get('username') or '')
         password = str(form.get('password') or '')
@@ -54,7 +56,9 @@ async def _parse_login_data(request: Request) -> tuple[str, str]:
             email = data.get('email', '')
             password = data.get('password', '')
         except Exception:
-            raise HTTPException(status_code=415, detail='Unsupported Content-Type')
+            raise HTTPException(
+                status_code=415, detail='Unsupported Content-Type',
+            ) from None
 
     if not email or not password:
         raise HTTPException(status_code=422, detail='Email и пароль обязательны')

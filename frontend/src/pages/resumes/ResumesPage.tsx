@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Plus, FileText, Download, Trash2, Eye, Loader, Zap } from 'lucide-react'
+import { Search, Plus, FileText, Download, Trash2, Eye, Loader, Zap, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 
