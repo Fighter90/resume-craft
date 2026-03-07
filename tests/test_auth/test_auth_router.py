@@ -131,7 +131,9 @@ class TestLoginFormData:
         assert 'access_token' in data
 
     async def test_login_form_oauth2_username_field(
-        self, client: AsyncClient, test_user: User,
+        self,
+        client: AsyncClient,
+        test_user: User,
     ) -> None:
         """OAuth2 form: поле username вместо email → 200."""
         response = await client.post(

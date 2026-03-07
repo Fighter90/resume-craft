@@ -57,7 +57,8 @@ async def _parse_login_data(request: Request) -> tuple[str, str]:
             password = data.get('password', '')
         except Exception:
             raise HTTPException(
-                status_code=415, detail='Unsupported Content-Type',
+                status_code=415,
+                detail='Unsupported Content-Type',
             ) from None
 
     if not email or not password:
