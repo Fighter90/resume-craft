@@ -178,7 +178,7 @@ GigaChat Pro — рекомендованная модель: #1 на MERA дл�
 
 ### 3.6. Экспорт и редактор
 
-- **Форматы:** DOCX (все планы), PDF (Phase 2, Standard+), hh.ru (Phase 2, Pro)
+- **Форматы:** DOCX, PDF, TXT (все планы)
 - **Шаблоны:** Minimal (все планы), Professional (Phase 2, Standard+), Creative (Phase 2, Pro)
 - **Интерактивный редактор** (Phase 2) — 5 секций с drag & drop, AI-подсказки в реальном времени
 - **Diff-сравнение** — параллельное отображение оригинала и оптимизированной версии с цветовой подсветкой
@@ -415,7 +415,7 @@ tests/                     # Зеркалирует src/app/
 ├── test_resumes/          # 39 тестов
 ├── test_vacancies/        # 42 теста
 ├── test_rewriter/         # 40 тестов
-├── test_export/           # 11 тестов
+├── test_export/           # 30+ тестов
 ├── test_ml/               # 87 тестов
 ├── test_core/             # 79 тестов
 ├── test_main.py           # 3 теста (middleware, health)
@@ -558,9 +558,6 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | GET | `/export/{id}/docx` | Экспорт в DOCX (python-docx) |
 | GET | `/export/{id}/pdf` | Экспорт в PDF (reportlab) |
 | GET | `/export/{id}/txt` | Экспорт в TXT (plain text) |
-| POST | `/export/hh` | Публикация на hh.ru (OAuth) ³ |
-
-> ³ Публикация на hh.ru подключается в Phase 2.
 
 ### 9.7. Подписка
 
@@ -737,7 +734,7 @@ Fallback автоматический с уведомлением пользов
 | **Цена/год** | — | 3 990 ₽ (−32%) | 11 990 ₽ (−33%) |
 | **Оптимизаций/мес** | 5 | 30 | Безлимит |
 | **AI-модели** | OpenRouter | GigaChat Pro + Claude + OpenRouter | Все (+ GPT-4o) |
-| **Экспорт** | DOCX | PDF + DOCX | Все + hh.ru |
+| **Экспорт** | DOCX, TXT | PDF + DOCX + TXT | Все форматы |
 | **Шаблоны** | 1 (Minimal) | 3 | Все + кастом |
 
 > В MVP подключены **4 LLM-провайдера**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI.

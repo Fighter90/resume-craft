@@ -181,10 +181,13 @@ async def download_resume_file(
 ) -> StreamingResponse:
     """Скачивание оригинального PDF/DOCX файла резюме."""
     import io
+    import logging
 
     from fastapi import HTTPException
 
     from app.core.storage import file_storage
+
+    logger = logging.getLogger(__name__)
 
     resume = await resume_service.get_resume(
         session,
@@ -199,6 +202,14 @@ async def download_resume_file(
         content = await file_storage.read(resume.file_path)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail='Файл не найден на диске') from None
+    except PermissionError:
+        raise HTTPException(status_code=403, detail='Доступ к файлу запрещён') from None
+    except Exception:
+        logger.exception('Unexpected error reading resume file %s', resume_id)
+        raise HTTPException(
+            status_code=500,
+            detail='Ошибка чтения файла',
+        ) from None
 
     fmt = (resume.file_format or 'bin').lower()
     media_types: dict[str, str] = {
@@ -206,10 +217,84 @@ async def download_resume_file(
         'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     }
     media_type = media_types.get(fmt, 'application/octet-stream')
-    filename = f'{resume.title or "resume"}.{fmt}'
+
+    # RFC 5987: ASCII fallback + UTF-8 encoded filename for non-ASCII titles
+    from urllib.parse import quote
+
+    raw_title = resume.title or 'resume'
+    ascii_filename = f'resume.{fmt}'
+    utf8_filename = quote(f'{raw_title}.{fmt}')
+    content_disposition = (
+        f'inline; filename="{ascii_filename}"; filename*=UTF-8\'\'{utf8_filename}'
+    )
 
     return StreamingResponse(
         io.BytesIO(content),
         media_type=media_type,
-        headers={'Content-Disposition': f'attachment; filename="{filename}"'},
+        headers={
+            'Content-Disposition': content_disposition,
+            'Content-Length': str(len(content)),
+        },
     )
+
+
+@router.get(
+    '/{resume_id}/preview',
+    summary='Данные резюме для просмотрщика (с историей оптимизаций)',
+)
+async def get_resume_preview(
+    resume_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> dict:
+    """Возвращает данные резюме + связанные оптимизации для просмотрщика."""
+    from app.rewriter.models import RewriteHistory, RewriteStatus
+
+    resume = await resume_service.get_resume(
+        session,
+        resume_id=resume_id,
+        user_id=current_user.id,
+    )
+
+    # Fetch completed rewrites for this resume
+    from sqlalchemy import select as sa_select
+
+    stmt = (
+        sa_select(RewriteHistory)
+        .where(
+            RewriteHistory.resume_id == resume_id,
+            RewriteHistory.user_id == current_user.id,
+            RewriteHistory.status == RewriteStatus.COMPLETED,
+        )
+        .order_by(RewriteHistory.created_at.desc())
+    )
+    result = await session.execute(stmt)
+    rewrites = result.scalars().all()
+
+    return {
+        'id': str(resume.id),
+        'title': resume.title,
+        'format': resume.file_format,
+        'original_text': resume.raw_text,
+        'parsed_data': resume.parsed_data,
+        'file_url': f'/api/v1/resumes/{resume.id}/file' if resume.file_path else None,
+        'status': resume.status.value if resume.status else 'draft',
+        'created_at': resume.created_at.isoformat() if resume.created_at else None,
+        'rewrites': [
+            {
+                'id': str(rw.id),
+                'model': rw.model_name,
+                'optimized_text': rw.rewritten_text,
+                'rewritten_data': rw.rewritten_data,
+                'match_score': (
+                    round(rw.match_score_after * 100)
+                    if rw.match_score_after is not None and rw.match_score_after <= 1
+                    else rw.match_score_after
+                ),
+                'ats_grade': rw.ats_rating,
+                'original_text': rw.original_text,
+                'created_at': rw.created_at.isoformat() if rw.created_at else None,
+            }
+            for rw in rewrites
+        ],
+    }

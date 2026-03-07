@@ -186,6 +186,20 @@ export class ApiClient {
     return res.blob()
   }
 
+  async getResumePreview(id: string) {
+    return this.request<{
+      id: string; title: string | null; format: string;
+      original_text: string | null; parsed_data: Record<string, unknown> | null;
+      file_url: string | null; status: string; created_at: string | null;
+      rewrites: Array<{
+        id: string; model: string; optimized_text: string | null;
+        rewritten_data: Record<string, unknown> | null;
+        match_score: number | null; ats_grade: string | null;
+        original_text: string | null; created_at: string | null;
+      }>;
+    }>('GET', `/resumes/${id}/preview`)
+  }
+
   // --- Missing methods ---
 
   async refreshToken(refreshToken: string) {

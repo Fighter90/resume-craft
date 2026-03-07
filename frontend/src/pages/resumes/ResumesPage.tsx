@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Plus, FileText, Download, Trash2, Eye, Loader, Zap, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Search, Plus, FileText, Download, Trash2, Eye, Loader, Zap, X, ChevronDown } from 'lucide-react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { api } from '../../services/api'
+import ResumeViewerModal from '../../components/ResumeViewerModal'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -42,6 +43,32 @@ export default function ResumesPage() {
   // P2-2: Modal delete confirmation state
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
+  // FEATURE-003: Resume viewer modal
+  const [viewerId, setViewerId] = useState<string | null>(null)
+  // FEATURE-002: Download dropdown
+  const [downloadMenuId, setDownloadMenuId] = useState<string | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const downloadMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close download menu on outside click
+  useEffect(() => {
+    if (!downloadMenuId) return
+    const handler = (e: MouseEvent) => {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(e.target as Node)) {
+        setDownloadMenuId(null)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [downloadMenuId])
+
+  // Close download menu on Escape
+  useEffect(() => {
+    if (!downloadMenuId) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setDownloadMenuId(null) }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [downloadMenuId])
 
   useEffect(() => {
     const load = async () => {
@@ -78,20 +105,32 @@ export default function ResumesPage() {
     navigate(`/app/vacancy?resumeId=${r.id}`)
   }
 
-  const handleDownload = async (r: any) => {
+  // FEATURE-003: Open viewer modal
+  const handleView = useCallback((r: any) => {
+    setViewerId(r.id)
+  }, [])
+
+  // FEATURE-002: Download with format selection
+  const handleDownloadFormat = async (r: any, format: string) => {
+    setDownloadMenuId(null)
+    setDownloadingId(r.id)
     try {
       if (r.status === 'optimized') {
         const history = await api.getRewriteHistory()
         const task = (history as any[]).find((h: any) => h.resume_id === r.id && h.status === 'completed')
         if (task) {
-          const blob = await api.exportDocx(task.id)
-          triggerDownload(blob, `${r.title || 'resume'}_optimized.docx`)
+          let blob: Blob
+          if (format === 'pdf') blob = await api.exportPdf(task.id)
+          else if (format === 'txt') blob = await api.exportTxt(task.id)
+          else blob = await api.exportDocx(task.id)
+          triggerDownload(blob, `${r.title || 'resume'}_optimized.${format}`)
           return
         }
       }
+      // Download original
       try {
         const blob = await api.downloadResumeFile(r.id)
-        const fmt = (r.file_format || 'txt').toLowerCase()
+        const fmt = (r.file_format || 'bin').toLowerCase()
         triggerDownload(blob, `${r.title || 'resume'}.${fmt}`)
       } catch {
         if (r.raw_text) {
@@ -103,6 +142,8 @@ export default function ResumesPage() {
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка скачивания')
+    } finally {
+      setDownloadingId(null)
     }
   }
 
@@ -186,12 +227,12 @@ export default function ResumesPage() {
               return (
                 <tr key={r.id}>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }} onClick={() => handleView(r)}>
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
                         <FileText size={16} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{r.title || 'Резюме'}</div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary)' }}>{r.title || 'Резюме'}</div>
                         <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>.{r.file_format || '?'}</div>
                       </div>
                     </div>
@@ -201,9 +242,54 @@ export default function ResumesPage() {
                   <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '—'}</td>
                   <td>
                     <div className="td-actions">
-                      <Link to={`/app/resumes/${r.id}`} className="btn btn-ghost btn-icon" title="Открыть"><Eye size={16} /></Link>
+                      <button className="btn btn-ghost btn-icon" title="Просмотр" onClick={() => handleView(r)}><Eye size={16} /></button>
                       <button className="btn btn-ghost btn-icon" title="Оптимизировать" style={{ color: 'var(--primary)' }} onClick={() => handleOptimize(r)}><Zap size={16} /></button>
-                      <button className="btn btn-ghost btn-icon" title="Скачать" onClick={() => handleDownload(r)}><Download size={16} /></button>
+                      <div style={{ position: 'relative' }} ref={downloadMenuId === r.id ? downloadMenuRef : undefined}>
+                        <button className="btn btn-ghost btn-icon" title="Скачать"
+                          onClick={() => setDownloadMenuId(downloadMenuId === r.id ? null : r.id)}
+                          disabled={downloadingId === r.id}>
+                          {downloadingId === r.id ? <Loader size={16} className="spin" /> : <><Download size={16} /><ChevronDown size={10} /></>}
+                        </button>
+                        {downloadMenuId === r.id && (
+                          <div style={{
+                            position: 'absolute', top: '100%', right: 0, marginTop: 4,
+                            background: 'var(--card-bg, #fff)', border: '1px solid var(--border)',
+                            borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                            zIndex: 100, minWidth: 180, overflow: 'hidden',
+                            animation: 'fadeIn 150ms ease-out',
+                          }}>
+                            {r.status === 'optimized' ? (
+                              <>
+                                {[
+                                  { fmt: 'docx', label: 'Скачать DOCX', icon: '📄' },
+                                  { fmt: 'pdf', label: 'Скачать PDF', icon: '📑' },
+                                  { fmt: 'txt', label: 'Скачать TXT', icon: '📝' },
+                                ].map(({ fmt: f, label, icon }) => (
+                                  <button key={f} onClick={() => handleDownloadFormat(r, f)} style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem',
+                                    width: '100%', border: 'none', background: 'none', cursor: 'pointer',
+                                    fontSize: '0.85rem', textAlign: 'left', color: 'var(--text)',
+                                  }}
+                                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #F3F4F6)')}
+                                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                                    {icon} {label}
+                                  </button>
+                                ))}
+                              </>
+                            ) : (
+                              <button onClick={() => handleDownloadFormat(r, 'original')} style={{
+                                display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem',
+                                width: '100%', border: 'none', background: 'none', cursor: 'pointer',
+                                fontSize: '0.85rem', textAlign: 'left', color: 'var(--text)',
+                              }}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover, #F3F4F6)')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+                                📥 Скачать оригинал
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <button className="btn btn-ghost btn-icon" title="Удалить" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={16} /></button>
                     </div>
                   </td>
@@ -237,9 +323,9 @@ export default function ResumesPage() {
                 <span>{r.created_at ? new Date(r.created_at).toLocaleDateString('ru-RU') : '—'}</span>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Link to={`/app/resumes/${r.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1 }}><Eye size={14} /> Открыть</Link>
+                <button className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => handleView(r)}><Eye size={14} /> Открыть</button>
                 <button className="btn btn-ghost btn-sm" style={{ color: 'var(--primary)' }} onClick={() => handleOptimize(r)}><Zap size={14} /> Оптимизировать</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => handleDownload(r)}><Download size={14} /></button>
+                <button className="btn btn-ghost btn-sm" onClick={() => handleDownloadFormat(r, r.status === 'optimized' ? 'docx' : 'original')}><Download size={14} /></button>
                 <button className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => handleDelete(r.id, r.title || 'Резюме')}><Trash2 size={14} /></button>
               </div>
             </div>
@@ -278,6 +364,14 @@ export default function ResumesPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* FEATURE-003: Resume viewer modal */}
+      {viewerId && (
+        <ResumeViewerModal
+          resumeId={viewerId}
+          onClose={() => setViewerId(null)}
+        />
       )}
     </>
   )

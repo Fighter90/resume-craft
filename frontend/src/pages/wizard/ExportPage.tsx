@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Download, FileText, FileType, ExternalLink, Check, AlertCircle, Loader } from 'lucide-react'
+import { ArrowLeft, Download, FileText, FileType, Check, AlertCircle, Loader, AlignLeft } from 'lucide-react'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const FORMATS = [
-  { id: 'docx', icon: FileText, label: 'DOCX', desc: 'Microsoft Word — рекомендуем для hh.ru' },
+  { id: 'docx', icon: FileText, label: 'DOCX', desc: 'Microsoft Word — рекомендуемый формат' },
   { id: 'pdf', icon: FileType, label: 'PDF', desc: 'Универсальный формат для печати' },
-  { id: 'hh', icon: ExternalLink, label: 'hh.ru', desc: 'Обновить резюме на hh.ru напрямую' },
+  { id: 'txt', icon: AlignLeft, label: 'TXT', desc: 'Простой текст — универсальный формат' },
 ]
 
 const TEMPLATES = [
@@ -58,16 +58,16 @@ export default function ExportPage() {
       let blob: Blob
       if (format === 'pdf') {
         blob = await api.exportPdf(exportId)
-      } else if (format === 'docx') {
-        blob = await api.exportDocx(exportId)
+      } else if (format === 'txt') {
+        blob = await api.exportTxt(exportId)
       } else {
-        // hh format — fallback to docx for now
         blob = await api.exportDocx(exportId)
       }
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `resume_optimized.${format === 'hh' ? 'docx' : format}`
+      a.download = `resume_optimized.${format}`
+
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -98,7 +98,7 @@ export default function ExportPage() {
 
       {/* Format selection */}
       <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Формат файла</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {FORMATS.map(f => (
           <div
             key={f.id}
@@ -122,9 +122,9 @@ export default function ExportPage() {
         ))}
       </div>
 
-      {/* Template selection */}
-      <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Шаблон оформления</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
+      {/* Template selection — hidden for TXT */}
+      {format !== 'txt' && <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Шаблон оформления</h3>}
+      {format !== 'txt' && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
         {TEMPLATES.map(t => (
           <div
             key={t.id}
@@ -146,7 +146,13 @@ export default function ExportPage() {
             )}
           </div>
         ))}
-      </div>
+      </div>}
+
+      {format === 'txt' && (
+        <div style={{ padding: '1rem', background: 'var(--bg-secondary, #F9FAFB)', borderRadius: 8, marginBottom: '2rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          Шаблоны оформления недоступны для формата TXT
+        </div>
+      )}
 
       {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--error)', marginBottom: '1rem', fontSize: '0.875rem' }}>
@@ -168,7 +174,7 @@ export default function ExportPage() {
           </div>
           <div>
             <span style={{ color: 'var(--text-secondary)' }}>Шаблон:</span>{' '}
-            <span style={{ fontWeight: 500 }}>{TEMPLATES.find(t => t.id === template)?.label}</span>
+            <span style={{ fontWeight: 500 }}>{format === 'txt' ? '—' : TEMPLATES.find(t => t.id === template)?.label}</span>
           </div>
           <div>
             <span style={{ color: 'var(--text-secondary)' }}>Размер:</span>{' '}

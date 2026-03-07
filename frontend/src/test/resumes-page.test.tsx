@@ -217,6 +217,13 @@ describe('ResumesPage', () => {
     const deleteButtons = screen.getAllByTitle('Удалить')
     fireEvent.click(deleteButtons[0])
 
+    // P2-2: Modal-based delete — confirm in the modal
+    await screen.findByText('Удалить резюме?') // wait for modal
+    const modalButtons = screen.getAllByRole('button').filter(
+      b => b.textContent === 'Удалить' && b.className.includes('btn') && !b.getAttribute('title'),
+    )
+    fireEvent.click(modalButtons[0])
+
     await waitFor(() => {
       // After sort by date (newest first): res-3, res-1, res-2
       expect(mockDeleteResume).toHaveBeenCalledWith('res-3')
@@ -245,14 +252,14 @@ describe('ResumesPage', () => {
     })
   })
 
-  it('links Eye button to resume detail page', async () => {
+  it('Eye button opens resume viewer modal', async () => {
     renderResumesPage()
     await waitFor(() => expect(screen.getAllByText('Python Developer Resume').length).toBeGreaterThanOrEqual(1))
 
-    // After sort by date (newest): res-3 is first
-    const openLinks = screen.getAllByTitle('Открыть')
-    const link = openLinks[0].closest('a')
-    expect(link?.getAttribute('href')).toBe('/app/resumes/res-3')
+    // V19: Eye button is now a <button> that opens viewer modal (not <a> link)
+    const viewButtons = screen.getAllByTitle('Просмотр')
+    expect(viewButtons[0].tagName).toBe('BUTTON')
+    fireEvent.click(viewButtons[0])
   })
 
   it('renders Загрузить резюме button', () => {
