@@ -1,6 +1,6 @@
 # ResumeCraft — Baseline MVP
 
-> **Версия:** 1.2  
+> **Версия:** 1.8  
 > **Дата:** Март 2026  
 > **Тип документа:** Техническая спецификация MVP  
 > **Связанные документы:** README.md (обзор), ANALYSIS.md (аудитория), REFERENCES.md (источники)
@@ -64,12 +64,21 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 
 **Что НЕ входит в MVP:**
 - OAuth hh.ru для соискателей (→ Phase 2, используем анонимный API)
-- ЮKassa платежи (→ Phase 2)
-- PDF export с шаблонами (→ Phase 2, только DOCX)
+- ЮKassa платежи (→ Phase 2, заменено на Робокассу)
 - 2FA (→ Phase 2)
-- Email verification (→ Phase 2)
-- Интерактивный редактор (→ Phase 2)
-- GPT-4o (подключен через OpenAI SDK, основные: GigaChat Pro + Anthropic Claude)
+- Интерактивный WYSIWYG-редактор (→ Phase 2)
+- Экспорт-шаблоны Creative/Professional (→ Phase 2)
+
+**Реализовано сверх начального плана:**
+- ✅ PDF-экспорт (reportlab) и TXT-экспорт
+- ✅ Email-верификация (JWT 24ч токен)
+- ✅ GPT-4o через OpenAI SDK
+- ✅ OpenRouter (100+ моделей)
+- ✅ Модуль settings с шифрованием API-ключей (AES)
+- ✅ Аватар пользователя (серверное хранение)
+- ✅ Soft-delete аккаунтов и резюме с восстановлением
+- ✅ DOCX-просмотр резюме (mammoth.js)
+- ✅ 22 React-страницы (Privacy, Terms, About, Help, ResumeDetail)
 
 ---
 
@@ -131,11 +140,28 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 
 ### 3.5. Export — Экспорт
 
-| ID | Приоритет | Требование |
-|----|-----------|-----------|
-| EXP-01 | Must | Экспорт в DOCX (python-docx) |
-| EXP-02 | Should | Экспорт в PDF (LibreOffice headless) |
-| EXP-03 | Could | Шаблон «Minimal» |
+| ID | Приоритет | Требование | Статус |
+|----|-----------|-----------|--------|
+| EXP-01 | Must | Экспорт в DOCX (python-docx) | ✅ |
+| EXP-02 | Should | Экспорт в PDF (reportlab) | ✅ |
+| EXP-03 | Should | Экспорт в TXT (plain text) | ✅ |
+| EXP-04 | Could | Шаблон «Minimal» | ✅ |
+
+### 3.6. Settings — Настройки пользователя
+
+| ID | Приоритет | Требование | Статус |
+|----|-----------|-----------|--------|
+| SET-01 | Must | Управление API-ключами LLM (зашифрованное хранение, AES) | ✅ |
+| SET-02 | Must | Выбор AI-модели и подмодели | ✅ |
+| SET-03 | Should | AI-настройки (toggles) | ✅ |
+| SET-04 | Should | Загрузка/удаление аватара (серверное хранение) | ✅ |
+
+### 3.7. Models — AI-модели
+
+| ID | Приоритет | Требование | Статус |
+|----|-----------|-----------|--------|
+| MOD-01 | Must | Список доступных провайдеров с проверкой ключей | ✅ |
+| MOD-02 | Should | Динамические подмодели через API провайдеров | ✅ |
 
 ---
 
@@ -177,7 +203,9 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | Ruff warnings | 0 | **0** |
 | mypy errors | 0 | **0** |
 | Type hints | Все public-функции | **100%** |
-| Тестов | — | **734** |
+| Backend тестов | — | **691** |
+| Frontend тестов | — | **525** |
+| Всего тестов | — | **1216** |
 
 ---
 
@@ -389,42 +417,56 @@ React → GET /api/v1/rewrite/{task_id}/result
 
 ```
 # Core
-python = "3.11"
-fastapi = "0.115.*"
-uvicorn = {extras = ["standard"], version = "0.30.*"}
-pydantic = "2.9.*"
+python = "3.11+"           # runtime: 3.13 (Docker: 3.11)
+fastapi = "0.115.6"
+uvicorn[standard] = "0.34.0"
+pydantic = "2.10.5"
+pydantic-settings = "2.7.1"
 
 # Database
-sqlalchemy = {extras = ["asyncio"], version = "2.0.*"}
-asyncpg = "0.29.*"
-alembic = "1.13.*"
-pgvector = "0.3.*"
+sqlalchemy[asyncio] = "2.0.37"
+asyncpg = "0.30.0"
+alembic = "1.14.1"
+pgvector = "0.3.6"
 
 # Task Queue
-celery = {extras = ["redis"], version = "5.4.*"}
-redis = "5.1.*"
+celery[redis] = "5.4.0"
+redis = "5.2.1"
+flower = "2.0.1"
 
 # Auth
-pyjwt = "2.9.*"
-passlib = {extras = ["bcrypt"], version = "1.7.*"}
+PyJWT = "2.10.1"
+bcrypt = "4.2.1"          # прямой bcrypt (не passlib)
+
+# Encryption
+cryptography = ">=42.0"    # AES-шифрование API-ключей
 
 # HTTP
-httpx = "0.27.*"
+httpx = "0.28.1"
+tenacity = "9.0.0"
 
-# Document Parsing
-pymupdf = "1.24.*"
-python-docx = "1.1.*"
+# Rate Limiting
+slowapi = "0.1.9"
+
+# Document Parsing & Export
+PyMuPDF = "1.25.3"
+python-docx = "1.1.2"
+reportlab = ">=4.0"        # PDF-экспорт
 
 # AI/ML
-openai = "1.40.*"
-gigachat = "0.1.*"
-sentence-transformers = "3.0.*"
+openai = "1.59.9"
+gigachat = "0.1.40"
+anthropic = ">=0.40.0"
+sentence-transformers = "3.3.1"
 
-# Testing & Quality
+# Logging
+structlog = "24.4.0"
+
+# Testing & Quality (dev)
 pytest = "8.3.*"
-pytest-asyncio = "0.23.*"
-ruff = "0.6.*"
-mypy = "1.11.*"
+pytest-asyncio = "0.24.*"
+ruff = "0.9.*"
+mypy = "1.14.*"
 
 # Frontend
 vite = "6.x"
@@ -459,6 +501,10 @@ CREATE TABLE users (
     plan user_plan DEFAULT 'free' NOT NULL,
     optimizations_used INTEGER DEFAULT 0 NOT NULL,
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE NOT NULL,     -- email-верификация (migration 003)
+    avatar_url VARCHAR(500),                        -- путь к аватару (migration 005)
+    deleted_at TIMESTAMPTZ,                         -- soft-delete (migration 004)
+    scheduled_deletion TIMESTAMPTZ,                 -- дата окончательного удаления (migration 004)
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -517,6 +563,19 @@ CREATE TABLE rewrite_history (
     processing_time_ms INTEGER,
     error_message TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Пользовательские настройки (migration 005)
+CREATE TABLE user_settings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category VARCHAR(50) NOT NULL,       -- 'ai_keys', 'ai_toggles', 'ai_model'
+    key VARCHAR(100) NOT NULL,           -- 'openai', 'anthropic', 'default_model' и т.д.
+    value TEXT NOT NULL DEFAULT '',       -- значение (AES-зашифровано если is_encrypted)
+    is_encrypted BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    UNIQUE(user_id, category, key)
 );
 
 -- Индексы
@@ -583,46 +642,71 @@ class RewriteResult(BaseModel):
 
 ## 9. API-спецификация
 
-### 9.1. Полный список эндпоинтов
+### 9.1. Полный список эндпоинтов (40+)
 
 ```
 BASE_URL: /api/v1
 
 Auth:
   POST   /auth/register          → 201 Created
+  GET    /auth/verify/{token}    → 200 OK (email-верификация)
   POST   /auth/login             → 200 OK
   POST   /auth/refresh           → 200 OK
   POST   /auth/logout            → 204 No Content
   GET    /auth/me                → 200 OK (профиль текущего пользователя)
   PUT    /auth/me                → 200 OK (обновление профиля)
   PUT    /auth/me/password       → 200 OK (смена пароля)
-  DELETE /auth/me                → 204 No Content (удаление аккаунта, ФЗ-152)
+  DELETE /auth/me                → 204 No Content (soft-delete, 30 дней, ФЗ-152)
+  POST   /auth/me/restore       → 200 OK (восстановление аккаунта)
+  POST   /auth/me/avatar        → 200 OK (загрузка аватара)
+  DELETE /auth/me/avatar        → 200 OK (удаление аватара)
 
 Resumes:
-  POST   /resumes/upload         → 201 Created
-  GET    /resumes                → 200 OK (list)
-  GET    /resumes/{id}           → 200 OK
+  POST   /resumes/upload         → 201 Created (PDF/DOCX, multipart)
+  POST   /resumes/from-text      → 201 Created (текст → резюме)
+  GET    /resumes                → 200 OK (list, пагинация)
+  GET    /resumes/{id}           → 200 OK (включая parsed_data)
   PUT    /resumes/{id}           → 200 OK (обновление метаданных)
-  DELETE /resumes/{id}           → 204 No Content
+  DELETE /resumes/{id}           → 204 No Content (soft-delete)
+  POST   /resumes/{id}/restore   → 200 OK (восстановление)
+  GET    /resumes/{id}/file      → 200 OK (скачивание оригинала)
+  GET    /resumes/{id}/preview   → 200 OK (данные для просмотрщика)
 
 Vacancies:
   GET    /vacancies/search       → 200 OK (list from hh.ru)
+  GET    /vacancies/hh/{hh_id}   → 200 OK (полные данные вакансии hh.ru)
   POST   /vacancies/from-url     → 201 Created
   POST   /vacancies/manual       → 201 Created
   GET    /vacancies/{id}         → 200 OK
   DELETE /vacancies/{id}         → 204 No Content
 
 Rewrite:
-  POST   /rewrite                → 202 Accepted (task_id)
+  POST   /rewrite                → 202 Accepted (task_id, rate limit 10/час)
   GET    /rewrite/{task_id}/status → 200 OK
   GET    /rewrite/{task_id}/result → 200 OK
-  GET    /rewrite/history        → 200 OK (список оптимизаций пользователя)
+  GET    /rewrite/history        → 200 OK (список оптимизаций)
 
 Export:
-  GET    /export/{id}/docx       → 200 OK (binary)
+  GET    /export/{id}/docx       → 200 OK (binary DOCX)
+  GET    /export/{id}/pdf        → 200 OK (binary PDF)
+  GET    /export/{id}/txt        → 200 OK (plain text)
+
+Models:
+  GET    /models                 → 200 OK (список провайдеров + доступность)
+  GET    /models/{provider}/sub-models → 200 OK (подмодели)
+
+Settings:
+  GET    /settings/ai-keys       → 200 OK (маскированные ключи)
+  PUT    /settings/ai-keys/{provider} → 200 OK (сохранить ключ)
+  DELETE /settings/ai-keys/{provider} → 204 No Content
+  GET    /settings/ai-toggles    → 200 OK
+  PUT    /settings/ai-toggles    → 200 OK
+  GET    /settings/ai-model      → 200 OK
+  PUT    /settings/ai-model      → 200 OK
 
 Health:
   GET    /health                 → 200 OK
+  MOUNT  /api/v1/uploads/        → StaticFiles (аватары, загрузки)
 ```
 
 ### 9.2. Примеры запросов
@@ -946,13 +1030,14 @@ def validate_upload(file: UploadFile) -> None:
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 423 (pytest + pytest-asyncio) |
+| **Backend тестов (unit + acceptance + coverage)** | 578 (pytest + pytest-asyncio) |
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: 4 провайдера) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 198 (Vitest + @testing-library/react) |
-| **Всего тестов** | 734 |
-| **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
+| **Backend тестов всего** | **691** |
+| **Frontend тестов** | **525** (Vitest + @testing-library/react) |
+| **Всего тестов** | **1216** |
+| **Backend покрытие** | 100% (pytest-cov) |
 | **Фреймворки** | pytest, Vitest |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 | **Ruff warnings** | 0 |
@@ -962,11 +1047,11 @@ def validate_upload(file: UploadFile) -> None:
 
 ```
 ┌─────────────────────────────────────┐
-│      Frontend Tests (Vitest)        │  ← 10% (33 tests)
+│      Frontend Tests (Vitest)        │  ← 525 tests (43%)
 ├─────────────────────────────────────┤
-│       Integration Tests (API)       │  ← 25%
+│      Backend Unit + Acceptance      │  ← 578 tests (48%)
 ├─────────────────────────────────────┤
-│          Unit Tests (Logic)         │  ← 65%
+│   Integration + E2E (LLM + Browser) │  ← 113 tests (9%)
 └─────────────────────────────────────┘
 ```
 
@@ -974,17 +1059,21 @@ def validate_upload(file: UploadFile) -> None:
 
 | Модуль | Тестов | Покрытие |
 |--------|--------|----------|
-| `test_auth/` | 55 | auth/models, schemas, router, service — 100% |
-| `test_resumes/` | 39 | upload, CRUD, парсинг, эмбеддинги — 100% |
-| `test_vacancies/` | 42 | hh.ru клиент, CRUD, retry, таймауты, HTTP-ошибки — 100% |
-| `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, raw_text=None — 100% |
-| `test_export/` | 11 | DOCX-генерация — 100% |
-| `test_ml/` | 87 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация — 100% |
-| `test_core/` | 79 | config, security, database, storage, exceptions, deps, **seed** — 100% |
-| `test_main*` | 7 | middleware, error handlers, lifespan — 100% |
+| `test_auth/` | 64 | auth/models, schemas, router, service, avatar, soft-delete — 100% |
+| `test_resumes/` | 65 | upload, from-text, CRUD, парсинг, soft-delete, preview, file — 100% |
+| `test_vacancies/` | 55 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты — 100% |
+| `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, history — 100% |
+| `test_export/` | 38 | DOCX, PDF, TXT генерация (структурированные + plain) — 100% |
+| `test_ml/` | 96 | LLM-клиенты (4 провайдера), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация, o-series — 100% |
+| `test_core/` | 81 | config, security, database, storage, exceptions, deps, encryption, limiter, seed — 100% |
+| `test_main*` | 7 | middleware, error handlers, lifespan, StaticFiles — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
 | `test_coverage_100` | 40 | 100% покрытие: AnthropicClient, error paths, create_from_text, execute_rewrite, celery |
-| `test_health` | 1 | GET /health — 100% |
+| `test_acceptance` | 52 | приёмочные: полные пользовательские сценарии |
+| `test_v17_fixes` | 50 | v1.7 правки: верификация, шифрование, экспорт, soft-delete |
+| `test_qa_fixes` | 19 | QA дефекты: email enum, LLM messages, tariff, sanitize |
+| `test_integration_llm` | 23 | реальные вызовы 4 LLM-провайдеров |
+| `test_e2e_browser` | 38 | Playwright browser-тесты |
 
 ### 14.4. Ключевые тесты
 
@@ -1139,7 +1228,7 @@ Docker Desktop → docker compose up -d
 | Test coverage | ≥ 70% | **100%** ✅ |
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
-| Тестов всего | — | **628** (368 unit + 24 integration + 38 E2E + 198 frontend) |
+| Тестов всего | — | **1216** (691 backend + 525 frontend) ✅ |
 | API response (CRUD) | < 200 мс | — |
 | Оптимизация (Anthropic Claude) | < 15 сек | — |
 | Match Score improvement | +20%+ для 80% тестов | — |
@@ -1202,27 +1291,26 @@ Docker Desktop → docker compose up -d
 
 | Компонент | Объём |
 |-----------|-------|
-| Аутентификация | Email + пароль, JWT |
-| Резюме | PDF/DOCX, парсинг, LLM-структуризация |
-| Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод |
-| AI-оптимизация | GigaChat Pro + Anthropic Claude + OpenRouter + OpenAI, Match Score, ATS |
-| Экспорт | DOCX |
-| UI | React SPA (23 маршрута, модульная архитектура, 366 тестов) |
-| Инфраструктура | Docker Compose, PostgreSQL, Redis, RabbitMQ, Local FS |
-| Оплата | Робокасса (тестовый режим, URL-генерация + подпись) |
-| Тестирование | Unit + Integration + E2E + Frontend, 902 тестов, 100% backend coverage |
+| Аутентификация | Email + пароль, JWT, email-верификация, soft-delete/restore, аватар |
+| Резюме | PDF/DOCX/текст, парсинг, LLM-структуризация, soft-delete/restore, preview |
+| Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод, полные данные вакансии |
+| AI-оптимизация | GigaChat Pro + Anthropic Claude + OpenRouter + OpenAI (4 провайдера), Match Score, ATS |
+| Экспорт | DOCX + PDF + TXT (3 формата) |
+| Настройки | Зашифрованные API-ключи (AES), AI toggles, выбор модели/подмодели |
+| Модели | Список провайдеров, динамические подмодели через API |
+| UI | React SPA (22 страницы, 23+ маршрутов, модульная архитектура) |
+| Инфраструктура | Docker Compose (7 сервисов), PostgreSQL + pgvector, Redis, RabbitMQ, Local FS |
+| Тестирование | Unit + Integration + E2E + Frontend, **1216 тестов**, 100% backend coverage |
 
 ### 19.2. Вне объёма (Out of Scope → Future)
 
 | Компонент | Фаза |
 |-----------|------|
-| OAuth hh.ru | Phase 2 |
-| ЮKassa | Заменено на Робокассу |
-| 2FA | Phase 2 |
-| GPT-4o | Подключен в MVP (alias в LLMClientFactory) |
-| PDF export + шаблоны | Phase 2 |
+| OAuth hh.ru (соискатель) | Phase 2 |
+| ЮKassa / платёжная система | Phase 2 |
+| 2FA (TOTP) | Phase 2 |
 | WYSIWYG-редактор | Phase 2 |
-| Email verification | Phase 2 |
+| Шаблоны экспорта (Professional, Creative) | Phase 2 |
 | Telegram-бот | Phase 3 |
 | Mobile app | Phase 3 |
 | B2B API | Phase 3 |

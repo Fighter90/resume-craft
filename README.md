@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.7.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.8.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.7  
+> **Версия:** 1.8  
 > **Дата:** Март 2026  
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -341,7 +341,8 @@ Export ←── Results ←── Processing ←── Vacancy
 | **openai** (SDK) | OpenAI, OpenRouter — единый SDK |
 | **PyMuPDF** (fitz) | Извлечение текста из PDF (AGPL 3.0) |
 | **python-docx** | Чтение и создание DOCX |
-| **LibreOffice headless** | Конвертация DOCX → PDF |
+| **reportlab** | Генерация PDF (≥4.0) |
+| **anthropic** (SDK) | Интеграция с Anthropic Claude |
 | **sentence-transformers** | Генерация эмбеддингов |
 | **pytesseract** | OCR для сканов |
 
@@ -352,7 +353,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (480 тестов) |
+| **Vitest + Testing Library** | Тесты frontend (525 тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitHub Actions** | CI/CD (lint, test, build, deploy) |
@@ -375,7 +376,10 @@ src/app/
 │   ├── celery_app.py      # Celery конфигурация
 │   ├── storage.py         # Local FS / MinIO абстракция
 │   ├── dependencies.py    # FastAPI Depends()
-│   └── exceptions.py      # Кастомные HTTP-исключения
+│   ├── exceptions.py      # Кастомные HTTP-исключения
+│   ├── encryption.py      # AES-шифрование API-ключей (Fernet)
+│   ├── limiter.py         # Rate limiting (slowapi + Redis)
+│   └── seed.py            # Seed данные для разработки
 ├── auth/                  # Аутентификация
 │   ├── router.py          # POST /auth/register, /login, /refresh, /logout, GET /auth/verify/{token}
 │   ├── schemas.py         # Pydantic-модели
@@ -401,23 +405,30 @@ src/app/
 ├── export/                # Экспорт
 │   ├── router.py          # GET /export/{id}/{docx,pdf,txt}
 │   └── service.py         # python-docx, reportlab, txt генерация
+├── settings/              # Настройки пользователя
+│   ├── router.py          # GET/PUT/DELETE /settings/ai-keys, ai-toggles, ai-model
+│   ├── schemas.py         # AIKeyResponse, AITogglesUpdate, AIModelSettings
+│   ├── models.py          # SQLAlchemy UserSetting
+│   └── service.py         # AES-шифрование, CRUD
 └── ml/                    # ML-пакет
     ├── llm_client.py      # BaseLLMClient (ABC), GigaChat, Anthropic, OpenAI, OpenRouter
     ├── llm_factory.py     # LLMClientFactory (Strategy Pattern)
     ├── prompts.py         # Системные промпты
     ├── embeddings.py      # sentence-transformers → VECTOR(1536)
     ├── scoring.py         # Match Score (4 компонента)
-    └── parser.py          # PyMuPDF, python-docx, OCR fallback
+    ├── parser.py          # PyMuPDF, python-docx, OCR fallback
+    ├── router.py          # GET /models, /models/{provider}/sub-models
+    └── sanitize.py        # Sanitization для LLM input
 
 tests/                     # Зеркалирует src/app/
 ├── conftest.py            # Fixtures: async client, test DB, factories
-├── test_auth/             # 55 тестов
-├── test_resumes/          # 39 тестов
-├── test_vacancies/        # 42 теста
+├── test_auth/             # 64 теста
+├── test_resumes/          # 65 тестов
+├── test_vacancies/        # 55 тестов
 ├── test_rewriter/         # 40 тестов
-├── test_export/           # 30+ тестов
-├── test_ml/               # 87 тестов
-├── test_core/             # 79 тестов
+├── test_export/           # 38 тестов
+├── test_ml/               # 96 тестов
+├── test_core/             # 81 тест
 ├── test_main.py           # 3 теста (middleware, health)
 ├── test_main_extra.py     # 4 теста (error handlers, lifespan)
 ├── test_health.py         # 1 тест
@@ -426,7 +437,8 @@ tests/                     # Зеркалирует src/app/
 ├── test_integration_llm.py # 23 теста (реальные LLM API)
 ├── test_e2e_browser.py    # 38 тестов (Playwright E2E)
 ├── test_acceptance.py     # 52 теста (приёмочные)
-└── test_v17_fixes.py      # 50 тестов (покрытие v1.7 правок)
+├── test_v17_fixes.py      # 50 тестов (покрытие v1.7 правок)
+└── test_v20_fixes.py      # 30+ тестов (покрытие v1.8 правок)
 
 alembic/                   # Миграции PostgreSQL
 
@@ -444,7 +456,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 23 page components (+PrivacyPage, TermsPage, AboutPage)
-    └── test/              # 480 тестов (Vitest + Testing Library)
+    └── test/              # 525 тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -465,16 +477,17 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 
 ## 8. Схема базы данных
 
-4 таблицы в MVP + 3 дополнительные в Phase 2. PostgreSQL 16 + расширения `uuid-ossp` и `vector`:
+5 таблиц в MVP + 3 дополнительные в Phase 2. PostgreSQL 16 + расширения `uuid-ossp` и `vector`:
 
-**MVP (Phase 1) — 4 таблицы:**
+**MVP — 5 таблиц:**
 
 | Таблица | Назначение | Ключевые поля |
 |---------|-----------|---------------|
-| **users** | Пользователи | email, hashed_password, plan, optimizations_used |
+| **users** | Пользователи | email, hashed_password, plan, optimizations_used, is_verified, avatar_url, deleted_at, scheduled_deletion |
 | **resumes** | Загруженные резюме | user_id FK, file_path, raw_text, parsed_data JSONB, embedding VECTOR(1536), status |
 | **vacancies** | Вакансии | user_id FK, hh_id, title, description, key_skills JSONB, embedding VECTOR(1536) |
 | **rewrite_history** | История оптимизаций | resume_id FK, vacancy_id FK, original_text, rewritten_text, model_name, match_score_before/after, ats_rating |
+| **user_settings** | Настройки (AES) | user_id FK, category, key, value, is_encrypted; UNIQUE(user_id, category, key) |
 
 **Phase 2 — 3 таблицы:**
 
@@ -513,23 +526,27 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 
 | Метод | Путь | Описание |
 |-------|------|----------|
-| GET | `/users/me` | Профиль текущего пользователя |
-| PUT | `/users/me` | Обновление профиля |
-| PUT | `/users/me/password` | Смена пароля |
-| DELETE | `/users/me` | Soft-delete аккаунта (требуется пароль) |
-| POST | `/users/me/restore` | Восстановление удалённого аккаунта (30 дней) |
+| GET | `/auth/me` | Профиль текущего пользователя |
+| PUT | `/auth/me` | Обновление профиля |
+| PUT | `/auth/me/password` | Смена пароля |
+| DELETE | `/auth/me` | Soft-delete аккаунта (требуется пароль, 30 дней) |
+| POST | `/auth/me/restore` | Восстановление удалённого аккаунта |
+| POST | `/auth/me/avatar` | Загрузка аватара (multipart, ≤ 2 МБ) |
+| DELETE | `/auth/me/avatar` | Удаление аватара |
 
 ### 9.3. Резюме
 
 | Метод | Путь | Описание |
 |-------|------|----------|
 | POST | `/resumes/upload` | Загрузка (multipart, PDF/DOCX, ≤ 10 МБ) |
+| POST | `/resumes/from-text` | Создание резюме из текста |
 | GET | `/resumes` | Список (пагинация, фильтры) |
 | GET | `/resumes/{id}` | Детали (включая parsed_data) |
 | PUT | `/resumes/{id}` | Обновление данных |
 | DELETE | `/resumes/{id}` | Soft-delete (пометка deleted_at) |
 | POST | `/resumes/{id}/restore` | Восстановление удалённого резюме |
 | GET | `/resumes/{id}/file` | Скачивание оригинального файла |
+| GET | `/resumes/{id}/preview` | Данные для просмотрщика |
 
 ### 9.4. Вакансии
 
@@ -559,16 +576,34 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | GET | `/export/{id}/pdf` | Экспорт в PDF (reportlab) |
 | GET | `/export/{id}/txt` | Экспорт в TXT (plain text) |
 
-### 9.7. Подписка
+### 9.7. Настройки (Settings)
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| GET | `/settings/ai-keys` | Маскированные API-ключи |
+| PUT | `/settings/ai-keys/{provider}` | Сохранить ключ (AES-шифрование) |
+| DELETE | `/settings/ai-keys/{provider}` | Удалить ключ |
+| GET | `/settings/ai-toggles` | Состояния провайдеров (on/off) |
+| PUT | `/settings/ai-toggles` | Обновить toggles |
+| GET | `/settings/ai-model` | Модель по умолчанию |
+| PUT | `/settings/ai-model` | Установить модель по умолчанию |
+
+### 9.8. Модели (Models)
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| GET | `/models` | Список провайдеров + доступность |
+| GET | `/models/{provider}/sub-models` | Подмодели провайдера (динамически через API) |
+
+### 9.9. Подписка (Phase 2)
 
 | Метод | Путь | Описание |
 |-------|------|----------|
 | GET | `/subscription` | Текущий план и лимиты |
 | POST | `/subscription/upgrade` | Обновление → ЮKassa |
 | POST | `/subscription/cancel` | Отмена подписки |
-| POST | `/subscription/webhook` | Webhook от ЮKassa |
 
-### 9.8. Примеры запросов и ответов
+### 9.10. Примеры запросов и ответов
 
 **Регистрация:**
 ```bash
@@ -910,12 +945,12 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 473 (pytest + pytest-asyncio) |
+| **Backend тестов (unit)** | 578 (pytest + pytest-asyncio) |
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 487 (Vitest + @testing-library/react) |
-| **Всего тестов** | 1093 |
+| **Frontend тестов** | 525 (Vitest + @testing-library/react) |
+| **Всего тестов** | **1216** |
 | **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -942,20 +977,21 @@ cd frontend && npm run test:watch
 
 | Модуль | Тестов | Что покрывается |
 |--------|--------|----------------|
-| `test_auth/` | 55 | Регистрация, логин, refresh, logout, модели, схемы, сервис, edge-cases |
-| `test_resumes/` | 39 | Upload, CRUD, парсинг PDF/DOCX, валидация, эмбеддинги |
-| `test_vacancies/` | 59 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки, hh детали |
+| `test_auth/` | 64 | Регистрация, логин, refresh, logout, верификация, аватар, soft-delete, модели, схемы |
+| `test_resumes/` | 65 | Upload, CRUD, парсинг PDF/DOCX, валидация, soft-delete, restore, preview |
+| `test_vacancies/` | 55 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки, hh детали |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, история, LLM retry |
-| `test_export/` | 11 | DOCX/PDF/TXT-генерация, структурированные/plain данные |
-| `test_ml/` | 87 | LLM-клиенты (GigaChat, Anthropic, OpenRouter, OpenAI), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация |
-| `test_core/` | 79 | Config, security, database, storage, exceptions, dependencies |
+| `test_export/` | 38 | DOCX/PDF/TXT-генерация, структурированные/plain данные, Content-Disposition |
+| `test_ml/` | 96 | LLM-клиенты (4 провайдера), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация |
+| `test_core/` | 81 | Config, security, database, storage, exceptions, dependencies, encryption |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
 | `test_coverage_gaps` | 22 | Edge-cases: scoring, embedding fallback, export |
 | `test_coverage_100` | 40 | 100% покрытие: AnthropicClient, _handle_llm_error, create_from_text, execute_rewrite, celery preload |
-| `test_integration_llm` | 23 | Интеграция: реальные вызовы 4 LLM-провайдеров (GigaChat, Anthropic, OpenRouter, OpenAI) |
-| `test_e2e_browser` | 38 | E2E: Playwright browser-тесты (навигация, формы, wizard, настройки) |
-| `test_acceptance` | 52 | Приёмочные тесты: полные пользовательские сценарии |
-| `test_v17_fixes` | 50 | Покрытие всех v1.7 правок: верификация, шифрование, экспорт, soft-delete, email enumeration |
+| `test_integration_llm` | 23 | Интеграция: реальные вызовы 4 LLM-провайдеров |
+| `test_e2e_browser` | 38 | E2E: Playwright browser-тесты |
+| `test_acceptance` | 52 | Приёмочные тесты |
+| `test_v17_fixes` | 50 | Покрытие v1.7 правок |
+| `test_v20_fixes` | 30+ | Покрытие v1.8 правок: аватар, o-series, dropdown z-index |
 
 ### 17.4. Инструменты проверки качества
 
@@ -1047,6 +1083,35 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.8.0 (Март 2026) — QA v3: 9 FIX-пакетов, документация
+
+**Backend (5 исправлений):**
+- P0-3: Эндпойнты `GET /auth/me` и `GET /rewrite/history` возвращают JSON вместо неформатированного текста
+- P0-4: OpenRouterClient корректно обрабатывает o-series модели (max_completion_tokens вместо max_tokens)
+- P1-2: `soft_delete_account` возвращает JSON-ошибку при неверном пароле (не HTML)
+- P1-4: Обновлён список моделей OpenRouter (deepseek-r1, llama-4 и др.)
+- P1-6: Аватар мигрирован из localStorage на сервер (POST/DELETE /auth/me/avatar)
+
+**Frontend (4 исправления):**
+- P1-1: Выпадающее меню подмоделей: z-index=1000 и overflow-visible
+- P1-6: Аватар на сервере (upload/delete через API) вместо localStorage
+- P2-1: Прогресс-бар с плавной CSS-анимацией (transition 0.5s ease-in-out)
+- P2-2: Корректное отображение diff с пробелами и \n
+
+**Инфраструктура:**
+- Alembic 007: avatar_url VARCHAR(500) → users
+- Alembic 006: Исправлен down_revision для портативности
+
+**Документация:**
+- Полный аудит кодовой базы vs документации
+- BASELINE.md обновлён: схема БД (5 таблиц), API (40+ эндпойнтов), зависимости, границы
+- README.md обновлён: схема БД, API пути, дерево каталогов, метрики тестов
+
+**Тесты:**
+- +30 новых backend-тестов (`test_v20_fixes.py`): аватар, o-series, dropdown, diff
+- +38 новых frontend-тестов: V20 fixes
+- Итого: **691 backend-тестов**, **525 frontend-тестов**, **1216 всего**
 
 ### v1.7.0 (Март 2026) — QA v2: 12 FIX пакетов, 50 новых тестов
 
