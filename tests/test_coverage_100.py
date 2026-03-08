@@ -206,6 +206,7 @@ class TestLLMClientFactoryExtraFallback:
         s.openai_api_key = ''
         s.anthropic_api_key = ''
         s.openrouter_api_key = ''
+        s.groq_api_key = ''
 
         from app.ml.llm_factory import LLMClientFactory
 

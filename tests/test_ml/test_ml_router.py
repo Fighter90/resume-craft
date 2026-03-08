@@ -40,6 +40,7 @@ class TestListModels:
         mock_settings.openai_api_key = ''
         mock_settings.anthropic_api_key = ''
         mock_settings.openrouter_api_key = ''
+        mock_settings.groq_api_key = ''
 
         with patch('app.ml.router.get_settings', return_value=mock_settings):
             resp = await client.get('/api/v1/models')
@@ -48,7 +49,7 @@ class TestListModels:
         data = resp.json()
         assert 'models' in data
         models = data['models']
-        assert len(models) == 4
+        assert len(models) == 5
 
         for m in models:
             assert m['available'] is False
@@ -60,6 +61,7 @@ class TestListModels:
         mock_settings.openai_api_key = 'sk-test'
         mock_settings.anthropic_api_key = 'sk-ant-test'
         mock_settings.openrouter_api_key = 'sk-or-test'
+        mock_settings.groq_api_key = 'gsk-test'
 
         with patch('app.ml.router.get_settings', return_value=mock_settings):
             resp = await client.get('/api/v1/models')
@@ -76,6 +78,7 @@ class TestListModels:
         mock_settings.openai_api_key = ''
         mock_settings.anthropic_api_key = 'sk-ant-test'
         mock_settings.openrouter_api_key = '   '  # пробелы = пустой
+        mock_settings.groq_api_key = ''
 
         with patch('app.ml.router.get_settings', return_value=mock_settings):
             resp = await client.get('/api/v1/models')
@@ -94,6 +97,7 @@ class TestListModels:
         mock_settings.openai_api_key = ''
         mock_settings.anthropic_api_key = ''
         mock_settings.openrouter_api_key = ''
+        mock_settings.groq_api_key = ''
 
         with patch('app.ml.router.get_settings', return_value=mock_settings):
             resp = await client.get('/api/v1/models')
@@ -114,6 +118,7 @@ class TestListModels:
         mock_settings.openai_api_key = ''
         mock_settings.anthropic_api_key = ''
         mock_settings.openrouter_api_key = ''
+        mock_settings.groq_api_key = ''
 
         with patch('app.ml.router.get_settings', return_value=mock_settings):
             resp = await client.get('/api/v1/models')

@@ -367,10 +367,12 @@ class TestMigration008:
     async def test_migration_exists(self) -> None:
         """Файл миграции существует и содержит upgrade/downgrade."""
         import importlib.util
+        from pathlib import Path
 
+        migration_path = Path(__file__).resolve().parent.parent / 'alembic' / 'versions' / '008_score_breakdown.py'
         spec = importlib.util.spec_from_file_location(
             '008_score_breakdown',
-            '/Users/sergejemelanov/Projects/mvp/alembic/versions/008_score_breakdown.py',
+            str(migration_path),
         )
         assert spec is not None
         mod = importlib.util.module_from_spec(spec)
