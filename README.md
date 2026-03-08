@@ -1156,7 +1156,7 @@ pip-audit
 - +50 новых backend-тестов (V19): TXT export (27), resume file preview (23)
 - +36 новых frontend-тестов (`export-v19.test.tsx`): unit, functional, integration, acceptance
 - +8 новых backend-тестов (V18): o-series (4), form-data (3), json (1)
-- Итого: **725 backend-тестов**, **525 frontend-тестов**, **1250 всего**
+- Итого: **757 backend-тестов**, **534 frontend-тестов**, **1291 всего**
 
 ### v1.7.0 (Март 2026) — QA v2: 12 FIX пакетов, 50 новых тестов
 
