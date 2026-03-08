@@ -170,11 +170,13 @@
 | **Anthropic Claude** | 93% | ~10 сек | Standard+ |
 | **OpenAI GPT-4o** | 92% | ~18 сек | Standard+ |
 | **OpenRouter** ¹ | 90–98% | ~15 сек | Все планы |
+| **Groq** ² | 90–95% | ~3 сек | Все планы |
 
 GigaChat Pro — рекомендованная модель: #1 на MERA для русского языка, данные в РФ, оплата в рублях. Для OpenAI, Anthropic и OpenRouter доступен двухшаговый выбор: провайдер → конкретная модель (список получается динамически через API провайдеров). Локально установленные API-ключи автоматически определяются и активируют соответствующих провайдеров.
 
 > ¹ OpenRouter — мульти-провайдер, доступ к Claude, Gemini, Mistral и др. через единый API.
-> В MVP подключены **4 LLM-провайдера**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI.
+> ² Groq — быстрый inference на LPU (Llama, Mixtral, Gemma).
+> В MVP подключены **5 LLM-провайдеров**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI, Groq.
 
 ### 3.6. Экспорт и редактор
 
@@ -593,6 +595,7 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | Метод | Путь | Описание |
 |-------|------|----------|
 | GET | `/models` | Список провайдеров + доступность |
+| GET | `/models/health` | Статус доступности всех провайдеров (пинг API) |
 | GET | `/models/{provider}/sub-models` | Подмодели провайдера (динамически через API) |
 
 ### 9.9. Подписка (Phase 2)
@@ -692,7 +695,7 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
 | Данные в РФ | ✅ | ❌ | ❌ | ❌ |
 | Лимиты | По тарифу Сбера | По тарифу Anthropic | По тарифу OpenAI | По тарифу OpenRouter |
 
-**4 LLM-провайдера** в MVP: GigaChat Pro, Anthropic Claude, OpenRouter (100+ моделей), OpenAI. Для OpenAI, Anthropic и OpenRouter реализован 2-ступенчатый выбор модели с динамической загрузкой доступных суб-моделей через API.
+**5 LLM-провайдеров** в MVP: GigaChat Pro, Anthropic Claude, OpenRouter (100+ моделей), OpenAI, Groq. Для OpenAI, Anthropic, OpenRouter и Groq реализован 2-ступенчатый выбор модели с динамической загрузкой доступных суб-моделей через API.
 
 ### 11.2. Match Score
 
@@ -772,7 +775,7 @@ Fallback автоматический с уведомлением пользов
 | **Экспорт** | DOCX, TXT | PDF + DOCX + TXT | Все форматы |
 | **Шаблоны** | 1 (Minimal) | 3 | Все + кастом |
 
-> В MVP подключены **4 LLM-провайдера**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI.
+> В MVP подключены **5 LLM-провайдеров**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI, Groq.
 
 **Позиционирование:** в 5–9x дешевле глобальных аналогов (Rezi $29, Jobscan $49) с нативной интеграцией hh.ru.
 
@@ -1083,6 +1086,26 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.9.0 (Март 2026) — QA v5: 6 дефектов, health-check провайдеров, тесты
+
+**Frontend (4 исправления):**
+- P0-3-CLAUDE: Универсальный парсер ответа LLM — strip markdown code blocks (` ```json `), prefer `rewritten_data`, поддержка полей `name`/`position`/`contacts` (ResultsPage)
+- GROQ-KEY: Groq добавлен в 3 пропущенные точки SettingsAiPage (post-save clear, reset clear, reset delete loop)
+- AVATAR-001: Инициалы аватара в профиле теперь динамические из `firstName`/`lastName` (ранее захардкожено «АП»)
+- LOGOUT-001 + NAV-001: Верифицировано — уже исправлены в V23 (logout в dropdown, NavLink для «Обновить до Pro»)
+
+**Backend (1 новый эндпоинт):**
+- GIGACHAT-001: `GET /models/health` — health-check всех LLM-провайдеров (пинг API, проверка ключа, детекция billing/auth ошибок)
+- Ping-функции для GigaChat, OpenAI, Anthropic, OpenRouter, Groq
+
+**Документация:**
+- README: 4→5 провайдеров (добавлен Groq), таблица провайдеров, API docs `/models/health`
+- Changelog V24
+
+**Тесты:**
+- Backend: тесты health-check эндпоинта, GROQ-KEY сохранение
+- Frontend: тесты парсера Claude JSON, аватар инициалы, Groq key reset
 
 ### v1.8.0 (Март 2026) — QA v3 + v4: 28 FIX-пакетов, hh.ru export removal, 120 новых тестов, аудит документации
 

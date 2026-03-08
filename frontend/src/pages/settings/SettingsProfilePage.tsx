@@ -93,7 +93,7 @@ export default function SettingsProfilePage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#fff', fontSize: '1.5rem', fontWeight: 700,
           }}>
-            {!avatarUrl && 'АП'}
+            {!avatarUrl && ((form.firstName?.charAt(0) || '') + (form.lastName?.charAt(0) || '') || '??').toUpperCase()}
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}

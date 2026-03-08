@@ -538,3 +538,199 @@ async def _fetch_groq_models(api_key: str) -> dict[str, Any]:
             ],
             'fallback': True,
         }
+
+
+# ============================================================================
+# Health-check: GET /models/health
+# ============================================================================
+
+
+@router.get(
+    '/health',
+    summary='Проверка доступности AI-провайдеров',
+)
+async def check_providers_health(
+    session: AsyncSession = Depends(get_session),
+    current_user: User | None = Depends(get_optional_user),
+) -> dict[str, object]:
+    """Проверяет доступность каждого провайдера (наличие ключа + пинг API)."""
+    settings = get_settings()
+    user_has = await _get_user_keys(session, current_user)
+
+    results: dict[str, dict[str, Any]] = {}
+
+    for provider, field in _KEY_FIELDS.items():
+        env_val = getattr(settings, field, '')
+        has_env = bool(env_val and env_val.strip())
+        has_user = user_has.get(provider, False)
+        has_key = has_env or has_user
+
+        if not has_key:
+            results[provider] = {'status': 'no_key', 'message': 'API-ключ не настроен'}
+            continue
+
+        # Get the actual key (prefer user key)
+        api_key = ''
+        if has_user and current_user and session:
+            from app.settings.service import get_decrypted_value
+
+            api_key = await get_decrypted_value(
+                session,
+                user_id=current_user.id,
+                category='ai_keys',
+                key=provider,
+            )
+        if not api_key:
+            api_key = env_val
+
+        # Ping provider API
+        try:
+            if provider == 'gigachat':
+                results[provider] = await _ping_gigachat(api_key, scope=settings.gigachat_scope)
+            elif provider == 'openai':
+                results[provider] = await _ping_openai(api_key)
+            elif provider == 'anthropic':
+                results[provider] = await _ping_anthropic(api_key)
+            elif provider == 'openrouter':
+                results[provider] = await _ping_openrouter(api_key)
+            elif provider == 'groq':
+                results[provider] = await _ping_groq(api_key)
+            else:
+                results[provider] = {'status': 'ok', 'message': 'Ключ настроен'}
+        except Exception as exc:
+            logger.warning('Health check failed for %s: %s', provider, exc)
+            results[provider] = {'status': 'error', 'message': str(exc)}
+
+    return {'providers': results}
+
+
+async def _ping_gigachat(
+    credentials: str,
+    *,
+    scope: str = 'GIGACHAT_API_PERS',
+) -> dict[str, str]:
+    """Пинг GigaChat — получить список моделей (минимальный запрос)."""
+    try:
+        from gigachat import GigaChat
+
+        client = GigaChat(credentials=credentials, scope=scope, verify_ssl_certs=False)
+        client.get_models()
+        return {'status': 'ok', 'message': 'Доступен'}
+    except Exception as exc:
+        msg = str(exc)
+        if 'balance' in msg.lower() or 'billing' in msg.lower() or 'средств' in msg.lower():
+            return {'status': 'billing_error', 'message': 'Недостаточно средств на балансе'}
+        if 'auth' in msg.lower() or 'credentials' in msg.lower() or '401' in msg:
+            return {'status': 'auth_error', 'message': 'Невалидный API-ключ'}
+        return {'status': 'error', 'message': msg[:200]}
+
+
+async def _ping_openai(api_key: str) -> dict[str, str]:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                'https://api.openai.com/v1/models',
+                headers={'Authorization': f'Bearer {api_key}'},
+            )
+            resp.raise_for_status()
+        return {'status': 'ok', 'message': 'Доступен'}
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 401:
+            return {'status': 'auth_error', 'message': 'Невалидный API-ключ'}
+        return {'status': 'error', 'message': f'HTTP {exc.response.status_code}'}
+    except Exception as exc:
+        return {'status': 'error', 'message': str(exc)[:200]}
+
+
+async def _ping_anthropic(api_key: str) -> dict[str, str]:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                'https://api.anthropic.com/v1/models',
+                headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01'},
+            )
+            resp.raise_for_status()
+        return {'status': 'ok', 'message': 'Доступен'}
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 401:
+            return {'status': 'auth_error', 'message': 'Невалидный API-ключ'}
+        return {'status': 'error', 'message': f'HTTP {exc.response.status_code}'}
+    except Exception as exc:
+        return {'status': 'error', 'message': str(exc)[:200]}
+
+
+async def _ping_openrouter(api_key: str) -> dict[str, str]:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                'https://openrouter.ai/api/v1/models',
+                headers={'Authorization': f'Bearer {api_key}'},
+            )
+            resp.raise_for_status()
+        return {'status': 'ok', 'message': 'Доступен'}
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 401:
+            return {'status': 'auth_error', 'message': 'Невалидный API-ключ'}
+        return {'status': 'error', 'message': f'HTTP {exc.response.status_code}'}
+    except Exception as exc:
+        return {'status': 'error', 'message': str(exc)[:200]}
+
+
+async def _ping_groq(api_key: str) -> dict[str, str]:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                'https://api.groq.com/openai/v1/models',
+                headers={'Authorization': f'Bearer {api_key}'},
+            )
+            resp.raise_for_status()
+        return {'status': 'ok', 'message': 'Доступен'}
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 401:
+            return {'status': 'auth_error', 'message': 'Невалидный API-ключ'}
+        return {'status': 'error', 'message': f'HTTP {exc.response.status_code}'}
+    except Exception as exc:
+        return {'status': 'error', 'message': str(exc)[:200]}
+    """Получение списка моделей Groq через OpenAI-совместимый API."""
+    if not api_key or not api_key.strip():
+        return {'sub_models': [], 'error': 'API-ключ Groq не настроен'}
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                'https://api.groq.com/openai/v1/models',
+                headers={'Authorization': f'Bearer {api_key}'},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+        # Фильтр: только chat-модели (не whisper, не embedding)
+        exclude_keywords = ('whisper', 'distil', 'embed', 'tts', 'guard')
+        models = []
+        for m in data.get('data', []):
+            mid = m.get('id', '')
+            if any(kw in mid.lower() for kw in exclude_keywords):
+                continue
+            models.append(
+                {
+                    'id': mid,
+                    'name': mid,
+                    'provider': 'Groq',
+                }
+            )
+
+        models.sort(key=lambda x: x['name'])
+        return {'sub_models': models}
+
+    except Exception as exc:
+        logger.warning('Failed to fetch Groq models: %s', exc)
+        return {
+            'sub_models': [
+                {'id': 'llama-3.3-70b-versatile', 'name': 'Llama 3.3 70B', 'provider': 'Groq'},
+                {'id': 'llama-3.1-8b-instant', 'name': 'Llama 3.1 8B', 'provider': 'Groq'},
+                {'id': 'llama3-70b-8192', 'name': 'Llama 3 70B', 'provider': 'Groq'},
+                {'id': 'mixtral-8x7b-32768', 'name': 'Mixtral 8x7B', 'provider': 'Groq'},
+                {'id': 'gemma2-9b-it', 'name': 'Gemma 2 9B', 'provider': 'Groq'},
+            ],
+            'fallback': True,
+        }

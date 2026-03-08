@@ -232,7 +232,7 @@ export default function SettingsAiPage() {
       // Save selected model to server
       await api.saveSelectedModel(model, selectedSubModel || undefined)
       // Clear local input keys (server has them now)
-      setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '' })
+      setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '', groq: '' })
       // Refresh server key status
       const keysRes = await api.getAIKeys().catch(() => null)
       if (keysRes?.keys) {
@@ -251,11 +251,11 @@ export default function SettingsAiPage() {
   const handleReset = async () => {
     setModel('gigachat-pro')
     setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
-    setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '' })
+    setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '', groq: '' })
     setSelectedSubModel('')
     localStorage.removeItem('ai_settings')
     // Delete all keys from server
-    for (const provider of ['gigachat', 'openai', 'anthropic', 'openrouter']) {
+    for (const provider of ['gigachat', 'openai', 'anthropic', 'openrouter', 'groq']) {
       await api.deleteAIKey(provider).catch(() => {})
     }
     setServerKeyStatus({})

@@ -100,39 +100,59 @@ export default function ResultsPage() {
   // P0-3: Detect if rewritten_text is raw JSON and convert to readable text
   const rewrittenData = result.rewritten_data
   const rewrittenText = (() => {
-    // If rewritten_text looks like JSON, try to format it as readable text
-    const trimmed = rewrittenRaw.trim()
-    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-      try {
-        const parsed = typeof rewrittenData === 'object' && rewrittenData ? rewrittenData : JSON.parse(trimmed)
-        const parts: string[] = []
-        if (parsed.summary) parts.push(parsed.summary, '')
-        if (parsed.experience?.length) {
-          parts.push('ОПЫТ РАБОТЫ', '')
-          for (const exp of parsed.experience) {
-            parts.push(`${exp.position || exp.title || ''} — ${exp.company || ''}`)
-            if (exp.period || exp.dates) parts.push(exp.period || exp.dates)
-            if (exp.achievements?.length) {
-              for (const a of exp.achievements) parts.push(`• ${a}`)
-            }
-            if (exp.description) parts.push(exp.description)
-            parts.push('')
+    // P0-3-CLAUDE: Universal parser — strip markdown code blocks, prefer rewritten_data
+    const formatParsed = (parsed: any): string => {
+      const parts: string[] = []
+      if (parsed.name) parts.push(parsed.name)
+      if (parsed.position || parsed.title) parts.push(parsed.position || parsed.title)
+      if (parsed.contacts || parsed.contact) {
+        const c = parsed.contacts || parsed.contact
+        if (typeof c === 'string') parts.push(c)
+        else if (typeof c === 'object') parts.push(Object.values(c).filter(Boolean).join(' | '))
+      }
+      if (parts.length > 0) parts.push('')
+      if (parsed.summary) parts.push(parsed.summary, '')
+      if (parsed.experience?.length) {
+        parts.push('ОПЫТ РАБОТЫ', '')
+        for (const exp of parsed.experience) {
+          parts.push(`${exp.position || exp.title || ''} — ${exp.company || ''}`)
+          if (exp.period || exp.dates) parts.push(exp.period || exp.dates)
+          if (exp.achievements?.length) {
+            for (const a of exp.achievements) parts.push(`• ${a}`)
           }
-        }
-        if (parsed.education?.length) {
-          parts.push('ОБРАЗОВАНИЕ', '')
-          for (const edu of parsed.education) {
-            parts.push(`${edu.institution || ''} — ${edu.degree || ''} ${edu.specialization || ''}${edu.year ? `, ${edu.year}` : ''}`)
-          }
+          if (exp.description) parts.push(exp.description)
           parts.push('')
         }
-        if (parsed.skills?.length) {
-          parts.push('НАВЫКИ', '', parsed.skills.join(', '))
+      }
+      if (parsed.education?.length) {
+        parts.push('ОБРАЗОВАНИЕ', '')
+        for (const edu of parsed.education) {
+          parts.push(`${edu.institution || ''} — ${edu.degree || ''} ${edu.specialization || ''}${edu.year ? `, ${edu.year}` : ''}`)
         }
-        return parts.join('\n')
+        parts.push('')
+      }
+      if (parsed.skills?.length) {
+        parts.push('НАВЫКИ', '', parsed.skills.join(', '))
+      }
+      return parts.join('\n')
+    }
+    // 1. Prefer pre-parsed rewritten_data from backend
+    if (typeof rewrittenData === 'object' && rewrittenData && (rewrittenData.summary || rewrittenData.experience)) {
+      return formatParsed(rewrittenData)
+    }
+    // 2. Strip markdown code blocks (```json ... ```)
+    let cleaned = rewrittenRaw.trim()
+    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/gm, '').replace(/\n?```\s*$/gm, '').trim()
+    // 3. Try to parse as JSON
+    if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(cleaned)
+        if (typeof parsed === 'object' && parsed !== null) {
+          return formatParsed(parsed)
+        }
       } catch { /* not valid JSON, use as-is */ }
     }
-    return rewrittenRaw
+    return cleaned
   })()
   const radius = 54
   const circumference = 2 * Math.PI * radius

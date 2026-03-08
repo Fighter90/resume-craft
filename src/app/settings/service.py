@@ -18,6 +18,7 @@ VALID_PROVIDERS: frozenset[str] = frozenset(
         'openai',
         'anthropic',
         'openrouter',
+        'groq',
     }
 )
 
