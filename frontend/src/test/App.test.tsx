@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect, vi } from 'vitest'
 import App from '../App'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 // Mock AuthContext so ProtectedRoute sees isAuthenticated = true
 vi.mock('../contexts/AuthContext', () => ({

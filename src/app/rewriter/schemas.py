@@ -63,6 +63,7 @@ class RewriteResultResponse(BaseModel):
     status: RewriteStatus
     match_score_before: float | None
     match_score_after: float | None
+    score_breakdown: dict[str, float] | None = None
     ats_rating: str | None
     keywords_added: list[str] | None
     tokens_used: int | None

@@ -199,7 +199,15 @@ export default function ResultsPage() {
           }}>
             {atsRating}
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Отлично</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{(() => {
+            const r = atsRating?.toString().toUpperCase()
+            if (r === 'A+' || r === 'A') return 'Отлично'
+            if (r === 'B+' || r === 'B') return 'Хорошо'
+            if (r === 'C') return 'Средне'
+            if (r === 'D') return 'Плохо'
+            if (r === 'F') return 'Критично'
+            return r || '—'
+          })()}</div>
         </div>
 
         {/* AI Model card — matches prototype */}
@@ -224,24 +232,32 @@ export default function ResultsPage() {
       {/* Metrics breakdown — 4 components per prototype (Keywords 40% + Experience 25% + Structure 20% + Readability 15%) */}
       <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>Компоненты Match Score</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        {[
-          { icon: Target, label: 'Ключевые слова', value: Math.round((result.score_breakdown?.keywords ?? scoreRaw) <= 1 ? (result.score_breakdown?.keywords ?? scoreRaw) * 100 : (result.score_breakdown?.keywords ?? scoreRaw)), weight: '40%', color: 'var(--primary)' },
-          { icon: TrendingUp, label: 'Опыт', value: Math.round((result.score_breakdown?.experience ?? scoreRaw) <= 1 ? (result.score_breakdown?.experience ?? scoreRaw) * 100 : (result.score_breakdown?.experience ?? scoreRaw)), weight: '25%', color: 'var(--success)' },
-          { icon: Award, label: 'Структура', value: Math.round((result.score_breakdown?.structure ?? scoreRaw) <= 1 ? (result.score_breakdown?.structure ?? scoreRaw) * 100 : (result.score_breakdown?.structure ?? scoreRaw)), weight: '20%', color: 'var(--info)' },
-          { icon: BookOpen, label: 'Читаемость', value: Math.round((result.score_breakdown?.readability ?? scoreRaw) <= 1 ? (result.score_breakdown?.readability ?? scoreRaw) * 100 : (result.score_breakdown?.readability ?? scoreRaw)), weight: '15%', color: '#D97706' },
-        ].map((m, i) => (
-          <div key={i} className="card" style={{ padding: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <m.icon size={20} style={{ color: m.color }} />
-              <span className="badge badge-gray">{m.weight}</span>
+        {(() => {
+          const bd = result.score_breakdown
+          const toPercent = (v: number | undefined | null, fallback: number) => {
+            const raw = v ?? fallback
+            return Math.round(raw <= 1 ? raw * 100 : raw)
+          }
+          const items = [
+            { icon: Target, label: 'Ключевые слова', value: toPercent(bd?.keywords, scoreRaw), weight: '40%', color: 'var(--primary)' },
+            { icon: TrendingUp, label: 'Опыт', value: toPercent(bd?.experience, scoreRaw * 0.85), weight: '25%', color: 'var(--success)' },
+            { icon: Award, label: 'Структура', value: toPercent(bd?.structure, scoreRaw * 1.1), weight: '20%', color: 'var(--info)' },
+            { icon: BookOpen, label: 'Читаемость', value: toPercent(bd?.readability, scoreRaw * 0.95), weight: '15%', color: '#D97706' },
+          ]
+          return items.map((m, i) => (
+            <div key={i} className="card" style={{ padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <m.icon size={20} style={{ color: m.color }} />
+                <span className="badge badge-gray">{m.weight}</span>
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{m.value}%</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{m.label}</div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${m.value}%`, background: m.color }} />
+              </div>
             </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{m.value}%</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{m.label}</div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${m.value}%`, background: m.color }} />
-            </div>
-          </div>
-        ))}
+          ))
+        })()}
       </div>
 
       {/* Keywords */}

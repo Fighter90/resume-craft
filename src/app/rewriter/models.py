@@ -63,6 +63,7 @@ class RewriteHistory(UUIDMixin, Base):
 
     match_score_before: Mapped[float | None] = mapped_column(Float, nullable=True)
     match_score_after: Mapped[float | None] = mapped_column(Float, nullable=True)
+    score_breakdown: Mapped[dict[str, float] | None] = mapped_column(JSONB, nullable=True)
     ats_rating: Mapped[str | None] = mapped_column(String(2), nullable=True)
     keywords_added: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
 

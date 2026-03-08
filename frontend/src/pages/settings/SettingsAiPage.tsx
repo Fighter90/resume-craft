@@ -46,6 +46,13 @@ const MODELS: ModelOption[] = [
     icon: Globe, apiKeyField: 'openrouter', apiKeyPlaceholder: 'sk-or-v1-...',
     hasSubModels: true,
   },
+  {
+    id: 'groq', name: 'Groq', provider: 'Groq',
+    desc: 'Быстрый inference — Llama 3, Mixtral, Gemma. Низкая латентность.',
+    badge: 'Новое', badgeColor: '#059669',
+    icon: Zap, apiKeyField: 'groq', apiKeyPlaceholder: 'gsk_...',
+    hasSubModels: true,
+  },
 ]
 
 const TOGGLES = [
@@ -102,12 +109,19 @@ const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
     { id: 'qwen/qwen3-235b-a22b', name: 'Qwen3 235B', provider: 'OpenRouter' },
     { id: 'x-ai/grok-3-mini-beta', name: 'Grok 3 Mini', provider: 'OpenRouter' },
   ],
+  groq: [
+    { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', provider: 'Groq' },
+    { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', provider: 'Groq' },
+    { id: 'llama3-70b-8192', name: 'Llama 3 70B', provider: 'Groq' },
+    { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', provider: 'Groq' },
+    { id: 'gemma2-9b-it', name: 'Gemma 2 9B', provider: 'Groq' },
+  ],
 }
 
 export default function SettingsAiPage() {
   const [model, setModel] = useState('gigachat-pro')
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({
-    gigachat: '', openai: '', anthropic: '', openrouter: '',
+    gigachat: '', openai: '', anthropic: '', openrouter: '', groq: '',
   })
   const [serverKeyStatus, setServerKeyStatus] = useState<Record<string, { has_key: boolean; masked_key: string }>>({})
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({})

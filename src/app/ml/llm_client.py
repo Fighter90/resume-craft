@@ -24,6 +24,18 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
     if status_code == 401 or '401' in err_str or 'Unauthorized' in err_str:
         raise LLMAuthError(provider) from exc
 
+    # 402 — billing / payment required
+    if status_code == 402 or '402' in err_str or 'payment' in err_str.lower():
+        raise LLMProviderUnavailable(
+            f'{provider} — недостаточно средств на балансе провайдера'
+        ) from exc
+
+    # Quota / billing / balance issues (without 402 code)
+    if any(kw in err_str.lower() for kw in ('billing', 'quota', 'balance', 'insufficient')):
+        raise LLMProviderUnavailable(
+            f'{provider} — недостаточно средств или превышена квота'
+        ) from exc
+
     # 429 — rate limit
     if status_code == 429 or '429' in err_str or 'rate' in err_str.lower():
         raise LLMProviderUnavailable(
@@ -333,6 +345,69 @@ class OpenRouterClient(BaseLLMClient):
 
     async def close(self) -> None:
         """Закрытие OpenRouter клиента."""
+        if self._client:
+            await self._client.close()
+            self._client = None
+
+
+class GroqClient(BaseLLMClient):
+    """Клиент Groq — быстрый inference через OpenAI-совместимый API."""
+
+    def __init__(
+        self,
+        model: str = 'llama-3.3-70b-versatile',
+        *,
+        api_key: str | None = None,
+    ) -> None:
+        self._model = model
+        self._api_key = api_key
+        self._client: Any = None
+
+    def _get_client(self) -> Any:
+        """Lazy-инициализация Groq через openai SDK."""
+        if self._client is None:
+            from openai import AsyncOpenAI
+
+            self._client = AsyncOpenAI(
+                api_key=self._api_key or settings.groq_api_key,
+                base_url='https://api.groq.com/openai/v1',
+            )
+        return self._client
+
+    async def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        temperature: float = 0.3,
+        max_tokens: int = 4096,
+    ) -> str:
+        """Запрос к Groq API."""
+        client = self._get_client()
+
+        try:
+            response = await client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {'role': 'system', 'content': system},
+                    {'role': 'user', 'content': user},
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        except Exception as exc:
+            _handle_llm_error(exc, provider='groq')
+
+        content = response.choices[0].message.content or ''
+        logger.info(
+            'Groq response: model=%s, tokens=%s',
+            self._model,
+            response.usage.total_tokens if response.usage else 'N/A',
+        )
+        return content
+
+    async def close(self) -> None:
+        """Закрытие Groq клиента."""
         if self._client:
             await self._client.close()
             self._client = None

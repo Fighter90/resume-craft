@@ -1,15 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Upload, FileText, ArrowLeft, AlertCircle, Link2, ClipboardPaste } from 'lucide-react'
+import { Upload, FileText, ArrowLeft, AlertCircle, Link2, ClipboardPaste, AlertTriangle } from 'lucide-react'
 import { useState, useCallback } from 'react'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 const ALLOWED_EXT = ['pdf', 'docx']
 const MAX_SIZE = 10 * 1024 * 1024
+const PLAN_LIMITS: Record<string, number> = { free: 5, standard: 30, pro: 999 }
 
 export default function UploadPage() {
   const navigate = useNavigate()
   const { setFile: setWizardFile, setResumeId } = useWizard()
+  const { user } = useAuth()
+  const plan = user?.plan || 'free'
+  const limit = PLAN_LIMITS[plan] ?? 5
+  const used = user?.optimizations_used ?? 0
+  const limitReached = used >= limit
   const [tab, setTab] = useState(0)
   const [dragActive, setDragActive] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -127,6 +134,28 @@ export default function UploadPage() {
 
       <h2 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>Загрузите ваше резюме</h2>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>PDF или DOCX файл, ссылка hh.ru, или вставьте текст</p>
+
+      {limitReached && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+          padding: '1rem 1.25rem', marginBottom: '1.5rem', borderRadius: 12,
+          background: '#FEF3C7', border: '1px solid #FDE68A',
+        }}>
+          <AlertTriangle size={20} style={{ color: '#92400E', flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <div style={{ fontWeight: 600, color: '#92400E', marginBottom: '0.25rem' }}>
+              Лимит оптимизаций исчерпан
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#78350F', lineHeight: 1.5 }}>
+              Использовано {used} из {limit} оптимизаций на тарифе {plan.charAt(0).toUpperCase() + plan.slice(1)}.
+              Вы можете загрузить резюме, но оптимизация будет недоступна до следующего месяца.
+            </div>
+            <Link to="/app/settings/subscription" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#92400E', textDecoration: 'underline', marginTop: '0.5rem', display: 'inline-block' }}>
+              Посмотреть тарифы
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="tab-bar" style={{ marginBottom: '1.5rem' }}>

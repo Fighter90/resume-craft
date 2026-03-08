@@ -18,7 +18,7 @@ from app.core.exceptions import (
 from app.ml.llm_factory import LLMClientFactory
 from app.ml.prompts import REWRITE_SYSTEM_PROMPT
 from app.ml.sanitize import sanitize_for_llm
-from app.ml.scoring import calculate_match_score
+from app.ml.scoring import calculate_match_score, calculate_match_score_detailed
 from app.resumes.models import Resume, ResumeStatus
 from app.rewriter.models import RewriteHistory, RewriteStatus
 from app.vacancies.models import Vacancy
@@ -147,6 +147,7 @@ async def execute_rewrite(
             'claude-sonnet': 'anthropic',
             'claude-haiku': 'anthropic',
             'openrouter': 'openrouter',
+            'groq': 'groq',
         }
         for prov_name, db_key in _provider_key_map.items():
             if db_key not in user_keys:
@@ -200,10 +201,17 @@ async def execute_rewrite(
 
         # Step 7: Расчёт score после оптимизации
         if task.rewritten_text:
-            task.match_score_after = calculate_match_score(
+            detailed = calculate_match_score_detailed(
                 resume_text=task.rewritten_text,
                 vacancy_text=vacancy_text,
             )
+            task.match_score_after = detailed['total']
+            task.score_breakdown = {
+                'keywords': detailed['keywords'],
+                'experience': detailed['experience'],
+                'structure': detailed['structure'],
+                'readability': detailed['readability'],
+            }
 
         # ATS-рейтинг
         if task.match_score_after is not None:

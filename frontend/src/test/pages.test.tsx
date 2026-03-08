@@ -3,7 +3,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect, vi } from 'vitest'
 import { WizardProvider } from '../contexts/WizardContext'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 // Mock API to prevent real network calls
 vi.mock('../services/api', () => ({

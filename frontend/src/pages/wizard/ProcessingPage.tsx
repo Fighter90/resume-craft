@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Loader, FileText, Search, Sparkles, CheckCircle, AlertCircle, RotateCcw, Settings } from 'lucide-react'
 import { api } from '../../services/api'
 import { useWizard } from '../../contexts/WizardContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -29,8 +30,14 @@ function friendlyError(msg: string): string {
   if (/провайдер all|provider all|unavailable/i.test(msg)) {
     return 'Ни один LLM-провайдер не настроен. Перейдите в настройки AI и добавьте API-ключ хотя бы для одного провайдера (OpenAI, Anthropic, OpenRouter или GigaChat).'
   }
-  if (/payment|402|billing/i.test(msg)) {
-    return 'Ошибка тарификации у поставщика модели. Проверьте баланс аккаунта или выберите другую модель.'
+  if (/insufficient.?balance|недостаточно средств|quota.?exceeded/i.test(msg)) {
+    return 'Недостаточно средств на балансе провайдера. Пополните баланс аккаунта поставщика или выберите другую модель.'
+  }
+  if (/payment.?required|402|billing/i.test(msg)) {
+    return 'Ошибка оплаты у поставщика модели. Проверьте тарифный план и баланс аккаунта провайдера, или выберите другую модель.'
+  }
+  if (/rate.?limit|429|too many/i.test(msg)) {
+    return 'Превышен лимит запросов к модели. Подождите минуту и попробуйте снова, или выберите другую модель.'
   }
   return msg
 }
@@ -38,6 +45,7 @@ function friendlyError(msg: string): string {
 export default function ProcessingPage() {
   const navigate = useNavigate()
   const { taskId, setResult } = useWizard()
+  const { refreshUser } = useAuth()
   const [current, setCurrent] = useState(0)
   const [progress, setProgress] = useState(0)
   const [done, setDone] = useState(false)
@@ -90,6 +98,8 @@ export default function ProcessingPage() {
             const result = await api.getRewriteResult(taskId) as any
             setResult(result)
           } catch { /* result will be fetched on results page */ }
+          // SIDEBAR-002: refresh user data to update optimization counter
+          refreshUser().catch(() => {})
           setDone(true)
         } else if (status.status === 'failed') {
           if (animRef.current) clearInterval(animRef.current)
@@ -146,7 +156,7 @@ export default function ProcessingPage() {
             {friendlyError(error)}
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button onClick={() => navigate('/app/models')} className="btn btn-primary btn-sm">
+            <button onClick={() => navigate('/app/models?reset=1')} className="btn btn-primary btn-sm">
               <RotateCcw size={14} /> Выбрать другую модель
             </button>
             <Link to="/app/settings/ai" className="btn btn-secondary btn-sm">

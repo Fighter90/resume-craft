@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Check, AlertCircle, Loader, AlertTriangle, Settings } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
@@ -21,6 +21,7 @@ const MODEL_META: Record<string, { badge: string; badgeClass: string; quality: n
   'openai': { badge: 'Pro', badgeClass: 'badge-indigo', quality: 92, speed: 65, tags: ['Мультиязычная', 'Креативность', 'GPT-4o'] },
   'anthropic': { badge: 'Pro', badgeClass: 'badge-indigo', quality: 93, speed: 70, tags: ['Claude 4', 'Русский язык', '200K контекст'] },
   'openrouter': { badge: 'Гибкая', badgeClass: 'badge-indigo', quality: 90, speed: 80, tags: ['Мультимодель', 'Гибкость', '100+ моделей'] },
+  'groq': { badge: 'Быстрый', badgeClass: 'badge-green', quality: 85, speed: 98, tags: ['Скорость', 'Llama', 'Mixtral'] },
 }
 
 const FALLBACK_MODELS: ModelInfo[] = [
@@ -28,6 +29,7 @@ const FALLBACK_MODELS: ModelInfo[] = [
   { id: 'openai', name: 'OpenAI', provider: 'OpenAI', available: true, description: 'GPT-4o, GPT-4o-mini и другие модели OpenAI. 128K контекст.', has_sub_models: true },
   { id: 'anthropic', name: 'Anthropic Claude', provider: 'Anthropic', available: true, description: 'Claude Sonnet 4, Claude Haiku — отличный русский, 200K контекст.', has_sub_models: true },
   { id: 'openrouter', name: 'OpenRouter', provider: 'OpenRouter', available: true, description: '100+ моделей через единый API. Claude, Gemini, Mistral и другие.', has_sub_models: true },
+  { id: 'groq', name: 'Groq', provider: 'Groq', available: true, description: 'Быстрый inference — Llama 3, Mixtral, Gemma. Низкая латентность.', has_sub_models: true },
 ]
 
 const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
@@ -75,10 +77,19 @@ const FALLBACK_SUB_MODELS: Record<string, SubModel[]> = {
     { id: 'qwen/qwen3-235b-a22b', name: 'Qwen3 235B', provider: 'OpenRouter' },
     { id: 'x-ai/grok-3-mini-beta', name: 'Grok 3 Mini', provider: 'OpenRouter' },
   ],
+  'groq': [
+    { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', provider: 'Groq' },
+    { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B', provider: 'Groq' },
+    { id: 'llama3-70b-8192', name: 'Llama 3 70B', provider: 'Groq' },
+    { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', provider: 'Groq' },
+    { id: 'gemma2-9b-it', name: 'Gemma 2 9B', provider: 'Groq' },
+  ],
 }
 
 export default function ModelsPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const resetMode = searchParams.get('reset') === '1'
   const { resumeId, vacancyId, setModel, setTaskId } = useWizard()
 
   const [selected, setSelected] = useState('gigachat-pro')
@@ -98,17 +109,22 @@ export default function ModelsPage() {
         const list = res.models || []
         if (list.length > 0) {
           setModels(list)
-          // Загружаем выбранную модель из серверных настроек
-          try {
-            const modelRes = await api.getSelectedModel()
-            const savedModel = (modelRes as any)?.model || ''
-            if (savedModel && list.find((m: ModelInfo) => m.id === savedModel && m.available)) {
-              setSelected(savedModel)
-            } else {
+          // UX-001: Skip saved model when navigating from error (reset=1)
+          if (!resetMode) {
+            try {
+              const modelRes = await api.getSelectedModel()
+              const savedModel = (modelRes as any)?.model || ''
+              if (savedModel && list.find((m: ModelInfo) => m.id === savedModel && m.available)) {
+                setSelected(savedModel)
+              } else {
+                const first = list.find((m: ModelInfo) => m.available)
+                if (first) setSelected(first.id)
+              }
+            } catch {
               const first = list.find((m: ModelInfo) => m.available)
               if (first) setSelected(first.id)
             }
-          } catch {
+          } else {
             const first = list.find((m: ModelInfo) => m.available)
             if (first) setSelected(first.id)
           }
@@ -119,6 +135,7 @@ export default function ModelsPage() {
       setLoadingModels(false)
     }
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Загрузка подмоделей при выборе провайдера с has_sub_models

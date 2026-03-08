@@ -26,6 +26,7 @@ _KEY_FIELDS: dict[str, str] = {
     'openai': 'openai_api_key',
     'anthropic': 'anthropic_api_key',
     'openrouter': 'openrouter_api_key',
+    'groq': 'groq_api_key',
 }
 
 # Маппинг имени модели → имя провайдера для БД
@@ -34,6 +35,7 @@ _MODEL_TO_PROVIDER: dict[str, str] = {
     'openai': 'openai',
     'anthropic': 'anthropic',
     'openrouter': 'openrouter',
+    'groq': 'groq',
 }
 
 
@@ -119,6 +121,14 @@ async def list_models(
             'description': '100+ моделей через единый API',
             'has_sub_models': True,
         },
+        {
+            'id': 'groq',
+            'name': 'Groq',
+            'provider': 'groq',
+            'available': available['groq'],
+            'description': 'Быстрый inference — Llama, Mixtral, Gemma',
+            'has_sub_models': True,
+        },
     ]
 
     return {'models': models}
@@ -170,6 +180,9 @@ async def get_sub_models(
     if normalized == 'openrouter':
         key = user_key or settings.openrouter_api_key
         return await _fetch_openrouter_models(key)
+    if normalized == 'groq':
+        key = user_key or settings.groq_api_key
+        return await _fetch_groq_models(key)
 
     return {'sub_models': [], 'error': f'Провайдер {provider} не поддерживает выбор подмоделей'}
 
@@ -476,6 +489,52 @@ async def _fetch_openrouter_models(api_key: str) -> dict[str, Any]:
                     'name': 'Grok 3 Mini',
                     'provider': 'X-ai',
                 },
+            ],
+            'fallback': True,
+        }
+
+
+async def _fetch_groq_models(api_key: str) -> dict[str, Any]:
+    """Получение списка моделей Groq через OpenAI-совместимый API."""
+    if not api_key or not api_key.strip():
+        return {'sub_models': [], 'error': 'API-ключ Groq не настроен'}
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                'https://api.groq.com/openai/v1/models',
+                headers={'Authorization': f'Bearer {api_key}'},
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+        # Фильтр: только chat-модели (не whisper, не embedding)
+        exclude_keywords = ('whisper', 'distil', 'embed', 'tts', 'guard')
+        models = []
+        for m in data.get('data', []):
+            mid = m.get('id', '')
+            if any(kw in mid.lower() for kw in exclude_keywords):
+                continue
+            models.append(
+                {
+                    'id': mid,
+                    'name': mid,
+                    'provider': 'Groq',
+                }
+            )
+
+        models.sort(key=lambda x: x['name'])
+        return {'sub_models': models}
+
+    except Exception as exc:
+        logger.warning('Failed to fetch Groq models: %s', exc)
+        return {
+            'sub_models': [
+                {'id': 'llama-3.3-70b-versatile', 'name': 'Llama 3.3 70B', 'provider': 'Groq'},
+                {'id': 'llama-3.1-8b-instant', 'name': 'Llama 3.1 8B', 'provider': 'Groq'},
+                {'id': 'llama3-70b-8192', 'name': 'Llama 3 70B', 'provider': 'Groq'},
+                {'id': 'mixtral-8x7b-32768', 'name': 'Mixtral 8x7B', 'provider': 'Groq'},
+                {'id': 'gemma2-9b-it', 'name': 'Gemma 2 9B', 'provider': 'Groq'},
             ],
             'fallback': True,
         }

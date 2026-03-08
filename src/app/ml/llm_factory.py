@@ -10,6 +10,7 @@ from app.ml.llm_client import (
     AnthropicClient,
     BaseLLMClient,
     GigaChatClient,
+    GroqClient,
     OpenAIClient,
     OpenRouterClient,
 )
@@ -27,6 +28,7 @@ _PROVIDERS: dict[str, type[BaseLLMClient]] = {
     'claude-sonnet': AnthropicClient,
     'claude-haiku': AnthropicClient,
     'openrouter': OpenRouterClient,
+    'groq': GroqClient,
 }
 
 # Модели по умолчанию для каждого класса
@@ -40,6 +42,7 @@ _MODEL_NAMES: dict[str, str] = {
     'claude-sonnet': 'claude-sonnet-4-20250514',
     'claude-haiku': 'claude-3-5-haiku-20241022',
     'openrouter': 'anthropic/claude-3.5-sonnet',
+    'groq': 'llama-3.3-70b-versatile',
 }
 
 # Маппинг провайдера → поле API-ключа в Settings
@@ -53,13 +56,14 @@ _PROVIDER_KEY_FIELDS: dict[str, str] = {
     'claude-sonnet': 'anthropic_api_key',
     'claude-haiku': 'anthropic_api_key',
     'openrouter': 'openrouter_api_key',
+    'groq': 'groq_api_key',
 }
 
 # Провайдеры с поддержкой выбора подмодели (2-шаговый выбор)
-SUB_MODEL_PROVIDERS: frozenset[str] = frozenset({'openai', 'anthropic', 'openrouter'})
+SUB_MODEL_PROVIDERS: frozenset[str] = frozenset({'openai', 'anthropic', 'openrouter', 'groq'})
 
 # Порядок fallback
-FALLBACK_ORDER: list[str] = ['gigachat-pro', 'anthropic', 'openrouter', 'openai']
+FALLBACK_ORDER: list[str] = ['gigachat-pro', 'anthropic', 'openrouter', 'groq', 'openai']
 
 
 class LLMClientFactory:
