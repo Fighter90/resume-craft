@@ -6,7 +6,7 @@
  * 4. LOGOUT-001: AppLayout — logout button exists (verified)
  * 5. NAV-001: AppLayout — NavLink for "Обновить до Pro" (verified)
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { WizardProvider } from '../contexts/WizardContext'
