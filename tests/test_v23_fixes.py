@@ -363,7 +363,9 @@ class TestTariffLimits:
 
 _MIGRATION_PATH = str(
     __import__('pathlib').Path(__file__).resolve().parent.parent
-    / 'alembic' / 'versions' / '008_score_breakdown.py'
+    / 'alembic'
+    / 'versions'
+    / '008_score_breakdown.py'
 )
 
 
