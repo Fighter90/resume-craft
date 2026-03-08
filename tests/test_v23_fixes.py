@@ -361,18 +361,22 @@ class TestTariffLimits:
 # ============================================================================
 
 
+_MIGRATION_PATH = str(
+    __import__('pathlib').Path(__file__).resolve().parent.parent
+    / 'alembic' / 'versions' / '008_score_breakdown.py'
+)
+
+
 class TestMigration008:
     """Миграция 008_score_breakdown."""
 
     async def test_migration_exists(self) -> None:
         """Файл миграции существует и содержит upgrade/downgrade."""
         import importlib.util
-        from pathlib import Path
 
-        migration_path = Path(__file__).resolve().parent.parent / 'alembic' / 'versions' / '008_score_breakdown.py'
         spec = importlib.util.spec_from_file_location(
             '008_score_breakdown',
-            str(migration_path),
+            _MIGRATION_PATH,
         )
         assert spec is not None
         mod = importlib.util.module_from_spec(spec)
