@@ -167,24 +167,29 @@ class TestResetPreservesApiKeys:
 class TestPlanUpgradeLinkNavigation:
     """NAV-001: Ссылка «Обновить до Pro» использует navigate() при клике."""
 
-    def test_plan_upgrade_link_has_onclick_navigate(self) -> None:
-        """Link для plan-upgrade содержит onClick с navigate()."""
+    def test_plan_upgrade_link_has_onclick(self) -> None:
+        """Link для plan-upgrade содержит onClick для закрытия sidebar."""
         import pathlib
 
         src = pathlib.Path('frontend/src/components/layout/AppLayout.tsx').read_text()
 
-        # Должен содержать onClick на plan-upgrade Link
+        # Link должен содержать onClick для sidebar close
+        assert 'plan-upgrade' in src
         assert 'onClick' in src
-        assert "navigate('/app/settings/subscription')" in src
 
-    def test_plan_upgrade_link_has_prevent_default(self) -> None:
-        """Link использует preventDefault + stopPropagation."""
+    def test_plan_upgrade_link_no_prevent_default(self) -> None:
+        """Link НЕ использует preventDefault (V28 fix)."""
         import pathlib
 
         src = pathlib.Path('frontend/src/components/layout/AppLayout.tsx').read_text()
 
-        assert 'e.preventDefault()' in src
-        assert 'e.stopPropagation()' in src
+        # Находим все plan-upgrade связанные строки
+        idx = src.index('plan-upgrade')
+        context = src[max(0, idx - 200) : idx + 200]
+        # V28: не должно быть preventDefault в onClick plan-upgrade
+        assert 'preventDefault' not in context, (
+            'plan-upgrade onClick не должен вызывать preventDefault (V28 fix)'
+        )
 
     def test_plan_upgrade_css_pointer_events(self) -> None:
         """CSS имеет pointer-events: auto для plan-upgrade."""

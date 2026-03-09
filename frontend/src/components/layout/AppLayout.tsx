@@ -98,12 +98,7 @@ export default function AppLayout() {
               <Link
                 to="/app/settings/subscription"
                 className="plan-upgrade"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setSidebarOpen(false)
-                  navigate('/app/settings/subscription')
-                }}
+                onClick={() => setSidebarOpen(false)}
               >
                 Обновить до Pro →
               </Link>

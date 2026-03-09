@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = 'INFO'
     app_name: str = 'ResumeCraft'
-    app_version: str = '1.11.0'
+    app_version: str = '1.12.0'
     api_v1_prefix: str = '/api/v1'
 
     # --- Database ---

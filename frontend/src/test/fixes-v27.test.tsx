@@ -84,7 +84,7 @@ beforeEach(() => {
 // ─── NAV-001: Plan upgrade link with explicit navigate ───────
 
 describe('NAV-001: Plan upgrade link navigation', () => {
-  it('calls navigate on click instead of default Link behavior', async () => {
+  it('navigates via React Router Link on click (no preventDefault)', async () => {
     const AppLayout = (await import('../components/layout/AppLayout')).default
     render(
       <MemoryRouter initialEntries={['/app/dashboard']}>
@@ -97,8 +97,12 @@ describe('NAV-001: Plan upgrade link navigation', () => {
       </MemoryRouter>,
     )
     const link = screen.getByText(/Обновить до Pro/)
+    // V28: Link navigates natively via React Router (no programmatic navigate)
+    expect(link.tagName).toBe('A')
+    expect(link.getAttribute('href')).toBe('/app/settings/subscription')
+    // Click should NOT call programmatic navigate — navigation happens via Link
     fireEvent.click(link)
-    expect(mockNavigate).toHaveBeenCalledWith('/app/settings/subscription')
+    expect(mockNavigate).not.toHaveBeenCalledWith('/app/settings/subscription')
   })
 
   it('renders as <a> tag with correct href for accessibility', async () => {

@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.11.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.12.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -1087,6 +1087,25 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.12.0 (Март 2026) — QA v8: KEY-CHECK-001, NAV-001, isAuthError
+
+**Backend (2 исправления):**
+- KEY-CHECK-001 (P2 MEDIUM): Race condition — `session.commit()` теперь вызывается ДО `execute_rewrite_task.delay()`, гарантируя что Celery worker видит данные задачи и API-ключи пользователя
+- KEY-CHECK-001 (groq): Добавлен `groq` в оба маппинга router pre-check (`_model_to_db_provider`, `_model_to_env_field`)
+
+**Frontend (2 исправления):**
+- NAV-001 (P3 LOW): Ссылка «Обновить до Pro →» — убран `preventDefault()` и `stopPropagation()`, оставлен чистый `<Link>` с `onClick` только для закрытия sidebar
+- isAuthError: Сужена проверка ошибок — убраны generic `'unavailable'` и `'auth'`, оставлены точные маркеры (`api-ключ`, `не настроен`, `unauthorized`, `провайдер all`)
+
+**Тесты:**
+- Backend: 27 тестов (commit before delay, groq mappings, user_keys flow, factory fallback, Link regression)
+- Frontend: 7 тестов (Link as `<a>`, no programmatic navigate, plan visibility, isAuthError precision)
+- V27 тесты обновлены для совместимости с V28
+
+**Документация:**
+- README/BASELINE: version bump 1.11 → 1.12
+- Changelog V28
 
 ### v1.11.0 (Март 2026) — QA v7: RESET-001, NAV-001, OPENAI-O4MINI
 

@@ -23,7 +23,7 @@ const STEP_MAP: Record<string, number> = {
 
 function isAuthError(msg: string): boolean {
   const lower = msg.toLowerCase()
-  return lower.includes('api-ключ') || lower.includes('не настроен') || lower.includes('unauthorized') || lower.includes('auth') || lower.includes('провайдер all') || lower.includes('provider all') || lower.includes('unavailable')
+  return lower.includes('api-ключ') || lower.includes('не настроен') || lower.includes('unauthorized') || lower.includes('провайдер all') || lower.includes('provider all')
 }
 
 function friendlyError(msg: string): string {

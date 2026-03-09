@@ -59,6 +59,7 @@ async def create_rewrite(
         'claude-sonnet': 'anthropic',
         'claude-haiku': 'anthropic',
         'openrouter': 'openrouter',
+        'groq': 'groq',
     }
     _model_to_env_field: dict[str, str] = {
         'gigachat-pro': 'gigachat_credentials',
@@ -70,6 +71,7 @@ async def create_rewrite(
         'claude-sonnet': 'anthropic_api_key',
         'claude-haiku': 'anthropic_api_key',
         'openrouter': 'openrouter_api_key',
+        'groq': 'groq_api_key',
     }
 
     db_provider = _model_to_db_provider.get(data.model, data.model)
@@ -102,6 +104,10 @@ async def create_rewrite(
 
     # API-001/LIVE-003: НЕ инкрементируем счётчик здесь.
     # Счётчик обновляется в Celery-задаче ТОЛЬКО при status=COMPLETED.
+
+    # KEY-CHECK-001: Коммитим сессию ДО отправки в Celery,
+    # чтобы worker гарантированно видел данные задачи и ключи пользователя.
+    await session.commit()
 
     # Отправка в Celery (async)
     execute_rewrite_task.delay(str(task.id))
