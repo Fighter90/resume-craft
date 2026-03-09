@@ -171,9 +171,7 @@ class TestPlanUpgradeLinkNavigation:
         """Link для plan-upgrade содержит onClick с navigate()."""
         import pathlib
 
-        src = pathlib.Path(
-            'frontend/src/components/layout/AppLayout.tsx'
-        ).read_text()
+        src = pathlib.Path('frontend/src/components/layout/AppLayout.tsx').read_text()
 
         # Должен содержать onClick на plan-upgrade Link
         assert 'onClick' in src
@@ -183,9 +181,7 @@ class TestPlanUpgradeLinkNavigation:
         """Link использует preventDefault + stopPropagation."""
         import pathlib
 
-        src = pathlib.Path(
-            'frontend/src/components/layout/AppLayout.tsx'
-        ).read_text()
+        src = pathlib.Path('frontend/src/components/layout/AppLayout.tsx').read_text()
 
         assert 'e.preventDefault()' in src
         assert 'e.stopPropagation()' in src
@@ -202,9 +198,7 @@ class TestPlanUpgradeLinkNavigation:
         """Plan-upgrade рендерится через <Link> (тег <a>)."""
         import pathlib
 
-        tsx = pathlib.Path(
-            'frontend/src/components/layout/AppLayout.tsx'
-        ).read_text()
+        tsx = pathlib.Path('frontend/src/components/layout/AppLayout.tsx').read_text()
 
         # Должен использовать Link (импорт react-router-dom)
         assert 'Link' in tsx
@@ -284,15 +278,9 @@ class TestOSeriesMaxTokens:
             await client.complete(system='test', user='test')
 
             call_kwargs = mock_openai.chat.completions.create.call_args[1]
-            assert 'max_completion_tokens' in call_kwargs, (
-                'o4-mini must use max_completion_tokens'
-            )
-            assert 'max_tokens' not in call_kwargs, (
-                'o4-mini must NOT use max_tokens'
-            )
-            assert 'temperature' not in call_kwargs, (
-                'o4-mini must NOT use temperature'
-            )
+            assert 'max_completion_tokens' in call_kwargs, 'o4-mini must use max_completion_tokens'
+            assert 'max_tokens' not in call_kwargs, 'o4-mini must NOT use max_tokens'
+            assert 'temperature' not in call_kwargs, 'o4-mini must NOT use temperature'
 
     @pytest.mark.asyncio
     async def test_openai_client_gpt_uses_max_tokens(self) -> None:
@@ -313,9 +301,7 @@ class TestOSeriesMaxTokens:
             await client.complete(system='test', user='test')
 
             call_kwargs = mock_openai.chat.completions.create.call_args[1]
-            assert 'max_tokens' in call_kwargs, (
-                'gpt-4o must use max_tokens'
-            )
+            assert 'max_tokens' in call_kwargs, 'gpt-4o must use max_tokens'
             assert 'max_completion_tokens' not in call_kwargs
             assert 'temperature' in call_kwargs
 
@@ -363,9 +349,7 @@ class TestLLMFactoryOSeriesResolution:
 
         with patch('app.ml.llm_factory.get_settings') as mock_settings:
             mock_settings.return_value = MagicMock(openai_api_key='test-key')
-            client = LLMClientFactory.create(
-                'openai', sub_model='o4-mini', api_key='test-key'
-            )
+            client = LLMClientFactory.create('openai', sub_model='o4-mini', api_key='test-key')
             assert isinstance(client, OpenAIClient)
             assert client._model == 'o4-mini'
 
@@ -376,9 +360,7 @@ class TestLLMFactoryOSeriesResolution:
 
         with patch('app.ml.llm_factory.get_settings') as mock_settings:
             mock_settings.return_value = MagicMock(openai_api_key='test-key')
-            client = LLMClientFactory.create(
-                'openai', sub_model='gpt-4o', api_key='test-key'
-            )
+            client = LLMClientFactory.create('openai', sub_model='gpt-4o', api_key='test-key')
             assert isinstance(client, OpenAIClient)
             assert client._model == 'gpt-4o'
 
