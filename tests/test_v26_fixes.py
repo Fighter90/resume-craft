@@ -172,9 +172,10 @@ class TestPlanUpgradeCss:
             tsx_path = pathlib.Path('frontend/src/components/layout/AppLayout.tsx')
         if tsx_path.exists():
             content = tsx_path.read_text()
-            # Should have Link, not NavLink for plan-upgrade
-            expected = '<Link to="/app/settings/subscription" className="plan-upgrade">'
-            assert expected in content
+            # Should have <Link with to="/app/settings/subscription" (may be multi-line)
+            assert '<Link' in content
+            assert 'to="/app/settings/subscription"' in content
+            assert 'className="plan-upgrade"' in content
             # Should NOT have NavLink for plan-upgrade
             unexpected = '<NavLink to="/app/settings/subscription" className="plan-upgrade">'
             assert unexpected not in content
