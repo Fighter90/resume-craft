@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.10.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.11.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -1087,6 +1087,23 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.11.0 (Март 2026) — QA v7: RESET-001, NAV-001, OPENAI-O4MINI
+
+**Frontend (2 исправления):**
+- RESET-001 (P1 HIGH): Кнопка «Сбросить» на странице AI-настроек больше НЕ удаляет сохранённые API-ключи — сбрасывает только тогглы и модель, с сохранением дефолтов на сервер
+- NAV-001 (P3): Ссылка «Обновить до Pro →» — добавлен explicit onClick с navigate() для гарантии навигации при физическом клике
+
+**Backend (1 исправление):**
+- OPENAI-O4MINI (P3): Определение моделей o-серии усилено — regex `^o\d` вместо startswith tuple, корректно покрывает o1/o3/o4-mini и будущие o2/o5
+
+**Тесты:**
+- Backend: 28 тестов (regex o-series detection, max_completion_tokens vs max_tokens, factory resolution, source checks)
+- Frontend: 6 тестов (navigate onClick, deleteAIKey not called, saveAIToggles/saveSelectedModel confirmation)
+
+**Документация:**
+- README/BASELINE: version bump 1.10 → 1.11
+- Changelog V27
 
 ### v1.10.0 (Март 2026) — QA v6: NAV-001 regression fix, email verification consistency
 

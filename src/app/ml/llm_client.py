@@ -177,9 +177,12 @@ class OpenAIClient(BaseLLMClient):
         """Запрос к OpenAI API."""
         client = self._get_client()
 
-        # P0-4: O-серия моделей (o1, o3, o4) требует max_completion_tokens
-        # вместо max_tokens и НЕ поддерживает temperature
-        is_o_series = self._model.startswith(('o1', 'o3', 'o4'))
+        # P0-4 / OPENAI-O4MINI: O-серия моделей требует max_completion_tokens
+        # вместо max_tokens и НЕ поддерживает temperature.
+        # Regex: 'o' + цифра → o1, o1-mini, o1-pro, o3, o3-mini, o4-mini...
+        import re
+
+        is_o_series = bool(re.match(r'^o\d', self._model))
         api_params: dict[str, Any] = {
             'model': self._model,
             'messages': [

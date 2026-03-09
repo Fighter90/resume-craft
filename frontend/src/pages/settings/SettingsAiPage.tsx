@@ -249,16 +249,17 @@ export default function SettingsAiPage() {
   }
 
   const handleReset = async () => {
+    const defaultToggles = Object.fromEntries(TOGGLES.map(t => [t.id, t.default]))
     setModel('gigachat-pro')
-    setToggles(Object.fromEntries(TOGGLES.map(t => [t.id, t.default])))
+    setToggles(defaultToggles)
     setApiKeys({ gigachat: '', openai: '', anthropic: '', openrouter: '', groq: '' })
     setSelectedSubModel('')
     localStorage.removeItem('ai_settings')
-    // Delete all keys from server
-    for (const provider of ['gigachat', 'openai', 'anthropic', 'openrouter', 'groq']) {
-      await api.deleteAIKey(provider).catch(() => {})
-    }
-    setServerKeyStatus({})
+    // Persist reset on server — toggles + model only, API keys NOT touched
+    try {
+      await api.saveAIToggles(Object.entries(defaultToggles).map(([key, value]) => ({ key, value })))
+      await api.saveSelectedModel('gigachat-pro', undefined)
+    } catch { /* server may be unavailable */ }
   }
 
   return (
