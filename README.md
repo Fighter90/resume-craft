@@ -340,7 +340,6 @@ Export ←── Results ←── Processing ←── Vacancy
 | Технология | Назначение |
 |-----------|------------|
 | **GigaChat SDK** | Интеграция с GigaChat API (Сбер) |
-| **anthropic** (SDK) | Прямая интеграция с Anthropic Claude |
 | **openai** (SDK) | OpenAI, OpenRouter — единый SDK |
 | **PyMuPDF** (fitz) | Извлечение текста из PDF (AGPL 3.0) |
 | **python-docx** | Чтение и создание DOCX |
