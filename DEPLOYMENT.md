@@ -42,6 +42,7 @@
 | Anthropic API | ❌ | LLM (Claude) | [console.anthropic.com](https://console.anthropic.com) |
 | OpenAI API | ❌ | LLM (резервная) | [platform.openai.com](https://platform.openai.com) |
 | OpenRouter API | ❌ | LLM (мульти-провайдер) | [openrouter.ai](https://openrouter.ai) |
+| Groq API | ❌ | LLM (быстрый inference) | [console.groq.com](https://console.groq.com) |
 
 > ⚠️ Redis и RabbitMQ нужны для Celery. Для разработки без фоновых задач можно пропустить.
 
@@ -390,6 +391,7 @@ GIGACHAT_CREDENTIALS=<ваш-ключ-от-developers.sber.ru>
 OPENAI_API_KEY=<ваш-ключ-от-platform.openai.com>
 ANTHROPIC_API_KEY=<ваш-ключ-от-console.anthropic.com>
 OPENROUTER_API_KEY=<ваш-ключ-от-openrouter.ai>
+GROQ_API_KEY=<ваш-ключ-от-console.groq.com>
 
 # Production
 ENVIRONMENT=production
@@ -627,6 +629,6 @@ docker compose exec app alembic upgrade head
 - [ ] Backup cron настроен
 - [ ] Мониторинг (Flower, health endpoint)
 - [ ] `.env` не в Git (проверьте `.gitignore`)
-- [ ] LLM API-ключи заполнены
+- [ ] LLM API-ключи заполнены (GigaChat, Anthropic, OpenAI, OpenRouter, Groq)
 - [ ] `alembic upgrade head` выполнен
 - [ ] `docker compose ps` — все сервисы healthy

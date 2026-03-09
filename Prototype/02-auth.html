@@ -9,7 +9,27 @@
     <link rel="stylesheet" href="shared-styles.css">
     <script src="shared-nav.js"></script>
     <style>
-        body { overflow: hidden; height: 100vh; }
+        body {
+            overflow: hidden;
+            height: 100vh;
+            background: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* === Centered card container === */
+        .auth-card {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            height: min(90vh, 680px);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+            background: white;
+        }
 
         /* === Left panel animation === */
         .auth-visual {
@@ -126,33 +146,15 @@
             50% { opacity: 0.8; transform: scale(1); }
         }
 
-        /* === Phone input row === */
-        .phone-row {
-            display: flex;
-            gap: 0.75rem;
-            align-items: stretch;
-        }
-        .phone-prefix {
+        /* Right form side */
+        .auth-form-side {
+            flex: 1;
+            background: white;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0 1rem;
-            border-radius: var(--radius-md);
-            border: 1px solid #E5E7EB;
-            background: #F9FAFB;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-main);
-            white-space: nowrap;
-            cursor: default;
-            user-select: none;
-        }
-        .phone-prefix .flag {
-            font-size: 1.1rem;
-            line-height: 1;
-        }
-        .phone-row .input-field {
-            flex: 1;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
         }
 
         /* Method tabs inside form */
@@ -180,23 +182,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        /* Secondary link button */
-        .btn-link {
-            display: block;
-            width: 100%;
-            text-align: center;
-            padding: 0.875rem 1rem;
-            border-radius: var(--radius-md);
-            background: #F3F4F6;
-            color: var(--primary);
-            font-weight: 500;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            border: none;
-        }
-        .btn-link:hover { background: #E5E7EB; }
-
         /* Agreement text */
         .agreement {
             font-size: 0.8rem;
@@ -206,10 +191,18 @@
             margin-top: 1.5rem;
         }
         .agreement a { color: var(--primary); }
+
+        /* Mobile: stack vertically, hide visual */
+        @media(max-width:768px) {
+            body { padding: 0; }
+            .auth-card { max-width: 100%; height: 100vh; border-radius: 0; flex-direction: column; }
+            .auth-visual { display: none; }
+            .auth-form-side { flex: 1; }
+        }
     </style>
 </head>
 <body>
-<div class="auth-split" style="display:flex;height:100vh;">
+<div class="auth-card">
     <!-- Left visual with animation -->
     <div class="auth-visual">
         <!-- Animated orbs -->
@@ -247,92 +240,56 @@
     </div>
 
     <!-- Right form -->
-    <div class="auth-form-side" style="flex:1;background:white;display:flex;align-items:center;justify-content:center;padding:2rem;">
+    <div class="auth-form-side">
         <div style="width:100%;max-width:400px;">
             <a href="01-landing.html" style="display:inline-flex;align-items:center;gap:0.5rem;color:var(--text-secondary);font-size:0.85rem;margin-bottom:2rem;">
                 <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 На главную
             </a>
-            <h2 id="auth-title" style="font-size:1.75rem;margin-bottom:1.5rem;font-weight:700;">Поиск работы</h2>
+            <h2 id="auth-title" style="font-size:1.75rem;margin-bottom:1.5rem;font-weight:700;">Войти</h2>
 
             <!-- Main auth tabs -->
-            <div class="tab-bar" style="margin-bottom:1.5rem;">
-                <div class="tab-bar-item active" onclick="switchAuthTab(0)">Регистрация</div>
-                <div class="tab-bar-item" onclick="switchAuthTab(1)">Войти</div>
+            <div class="method-tabs">
+                <div class="method-tab" onclick="switchAuthTab(0)">Регистрация</div>
+                <div class="method-tab active" onclick="switchAuthTab(1)">Войти</div>
             </div>
 
             <!-- Register form -->
-            <div id="auth-register" class="tab-content active">
-                <!-- Method tabs: phone / email -->
-                <div class="method-tabs">
-                    <div class="method-tab active" onclick="switchMethod(0)">Телефон</div>
-                    <div class="method-tab" onclick="switchMethod(1)">Почта</div>
+            <div id="auth-register" class="tab-content" style="display:none;flex-direction:column;gap:1rem;">
+                <div class="input-group">
+                    <label class="input-label">Имя</label>
+                    <input type="text" class="input-field" placeholder="Александр Иванов">
                 </div>
-
-                <!-- Phone method -->
-                <div id="method-phone" style="display:flex;flex-direction:column;gap:1rem;">
-                    <div class="phone-row">
-                        <div class="phone-prefix">
-                            <span class="flag">&#x1F1F7;&#x1F1FA;</span> +7
-                        </div>
-                        <input type="tel" class="input-field" placeholder="918 276-25-33">
-                    </div>
-                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Дальше</a>
-                    <button class="btn-link" onclick="switchMethod(1)">Войти с паролем</button>
+                <div class="input-group">
+                    <label class="input-label">Email</label>
+                    <input type="email" class="input-field" placeholder="alex@example.com">
                 </div>
-
-                <!-- Email method -->
-                <div id="method-email" style="display:none;flex-direction:column;gap:1rem;">
-                    <div class="input-group">
-                        <label class="input-label">Email</label>
-                        <input type="email" class="input-field" placeholder="alex@example.com">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Пароль</label>
-                        <input type="password" class="input-field" placeholder="Минимум 8 символов">
-                    </div>
-                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Продолжить</a>
+                <div class="input-group">
+                    <label class="input-label">Пароль</label>
+                    <input type="password" class="input-field" placeholder="Минимум 8 символов">
                 </div>
-
+                <div class="input-group">
+                    <label class="input-label">Подтвердите пароль</label>
+                    <input type="password" class="input-field" placeholder="Повторите пароль">
+                </div>
+                <a href="06-dashboard.html" class="btn btn-primary btn-block">Создать аккаунт</a>
                 <p class="agreement">Продолжая, вы принимаете <a href="#">политику конфиденциальности</a> и <a href="#">правила сервиса</a></p>
             </div>
 
-            <!-- Login form -->
-            <div id="auth-login" class="tab-content">
-                <!-- Method tabs: phone / email -->
-                <div class="method-tabs">
-                    <div class="method-tab active" onclick="switchMethodLogin(0)">Телефон</div>
-                    <div class="method-tab" onclick="switchMethodLogin(1)">Почта</div>
+            <!-- Login form (default) -->
+            <div id="auth-login" class="tab-content active" style="display:flex;flex-direction:column;gap:1rem;">
+                <div class="input-group">
+                    <label class="input-label">Email</label>
+                    <input type="email" class="input-field" placeholder="alex@example.com">
                 </div>
-
-                <!-- Phone login -->
-                <div id="login-phone" style="display:flex;flex-direction:column;gap:1rem;">
-                    <div class="phone-row">
-                        <div class="phone-prefix">
-                            <span class="flag">&#x1F1F7;&#x1F1FA;</span> +7
-                        </div>
-                        <input type="tel" class="input-field" placeholder="918 276-25-33">
-                    </div>
-                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Дальше</a>
-                    <button class="btn-link" onclick="switchMethodLogin(1)">Войти с паролем</button>
+                <div class="input-group">
+                    <label class="input-label">Пароль</label>
+                    <input type="password" class="input-field" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
                 </div>
-
-                <!-- Email login -->
-                <div id="login-email" style="display:none;flex-direction:column;gap:1rem;">
-                    <div class="input-group">
-                        <label class="input-label">Email</label>
-                        <input type="email" class="input-field" placeholder="alex@example.com">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Пароль</label>
-                        <input type="password" class="input-field" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
-                    </div>
-                    <div style="text-align:right;">
-                        <a href="03-password-recovery.html" style="font-size:0.85rem;color:var(--primary);font-weight:500;">Забыли пароль?</a>
-                    </div>
-                    <a href="06-dashboard.html" class="btn btn-primary btn-block">Войти</a>
+                <div style="text-align:right;">
+                    <a href="03-password-recovery.html" style="font-size:0.85rem;color:var(--primary);font-weight:500;">Забыли пароль?</a>
                 </div>
-
+                <a href="06-dashboard.html" class="btn btn-primary btn-block">Войти</a>
                 <p class="agreement">Продолжая, вы принимаете <a href="#">политику конфиденциальности</a> и <a href="#">правила сервиса</a></p>
             </div>
         </div>
@@ -341,24 +298,12 @@
 
 <script>
 function switchAuthTab(idx) {
-    document.querySelectorAll('.tab-bar-item').forEach((t,i) => t.classList.toggle('active', i===idx));
-    document.getElementById('auth-register').classList.toggle('active', idx===0);
-    document.getElementById('auth-login').classList.toggle('active', idx===1);
+    document.querySelectorAll('.method-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+    const reg = document.getElementById('auth-register');
+    const login = document.getElementById('auth-login');
+    reg.style.display = idx===0 ? 'flex' : 'none';
+    login.style.display = idx===1 ? 'flex' : 'none';
     document.getElementById('auth-title').textContent = idx===0 ? 'Поиск работы' : 'Войти';
-}
-
-function switchMethod(idx) {
-    const tabs = document.querySelectorAll('#auth-register .method-tab');
-    tabs.forEach((t,i) => t.classList.toggle('active', i===idx));
-    document.getElementById('method-phone').style.display = idx===0 ? 'flex' : 'none';
-    document.getElementById('method-email').style.display = idx===1 ? 'flex' : 'none';
-}
-
-function switchMethodLogin(idx) {
-    const tabs = document.querySelectorAll('#auth-login .method-tab');
-    tabs.forEach((t,i) => t.classList.toggle('active', i===idx));
-    document.getElementById('login-phone').style.display = idx===0 ? 'flex' : 'none';
-    document.getElementById('login-email').style.display = idx===1 ? 'flex' : 'none';
 }
 </script>
 </body>

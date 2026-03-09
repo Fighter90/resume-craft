@@ -100,12 +100,33 @@ export class ApiClient {
   async uploadResume(file: File) {
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${API_BASE}/resumes/upload`, {
+
+    const tok = this.token || localStorage.getItem('access_token')
+    const authHeaders: Record<string, string> = tok ? { 'Authorization': `Bearer ${tok}` } : {}
+
+    let res = await fetch(`${API_BASE}/resumes/upload`, {
       method: 'POST',
-      headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {},
+      headers: authHeaders,
       body: form,
     })
-    if (!res.ok) throw new Error('Upload failed')
+
+    // FILE-UPLOAD-001: 401 → try token refresh and retry
+    if (res.status === 401) {
+      const refreshed = await this.tryRefreshToken()
+      if (refreshed) {
+        const newTok = this.token || localStorage.getItem('access_token')
+        res = await fetch(`${API_BASE}/resumes/upload`, {
+          method: 'POST',
+          headers: newTok ? { 'Authorization': `Bearer ${newTok}` } : {},
+          body: form,
+        })
+      }
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }))
+      throw new Error(err.message || err.detail || 'Ошибка загрузки файла')
+    }
     return res.json()
   }
 

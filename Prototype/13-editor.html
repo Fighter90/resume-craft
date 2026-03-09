@@ -15,20 +15,22 @@
     <div class="main-content">
         <script>document.write(buildMobileHeader('Редактор'));</script>
         <div class="view" style="animation:fadeIn .3s ease;">
-            <div class="page-header">
-                <div>
-                    <a href="12-results.html" class="btn btn-ghost btn-sm" style="margin-bottom:0.5rem;">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                        К результатам
-                    </a>
-                    <h1>Редактирование резюме</h1>
-                </div>
-                <div style="display:flex;gap:0.75rem;">
-                    <button class="btn btn-secondary">Сохранить черновик</button>
-                    <a href="14-export.html" class="btn btn-primary">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Экспорт
-                    </a>
+            <div style="margin-bottom:1.5rem;">
+                <a href="12-results.html" class="back-link">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    К результатам
+                </a>
+                <div class="page-header">
+                    <div>
+                        <h1>Редактирование резюме</h1>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;">
+                        <button class="btn btn-secondary">Сохранить черновик</button>
+                        <a href="14-export.html" class="btn btn-primary">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Экспорт
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -224,6 +226,19 @@ function switchEditorSection(btn, idx) {
 }
 </script>
 <style>
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+}
+.back-link:hover { border-color: var(--primary); color: var(--primary); }
 .editor-layout { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; }
 .editor-section-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem; border: none; background: transparent; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); transition: all 0.15s; text-align: left; }
 .editor-section-btn:hover { background: #F3F4F6; color: var(--text-main); }

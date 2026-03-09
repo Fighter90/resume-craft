@@ -16,39 +16,191 @@
         <script>document.write(buildMobileHeader('Загрузка'));</script>
         <div class="view" style="animation:fadeIn .3s ease;">
             <div class="wizard-container">
-                <a href="06-dashboard.html" class="btn btn-secondary btn-sm" style="margin-bottom:1.5rem;">
+                <a href="07-resumes.html" class="back-link">
                     <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     Назад
                 </a>
-                <div style="text-align:center;margin-bottom:3rem;">
+                <div style="margin-bottom:2rem;">
                     <h2 style="font-size:1.75rem;font-weight:700;margin-bottom:0.5rem;">Загрузите ваше резюме</h2>
-                    <p style="color:var(--text-secondary);">Мы поддерживаем форматы PDF и DOCX до 10 МБ</p>
+                    <p style="color:var(--text-secondary);">PDF или DOCX файл, ссылка hh.ru, или вставьте текст</p>
                 </div>
-                <div class="card">
-                    <a href="09-vacancy.html" class="dropzone" style="display:block;">
-                        <div style="width:64px;height:64px;background:#F3F4F6;border-radius:16px;margin:0 auto 1.5rem;display:flex;align-items:center;justify-content:center;color:var(--primary);">
-                            <svg class="icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+
+                <!-- Limit warning banner -->
+                <div class="limit-banner">
+                    <div style="display:flex;align-items:start;gap:0.5rem;">
+                        <svg style="width:20px;height:20px;flex-shrink:0;margin-top:2px;color:#92400E;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <div>
+                            <div style="font-weight:600;color:#92400E;margin-bottom:0.25rem;">Лимит оптимизаций исчерпан</div>
+                            <div style="font-size:0.85rem;color:#92400E;line-height:1.5;">Использовано 5 из 5 оптимизаций на тарифе Free. Вы можете загрузить резюме, но оптимизация будет недоступна до следующего месяца.</div>
+                            <a href="18-settings-subscription.html" style="font-size:0.85rem;color:#B45309;font-weight:600;text-decoration:underline;margin-top:0.25rem;display:inline-block;">Посмотреть тарифы</a>
                         </div>
-                        <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">Перетащите файл сюда</h3>
-                        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">или нажмите для выбора файла</p>
-                        <span class="btn btn-secondary">Выбрать файл</span>
-                    </a>
+                    </div>
                 </div>
-                <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:center;">
-                    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-tertiary);">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        PDF
+
+                <!-- Tabs -->
+                <div class="upload-tabs">
+                    <button class="upload-tab active" onclick="switchTab('file',this)">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Загрузить файл
+                    </button>
+                    <button class="upload-tab" onclick="switchTab('hh',this)">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        Ссылка hh.ru
+                    </button>
+                    <button class="upload-tab" onclick="switchTab('text',this)">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Вставить текст
+                    </button>
+                </div>
+
+                <!-- Tab 1: File upload -->
+                <div id="tab-file" class="tab-content active">
+                    <div class="card">
+                        <a href="09-vacancy.html" class="dropzone" style="display:block;">
+                            <div style="width:64px;height:64px;background:#F3F4F6;border-radius:16px;margin:0 auto 1.5rem;display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                                <svg class="icon-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">Перетащите файл сюда</h3>
+                            <p style="color:var(--text-secondary);margin-bottom:1.5rem;">или нажмите для выбора файла</p>
+                            <span class="btn btn-secondary">Выбрать файл</span>
+                        </a>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-tertiary);">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        DOCX
+                    <div style="margin-top:1.5rem;display:flex;gap:1rem;justify-content:center;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-tertiary);">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            PDF
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-tertiary);">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            DOCX
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-tertiary);">до 10 МБ</div>
                     </div>
-                    <div style="font-size:0.85rem;color:var(--text-tertiary);">до 10 МБ</div>
+                </div>
+
+                <!-- Tab 2: hh.ru link -->
+                <div id="tab-hh" class="tab-content">
+                    <div class="card">
+                        <div class="info-box-blue">
+                            <div style="font-weight:600;margin-bottom:0.5rem;">Импорт резюме с hh.ru:</div>
+                            <p style="font-size:0.9rem;line-height:1.5;">Вставьте ссылку на ваше резюме для автоматического парсинга. Если автоматический парсинг не удастся, вы можете скопировать текст резюме вручную на вкладке «Вставить текст».</p>
+                        </div>
+                        <div class="input-group" style="margin-top:1.5rem;">
+                            <label class="input-label">Ссылка на резюме hh.ru</label>
+                            <input class="input-field" placeholder="https://hh.ru/resume/abc123def4">
+                        </div>
+                        <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap;">
+                            <a href="09-vacancy.html" class="btn btn-primary">Загрузить резюме</a>
+                            <button class="btn btn-secondary" onclick="switchTab('text',document.querySelectorAll('.upload-tab')[2])">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Вставить текст вручную
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Paste text -->
+                <div id="tab-text" class="tab-content">
+                    <div class="card">
+                        <div class="input-group">
+                            <label class="input-label">Название (необязательно)</label>
+                            <input class="input-field" placeholder="Продакт-менеджер, Senior Developer...">
+                        </div>
+                        <div class="input-group" style="margin-top:1.25rem;">
+                            <label class="input-label">Текст резюме *</label>
+                            <textarea class="input-field" rows="10" placeholder="Вставьте текст резюме сюда...
+
+Скопируйте текст со страницы hh.ru или из любого другого источника.
+Минимум 50 символов." style="resize:vertical;"></textarea>
+                            <div style="text-align:right;font-size:0.8rem;color:var(--text-tertiary);margin-top:0.5rem;">0 символов (минимум 50)</div>
+                        </div>
+                        <a href="09-vacancy.html" class="btn btn-primary btn-block" style="margin-top:1.5rem;">Продолжить</a>
+                    </div>
                 </div>
             </div>
         </div>
         <script>document.write(buildBottomNav('upload'));</script>
     </div>
 </div>
+<style>
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+    transition: all 0.15s;
+}
+.back-link:hover { border-color: var(--primary); color: var(--primary); }
+.limit-banner {
+    background: #FEF3C7;
+    border: 1px solid #FCD34D;
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+}
+.upload-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+.upload-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    background: transparent;
+    border: 1px solid #E5E7EB;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.upload-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.upload-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.upload-tab:not(:first-child) { border-left: none; }
+.upload-tab.active {
+    background: white;
+    border-color: var(--text-main);
+    color: var(--text-main);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.upload-tab:hover:not(.active) { background: #F9FAFB; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.info-box-blue {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    color: #1E40AF;
+    line-height: 1.5;
+}
+@media(max-width:768px) {
+    .upload-tabs { flex-direction: column; }
+    .upload-tab { border-radius: 0 !important; border-left: 1px solid #E5E7EB !important; }
+    .upload-tab:first-child { border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important; }
+    .upload-tab:last-child { border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important; }
+    .upload-tab:not(:first-child) { border-top: none; }
+}
+</style>
+<script>
+function switchTab(tabName, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
 </body>
 </html>

@@ -18,26 +18,35 @@
             <div class="page-header">
                 <div>
                     <h1>Настройки</h1>
-                    <p>Управление аккаунтом и предпочтениями</p>
                 </div>
             </div>
 
             <div class="tab-bar" style="margin-bottom:2rem;">
                 <a href="16-settings-profile.html" class="tab-bar-item active">Профиль</a>
-                <a href="17-settings-ai.html" class="tab-bar-item">AI модель</a>
+                <a href="17-settings-ai.html" class="tab-bar-item">AI-модели</a>
                 <a href="18-settings-subscription.html" class="tab-bar-item">Подписка</a>
                 <a href="19-settings-security.html" class="tab-bar-item">Безопасность</a>
             </div>
 
             <div class="card" style="max-width:720px;">
                 <!-- Avatar -->
-                <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid #E5E7EB;">
-                    <div style="width:80px;height:80px;background:var(--primary-gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.75rem;font-weight:700;flex-shrink:0;">АП</div>
+                <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;">
+                    <div style="position:relative;">
+                        <div style="width:80px;height:80px;background:var(--primary-gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:1.75rem;font-weight:700;flex-shrink:0;">АП</div>
+                    </div>
                     <div>
-                        <div style="font-weight:600;font-size:1.1rem;margin-bottom:0.5rem;">Александр Петров</div>
-                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                            <button class="btn btn-secondary btn-sm">Загрузить фото</button>
-                            <button class="btn btn-ghost btn-sm" style="color:var(--danger);">Удалить</button>
+                        <div style="font-weight:600;font-size:1.1rem;">Александр Петров</div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">alex.petrov@email.com</div>
+                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+                            <button class="btn btn-secondary btn-sm">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Загрузить фото
+                            </button>
+                            <button class="btn btn-ghost btn-sm" style="color:var(--danger);">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                Удалить
+                            </button>
+                            <svg style="width:24px;height:24px;color:var(--success);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         </div>
                     </div>
                 </div>
@@ -54,43 +63,33 @@
                             <input class="input-field" value="Петров">
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label class="input-label">Email</label>
-                        <input class="input-field" type="email" value="alex.petrov@email.com">
-                        <span style="font-size:0.8rem;color:var(--success);margin-top:0.25rem;">
-                            <svg class="icon-sm" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            Подтверждён
-                        </span>
-                    </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                         <div class="input-group">
-                            <label class="input-label">Телефон</label>
-                            <input class="input-field" type="tel" value="+7 (999) 123-45-67">
+                            <label class="input-label">Email</label>
+                            <input class="input-field" type="email" value="alex.petrov@email.com">
                         </div>
                         <div class="input-group">
-                            <label class="input-label">Город</label>
-                            <select class="input-field select-field">
-                                <option selected>Москва</option>
-                                <option>Санкт-Петербург</option>
-                                <option>Новосибирск</option>
-                                <option>Екатеринбург</option>
-                                <option>Казань</option>
-                            </select>
+                            <label class="input-label">Телефон</label>
+                            <input class="input-field" type="tel" placeholder="+7 (___) ___-__-__">
                         </div>
                     </div>
                     <div class="input-group">
-                        <label class="input-label">Текущая должность</label>
-                        <input class="input-field" value="Product Manager @ TechCorp">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">О себе</label>
-                        <textarea class="input-field" rows="3" placeholder="Коротко о себе для профиля...">Опытный Product Manager, ищу позицию Senior PM в IT-компании с продуктовой культурой.</textarea>
+                        <label class="input-label">Город</label>
+                        <select class="input-field select-field" style="max-width:340px;">
+                            <option selected>Москва</option>
+                            <option>Санкт-Петербург</option>
+                            <option>Новосибирск</option>
+                            <option>Екатеринбург</option>
+                            <option>Казань</option>
+                        </select>
                     </div>
                 </div>
 
-                <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #E5E7EB;">
-                    <button class="btn btn-secondary">Отмена</button>
-                    <button class="btn btn-primary">Сохранить изменения</button>
+                <div style="margin-top:2rem;">
+                    <button class="btn btn-primary">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Сохранить изменения
+                    </button>
                 </div>
             </div>
         </div>

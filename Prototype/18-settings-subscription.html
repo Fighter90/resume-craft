@@ -18,104 +18,81 @@
             <div class="page-header">
                 <div>
                     <h1>Настройки</h1>
-                    <p>Управление аккаунтом и предпочтениями</p>
                 </div>
             </div>
 
             <div class="tab-bar" style="margin-bottom:2rem;">
                 <a href="16-settings-profile.html" class="tab-bar-item">Профиль</a>
-                <a href="17-settings-ai.html" class="tab-bar-item">AI модель</a>
+                <a href="17-settings-ai.html" class="tab-bar-item">AI-модели</a>
                 <a href="18-settings-subscription.html" class="tab-bar-item active">Подписка</a>
                 <a href="19-settings-security.html" class="tab-bar-item">Безопасность</a>
             </div>
 
             <!-- Current plan -->
-            <div class="card" style="max-width:720px;margin-bottom:2rem;">
-                <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
-                    <div>
-                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
-                            <h3 style="font-size:1.1rem;font-weight:700;">Текущий план</h3>
-                            <span class="badge badge-gray">Free</span>
-                        </div>
-                        <p style="font-size:0.9rem;color:var(--text-secondary);">Бесплатный план с базовыми возможностями</p>
-                    </div>
-                    <button class="btn btn-primary btn-sm">Обновить план</button>
+            <div class="card" style="max-width:720px;margin-bottom:1.5rem;">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                    <svg style="width:20px;height:20px;color:var(--text-secondary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <h3 style="font-size:1.1rem;font-weight:700;">Текущий план</h3>
+                    <span class="badge badge-gray">Free</span>
                 </div>
+                <p style="font-size:0.9rem;color:var(--text-secondary);">Использовано 5 из 5 оптимизаций в этом месяце.</p>
+            </div>
 
-                <div style="margin-bottom:1.5rem;">
-                    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.5rem;">
-                        <span style="font-weight:500;">Использование оптимизаций</span>
-                        <span style="font-weight:600;">2 / 5</span>
-                    </div>
-                    <div style="height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
-                        <div style="height:100%;width:40%;background:var(--primary-gradient);border-radius:4px;"></div>
-                    </div>
-                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-top:0.5rem;">Обновляется 1 марта 2026</div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">AI модели</div>
-                        <div style="font-weight:600;">OpenRouter</div>
-                    </div>
-                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">Экспорт</div>
-                        <div style="font-weight:600;">DOCX</div>
-                    </div>
-                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">Шаблоны</div>
-                        <div style="font-weight:600;">1 (Minimal)</div>
-                    </div>
-                    <div style="padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.25rem;">Поддержка</div>
-                        <div style="font-weight:600;">Email</div>
-                    </div>
+            <!-- Coming soon banner -->
+            <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:var(--radius-md);padding:1.25rem 1.5rem;margin-bottom:2rem;max-width:none;display:flex;align-items:start;gap:0.75rem;">
+                <svg style="width:20px;height:20px;flex-shrink:0;margin-top:2px;color:#92400E;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div>
+                    <div style="font-weight:600;color:#92400E;margin-bottom:0.25rem;">Платные тарифы скоро</div>
+                    <div style="font-size:0.85rem;color:#92400E;line-height:1.5;">Оплата через Робокассу будет доступна в ближайшем обновлении. Сейчас доступен бесплатный план.</div>
                 </div>
             </div>
 
-            <!-- Compare plans -->
-            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Сравнение планов</h3>
+            <!-- All plans -->
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Все планы</h3>
             <div class="pricing-grid" style="max-width:none;">
                 <div class="card pricing-card" style="border:2px solid var(--primary-light);">
-                    <div class="badge badge-gray" style="align-self:start;">Free</div>
-                    <div class="price">0 &#8381; <span>навсегда</span></div>
-                    <p style="color:var(--text-secondary);font-size:0.85rem;">Текущий план</p>
+                    <div style="margin-bottom:0.5rem;">
+                        <div style="font-size:0.85rem;color:var(--text-secondary);">Текущий</div>
+                        <div style="font-weight:700;">Free</div>
+                    </div>
+                    <div class="price">Бесплатно</div>
                     <ul>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 5 оптимизаций / месяц</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> OpenRouter</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> DOCX экспорт</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 1 шаблон</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Поиск hh.ru</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 5 оптимизаций/мес</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все AI-модели</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Экспорт PDF/DOCX</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> История оптимизаций</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Базовый скоринг</li>
                     </ul>
                     <button class="btn btn-secondary btn-block" disabled>Текущий план</button>
                 </div>
-                <div class="card pricing-card featured">
-                    <div class="pricing-popular"><span class="badge badge-indigo">Популярный</span></div>
-                    <div class="badge badge-indigo" style="align-self:start;">Standard</div>
+                <div class="card pricing-card">
+                    <div style="margin-bottom:0.5rem;">
+                        <div style="font-weight:700;">Standard</div>
+                    </div>
                     <div class="price">490 &#8381; <span>/мес</span></div>
-                    <p style="color:var(--text-secondary);font-size:0.85rem;">Для активного поиска</p>
                     <ul>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 30 оптимизаций / месяц</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> GigaChat Pro + OpenRouter</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> PDF + DOCX экспорт</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 3 шаблона</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Поиск hh.ru</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> 30 оптимизаций/мес</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все AI-модели</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все форматы экспорта</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> ATS-рейтинг</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Приоритетная поддержка</li>
                     </ul>
-                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;">или 3 990 &#8381;/год (−32%)</div>
-                    <button class="btn btn-primary btn-block">Обновить</button>
+                    <button class="btn btn-primary btn-block" style="opacity:0.6;cursor:default;">Скоро</button>
                 </div>
                 <div class="card pricing-card">
-                    <div class="badge badge-green" style="align-self:start;">Pro</div>
+                    <div style="margin-bottom:0.5rem;">
+                        <div style="font-weight:700;">Pro</div>
+                    </div>
                     <div class="price">1 490 &#8381; <span>/мес</span></div>
-                    <p style="color:var(--text-secondary);font-size:0.85rem;">Безлимит + все модели</p>
                     <ul>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Безлимит оптимизаций</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все AI модели + GPT-4o</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все форматы + hh.ru</li>
-                        <li><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все шаблоны + API</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Безлимит оптимизаций</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Все AI-модели</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> API-доступ</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Интеграция с hh.ru</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Выделенная поддержка</li>
+                        <li><svg class="icon-sm" style="color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg> Ранний доступ</li>
                     </ul>
-                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;">или 11 990 &#8381;/год (−33%)</div>
-                    <button class="btn btn-primary btn-block">Обновить</button>
+                    <button class="btn btn-primary btn-block" style="opacity:0.6;cursor:default;">Скоро</button>
                 </div>
             </div>
         </div>

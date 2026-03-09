@@ -1,7 +1,7 @@
 # ResumeCraft — Baseline MVP
 
-> **Версия:** 1.12  
-> **Дата:** Март 2026  
+> **Версия:** 1.13
+> **Дата:** Март 2026
 > **Тип документа:** Техническая спецификация MVP  
 > **Связанные документы:** README.md (обзор), ANALYSIS.md (аудитория), REFERENCES.md (источники)
 
@@ -135,7 +135,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 | RW-07 | Must | Celery task с прогрессом (polling) |
 | RW-08 | Must | Сохранение в rewrite_history |
 | RW-09 | Must | Проверка лимитов тарифа |
-| RW-10 | Should | Fallback GigaChat → Anthropic → OpenRouter → OpenAI |
+| RW-10 | Should | Fallback GigaChat → Anthropic → OpenRouter → OpenAI → Groq |
 | RW-11 | Should | Pydantic-валидация LLM-ответа + retry (до 3) |
 
 ### 3.5. Export — Экспорт
@@ -813,6 +813,7 @@ class GigaChatClient(BaseLLMClient): ...
 class AnthropicClient(BaseLLMClient): ...
 class OpenAIClient(BaseLLMClient): ...
 class OpenRouterClient(BaseLLMClient): ...
+class GroqClient(BaseLLMClient): ...
 
 class LLMClientFactory:
     _clients = {
@@ -821,9 +822,10 @@ class LLMClientFactory:
         "anthropic": AnthropicClient,
         "openrouter": OpenRouterClient,
         "openai": OpenAIClient,
+        "groq": GroqClient,
     }
 
-    FALLBACK_ORDER = ["gigachat-pro", "anthropic", "openrouter", "openai"]
+    FALLBACK_ORDER = ["gigachat-pro", "anthropic", "openrouter", "openai", "groq"]
 
     @classmethod
     def create(cls, model: str) -> BaseLLMClient:
@@ -1032,7 +1034,7 @@ def validate_upload(file: UploadFile) -> None:
 |---------|----------|
 | **Backend тестов (unit + acceptance + coverage)** | 578 (pytest + pytest-asyncio) |
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
-| **Backend тестов (integration)** | 23 (реальные LLM API: 4 провайдера) |
+| **Backend тестов (integration)** | 23 (реальные LLM API: 5 провайдеров) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
 | **Backend тестов всего** | **691** |
 | **Frontend тестов** | **525** (Vitest + @testing-library/react) |
@@ -1064,7 +1066,7 @@ def validate_upload(file: UploadFile) -> None:
 | `test_vacancies/` | 55 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты — 100% |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, LLM retry, history — 100% |
 | `test_export/` | 38 | DOCX, PDF, TXT генерация (структурированные + plain) — 100% |
-| `test_ml/` | 96 | LLM-клиенты (4 провайдера), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация, o-series — 100% |
+| `test_ml/` | 96 | LLM-клиенты (5 провайдеров), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация, o-series — 100% |
 | `test_core/` | 81 | config, security, database, storage, exceptions, deps, encryption, limiter, seed — 100% |
 | `test_main*` | 7 | middleware, error handlers, lifespan, StaticFiles — 100% |
 | `test_coverage_gaps` | 22 | edge-cases: embedding fallback, scoring, export |
@@ -1247,7 +1249,7 @@ Docker Desktop → docker compose up -d
   Resume upload + parsing, Vacancy module, Embeddings
 
 Неделя 5–6: AI Rewriting
-  Celery pipeline, GigaChat + Anthropic + OpenRouter + OpenAI, Match Score, ATS, Diff
+  Celery pipeline, GigaChat + Anthropic + OpenRouter + OpenAI + Groq, Match Score, ATS, Diff
 
 Неделя 7: Export + React SPA
   DOCX export, React SPA UI, E2E testing
@@ -1271,8 +1273,8 @@ Docker Desktop → docker compose up -d
 
 | Риск | Вероятность | Влияние | Митигация |
 |------|-----------|---------|-----------|
-| GigaChat API недоступен | Средняя | Высокое | Fallback на Anthropic → OpenRouter → OpenAI |
-| Anthropic rate limit исчерпан | Средняя | Среднее | При исчерпании → OpenRouter → OpenAI |
+| GigaChat API недоступен | Средняя | Высокое | Fallback на Anthropic → OpenRouter → OpenAI → Groq |
+| Anthropic rate limit исчерпан | Средняя | Среднее | При исчерпании → OpenRouter → OpenAI → Groq |
 | hh.ru API блокирует | Низкая | Среднее | User-Agent + ручной ввод как fallback |
 | LLM-ответы нестабильны | Средняя | Высокое | Pydantic-валидация + retry (до 3) |
 | Не хватает времени | Средняя | Высокое | Приоритизация Must-требований |
@@ -1294,7 +1296,7 @@ Docker Desktop → docker compose up -d
 | Аутентификация | Email + пароль, JWT, email-верификация, soft-delete/restore, аватар |
 | Резюме | PDF/DOCX/текст, парсинг, LLM-структуризация, soft-delete/restore, preview |
 | Вакансии | hh.ru (анонимный), URL-импорт, ручной ввод, полные данные вакансии |
-| AI-оптимизация | GigaChat Pro + Anthropic Claude + OpenRouter + OpenAI (4 провайдера), Match Score, ATS |
+| AI-оптимизация | GigaChat Pro + Anthropic Claude + OpenRouter + OpenAI (5 провайдеров), Match Score, ATS |
 | Экспорт | DOCX + PDF + TXT (3 формата) |
 | Настройки | Зашифрованные API-ключи (AES), AI toggles, выбор модели/подмодели |
 | Модели | Список провайдеров, динамические подмодели через API |

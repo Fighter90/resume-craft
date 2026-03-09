@@ -18,13 +18,12 @@
             <div class="page-header">
                 <div>
                     <h1>Настройки</h1>
-                    <p>Управление аккаунтом и предпочтениями</p>
                 </div>
             </div>
 
             <div class="tab-bar" style="margin-bottom:2rem;">
                 <a href="16-settings-profile.html" class="tab-bar-item">Профиль</a>
-                <a href="17-settings-ai.html" class="tab-bar-item">AI модель</a>
+                <a href="17-settings-ai.html" class="tab-bar-item">AI-модели</a>
                 <a href="18-settings-subscription.html" class="tab-bar-item">Подписка</a>
                 <a href="19-settings-security.html" class="tab-bar-item active">Безопасность</a>
             </div>
@@ -32,96 +31,37 @@
             <div style="max-width:720px;">
                 <!-- Change password -->
                 <div class="card" style="margin-bottom:1.5rem;">
-                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Изменить пароль</h3>
+                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Сменить пароль</h3>
                     <div style="display:flex;flex-direction:column;gap:1rem;">
                         <div class="input-group">
                             <label class="input-label">Текущий пароль</label>
-                            <input type="password" class="input-field" placeholder="••••••••">
+                            <input type="password" class="input-field" value="••••••••">
                         </div>
                         <div class="input-group">
                             <label class="input-label">Новый пароль</label>
-                            <input type="password" class="input-field" placeholder="Минимум 8 символов">
+                            <input type="password" class="input-field" placeholder="Мин. 8 символов, цифра + буква">
                         </div>
                         <div class="input-group">
-                            <label class="input-label">Подтверждение пароля</label>
-                            <input type="password" class="input-field" placeholder="Повторите новый пароль">
+                            <label class="input-label">Подтвердите пароль</label>
+                            <input type="password" class="input-field" value="••••••••">
                         </div>
                     </div>
-                    <div style="display:flex;justify-content:flex-end;margin-top:1.5rem;">
-                        <button class="btn btn-primary">Обновить пароль</button>
-                    </div>
-                </div>
-
-                <!-- 2FA -->
-                <div class="card" style="margin-bottom:1.5rem;">
-                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">Двухфакторная аутентификация</h3>
-                    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem;">Добавьте дополнительный уровень безопасности к вашему аккаунту</p>
-                    <div class="toggle-row" style="border-bottom:none;padding:0;">
-                        <div class="toggle-info">
-                            <h4>Включить 2FA</h4>
-                            <p>Через приложение Google Authenticator или SMS</p>
-                        </div>
-                        <div class="toggle-switch"></div>
+                    <div style="margin-top:1.5rem;">
+                        <button class="btn btn-primary">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            Обновить пароль
+                        </button>
                     </div>
                 </div>
 
-                <!-- Active sessions -->
-                <div class="card" style="margin-bottom:1.5rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
-                        <h3 style="font-size:1.1rem;font-weight:700;">Активные сессии</h3>
-                        <button class="btn btn-ghost btn-sm" style="color:var(--danger);">Завершить все</button>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:1rem;">
-                        <div style="display:flex;align-items:center;gap:1rem;padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                            <div style="width:40px;height:40px;background:var(--success-light);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--success);flex-shrink:0;">
-                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            </div>
-                            <div style="flex:1;min-width:0;">
-                                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-                                    <div>
-                                        <div style="font-weight:600;font-size:0.9rem;">MacBook Pro — Chrome</div>
-                                        <div style="font-size:0.8rem;color:var(--text-secondary);">Москва, Россия &middot; Сейчас активно</div>
-                                    </div>
-                                    <span class="badge badge-green">Текущая</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:1rem;padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                            <div style="width:40px;height:40px;background:#F3F4F6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);flex-shrink:0;">
-                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                            </div>
-                            <div style="flex:1;min-width:0;">
-                                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-                                    <div>
-                                        <div style="font-weight:600;font-size:0.9rem;">iPhone 15 — Safari</div>
-                                        <div style="font-size:0.8rem;color:var(--text-secondary);">Москва, Россия &middot; 2 часа назад</div>
-                                    </div>
-                                    <button class="btn btn-ghost btn-sm" style="color:var(--danger);">Завершить</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:1rem;padding:1rem;background:#F9FAFB;border-radius:var(--radius-sm);">
-                            <div style="width:40px;height:40px;background:#F3F4F6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);flex-shrink:0;">
-                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            </div>
-                            <div style="flex:1;min-width:0;">
-                                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-                                    <div>
-                                        <div style="font-weight:600;font-size:0.9rem;">Windows PC — Firefox</div>
-                                        <div style="font-size:0.8rem;color:var(--text-secondary);">Санкт-Петербург &middot; 3 дня назад</div>
-                                    </div>
-                                    <button class="btn btn-ghost btn-sm" style="color:var(--danger);">Завершить</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Delete account -->
-                <div class="card" style="border:1px solid var(--danger-light);">
-                    <h3 style="font-size:1.1rem;font-weight:700;color:var(--danger);margin-bottom:0.5rem;">Удаление аккаунта</h3>
+                <!-- Danger zone -->
+                <div class="card" style="border:2px solid var(--danger);border-radius:var(--radius-md);">
+                    <h3 style="font-size:1.1rem;font-weight:700;color:var(--danger);margin-bottom:0.5rem;">
+                        <svg class="icon-sm" style="vertical-align:middle;margin-right:0.25rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Опасная зона
+                    </h3>
                     <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem;line-height:1.5;">
-                        После удаления аккаунта все ваши данные, включая резюме, историю оптимизаций и настройки, будут безвозвратно удалены. Это действие нельзя отменить.
+                        Аккаунт будет помечен для удаления. Через 30 дней все данные будут безвозвратно утрачены. Вы можете отменить удаление в любой момент, просто войдя в аккаунт.
                     </p>
                     <button class="btn btn-danger btn-sm">Удалить аккаунт</button>
                 </div>

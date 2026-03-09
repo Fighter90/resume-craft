@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeCraft — AI модель</title>
+    <title>ResumeCraft — AI-модели</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
@@ -18,80 +18,142 @@
             <div class="page-header">
                 <div>
                     <h1>Настройки</h1>
-                    <p>Управление аккаунтом и предпочтениями</p>
                 </div>
             </div>
 
             <div class="tab-bar" style="margin-bottom:2rem;">
                 <a href="16-settings-profile.html" class="tab-bar-item">Профиль</a>
-                <a href="17-settings-ai.html" class="tab-bar-item active">AI модель</a>
+                <a href="17-settings-ai.html" class="tab-bar-item active">AI-модели</a>
                 <a href="18-settings-subscription.html" class="tab-bar-item">Подписка</a>
                 <a href="19-settings-security.html" class="tab-bar-item">Безопасность</a>
             </div>
 
+            <div class="card" style="max-width:720px;margin-bottom:1.5rem;">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">AI-модель по умолчанию</h3>
+
+                <!-- GigaChat Pro -->
+                <div class="model-row selected" onclick="selectModel(this)" style="display:flex;align-items:center;gap:1rem;padding:1rem;border:2px solid var(--primary);border-radius:var(--radius-md);margin-bottom:0.75rem;cursor:pointer;">
+                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#FF6B35,#F7931E);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-weight:600;">GigaChat Pro</span>
+                            <span style="font-size:0.8rem;color:var(--text-secondary);">(Сбер)</span>
+                            <span class="badge badge-indigo" style="font-size:0.7rem;">Рекомендуем</span>
+                            <svg style="width:16px;height:16px;color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">#1 русский язык (MERA), данные в РФ, ФЗ-152 compliant</div>
+                    </div>
+                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;">
+                        <div style="width:10px;height:10px;border-radius:50%;background:var(--primary);"></div>
+                    </div>
+                </div>
+
+                <!-- OpenAI -->
+                <div class="model-row" onclick="selectModel(this)" style="display:flex;align-items:center;gap:1rem;padding:1rem;border:2px solid #E5E7EB;border-radius:var(--radius-md);margin-bottom:0.75rem;cursor:pointer;">
+                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#10A37F,#1A7F64);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-weight:600;">OpenAI</span>
+                            <span style="font-size:0.8rem;color:var(--text-secondary);">(OpenAI)</span>
+                            <svg style="width:16px;height:16px;color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">GPT-4o, GPT-4o-mini и другие модели OpenAI, 128K контекст</div>
+                    </div>
+                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid #D1D5DB;"></div>
+                </div>
+
+                <!-- Anthropic Claude -->
+                <div class="model-row" onclick="selectModel(this)" style="display:flex;align-items:center;gap:1rem;padding:1rem;border:2px solid #E5E7EB;border-radius:var(--radius-md);margin-bottom:0.75rem;cursor:pointer;">
+                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#D97706,#B45309);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-weight:600;">Anthropic Claude</span>
+                            <span style="font-size:0.8rem;color:var(--text-secondary);">(Anthropic)</span>
+                            <span class="badge badge-green" style="font-size:0.7rem;">Новое</span>
+                            <svg style="width:16px;height:16px;color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">Claude Sonnet 4, Claude Haiku — отличный русский, 200K контекст</div>
+                    </div>
+                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid #D1D5DB;"></div>
+                </div>
+
+                <!-- OpenRouter -->
+                <div class="model-row" onclick="selectModel(this)" style="display:flex;align-items:center;gap:1rem;padding:1rem;border:2px solid #E5E7EB;border-radius:var(--radius-md);margin-bottom:0.75rem;cursor:pointer;">
+                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#7C3AED,#5B21B6);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-weight:600;">OpenRouter</span>
+                            <span style="font-size:0.8rem;color:var(--text-secondary);">(OpenRouter)</span>
+                            <svg style="width:16px;height:16px;color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">Доступ к 100+ моделям через единый API (Claude, Gemini, Mixtral...)</div>
+                    </div>
+                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid #D1D5DB;"></div>
+                </div>
+
+                <!-- Groq -->
+                <div class="model-row" onclick="selectModel(this)" style="display:flex;align-items:center;gap:1rem;padding:1rem;border:2px solid #E5E7EB;border-radius:var(--radius-md);margin-bottom:0.75rem;cursor:pointer;">
+                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#F97316,#EA580C);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-weight:600;">Groq</span>
+                            <span style="font-size:0.8rem;color:var(--text-secondary);">(Groq)</span>
+                            <span class="badge badge-green" style="font-size:0.7rem;">Новое</span>
+                            <svg style="width:16px;height:16px;color:#10B981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">Быстрый inference — Llama 3, Mixtral, Gemma. Низкая латентность.</div>
+                    </div>
+                    <div style="width:20px;height:20px;border-radius:50%;border:2px solid #D1D5DB;"></div>
+                </div>
+            </div>
+
+            <!-- Model selector -->
+            <div class="card" style="max-width:720px;margin-bottom:1.5rem;">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">Модель GigaChat Pro</h3>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Выберите конкретную модель из каталога GigaChat Pro</p>
+                <select class="input-field" style="width:100%;">
+                    <option>GigaChat-Pro</option>
+                    <option>GigaChat-Max</option>
+                    <option>GigaChat-Plus</option>
+                </select>
+            </div>
+
+            <!-- API Keys -->
             <div class="card" style="max-width:720px;">
-                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;">Модель по умолчанию</h3>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;">
-                    <div class="card model-card selected" onclick="selectModel(this)" style="padding:1rem;text-align:center;">
-                        <div style="width:40px;height:40px;background:linear-gradient(135deg,#FF6B35,#F7931E);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
-                            <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                        </div>
-                        <div style="font-weight:600;font-size:0.9rem;">GigaChat Pro</div>
-                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Рекомендуем</div>
-                    </div>
-                    <div class="card model-card" onclick="selectModel(this)" style="padding:1rem;text-align:center;">
-                        <div style="width:40px;height:40px;background:linear-gradient(135deg,#10A37F,#1A7F64);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
-                            <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        </div>
-                        <div style="font-weight:600;font-size:0.9rem;">GPT-4o</div>
-                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Pro план</div>
-                    </div>
-                    <div class="card model-card" onclick="selectModel(this)" style="padding:1rem;text-align:center;">
-                        <div style="width:40px;height:40px;background:linear-gradient(135deg,#7C3AED,#5B21B6);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
-                            <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                        </div>
-                        <div style="font-weight:600;font-size:0.9rem;">OpenRouter</div>
-                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Бесплатная</div>
-                    </div>
-                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">API-ключи</h3>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem;">Подключите свои ключи для использования моделей. Ключи хранятся в зашифрованном виде.</p>
 
-                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">Параметры оптимизации</h3>
-                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.5rem;">Настройте поведение AI при оптимизации резюме</p>
-
-                <div class="toggle-row">
-                    <div class="toggle-info">
-                        <h4>Автоматические метрики</h4>
-                        <p>Добавлять числовые достижения где возможно</p>
+                <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                    <div class="input-group">
+                        <label class="input-label">GigaChat Pro (Сбер) <span style="color:#10B981;font-size:0.8rem;">✓ Сохранён</span></label>
+                        <input type="password" class="input-field" value="••••••••••••" style="font-family:monospace;">
                     </div>
-                    <div class="toggle-switch on"></div>
-                </div>
-                <div class="toggle-row">
-                    <div class="toggle-info">
-                        <h4>ATS оптимизация</h4>
-                        <p>Адаптировать формат для автоматических фильтров</p>
+                    <div class="input-group">
+                        <label class="input-label">OpenAI (OpenAI) <span style="color:#10B981;font-size:0.8rem;">✓ Сохранён</span></label>
+                        <input type="password" class="input-field" value="••••••••••••" style="font-family:monospace;">
                     </div>
-                    <div class="toggle-switch on"></div>
-                </div>
-                <div class="toggle-row">
-                    <div class="toggle-info">
-                        <h4>Апгрейд должности</h4>
-                        <p>Использовать более высокий грейд в заголовке</p>
+                    <div class="input-group">
+                        <label class="input-label">Anthropic Claude (Anthropic) <span style="color:#10B981;font-size:0.8rem;">✓ Сохранён</span></label>
+                        <input type="password" class="input-field" value="••••••••••••" style="font-family:monospace;">
                     </div>
-                    <div class="toggle-switch"></div>
-                </div>
-                <div class="toggle-row">
-                    <div class="toggle-info">
-                        <h4>Сохранять язык</h4>
-                        <p>Не менять язык оригинального резюме</p>
+                    <div class="input-group">
+                        <label class="input-label">OpenRouter (OpenRouter) <span style="color:#10B981;font-size:0.8rem;">✓ Сохранён</span></label>
+                        <input type="password" class="input-field" value="••••••••••••" style="font-family:monospace;">
                     </div>
-                    <div class="toggle-switch on"></div>
-                </div>
-                <div class="toggle-row" style="border-bottom:none;">
-                    <div class="toggle-info">
-                        <h4>Soft skills в профиле</h4>
-                        <p>Добавлять коммуникативные навыки</p>
+                    <div class="input-group">
+                        <label class="input-label">Groq (Groq) <span style="color:#10B981;font-size:0.8rem;">✓ Сохранён</span></label>
+                        <input type="password" class="input-field" value="••••••••••••" style="font-family:monospace;">
                     </div>
-                    <div class="toggle-switch on"></div>
                 </div>
 
                 <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #E5E7EB;">
@@ -105,13 +167,22 @@
 </div>
 <script>
 function selectModel(el) {
-    document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.model-row').forEach(r => {
+        r.style.borderColor = '#E5E7EB';
+        r.classList.remove('selected');
+        const radio = r.querySelector('div:last-child');
+        radio.style.borderColor = '#D1D5DB';
+        radio.innerHTML = '';
+    });
+    el.style.borderColor = 'var(--primary)';
     el.classList.add('selected');
+    const radio = el.querySelector('div:last-child');
+    radio.style.borderColor = 'var(--primary)';
+    radio.innerHTML = '<div style="width:10px;height:10px;border-radius:50%;background:var(--primary);"></div>';
 }
 </script>
 <style>
 @media(max-width:768px) {
-    .model-card { padding: 0.75rem !important; }
     .tab-bar { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
 }
 </style>

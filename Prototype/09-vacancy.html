@@ -16,21 +16,33 @@
         <script>document.write(buildMobileHeader('Вакансия'));</script>
         <div class="view" style="animation:fadeIn .3s ease;">
             <div class="wizard-container">
-                <a href="08-upload.html" class="btn btn-secondary btn-sm" style="margin-bottom:1.5rem;">
+                <a href="08-upload.html" class="back-link">
                     <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     Назад
                 </a>
-                <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.25rem;">Выберите целевую вакансию</h2>
-                <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Укажите вакансию для адаптации резюме</p>
+                <div style="margin-bottom:2rem;">
+                    <h2 style="font-size:1.75rem;font-weight:700;margin-bottom:0.5rem;">Укажите вакансию</h2>
+                    <p style="color:var(--text-secondary);">Поиск hh.ru, URL или вручную</p>
+                </div>
 
-                <div class="tab-bar">
-                    <div class="tab-bar-item active" onclick="switchVacTab(0)">Поиск hh.ru</div>
-                    <div class="tab-bar-item" onclick="switchVacTab(1)">Вставить URL</div>
-                    <div class="tab-bar-item" onclick="switchVacTab(2)">Ввести вручную</div>
+                <!-- Tabs -->
+                <div class="upload-tabs">
+                    <button class="upload-tab active" onclick="switchVacTab('search',this)">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Поиск hh.ru
+                    </button>
+                    <button class="upload-tab" onclick="switchVacTab('url',this)">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        Вставить URL
+                    </button>
+                    <button class="upload-tab" onclick="switchVacTab('manual',this)">
+                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Ввести вручную
+                    </button>
                 </div>
 
                 <!-- Tab 1: hh.ru search -->
-                <div id="vac-tab-0" class="tab-content active">
+                <div id="tab-search" class="tab-content active">
                     <div class="card" style="margin-bottom:1.5rem;">
                         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:end;">
                             <div style="flex:2;min-width:200px;">
@@ -49,27 +61,18 @@
                                     <option>Любая</option><option>от 150 000 &#8381;</option><option>от 200 000 &#8381;</option><option>от 300 000 &#8381;</option>
                                 </select>
                             </div>
-                            <div style="flex:1;min-width:140px;">
-                                <label class="input-label">Занятость</label>
-                                <select class="input-field select-field">
-                                    <option>Любая</option><option>Полная</option><option>Частичная</option><option>Удалённая</option>
-                                </select>
-                            </div>
                             <button class="btn btn-primary" style="height:48px;">Найти</button>
                         </div>
                     </div>
 
-                    <div class="vacancy-results" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                         <div class="card vacancy-card selected" onclick="this.parentElement.querySelectorAll('.vacancy-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected');">
                             <div style="display:flex;justify-content:space-between;align-items:start;">
-                                <div><div style="font-weight:600;">Senior Product Manager</div><div style="font-size:0.85rem;color:var(--text-secondary);">Яндекс &middot; Москва, гибрид</div></div>
+                                <div><div style="font-weight:600;">Senior Product Manager</div><div style="font-size:0.85rem;color:var(--text-secondary);">Яндекс &middot; Москва</div></div>
                                 <span style="color:var(--success);font-weight:700;font-size:0.85rem;">от 350 000 &#8381;</span>
                             </div>
                             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                                <span class="badge badge-gray">Product Strategy</span><span class="badge badge-gray">A/B Testing</span><span class="badge badge-gray">SQL</span><span class="badge badge-gray">Agile</span>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:0.5rem;">
-                                <span class="badge badge-green">92%</span><span style="font-size:0.8rem;color:var(--text-secondary);">Match Score</span>
+                                <span class="badge badge-gray">Product Strategy</span><span class="badge badge-gray">A/B Testing</span><span class="badge badge-gray">SQL</span>
                             </div>
                         </div>
                         <div class="card vacancy-card" onclick="this.parentElement.querySelectorAll('.vacancy-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected');">
@@ -80,9 +83,6 @@
                             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                                 <span class="badge badge-gray">B2C</span><span class="badge badge-gray">Fintech</span><span class="badge badge-gray">Metrics</span>
                             </div>
-                            <div style="display:flex;align-items:center;gap:0.5rem;">
-                                <span class="badge badge-green">87%</span><span style="font-size:0.8rem;color:var(--text-secondary);">Match Score</span>
-                            </div>
                         </div>
                         <div class="card vacancy-card" onclick="this.parentElement.querySelectorAll('.vacancy-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected');">
                             <div style="display:flex;justify-content:space-between;align-items:start;">
@@ -92,38 +92,41 @@
                             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                                 <span class="badge badge-gray">E-commerce</span><span class="badge badge-gray">Scrum</span>
                             </div>
-                            <div style="display:flex;align-items:center;gap:0.5rem;">
-                                <span class="badge badge-yellow">74%</span><span style="font-size:0.8rem;color:var(--text-secondary);">Match Score</span>
-                            </div>
                         </div>
                     </div>
                     <a href="10-models.html" class="btn btn-primary btn-block" style="margin-top:1.5rem;">Продолжить с выбранной вакансией</a>
                 </div>
 
                 <!-- Tab 2: URL -->
-                <div id="vac-tab-1" class="tab-content">
+                <div id="tab-url" class="tab-content">
                     <div class="card">
-                        <label class="input-label">Ссылка на вакансию hh.ru</label>
-                        <input class="input-field" placeholder="https://hh.ru/vacancy/12345678" style="margin-bottom:1rem;">
-                        <a href="10-models.html" class="btn btn-primary btn-block">Загрузить вакансию</a>
+                        <div class="info-box-blue">
+                            <div style="font-weight:600;margin-bottom:0.5rem;">Вставьте ссылку на вакансию:</div>
+                            <p style="font-size:0.9rem;line-height:1.5;">Поддерживаются ссылки на вакансии hh.ru. Мы автоматически извлечём название, требования и ключевые навыки.</p>
+                        </div>
+                        <div class="input-group" style="margin-top:1.5rem;">
+                            <label class="input-label">Ссылка на вакансию hh.ru</label>
+                            <input class="input-field" placeholder="https://hh.ru/vacancy/12345678">
+                        </div>
+                        <a href="10-models.html" class="btn btn-primary btn-block" style="margin-top:1.5rem;">Загрузить вакансию</a>
                     </div>
                 </div>
 
                 <!-- Tab 3: Manual -->
-                <div id="vac-tab-2" class="tab-content">
+                <div id="tab-manual" class="tab-content">
                     <div class="card">
                         <div style="display:flex;flex-direction:column;gap:1rem;">
                             <div class="input-group">
-                                <label class="input-label">Название должности</label>
+                                <label class="input-label">Название должности *</label>
                                 <input class="input-field" placeholder="Product Manager">
                             </div>
                             <div class="input-group">
-                                <label class="input-label">Компания</label>
+                                <label class="input-label">Компания (необязательно)</label>
                                 <input class="input-field" placeholder="Яндекс">
                             </div>
                             <div class="input-group">
-                                <label class="input-label">Описание и требования</label>
-                                <textarea class="input-field" rows="4" placeholder="Вставьте описание вакансии..."></textarea>
+                                <label class="input-label">Описание и требования *</label>
+                                <textarea class="input-field" rows="6" placeholder="Вставьте описание вакансии..." style="resize:vertical;"></textarea>
                             </div>
                             <div class="input-group">
                                 <label class="input-label">Ключевые навыки (через запятую)</label>
@@ -138,10 +141,88 @@
         <script>document.write(buildBottomNav(''));</script>
     </div>
 </div>
+<style>
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+    transition: all 0.15s;
+}
+.back-link:hover { border-color: var(--primary); color: var(--primary); }
+.upload-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+.upload-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    background: transparent;
+    border: 1px solid #E5E7EB;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.upload-tab:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.upload-tab:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.upload-tab:not(:first-child) { border-left: none; }
+.upload-tab.active {
+    background: white;
+    border-color: var(--text-main);
+    color: var(--text-main);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.upload-tab:hover:not(.active) { background: #F9FAFB; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.info-box-blue {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    color: #1E40AF;
+    line-height: 1.5;
+}
+.vacancy-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 2px solid transparent;
+}
+.vacancy-card:hover { border-color: var(--primary-light); }
+.vacancy-card.selected { border-color: var(--primary); background: #F5F3FF; }
+@media(max-width:768px) {
+    .upload-tabs { flex-direction: column; }
+    .upload-tab { border-radius: 0 !important; border-left: 1px solid #E5E7EB !important; }
+    .upload-tab:first-child { border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important; }
+    .upload-tab:last-child { border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important; }
+    .upload-tab:not(:first-child) { border-top: none; }
+    .vacancy-results { grid-template-columns: 1fr !important; }
+}
+</style>
 <script>
-function switchVacTab(idx) {
-    document.querySelectorAll('.tab-bar-item').forEach((t,i) => t.classList.toggle('active', i===idx));
-    for(let i=0;i<3;i++) document.getElementById('vac-tab-'+i).classList.toggle('active', i===idx);
+function switchVacTab(tabName, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btn.classList.add('active');
 }
 </script>
 </body>

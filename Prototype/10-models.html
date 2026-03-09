@@ -16,12 +16,14 @@
         <script>document.write(buildMobileHeader('AI модель'));</script>
         <div class="view" style="animation:fadeIn .3s ease;">
             <div class="wizard-container">
-                <a href="09-vacancy.html" class="btn btn-secondary btn-sm" style="margin-bottom:1.5rem;">
+                <a href="09-vacancy.html" class="back-link">
                     <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     Назад
                 </a>
-                <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:0.25rem;">Выберите AI модель</h2>
-                <p style="color:var(--text-secondary);margin-bottom:2rem;">Каждая модель имеет свои сильные стороны</p>
+                <div style="margin-bottom:2rem;">
+                    <h2 style="font-size:1.75rem;font-weight:700;margin-bottom:0.5rem;">Выберите AI модель</h2>
+                    <p style="color:var(--text-secondary);">Каждая модель имеет свои сильные стороны</p>
+                </div>
 
                 <div class="model-grid">
                     <!-- GigaChat Pro -->
@@ -90,6 +92,38 @@
                         </div>
                     </div>
 
+                    <!-- Anthropic Claude -->
+                    <div class="card model-card" onclick="selectModel(this)">
+                        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+                            <div style="width:48px;height:48px;background:linear-gradient(135deg,#D97706,#B45309);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                <svg class="icon-md" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <span class="badge badge-indigo">Standard+</span>
+                        </div>
+                        <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:0.25rem;">Anthropic Claude</h3>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Отличное понимание русского. Лучший результат по Match Score (+24 пункта).</p>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+                                <span style="color:var(--text-secondary);">Качество</span>
+                                <span style="font-weight:600;">93%</span>
+                            </div>
+                            <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
+                                <div style="height:100%;width:93%;background:var(--success);border-radius:3px;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+                                <span style="color:var(--text-secondary);">Скорость</span>
+                                <span style="font-weight:600;">18 сек</span>
+                            </div>
+                            <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
+                                <div style="height:100%;width:65%;background:var(--primary);border-radius:3px;"></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                            <span class="badge badge-gray">Русский</span>
+                            <span class="badge badge-gray">200K контекст</span>
+                        </div>
+                    </div>
+
                     <!-- OpenRouter -->
                     <div class="card model-card" onclick="selectModel(this)">
                         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
@@ -103,21 +137,54 @@
                         <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;">
                             <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
                                 <span style="color:var(--text-secondary);">Качество</span>
-                                <span style="font-weight:600;">82%</span>
+                                <span style="font-weight:600;">90%</span>
                             </div>
                             <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
-                                <div style="height:100%;width:82%;background:var(--warning);border-radius:3px;"></div>
+                                <div style="height:100%;width:90%;background:var(--success);border-radius:3px;"></div>
                             </div>
                             <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
                                 <span style="color:var(--text-secondary);">Скорость</span>
-                                <span style="font-weight:600;">8 сек</span>
+                                <span style="font-weight:600;">14 сек</span>
                             </div>
                             <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
-                                <div style="height:100%;width:92%;background:var(--success);border-radius:3px;"></div>
+                                <div style="height:100%;width:70%;background:var(--primary);border-radius:3px;"></div>
                             </div>
                         </div>
                         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                            <span class="badge badge-gray">Быстрый</span>
+                            <span class="badge badge-gray">100+ моделей</span>
+                            <span class="badge badge-gray">Мульти-AI</span>
+                        </div>
+                    </div>
+
+                    <!-- Groq -->
+                    <div class="card model-card" onclick="selectModel(this)">
+                        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+                            <div style="width:48px;height:48px;background:linear-gradient(135deg,#F97316,#EA580C);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                                <svg class="icon-md" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            </div>
+                            <span class="badge badge-green">Быстрый</span>
+                        </div>
+                        <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:0.25rem;">Groq</h3>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Сверхбыстрый inference на LPU. Результат за 2 секунды.</p>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+                                <span style="color:var(--text-secondary);">Качество</span>
+                                <span style="font-weight:600;">90%</span>
+                            </div>
+                            <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
+                                <div style="height:100%;width:90%;background:var(--success);border-radius:3px;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+                                <span style="color:var(--text-secondary);">Скорость</span>
+                                <span style="font-weight:600;">2 сек</span>
+                            </div>
+                            <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;">
+                                <div style="height:100%;width:99%;background:var(--success);border-radius:3px;"></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                            <span class="badge badge-gray">LPU</span>
+                            <span class="badge badge-gray">2 сек</span>
                             <span class="badge badge-gray">Open Source</span>
                         </div>
                     </div>
@@ -132,6 +199,22 @@
         <script>document.write(buildBottomNav(''));</script>
     </div>
 </div>
+<style>
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+    transition: all 0.15s;
+}
+.back-link:hover { border-color: var(--primary); color: var(--primary); }
+</style>
 <script>
 function selectModel(el) {
     document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));

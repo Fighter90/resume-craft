@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeCraft — AI-оптимизатор резюме для российского рынка</title>
+    <title>ResumeCraft — AI-реврайтер резюме</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared-styles.css">
@@ -18,70 +18,64 @@
             <div style="width:24px;height:24px;background:var(--primary-gradient);border-radius:6px;"></div>
             ResumeCraft
         </div>
-        <div class="landing-nav-links">
-            <span onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Возможности</span>
-            <span onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">Как работает</span>
-            <span onclick="window.location='05-pricing.html'">Тарифы</span>
-            <span onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})">Вопросы</span>
-            <span onclick="document.getElementById('testimonials').scrollIntoView({behavior:'smooth'})">Отзывы</span>
-        </div>
         <div class="landing-nav-actions">
             <a href="02-auth.html" class="btn btn-secondary btn-sm">Войти</a>
             <a href="02-auth.html" class="btn btn-primary btn-sm">Начать бесплатно</a>
         </div>
     </nav>
 
-    <!-- ====== ГЛАВНЫЙ ЭКРАН (HERO) ====== -->
+    <!-- ====== HERO ====== -->
     <header style="text-align:center;padding:5rem 1rem 4rem;max-width:850px;margin:0 auto;">
         <h1 class="hero-title" style="font-size:3.5rem;letter-spacing:-0.02em;line-height:1.1;margin-bottom:1.5rem;">
-            Ваше резюме.<br>
-            <span class="hero-gradient">Усиленное ИИ.</span>
+            AI-оптимизация резюме<br>
+            <span class="hero-gradient">для российского рынка</span>
         </h1>
-        <p style="font-size:1.2rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6;">
-            Оптимизируйте резюме для алгоритмов hh.ru и ATS-систем.<br>
-            Получите приглашения от топовых компаний в 3 раза чаще.
-        </p>
-        <p style="font-size:1rem;color:var(--text-tertiary);margin-bottom:2.5rem;line-height:1.6;">
-            ResumeCraft — это единственный AI-инструмент, который понимает российский рынок труда.<br>
-            Мы адаптируем ваше резюме под конкретную вакансию за считанные секунды,<br>
-            превращая общие формулировки в профессиональные достижения с метриками.
+        <p style="font-size:1.15rem;color:var(--text-secondary);margin-bottom:2.5rem;line-height:1.6;">
+            Загрузите резюме, выберите вакансию на hh.ru — получите<br>
+            идеально адаптированную версию за 30 секунд
         </p>
         <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-            <a href="02-auth.html" class="btn btn-primary btn-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                Оптимизировать резюме бесплатно
-            </a>
-            <a href="#how-it-works" class="btn btn-secondary btn-lg" onclick="event.preventDefault();document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">Узнать подробнее</a>
+            <a href="02-auth.html" class="btn btn-primary btn-lg">Начать бесплатно</a>
+            <a href="#how-it-works" class="btn btn-secondary btn-lg" onclick="event.preventDefault();document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">Как это работает</a>
         </div>
-        <div style="margin-top:3rem;display:flex;justify-content:center;gap:3rem;color:var(--text-tertiary);font-size:0.9rem;flex-wrap:wrap;">
-            <div>Проанализировано <span style="color:var(--text-main);font-weight:600;">93 млн</span> резюме</div>
-            <div>Рейтинг <span style="color:var(--text-main);font-weight:600;">4.9/5</span></div>
-            <div>Время оптимизации <span style="color:var(--text-main);font-weight:600;">30 сек</span></div>
+        <div style="margin-top:3rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">93 млн</div>
+                <div style="font-size:0.85rem;color:var(--text-secondary);">резюме на hh.ru</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">4.9/5</div>
+                <div style="font-size:0.85rem;color:var(--text-secondary);">средняя оценка</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">30 сек</div>
+                <div style="font-size:0.85rem;color:var(--text-secondary);">время оптимизации</div>
+            </div>
         </div>
     </header>
 
     <!-- ====== ПРОБЛЕМА ====== -->
     <div class="landing-section">
         <div class="landing-section-inner" style="max-width:900px;">
-            <h2>Почему ваши отклики остаются без ответа?</h2>
-            <p class="section-subtitle">Конкуренция на рынке труда растёт с каждым годом. Без оптимизации резюме вы систематически теряете возможности — даже если обладаете нужными навыками и опытом.</p>
+            <h2 style="text-align:center;">Почему ваши отклики остаются без ответа?</h2>
+            <p class="section-subtitle" style="text-align:center;">Конкуренция на рынке труда растёт с каждым годом. Без оптимизации резюме вы систематически теряете возможности.</p>
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;margin-bottom:2rem;">
                 <div class="card problem-stat">
-                    <div class="stat-value">75%</div>
+                    <div class="stat-value" style="color:#EF4444;">75%</div>
                     <div class="stat-label">резюме отсеиваются ATS-фильтрами<br>ещё до того, как их увидит рекрутер</div>
                 </div>
                 <div class="card problem-stat">
-                    <div class="stat-value">5.9</div>
+                    <div class="stat-value" style="color:#F59E0B;">5.9</div>
                     <div class="stat-label">конкурентов в среднем<br>на каждую вакансию на hh.ru</div>
                 </div>
             </div>
             <div class="card" style="max-width:800px;margin:0 auto;padding:2rem;">
                 <h3 style="font-size:1.1rem;font-weight:600;margin-bottom:1rem;text-align:center;">Что происходит с вашим резюме на самом деле</h3>
                 <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:1rem;">
-                    Большинство крупных компаний в России — Яндекс, Сбер, Тинькофф, VK, Ozon — используют автоматизированные системы отбора кандидатов (ATS). Это такие платформы, как Huntflow, Потоk, Талантикс и Skillaz. Когда вы отправляете резюме, оно сначала проходит через алгоритм, который ищет совпадения с описанием вакансии по ключевым словам, структуре, формату и релевантности опыта.
+                    Большинство крупных компаний в России — Яндекс, Сбер, Тинькофф, VK, Ozon — используют автоматизированные системы отбора кандидатов (ATS). Это такие платформы, как Huntflow, Поток, Талантикс и Skillaz. Когда вы отправляете резюме, оно сначала проходит через алгоритм, который ищет совпадения с описанием вакансии.
                 </p>
                 <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:1rem;">
-                    Если алгоритм не находит достаточно совпадений, ваше резюме попросту не доходит до живого рекрутера. Вы можете быть идеальным кандидатом, но если в вашем резюме написано «управлял проектами» вместо «руководил портфелем из 5 проектов с бюджетом 12 млн рублей», ATS оценит вас ниже конкурента с более конкретными формулировками.
+                    Если алгоритм не находит достаточно совпадений, ваше резюме попросту не доходит до живого рекрутера. Вы можете быть идеальным кандидатом, но если в вашем резюме написано «управлял проектами» вместо «руководил портфелем из 5 проектов с бюджетом 12 млн рублей», ATS оценит вас ниже конкурента.
                 </p>
                 <p style="color:var(--text-secondary);line-height:1.7;">
                     ResumeCraft решает именно эту проблему. Наш AI анализирует требования конкретной вакансии, сопоставляет их с вашим опытом и переписывает формулировки так, чтобы они максимально совпадали с тем, что ищет работодатель — при этом сохраняя полную достоверность информации.
@@ -94,35 +88,25 @@
     <div id="how-it-works" class="landing-section-alt">
         <div class="landing-section-inner">
             <div style="text-align:center;margin-bottom:2.5rem;">
-                <span class="badge badge-indigo" style="margin-bottom:0.75rem;display:inline-block;">3 простых шага</span>
                 <h2 style="margin-bottom:0.5rem;">Как это работает</h2>
-                <p class="section-subtitle" style="margin-bottom:0;">Весь процесс занимает меньше минуты. Загрузите резюме, выберите вакансию — и AI сделает всё остальное.</p>
+                <p class="section-subtitle" style="margin-bottom:0;">Три простых шага до идеального резюме</p>
             </div>
-            <div class="features-grid" style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;">
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div class="step-number">1</div>
-                    <h3 style="font-size:1.1rem;margin-bottom:0.75rem;">Загрузите резюме</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">
-                        Перетащите файл PDF или DOCX в область загрузки, или выберите его из папки на компьютере. Поддерживаются даже сканы — наша система распознаёт текст через OCR-технологию. Максимальный размер файла — 10 МБ. Система автоматически извлечёт все секции: контактные данные, опыт работы, образование, навыки и достижения.
-                    </p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;">
+                <div class="card" style="text-align:center;padding:2rem;">
+                    <div style="width:48px;height:48px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;margin:0 auto 1rem;">1</div>
+                    <h3 style="margin-bottom:0.5rem;">Загрузите резюме</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">PDF или DOCX — система извлечёт текст автоматически</p>
                 </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div class="step-number">2</div>
-                    <h3 style="font-size:1.1rem;margin-bottom:0.75rem;">Выберите вакансию</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">
-                        Найдите нужную вакансию прямо в приложении через встроенный поиск по hh.ru, вставьте ссылку на вакансию или введите требования вручную. Система проанализирует описание должности, необходимые навыки, уровень позиции и отраслевую специфику. Match Score покажет, насколько ваше текущее резюме соответствует требованиям.
-                    </p>
+                <div class="card" style="text-align:center;padding:2rem;">
+                    <div style="width:48px;height:48px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;margin:0 auto 1rem;">2</div>
+                    <h3 style="margin-bottom:0.5rem;">Выберите вакансию</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Найдите на hh.ru, вставьте ссылку или введите вручную</p>
                 </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div class="step-number">3</div>
-                    <h3 style="font-size:1.1rem;margin-bottom:0.75rem;">Получите результат</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">
-                        AI-модель оптимизирует ваше резюме за <strong style="color:var(--primary);">10-30 секунд</strong>. Вы увидите наглядное сравнение «до и после» с подсветкой всех изменений. Красным выделены слабые формулировки, зелёным — улучшения. Экспортируйте результат в PDF, DOCX или сразу на hh.ru. Каждое изменение можно отредактировать вручную.
-                    </p>
+                <div class="card" style="text-align:center;padding:2rem;">
+                    <div style="width:48px;height:48px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;margin:0 auto 1rem;">3</div>
+                    <h3 style="margin-bottom:0.5rem;">Получите результат</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">AI оптимизирует резюме за 30 секунд с Match Score</p>
                 </div>
-            </div>
-            <div style="text-align:center;margin-top:2rem;">
-                <a href="02-auth.html" class="btn btn-primary btn-lg">Попробовать бесплатно</a>
             </div>
         </div>
     </div>
@@ -130,415 +114,412 @@
     <!-- ====== ВОЗМОЖНОСТИ ====== -->
     <div id="features" class="landing-section">
         <div class="landing-section-inner">
-            <h2>Всё что нужно для идеального резюме</h2>
-            <p class="section-subtitle">Мощные инструменты оптимизации на базе искусственного интеллекта — все в одном сервисе. Каждая функция разработана специально для повышения ваших шансов на трудоустройство.</p>
-            <div class="features-grid" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;">
-                <!-- Карточка 1: AI-рерайтинг -->
-                <div class="card">
-                    <div style="width:48px;height:48px;background:var(--primary-light);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </div>
-                    <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">AI-рерайтинг формулировок</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Полная переработка формулировок с акцентом на достижения и количественные метрики. AI заменяет расплывчатые описания вроде «занимался продажами» на конкретные результаты: «увеличил объём продаж на 34% за Q3 2025 года, привлёк 15 новых корпоративных клиентов». Каждая фраза проверяется на соответствие стандартам профессионального резюме.</p>
-                </div>
-                <!-- Карточка 2: Подбор вакансий -->
-                <div class="card">
-                    <div style="width:48px;height:48px;background:#ECFDF5;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--success);margin-bottom:1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                    </div>
-                    <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Интеграция с hh.ru</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Встроенный поиск по крупнейшей площадке вакансий в России. Ищите вакансии по должности, городу, зарплате и типу занятости прямо в ResumeCraft. Каждая вакансия показывает Match Score — насколько ваш профиль совпадает с требованиями работодателя. Также можно вставить ссылку на вакансию или ввести требования вручную.</p>
-                </div>
-                <!-- Карточка 3: Match Score -->
-                <div class="card">
-                    <div style="width:48px;height:48px;background:#EFF6FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#3B82F6;margin-bottom:1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    </div>
-                    <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Технология Match Score</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Алгоритм оценки соответствия резюме вакансии по шкале от 0 до 100%. Учитывает четыре фактора: совпадение ключевых слов (40%), уровень опыта (25%), структуру документа (20%) и читаемость текста (15%). Результат выше 80% означает высокие шансы прохождения через ATS-фильтры. В среднем наши пользователи повышают Match Score на 34 пункта.</p>
-                </div>
-                <!-- Карточка 4: ATS-оптимизация -->
-                <div class="card">
-                    <div style="width:48px;height:48px;background:#FEF3C7;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#D97706;margin-bottom:1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    </div>
-                    <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">ATS-оптимизация для России</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;">В отличие от западных сервисов, мы оптимизируем резюме специально для российских ATS-платформ: Huntflow, Потоk, Талантикс и Skillaz. Система стандартизирует названия секций, удаляет элементы, которые ATS не может прочитать (графики, колонки, изображения), и добавляет ключевые слова из описания вакансии в правильном контексте.</p>
-                </div>
-                <!-- Карточка 5: Мультиформат -->
-                <div class="card">
-                    <div style="width:48px;height:48px;background:#F3E8FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7C3AED;margin-bottom:1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </div>
-                    <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Мультиформат и шаблоны</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Загружайте резюме в формате PDF или DOCX, включая отсканированные документы с поддержкой OCR. Экспортируйте результат в PDF, DOCX или напрямую в формат hh.ru. Доступны три профессиональных шаблона оформления: Minimal (лучше всего для ATS), Professional (современный дизайн) и Creative (с инфографикой для креативных индустрий).</p>
-                </div>
-                <!-- Карточка 6: Выбор AI-модели -->
-                <div class="card">
-                    <div style="width:48px;height:48px;background:#FFF1F2;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#E11D48;margin-bottom:1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    </div>
-                    <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Выбор AI-модели</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Четыре AI-провайдера на выбор для разных задач. GigaChat Pro — лучшее качество на русском языке, глубокое понимание российского рынка труда. Anthropic Claude — отличный русский, контекст 200K. OpenRouter — 100+ моделей на выбор. OpenAI GPT-4o — максимальное качество для международных резюме. Для OpenAI, Anthropic и OpenRouter доступен 2-ступенчатый выбор суб-модели.</p>
-                </div>
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2 style="margin-bottom:0.5rem;">Возможности</h2>
+                <p class="section-subtitle" style="margin-bottom:0;">Всё необходимое для идеального резюме</p>
             </div>
-        </div>
-    </div>
-
-    <!-- ====== ДО / ПОСЛЕ (РАСШИРЕННЫЙ) ====== -->
-    <div class="landing-section-alt">
-        <div class="landing-section-inner" style="max-width:1000px;">
-            <h2>Как AI усиливает формулировки</h2>
-            <p class="section-subtitle">Посмотрите, как ResumeCraft превращает типичные описания в профессиональные формулировки, которые проходят ATS-фильтры и привлекают внимание рекрутеров.</p>
-
-            <!-- Пример 1: О себе -->
-            <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text-secondary);">Пример 1: Раздел «О себе»</h3>
-            <div class="diff-container" style="margin-bottom:2.5rem;">
-                <div class="card diff-panel">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-weight:600;color:var(--text-secondary);">До оптимизации</span>
-                        <span class="badge badge-gray">53%</span>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                     </div>
-                    <div style="font-size:0.9rem;line-height:1.8;">
-                        <p style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Александр Петров</p>
-                        <p style="margin-bottom:0.75rem;"><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;color:var(--text-secondary);">Product Manager</mark></p>
-                        <p><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Опытный продакт-менеджер.</mark> Работал в нескольких компаниях. <mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Умею управлять командой и запускать продукты.</mark></p>
+                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">AI-реврайтинг</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">Глубокая переработка текста с учётом вакансии и ATS-требований</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     </div>
+                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Интеграция hh.ru</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">Поиск вакансий, импорт по URL, автоанализ требований</p>
                 </div>
-                <div class="card diff-panel" style="border-left:3px solid var(--success);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-weight:600;color:var(--success);">После оптимизации</span>
-                        <span class="badge badge-green">87%</span>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                     </div>
-                    <div style="font-size:0.9rem;line-height:1.8;">
-                        <p style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Александр Петров</p>
-                        <p style="margin-bottom:0.75rem;"><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Senior Product Manager | B2C & B2B SaaS | Agile & Data-Driven</mark></p>
-                        <p><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Product Manager с 5+ годами опыта в B2C и B2B SaaS. Руководил кросс-функциональными командами до 12 человек. Увеличил ключевые метрики продукта на 40% через A/B тестирование и data-driven подход. Опыт работы с SQL, Amplitude, Jira.</mark></p>
+                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Match Score</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">Оценка соответствия 0–100% по 4 компонентам</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
+                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">ATS-оптимизация</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">Рейтинг A+ – D, ключевые слова, структура</p>
                 </div>
-            </div>
-
-            <!-- Пример 2: Опыт работы -->
-            <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text-secondary);">Пример 2: Раздел «Опыт работы»</h3>
-            <div class="diff-container" style="margin-bottom:2rem;">
-                <div class="card diff-panel">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-weight:600;color:var(--text-secondary);">До</span>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </div>
-                    <div style="font-size:0.9rem;line-height:1.8;">
-                        <p style="font-weight:600;">Менеджер по продажам — ООО «ТехноСервис»</p>
-                        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">2022 — 2025</p>
-                        <p><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Занимался продажами. Работал с клиентами. Выполнял план.</mark></p>
+                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Мультиформат</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">Экспорт в DOCX и PDF с профессиональными шаблонами</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                     </div>
+                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Выбор AI-модели</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">GigaChat Pro, GPT-4o, Claude, OpenRouter — под вашу задачу</p>
                 </div>
-                <div class="card diff-panel" style="border-left:3px solid var(--success);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-weight:600;color:var(--success);">После</span>
-                    </div>
-                    <div style="font-size:0.9rem;line-height:1.8;">
-                        <p style="font-weight:600;">Менеджер по продажам — ООО «ТехноСервис»</p>
-                        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">2022 — 2025</p>
-                        <p><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Увеличил объём продаж B2B-направления на 34% за год, привлёк 15 новых корпоративных клиентов. Управлял воронкой из 200+ сделок в CRM Битрикс24. Регулярно перевыполнял квартальный план на 110-125%.</mark></p>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex;gap:1.5rem;font-size:0.8rem;color:var(--text-tertiary);justify-content:center;margin-top:1rem;">
-                <span><span style="display:inline-block;width:10px;height:10px;background:#FEE2E2;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Слабые формулировки</span>
-                <span><span style="display:inline-block;width:10px;height:10px;background:#DCFCE7;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Улучшения AI</span>
-            </div>
-
-            <!-- Таблица примеров трансформаций -->
-            <div class="card" style="margin-top:2.5rem;overflow:hidden;">
-                <h3 style="font-size:1.05rem;font-weight:600;margin-bottom:1rem;">Ещё примеры: как AI преобразует типичные фразы</h3>
-                <div style="overflow-x:auto;">
-                    <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
-                        <thead>
-                            <tr style="background:#F9FAFB;">
-                                <th style="padding:0.75rem 1rem;text-align:left;font-weight:600;border-bottom:2px solid #E5E7EB;color:var(--text-secondary);">Было</th>
-                                <th style="padding:0.75rem 1rem;text-align:left;font-weight:600;border-bottom:2px solid #E5E7EB;color:var(--success);">Стало</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;color:var(--text-secondary);">Стрессоустойчивый</td><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">Руководил командой из 8 человек в условиях сжатых дедлайнов</td></tr>
-                            <tr><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;color:var(--text-secondary);">Коммуникабельный</td><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">Провёл 50+ презентаций для C-level клиентов, конверсия в сделку 35%</td></tr>
-                            <tr><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;color:var(--text-secondary);">Работа с данными</td><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">SQL, Python, Tableau — построил систему аналитики для 500K+ MAU</td></tr>
-                            <tr><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;color:var(--text-secondary);">Управлял проектами</td><td style="padding:0.75rem 1rem;border-bottom:1px solid #F3F4F6;">Руководил портфелем из 5 проектов с общим бюджетом 12 млн &#8381;</td></tr>
-                            <tr><td style="padding:0.75rem 1rem;color:var(--text-secondary);">Увеличил продажи</td><td style="padding:0.75rem 1rem;">Увеличил продажи на 34% в Q3 2025, выручка +8.5 млн &#8381;</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====== ДЛЯ КОГО ====== -->
-    <div class="landing-section">
-        <div class="landing-section-inner">
-            <h2>Для кого создан ResumeCraft</h2>
-            <p class="section-subtitle">Сервис помогает на любом этапе карьеры — от первого резюме до перехода в топ-менеджмент</p>
-            <div class="features-grid" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;">
-                <div class="card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-                        <div style="width:48px;height:48px;background:#ECFDF5;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--success);flex-shrink:0;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                        </div>
-                        <h3 style="font-size:1.1rem;font-weight:600;">Начинающие специалисты и студенты</h3>
-                    </div>
-                    <p style="color:var(--text-secondary);line-height:1.6;">У вас мало опыта, но есть навыки и потенциал. AI поможет правильно структурировать даже небольшой опыт: стажировки, учебные проекты, волонтёрство и фриланс. Вместо пустого резюме вы получите профессионально оформленный документ, который сразу выделяет вас среди других начинающих специалистов. Средний рост Match Score для этой категории — с 45% до 78%.</p>
-                </div>
-                <div class="card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-                        <div style="width:48px;height:48px;background:var(--primary-light);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);flex-shrink:0;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                        </div>
-                        <h3 style="font-size:1.1rem;font-weight:600;">Опытные специалисты</h3>
-                    </div>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Вы давно не обновляли резюме, и оно не отражает реальный уровень ваших достижений. AI извлечёт максимум из вашего опыта: добавит конкретные метрики, результаты и ключевые слова, которые ищут работодатели. Создавайте разные версии резюме под разные вакансии — это критически важно для повышения отклика. Больше не нужно тратить часы на переформулирование текста.</p>
-                </div>
-                <div class="card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-                        <div style="width:48px;height:48px;background:#FEF3C7;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#D97706;flex-shrink:0;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                        </div>
-                        <h3 style="font-size:1.1rem;font-weight:600;">Карьерные переходы</h3>
-                    </div>
-                    <p style="color:var(--text-secondary);line-height:1.6;">Меняете сферу деятельности? AI поможет переформулировать ваш прошлый опыт через призму новой специальности. Навыки управления проектами, работа с клиентами, аналитика — всё это ценно в разных индустриях. ResumeCraft подчеркнёт релевантный опыт и перенесёт акценты так, чтобы работодатель увидел вас как подходящего кандидата, даже если вы приходите из другой отрасли.</p>
-                </div>
-                <div class="card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-                        <div style="width:48px;height:48px;background:#F3E8FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7C3AED;flex-shrink:0;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                        </div>
-                        <h3 style="font-size:1.1rem;font-weight:600;">IT-специалисты</h3>
-                    </div>
-                    <p style="color:var(--text-secondary);line-height:1.6;">В IT-сфере конкуренция достигает 8-9 человек на вакансию. Резюме должно быть идеальным: правильный стек технологий, конкретные метрики (DAU, MAU, RPS, latency), описание системного дизайна и масштабирования. AI расставит акценты на то, что действительно важно для технических рекрутеров, и оптимизирует резюме для прохождения через ATS крупных IT-компаний.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====== ПОЧЕМУ RESUMECRAFT (УТП) ====== -->
-    <div class="landing-section-alt">
-        <div class="landing-section-inner">
-            <h2>Почему именно ResumeCraft</h2>
-            <p class="section-subtitle">Единственный AI-оптимизатор резюме, созданный специально для российского рынка труда. Вот что отличает нас от зарубежных аналогов и ручного написания резюме.</p>
-            <div class="features-grid" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;">
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div style="width:48px;height:48px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--primary);margin:0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                    </div>
-                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Русскоязычный AI</h3>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Модели обучены на русском языке и понимают контекст российского рынка труда. Знают, какие формулировки ценят российские рекрутеры и HR-специалисты. Западные сервисы (Rezi, Jobscan, Resume Worded) не поддерживают русский язык.</p>
-                </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div style="width:48px;height:48px;background:#ECFDF5;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--success);margin:0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    </div>
-                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Работает без VPN</h3>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Все сервисы и AI-модели доступны из России напрямую, без VPN и обходов блокировок. Используем GigaChat (Сбер) и другие модели, которые работают на территории РФ без ограничений. Никаких проблем с доступом.</p>
-                </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div style="width:48px;height:48px;background:#EFF6FF;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#3B82F6;margin:0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    </div>
-                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Данные в России</h3>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Все данные хранятся на серверах на территории Российской Федерации. Полное соответствие Федеральному закону №152 о персональных данных. Шифрование при передаче и хранении. Вы всегда можете удалить свои данные полностью.</p>
-                </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div style="width:48px;height:48px;background:#FEF3C7;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#D97706;margin:0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    </div>
-                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Результат за 10-30 секунд</h3>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Не часы у HR-консультанта и не дни ожидания. Полная оптимизация резюме — за полминуты. Anthropic Claude обрабатывает за ~10 секунд, GigaChat Pro — за ~12 секунд, GPT-4o — за ~18 секунд. Для сравнения: профессиональное написание резюме стоит от 1500 до 10000 рублей и занимает 2-5 дней.</p>
-                </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div style="width:48px;height:48px;background:#F3E8FF;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#7C3AED;margin:0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Гарантия достоверности</h3>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">AI усиливает существующие формулировки и добавляет релевантные ключевые слова, но никогда не выдумывает факты, опыт работы или навыки, которых у вас нет. Все изменения прозрачны — вы видите каждое из них и можете отредактировать вручную.</p>
-                </div>
-                <div class="card" style="text-align:center;padding:2rem 1.5rem;">
-                    <div style="width:48px;height:48px;background:#FFF1F2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#E11D48;margin:0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    </div>
-                    <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Нативная интеграция с hh.ru</h3>
-                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Единственный сервис с прямой интеграцией с HeadHunter — крупнейшей площадкой вакансий в России (64% рынка, 1.8 млн вакансий ежедневно). Ищите вакансии, сравнивайте Match Score и экспортируйте оптимизированное резюме прямо на hh.ru.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ====== СОЦИАЛЬНОЕ ДОКАЗАТЕЛЬСТВО ====== -->
-    <div id="testimonials" class="landing-section">
-        <div class="landing-section-inner" style="max-width:1000px;">
-            <h2>Цифры говорят за нас</h2>
-            <p class="section-subtitle">Реальные результаты пользователей ResumeCraft, подтверждённые данными платформы</p>
-            <div class="landing-stats-grid">
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:2rem;font-weight:700;color:var(--primary);margin-bottom:0.25rem;">93+ млн</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">резюме в базе hh.ru</div>
-                </div>
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:2rem;font-weight:700;color:var(--primary);margin-bottom:0.25rem;">4.9/5</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">средняя оценка пользователей</div>
-                </div>
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:2rem;font-weight:700;color:var(--success);margin-bottom:0.25rem;">+34%</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">средний рост Match Score</div>
-                </div>
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:2rem;font-weight:700;color:var(--primary);margin-bottom:0.25rem;">30 сек</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">среднее время оптимизации</div>
-                </div>
-            </div>
-            <p style="text-align:center;color:var(--text-tertiary);font-size:0.85rem;margin-top:1.5rem;">Совместимость с российскими ATS-системами:</p>
-            <div class="landing-trust-row">
-                <span class="badge badge-gray" style="padding:0.5rem 1rem;font-size:0.85rem;">Huntflow</span>
-                <span class="badge badge-gray" style="padding:0.5rem 1rem;font-size:0.85rem;">Потоk</span>
-                <span class="badge badge-gray" style="padding:0.5rem 1rem;font-size:0.85rem;">Талантикс</span>
-                <span class="badge badge-gray" style="padding:0.5rem 1rem;font-size:0.85rem;">Skillaz</span>
-                <span class="badge badge-gray" style="padding:0.5rem 1rem;font-size:0.85rem;">hh.ru</span>
             </div>
         </div>
     </div>
 
     <!-- ====== ТАРИФЫ ====== -->
-    <div class="landing-section-alt">
-        <div class="landing-section-inner" style="max-width:900px;text-align:center;">
-            <h2>Тарифные планы</h2>
-            <p class="section-subtitle">Начните бесплатно — 5 оптимизаций без регистрации банковской карты. Обновите план, когда будете готовы к активному поиску работы.</p>
-            <div style="display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;">
-                <div class="card" style="min-width:240px;text-align:left;flex:1;max-width:280px;">
-                    <div class="badge badge-gray" style="margin-bottom:0.75rem;">Free</div>
-                    <div style="font-size:1.75rem;font-weight:700;">0 &#8381;</div>
-                    <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;margin-bottom:1rem;">Навсегда бесплатно</p>
-                    <ul style="list-style:none;padding:0;font-size:0.85rem;color:var(--text-secondary);line-height:2;">
-                        <li>&#10003; 5 оптимизаций в месяц</li>
-                        <li>&#10003; AI-модель OpenRouter</li>
-                        <li>&#10003; Экспорт в DOCX</li>
-                        <li>&#10003; 1 шаблон (Minimal)</li>
-                        <li>&#10003; Поиск по hh.ru</li>
+    <div id="pricing" class="landing-section-alt">
+        <div class="landing-section-inner">
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2 style="margin-bottom:0.5rem;">Тарифные планы</h2>
+                <p class="section-subtitle" style="margin-bottom:0;">Начните бесплатно, обновите когда будете готовы</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:900px;margin:0 auto;">
+                <!-- Free -->
+                <div class="card pricing-card" style="padding:2rem;">
+                    <div class="badge badge-gray" style="align-self:start;">Free</div>
+                    <div class="price">0 &#8381; <span>навсегда</span></div>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Для знакомства</p>
+                    <ul>
+                        <li>&#10003; 5 оптимизаций/мес</li>
+                        <li>&#10003; OpenRouter</li>
+                        <li>&#10003; DOCX экспорт</li>
+                        <li>&#10003; 1 шаблон</li>
+                        <li>&#10003; Поиск hh.ru</li>
                     </ul>
+                    <a href="02-auth.html" class="btn btn-secondary btn-block">Начать бесплатно</a>
                 </div>
-                <div class="card" style="min-width:240px;text-align:left;flex:1;max-width:280px;border:2px solid var(--primary);position:relative;">
-                    <span class="badge badge-indigo" style="position:absolute;top:-10px;right:1rem;">Популярный</span>
-                    <div class="badge badge-indigo" style="margin-bottom:0.75rem;">Standard</div>
-                    <div style="font-size:1.75rem;font-weight:700;">490 &#8381;<span style="font-size:0.9rem;font-weight:400;color:var(--text-secondary);">/мес</span></div>
-                    <p style="font-size:0.8rem;color:var(--text-tertiary);margin-top:0.25rem;margin-bottom:1rem;">или 3 990 &#8381;/год (&#8722;32%)</p>
-                    <ul style="list-style:none;padding:0;font-size:0.85rem;color:var(--text-secondary);line-height:2;">
-                        <li>&#10003; 30 оптимизаций в месяц</li>
-                        <li>&#10003; GigaChat Pro + OpenRouter</li>
-                        <li>&#10003; Экспорт PDF + DOCX</li>
-                        <li>&#10003; 3 шаблона дизайна</li>
-                        <li>&#10003; Поиск по hh.ru</li>
-                        <li>&#10003; Email + чат поддержка</li>
+                <!-- Standard -->
+                <div class="card pricing-card featured" style="padding:2rem;">
+                    <div class="pricing-popular"><span class="badge badge-indigo">Популярный</span></div>
+                    <div class="badge badge-indigo" style="align-self:start;">Standard</div>
+                    <div class="price">490 &#8381; <span>/мес</span></div>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Для активного поиска</p>
+                    <ul>
+                        <li>&#10003; 30 оптимизаций/мес</li>
+                        <li>&#10003; GigaChat Pro + Claude</li>
+                        <li>&#10003; PDF + DOCX</li>
+                        <li>&#10003; 3 шаблона</li>
+                        <li>&#10003; Email + чат</li>
                     </ul>
+                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;">3 990 &#8381;/год (−32%)</div>
+                    <a href="02-auth.html" class="btn btn-primary btn-block">Выбрать план</a>
                 </div>
-                <div class="card" style="min-width:240px;text-align:left;flex:1;max-width:280px;">
-                    <div class="badge badge-green" style="margin-bottom:0.75rem;">Pro</div>
-                    <div style="font-size:1.75rem;font-weight:700;">1 490 &#8381;<span style="font-size:0.9rem;font-weight:400;color:var(--text-secondary);">/мес</span></div>
-                    <p style="font-size:0.8rem;color:var(--text-tertiary);margin-top:0.25rem;margin-bottom:1rem;">или 11 990 &#8381;/год (&#8722;33%)</p>
-                    <ul style="list-style:none;padding:0;font-size:0.85rem;color:var(--text-secondary);line-height:2;">
+                <!-- Pro -->
+                <div class="card pricing-card" style="padding:2rem;">
+                    <div class="badge badge-green" style="align-self:start;">Pro</div>
+                    <div class="price">1 490 &#8381; <span>/мес</span></div>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;">Для профессионалов</p>
+                    <ul>
                         <li>&#10003; Безлимит оптимизаций</li>
-                        <li>&#10003; Все AI-модели + GPT-4o</li>
+                        <li>&#10003; Все модели + GPT-4o</li>
                         <li>&#10003; Все форматы + hh.ru</li>
-                        <li>&#10003; Все шаблоны + кастомные</li>
-                        <li>&#10003; API-доступ</li>
-                        <li>&#10003; Приоритетная поддержка 24/7</li>
+                        <li>&#10003; Все шаблоны</li>
+                        <li>&#10003; Приоритет 24/7</li>
                     </ul>
+                    <div style="font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;">11 990 &#8381;/год (−33%)</div>
+                    <a href="02-auth.html" class="btn btn-secondary btn-block">Выбрать план</a>
                 </div>
             </div>
-            <a href="05-pricing.html" style="display:inline-block;color:var(--primary);font-weight:600;font-size:0.95rem;">Подробное сравнение всех тарифов &rarr;</a>
+        </div>
+    </div>
+
+    <!-- ====== ДО / ПОСЛЕ ====== -->
+    <div class="landing-section">
+        <div class="landing-section-inner" style="max-width:1000px;">
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2 style="margin-bottom:0.5rem;">До и после оптимизации</h2>
+                <p class="section-subtitle" style="margin-bottom:0;">Посмотрите, как AI трансформирует резюме</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem;">
+                <div class="card" style="padding:1.5rem;border-left:4px solid #EF4444;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                        <span class="badge badge-gray">До</span>
+                        <span style="color:#EF4444;font-weight:600;">53% Match Score</span>
+                    </div>
+                    <p style="font-weight:600;margin-bottom:0.5rem;"><span style="background:#FEE2E2;padding:2px 6px;border-radius:4px;">Менеджер по продукту</span></p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Опыт работы в IT. Занимался запуском продуктов и управлением командой.</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;"><span style="background:#FEE2E2;padding:2px 6px;border-radius:4px;">Работал с аналитикой</span> и проводил исследования.</p>
+                </div>
+                <div class="card" style="padding:1.5rem;border-left:4px solid #10B981;">
+                    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+                        <span class="badge badge-green">После</span>
+                        <span style="color:#10B981;font-weight:600;">87% Match Score</span>
+                    </div>
+                    <p style="font-weight:600;margin-bottom:0.5rem;"><span style="background:#D1FAE5;padding:2px 6px;border-radius:4px;">Senior Product Manager</span> с 6+ лет опыта (DAU 500K+)</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Руководил запуском 3 продуктовых линеек, каждая — 100K+ MAU за 6 месяцев.</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Повысил конверсию на <span style="background:#D1FAE5;padding:2px 6px;border-radius:4px;">34%</span> через 120+ A/B тестов.</p>
+                </div>
+            </div>
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;padding:0.75rem;font-weight:600;">Параметр</th>
+                        <th style="text-align:center;padding:0.75rem;color:#EF4444;font-weight:600;">До</th>
+                        <th style="text-align:center;padding:0.75rem;color:#10B981;font-weight:600;">После</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-top:1px solid #E5E7EB;">
+                        <td style="padding:0.75rem;">Ключевые слова</td>
+                        <td style="text-align:center;padding:0.75rem;color:#EF4444;">23%</td>
+                        <td style="text-align:center;padding:0.75rem;color:#10B981;">91%</td>
+                    </tr>
+                    <tr style="border-top:1px solid #E5E7EB;">
+                        <td style="padding:0.75rem;">Метрики в достижениях</td>
+                        <td style="text-align:center;padding:0.75rem;color:#EF4444;">1 из 5</td>
+                        <td style="text-align:center;padding:0.75rem;color:#10B981;">5 из 5</td>
+                    </tr>
+                    <tr style="border-top:1px solid #E5E7EB;">
+                        <td style="padding:0.75rem;">ATS-совместимость</td>
+                        <td style="text-align:center;padding:0.75rem;color:#EF4444;">D</td>
+                        <td style="text-align:center;padding:0.75rem;color:#10B981;">A+</td>
+                    </tr>
+                    <tr style="border-top:1px solid #E5E7EB;">
+                        <td style="padding:0.75rem;">Релевантность опыта</td>
+                        <td style="text-align:center;padding:0.75rem;color:#EF4444;">45%</td>
+                        <td style="text-align:center;padding:0.75rem;color:#10B981;">82%</td>
+                    </tr>
+                    <tr style="border-top:1px solid #E5E7EB;">
+                        <td style="padding:0.75rem;">Структура</td>
+                        <td style="text-align:center;padding:0.75rem;color:#EF4444;">60%</td>
+                        <td style="text-align:center;padding:0.75rem;color:#10B981;">95%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ====== ДЛЯ КОГО ====== -->
+    <div class="landing-section-alt">
+        <div class="landing-section-inner">
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2 style="margin-bottom:0.5rem;">Для кого ResumeCraft</h2>
+                <p class="section-subtitle" style="margin-bottom:0;">Помогаем специалистам разного уровня</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;">
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Студенты и выпускники</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Первое резюме без опыта — AI подчеркнёт потенциал, навыки и проекты</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Опытные специалисты</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Обновление резюме под конкретную вакансию с оптимальными формулировками</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Карьерные переходы</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Переупаковка опыта из одной отрасли для позиций в другой</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">IT-специалисты</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Технический стек, проекты, метрики — всё в формате, который оценят рекрутеры</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ПОЧЕМУ ИМЕННО RESUMECRAFT ====== -->
+    <div class="landing-section">
+        <div class="landing-section-inner">
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2 style="margin-bottom:0.5rem;">Почему именно ResumeCraft</h2>
+                <p class="section-subtitle" style="margin-bottom:0;">Уникальные преимущества нашего сервиса</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Русскоязычный AI</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">GigaChat Pro — #1 MERA бенчмарк для русского языка. Лучшее понимание рынка труда РФ</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Без VPN</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Все модели доступны из России напрямую, данные не покидают территорию РФ</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Данные в России</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Соответствие ФЗ-152 о персональных данных. Серверы в Yandex Cloud</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Скорость 30 сек</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Полный цикл оптимизации: анализ + переписывание + скоринг за полминуты</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Достоверность</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">AI не выдумывает факты — только переформулирует ваш реальный опыт с метриками</p>
+                </div>
+                <div class="card" style="padding:1.5rem;">
+                    <div style="width:48px;height:48px;background:#EEF2FF;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:1rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </div>
+                    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Интеграция hh.ru</h3>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.5;">Единственный сервис с прямым API hh.ru — автоматический импорт вакансий</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== ЦИФРЫ + ATS ====== -->
+    <div class="landing-section-alt">
+        <div class="landing-section-inner">
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2>Цифры говорят сами</h2>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;max-width:800px;margin:0 auto 2rem;">
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">93 млн</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">резюме на hh.ru</div>
+                </div>
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">4.9/5</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">средняя оценка</div>
+                </div>
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">+34%</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">рост Match Score</div>
+                </div>
+                <div class="card" style="text-align:center;padding:1.5rem;">
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">30 сек</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">время оптимизации</div>
+                </div>
+            </div>
+            <div style="text-align:center;color:var(--text-secondary);font-size:0.9rem;margin-bottom:1rem;">Совместимо с ATS-системами:</div>
+            <div style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
+                <span class="badge badge-gray">Huntflow</span>
+                <span class="badge badge-gray">Поток</span>
+                <span class="badge badge-gray">Талантикс</span>
+                <span class="badge badge-gray">Skillaz</span>
+                <span class="badge badge-gray">hh.ru</span>
+            </div>
         </div>
     </div>
 
     <!-- ====== FAQ ====== -->
     <div id="faq" class="landing-section">
-        <div class="landing-section-inner" style="max-width:800px;">
-            <h2>Часто задаваемые вопросы</h2>
-            <p class="section-subtitle">Ответы на самые популярные вопросы о ResumeCraft</p>
-
-            <div style="display:flex;flex-direction:column;gap:1rem;">
-                <div class="card" style="padding:1.5rem 2rem;">
-                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">Может ли AI добавить в резюме ложную информацию?</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">Нет. ResumeCraft работает исключительно с вашим реальным опытом и навыками. AI переформулирует существующие описания, добавляет релевантные ключевые слова из вакансии и усиливает формулировки — но никогда не придумывает факты, должности или достижения, которых не было. Все изменения прозрачны: вы видите каждое из них в режиме diff-сравнения и можете отредактировать вручную.</p>
+        <div class="landing-section-inner" style="max-width:700px;">
+            <div style="text-align:center;margin-bottom:2.5rem;">
+                <h2>Частые вопросы</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Как работает AI-оптимизация?<span class="faq-toggle">&#9660;</span></div>
+                    <div class="faq-a">AI анализирует ваше резюме и требования вакансии, затем переписывает формулировки, чтобы максимизировать соответствие. Добавляются числовые метрики, оптимизируются ключевые слова для ATS-систем, улучшается структура. Весь процесс занимает около 30 секунд.</div>
                 </div>
-                <div class="card" style="padding:1.5rem 2rem;">
-                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">Какие форматы файлов поддерживаются?</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">Для загрузки поддерживаются PDF и DOCX, включая отсканированные документы (система использует OCR для распознавания текста). Максимальный размер файла — 10 МБ. Экспорт доступен в трёх форматах: PDF (для отправки работодателю), DOCX (для дальнейшего редактирования) и нативный формат hh.ru (для прямой загрузки на HeadHunter). На плане Pro также доступен экспорт через API.</p>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Безопасно ли загружать резюме?<span class="faq-toggle">&#9660;</span></div>
+                    <div class="faq-a">Да. Все данные хранятся на серверах Yandex Cloud в России. Мы соблюдаем ФЗ-152 о персональных данных. Резюме шифруются при передаче и хранении. Вы можете удалить свои данные в любой момент.</div>
                 </div>
-                <div class="card" style="padding:1.5rem 2rem;">
-                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">В чём разница между AI-моделями?</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;"><strong>GigaChat Pro</strong> (от Сбера) — лучшее качество на русском языке, глубокое понимание российского рынка труда, доступна на плане Standard и выше. <strong>Anthropic Claude</strong> — отличный русский язык, контекст 200K токенов. <strong>OpenRouter</strong> — мультипровайдер со 100+ моделями, гибкий выбор по цене и качеству. <strong>OpenAI GPT-4o</strong> — максимальное качество для международных и англоязычных резюме. Мы рекомендуем GigaChat Pro для большинства задач на русском языке.</p>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Какие форматы поддерживаются?<span class="faq-toggle">&#9660;</span></div>
+                    <div class="faq-a">Загрузка: PDF и DOCX (включая отсканированные документы с OCR). Экспорт: DOCX и PDF с профессиональными шаблонами оформления.</div>
                 </div>
-                <div class="card" style="padding:1.5rem 2rem;">
-                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">Как обеспечивается безопасность моих данных?</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">Все данные хранятся на серверах на территории Российской Федерации в полном соответствии с ФЗ-152 о персональных данных. Передача данных шифруется по протоколу TLS. Мы не передаём ваши персональные данные третьим лицам. Доступна двухфакторная аутентификация (2FA). В любой момент вы можете полностью удалить свой аккаунт и все связанные данные через настройки безопасности.</p>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Можно ли использовать бесплатно?<span class="faq-toggle">&#9660;</span></div>
+                    <div class="faq-a">Да! Бесплатный план включает 5 оптимизаций в месяц с моделью OpenRouter. Этого достаточно, чтобы оценить качество сервиса. Платные планы открывают доступ к GigaChat Pro, Claude и другим моделям.</div>
                 </div>
-                <div class="card" style="padding:1.5rem 2rem;">
-                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">Можно ли отредактировать результат вручную?</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">Да, обязательно. После оптимизации вы попадаете в редактор, где можно изменить любую секцию резюме: заголовок, «О себе», опыт работы, образование и навыки. AI также предлагает дополнительные подсказки по улучшению каждой секции. Вы полностью контролируете финальный результат. Можно принять все изменения AI, отклонить часть из них или внести свои правки перед экспортом.</p>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Чем отличается от конкурентов?<span class="faq-toggle">&#9660;</span></div>
+                    <div class="faq-a">ResumeCraft — единственный сервис с прямой интеграцией hh.ru и русскоязычным AI (GigaChat Pro). Мы понимаем специфику российского рынка труда, ATS-систем (Huntflow, Поток, Талантикс) и форматов резюме.</div>
                 </div>
-                <div class="card" style="padding:1.5rem 2rem;">
-                    <h3 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem;">Что такое Match Score и как он рассчитывается?</h3>
-                    <p style="color:var(--text-secondary);line-height:1.6;font-size:0.9rem;">Match Score — это числовая оценка соответствия вашего резюме конкретной вакансии по шкале от 0 до 100%. Алгоритм учитывает четыре компонента: совпадение ключевых слов с описанием вакансии (40% веса), уровень и релевантность опыта (25%), структуру и оформление документа (20%), и читаемость текста (15%). Результат 80% и выше означает высокие шансы прохождения через ATS-фильтры. В среднем пользователи повышают свой Match Score на 34 пункта после оптимизации.</p>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Как считается Match Score?<span class="faq-toggle">&#9660;</span></div>
+                    <div class="faq-a">Match Score — это оценка соответствия резюме вакансии от 0 до 100%. Учитываются 4 компонента: ключевые слова, достижения с метриками, ATS-совместимость и релевантность опыта.</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ====== ФИНАЛЬНЫЙ CTA ====== -->
-    <div class="landing-cta">
-        <h2>Готовы получить работу мечты?</h2>
-        <p>Первые 5 оптимизаций бесплатно. Не требуется банковская карта. Без обязательств и скрытых платежей.<br>Присоединяйтесь к тысячам специалистов, которые уже увеличили свои шансы на трудоустройство с ResumeCraft.</p>
-        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-            <a href="02-auth.html" class="btn btn-lg" style="background:white;color:var(--primary);font-weight:600;">Начать бесплатно</a>
-            <a href="05-pricing.html" class="btn btn-lg" style="border:1px solid rgba(255,255,255,0.3);color:white;">Посмотреть тарифы</a>
+    <!-- ====== CTA ====== -->
+    <div style="background:var(--primary-gradient);padding:4rem 1rem;text-align:center;">
+        <div style="max-width:600px;margin:0 auto;">
+            <h2 style="color:white;margin-bottom:1rem;">Готовы улучшить резюме?</h2>
+            <p style="color:rgba(255,255,255,0.85);margin-bottom:2rem;">Присоединяйтесь к тысячам соискателей, которые уже нашли работу мечты</p>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+                <a href="02-auth.html" class="btn btn-lg" style="background:white;color:var(--primary);font-weight:600;">Начать бесплатно</a>
+                <a href="#pricing" class="btn btn-lg" style="border:2px solid white;color:white;" onclick="event.preventDefault();document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Тарифы</a>
+            </div>
         </div>
     </div>
 
     <!-- ====== FOOTER ====== -->
-    <footer style="background:#111827;color:white;padding:3rem 2rem;">
-        <div style="max-width:1000px;margin:0 auto;">
-            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;margin-bottom:2rem;">
-                <div>
-                    <div style="font-weight:700;font-size:1.1rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
-                        <div style="width:20px;height:20px;background:var(--primary-gradient);border-radius:4px;"></div>
-                        ResumeCraft
-                    </div>
-                    <p style="color:#9CA3AF;font-size:0.85rem;line-height:1.6;max-width:300px;">AI-оптимизатор резюме для российского рынка труда. Адаптируем ваше резюме под ATS-системы и конкретные вакансии за считанные секунды.</p>
+    <footer style="background:#1E293B;color:#94A3B8;padding:3rem 1rem 2rem;">
+        <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;">
+            <div>
+                <div style="font-weight:700;font-size:1.1rem;color:white;display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;">
+                    <div style="width:20px;height:20px;background:var(--primary-gradient);border-radius:5px;"></div>
+                    ResumeCraft
                 </div>
-                <div>
-                    <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Продукт</div>
-                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                        <span style="color:#9CA3AF;font-size:0.85rem;cursor:pointer;" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Возможности</span>
-                        <a href="05-pricing.html" style="color:#9CA3AF;font-size:0.85rem;text-decoration:none;">Тарифы</a>
-                        <span style="color:#9CA3AF;font-size:0.85rem;cursor:pointer;" onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})">Вопросы и ответы</span>
-                    </div>
-                </div>
-                <div>
-                    <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Компания</div>
-                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                        <span style="color:#9CA3AF;font-size:0.85rem;">О нас</span>
-                        <span style="color:#9CA3AF;font-size:0.85rem;">Политика конфиденциальности</span>
-                        <span style="color:#9CA3AF;font-size:0.85rem;">Пользовательское соглашение</span>
-                    </div>
-                </div>
-                <div>
-                    <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Поддержка</div>
-                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                        <span style="color:#9CA3AF;font-size:0.85rem;">support@resumecraft.ru</span>
-                        <span style="color:#9CA3AF;font-size:0.85rem;">Telegram: @resumecraft</span>
-                    </div>
+                <p style="font-size:0.85rem;line-height:1.6;">AI-оптимизация резюме для российского рынка труда. Интеграция с hh.ru.</p>
+            </div>
+            <div>
+                <h4 style="color:white;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Продукт</h4>
+                <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+                    <a href="#how-it-works" style="color:#94A3B8;text-decoration:none;">Как работает</a>
+                    <a href="#pricing" style="color:#94A3B8;text-decoration:none;">Тарифы</a>
+                    <a href="#faq" style="color:#94A3B8;text-decoration:none;">FAQ</a>
                 </div>
             </div>
-            <div style="border-top:1px solid #374151;padding-top:1.5rem;text-align:center;">
-                <p style="color:#9CA3AF;font-size:0.85rem;">&copy; 2026 ResumeCraft. Все данные защищены в соответствии с Федеральным законом №152-ФЗ «О персональных данных».</p>
+            <div>
+                <h4 style="color:white;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Компания</h4>
+                <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+                    <a href="#" style="color:#94A3B8;text-decoration:none;">О нас</a>
+                    <a href="#" style="color:#94A3B8;text-decoration:none;">Конфиденциальность</a>
+                    <a href="#" style="color:#94A3B8;text-decoration:none;">Правила сервиса</a>
+                </div>
+            </div>
+            <div>
+                <h4 style="color:white;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Поддержка</h4>
+                <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;">
+                    <a href="#" style="color:#94A3B8;text-decoration:none;">Email</a>
+                    <a href="#" style="color:#94A3B8;text-decoration:none;">Telegram</a>
+                    <a href="#" style="color:#94A3B8;text-decoration:none;">Контакты</a>
+                </div>
             </div>
         </div>
     </footer>
+
 </div>
+<style>
+.faq-list { display:flex;flex-direction:column;gap:0; }
+.faq-item { border-bottom:1px solid #E5E7EB;cursor:pointer; }
+.faq-q { display:flex;justify-content:space-between;align-items:center;padding:1.25rem 0;font-weight:600;font-size:1rem; }
+.faq-toggle { font-size:0.7rem;transition:transform .2s;color:var(--text-secondary); }
+.faq-a { max-height:0;overflow:hidden;transition:max-height .3s ease, padding .3s ease;padding:0;color:var(--text-secondary);line-height:1.7;font-size:0.9rem; }
+.faq-item.open .faq-a { max-height:300px;padding:0 0 1.25rem; }
+.faq-item.open .faq-toggle { transform:rotate(180deg); }
+.problem-stat { text-align:center;padding:2rem; }
+.stat-value { font-size:2.5rem;font-weight:700;margin-bottom:0.5rem; }
+.stat-label { color:var(--text-secondary);font-size:0.9rem;line-height:1.5; }
+@media(max-width:768px) {
+    .hero-title { font-size:2.2rem !important; }
+    div[style*="grid-template-columns:repeat(3"] { grid-template-columns:1fr !important; }
+    div[style*="grid-template-columns:repeat(4"] { grid-template-columns:repeat(2,1fr) !important; }
+    div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns:1fr !important; }
+    footer > div { grid-template-columns:1fr !important; }
+}
+</style>
 </body>
 </html>

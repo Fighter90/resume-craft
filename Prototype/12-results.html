@@ -11,176 +11,362 @@
 </head>
 <body>
 <div class="app-shell">
-    <script>document.write(buildSidebar(''));</script>
+    <script>document.write(buildSidebar('resumes'));</script>
     <div class="main-content">
         <script>document.write(buildMobileHeader('Результаты'));</script>
         <div class="view" style="animation:fadeIn .3s ease;">
-            <div class="page-header">
-                <div>
-                    <h1>Результаты оптимизации</h1>
-                    <p>Senior Product Manager @ Яндекс</p>
-                </div>
-                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <a href="13-editor.html" class="btn btn-secondary">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        Редактировать
-                    </a>
-                    <a href="14-export.html" class="btn btn-primary">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Экспорт
-                    </a>
+
+            <!-- Modal overlay -->
+            <div class="modal-overlay">
+                <div class="modal-container">
+                    <!-- Modal header -->
+                    <div class="modal-header">
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <h2 style="font-size:1.25rem;font-weight:700;">Просмотр резюме</h2>
+                            <span class="badge-format">TXT</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:1rem;">
+                            <button class="download-btn">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                DOCX
+                            </button>
+                            <button class="download-btn">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                PDF
+                            </button>
+                            <button class="download-btn">
+                                <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                TXT
+                            </button>
+                            <a href="07-resumes.html" class="close-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="modal-tabs">
+                        <button class="modal-tab active" onclick="switchResultTab('original',this)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            Оригинал
+                        </button>
+                        <button class="modal-tab" onclick="switchResultTab('optimized',this)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Оптимизировано
+                        </button>
+                        <button class="modal-tab" onclick="switchResultTab('compare',this)">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+                            Сравнение
+                        </button>
+                    </div>
+
+                    <!-- Tab content -->
+                    <div class="modal-body">
+                        <!-- Original tab -->
+                        <div id="tab-original" class="result-tab-content active">
+                            <div class="resume-text">
+                                <p>Иванов Иван Петрович</p>
+                                <p>Senior Software Engineer</p>
+                                <br>
+                                <p><strong>Контакты:</strong></p>
+                                <p>Email: ivanov@example.com</p>
+                                <p>Телефон: +7 (999) 123-45-67</p>
+                                <p>Город: Москва</p>
+                                <br>
+                                <p><strong>Опыт работы:</strong></p>
+                                <br>
+                                <p>2020 - настоящее время: Senior Software Engineer, ООО "ТехКомпания"</p>
+                                <p style="padding-left:1.5rem;">- Разработка микросервисной архитектуры на Java/Spring Boot</p>
+                                <p style="padding-left:1.5rem;">- Проектирование REST API и интеграция с внешними сервисами</p>
+                                <p style="padding-left:1.5rem;">- Оптимизация производительности баз данных PostgreSQL</p>
+                                <p style="padding-left:1.5rem;">- Менторинг команды из 5 разработчиков</p>
+                                <br>
+                                <p>2017 - 2020: Middle Software Engineer, АО "Софт Решения"</p>
+                                <p style="padding-left:1.5rem;">- Разработка веб-приложений на React и Node.js</p>
+                                <p style="padding-left:1.5rem;">- Написание unit и integration тестов</p>
+                                <p style="padding-left:1.5rem;">- Участие в code review и архитектурных решениях</p>
+                                <br>
+                                <p><strong>Образование:</strong></p>
+                                <p>МГУ им. М.В. Ломоносова, Факультет ВМК</p>
+                                <p>Магистр, Прикладная математика и информатика, 2017</p>
+                                <br>
+                                <p><strong>Навыки:</strong></p>
+                                <p>Java, Spring Boot, PostgreSQL, Docker, Kubernetes, React, Node.js, Git, CI/CD</p>
+                            </div>
+                        </div>
+
+                        <!-- Optimized tab -->
+                        <div id="tab-optimized" class="result-tab-content">
+                            <div class="resume-text">
+                                <p style="display:flex;align-items:center;gap:0.5rem;">
+                                    <svg class="icon-sm" style="color:var(--primary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;">ПРОФЕССИОНАЛЬНОЕ РЕЗЮМЕ</strong>
+                                </p>
+                                <br>
+                                <p>Senior Software Engineer с 8-летним опытом разработки высоконагруженных сервисов на Java и Spring Boot. Опыт работы с микросервисной архитектурой, PostgreSQL, Docker и Kubernetes. Умею менторить команду разработчиков и проводить code review.</p>
+                                <br>
+                                <p style="display:flex;align-items:center;gap:0.5rem;">
+                                    <svg class="icon-sm" style="color:var(--primary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                    <strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;">ОПЫТ РАБОТЫ</strong>
+                                </p>
+                                <br>
+                                <p><strong>Senior Software Engineer</strong></p>
+                                <p style="color:var(--text-secondary);">ООО "ТехКомпания" | 2020 - настоящее время</p>
+                                <br>
+                                <ul style="padding-left:1.5rem;list-style:disc;">
+                                    <li>Разработал и внедрил микросервисную архитектуру на Java/Spring Boot, что повысило производительность системы на 30%</li>
+                                    <li>Оптимизировал производительность баз данных PostgreSQL, снизив время отклика на 25%</li>
+                                    <li>Менторил команду из 5 разработчиков, что помогло повысить качество кода и снизить количество ошибок на 20%</li>
+                                    <li>Участвовал в разработке и внедрении CI/CD-процессов, что сократило время доставки новых функций на 40%</li>
+                                </ul>
+                                <br>
+                                <p><strong>Middle Software Engineer</strong></p>
+                                <p style="color:var(--text-secondary);">АО "Софт Решения" | 2017 - 2020</p>
+                                <br>
+                                <ul style="padding-left:1.5rem;list-style:disc;">
+                                    <li>Разработал несколько веб-приложений на React и Node.js, что помогло увеличить трафик на сайте на 15%</li>
+                                    <li>Написал более 500 unit и integration тестов, что повысило качество кода и снизило количество ошибок на 15%</li>
+                                    <li>Участвовал в code review и архитектурных решениях, что помогло улучшить структуру кода и снизить технический долг на 10%</li>
+                                </ul>
+                                <br>
+                                <p style="display:flex;align-items:center;gap:0.5rem;">
+                                    <svg class="icon-sm" style="color:var(--primary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 6.5 3 12 0v-5"/></svg>
+                                    <strong style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;">ОБРАЗОВАНИЕ</strong>
+                                </p>
+                                <br>
+                                <p><strong>МГУ им. М.В. Ломоносова</strong>, Факультет ВМК</p>
+                                <p>Магистр, Прикладная математика и информатика, 2017</p>
+                            </div>
+                        </div>
+
+                        <!-- Compare tab -->
+                        <div id="tab-compare" class="result-tab-content">
+                            <div class="compare-container">
+                                <div class="compare-col">
+                                    <div class="compare-header">Оригинал</div>
+                                    <div class="compare-body">
+                                        <p><span class="diff-removed">Иванов Иван Петрович</span></p>
+                                        <p>Senior Software Engineer</p>
+                                        <br>
+                                        <p><span class="diff-removed">Контакты:</span></p>
+                                        <p><span class="diff-removed">Email: ivanov@example.com</span></p>
+                                        <p><span class="diff-removed">Телефон: +7 (999) 123-45-67</span></p>
+                                        <p><span class="diff-removed">Город: Москва</span></p>
+                                        <br>
+                                        <p><strong>Опыт работы:</strong></p>
+                                        <br>
+                                        <p>2020 - настоящее время: Senior Software Engineer, ООО "ТехКомпания"</p>
+                                        <p>- <span class="diff-removed">Разработка микросервисной архитектуры на Java/Spring Boot</span></p>
+                                        <p>- <span class="diff-removed">Проектирование REST API и интеграция с внешними сервисами</span></p>
+                                        <p>- <span class="diff-removed">Оптимизация производительности баз данных PostgreSQL</span></p>
+                                        <p>- Менторинг команды из 5 разработчиков</p>
+                                    </div>
+                                </div>
+                                <div class="compare-col">
+                                    <div class="compare-header">Оптимизировано</div>
+                                    <div class="compare-body">
+                                        <p>Senior Software Engineer с 8-летним опытом разработки высоконагруженных сервисов на Java и Spring Boot. Опыт работы с микросервисной архитектурой, PostgreSQL, Docker и Kubernetes. Умею менторить команду разработчиков и проводить code review.</p>
+                                        <br>
+                                        <p>ОПЫТ РАБОТЫ</p>
+                                        <br>
+                                        <p>Senior Software Engineer — ООО "ТехКомпания"</p>
+                                        <p>2020 - настоящее время</p>
+                                        <p><span class="diff-added">&bull; Разработал и внедрил микросервисную архитектуру на Java/Spring Boot, что повысило производительность системы на 30%</span></p>
+                                        <p><span class="diff-added">&bull; Оптимизировал производительность баз данных PostgreSQL, снизив время отклика на 25%</span></p>
+                                        <p><span class="diff-added">&bull; Менторил команду из 5 разработчиков, что помогло повысить качество кода и снизить количество ошибок на 20%</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom status bar -->
+                    <div class="modal-footer">
+                        <div style="display:flex;align-items:center;gap:1.5rem;">
+                            <span>Match Score: <strong style="color:var(--success);">71%</strong></span>
+                            <span>ATS: <strong style="color:var(--success);">B+</strong></span>
+                            <span>Модель: <strong>groq</strong></span>
+                        </div>
+                        <span style="color:var(--primary);font-weight:500;">10.03.2026</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Score cards -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">Match Score</div>
-                    <div style="position:relative;width:80px;height:80px;margin:0 auto 0.75rem;">
-                        <svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg);">
-                            <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
-                            <path d="M18 2.0845a15.9155 15.9155 0 0 1 0 31.831a15.9155 15.9155 0 0 1 0-31.831" fill="none" stroke="var(--success)" stroke-width="3" stroke-dasharray="87,100"/>
-                        </svg>
-                        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:var(--success);">87%</div>
-                    </div>
-                    <div style="display:flex;align-items:center;justify-content:center;gap:0.25rem;font-size:0.85rem;color:var(--success);font-weight:600;">
-                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                        +34% улучшение
-                    </div>
-                    <!-- Разбивка по компонентам Match Score (40/25/20/15) -->
-                    <div style="margin-top:0.75rem;text-align:left;font-size:0.8rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
-                            <span style="color:var(--text-secondary);">Ключевые слова (40%)</span>
-                            <span style="font-weight:600;color:var(--success);">92%</span>
-                        </div>
-                        <div style="background:#E5E7EB;border-radius:4px;height:4px;margin-bottom:0.5rem;">
-                            <div style="background:var(--success);border-radius:4px;height:4px;width:92%;"></div>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
-                            <span style="color:var(--text-secondary);">Опыт (25%)</span>
-                            <span style="font-weight:600;color:var(--success);">85%</span>
-                        </div>
-                        <div style="background:#E5E7EB;border-radius:4px;height:4px;margin-bottom:0.5rem;">
-                            <div style="background:var(--success);border-radius:4px;height:4px;width:85%;"></div>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
-                            <span style="color:var(--text-secondary);">Структура (20%)</span>
-                            <span style="font-weight:600;color:var(--primary);">80%</span>
-                        </div>
-                        <div style="background:#E5E7EB;border-radius:4px;height:4px;margin-bottom:0.5rem;">
-                            <div style="background:var(--primary);border-radius:4px;height:4px;width:80%;"></div>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
-                            <span style="color:var(--text-secondary);">Читаемость (15%)</span>
-                            <span style="font-weight:600;color:var(--success);">88%</span>
-                        </div>
-                        <div style="background:#E5E7EB;border-radius:4px;height:4px;">
-                            <div style="background:var(--success);border-radius:4px;height:4px;width:88%;"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">ATS совместимость</div>
-                    <div style="font-size:2.5rem;font-weight:700;color:var(--success);margin-bottom:0.5rem;">A+</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">Все секции оптимальны</div>
-                </div>
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">Ключевые слова</div>
-                    <div style="font-size:2.5rem;font-weight:700;color:var(--primary);margin-bottom:0.5rem;">24</div>
-                    <div style="font-size:0.85rem;color:var(--success);font-weight:500;">+18 добавлено</div>
-                </div>
-                <div class="card" style="text-align:center;padding:1.5rem;">
-                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">AI модель</div>
-                    <div style="width:40px;height:40px;background:linear-gradient(135deg,#FF6B35,#F7931E);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.5rem;">
-                        <svg class="icon-sm" style="color:white;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    </div>
-                    <div style="font-size:0.9rem;font-weight:600;">GigaChat Pro</div>
-                </div>
-            </div>
-
-            <!-- Diff comparison -->
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
-                <h3 style="font-size:1.1rem;font-weight:600;">Сравнение: до и после</h3>
-                <div style="display:flex;gap:1rem;font-size:0.8rem;color:var(--text-secondary);">
-                    <span><span style="display:inline-block;width:12px;height:12px;background:#FEE2E2;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Слабые формулировки</span>
-                    <span><span style="display:inline-block;width:12px;height:12px;background:#DCFCE7;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>Улучшения AI</span>
-                </div>
-            </div>
-            <div class="diff-container">
-                <div class="card diff-panel">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-weight:600;color:var(--text-secondary);">Оригинал</span>
-                        <span class="badge badge-gray">53%</span>
-                    </div>
-                    <div style="font-size:0.9rem;line-height:1.8;">
-                        <p style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Александр Петров</p>
-                        <p style="margin-bottom:1rem;"><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;color:var(--text-secondary);">Product Manager</mark></p>
-
-                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">О себе</p>
-                        <p style="margin-bottom:1rem;"><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Опытный продакт-менеджер.</mark> Работал в нескольких компаниях. <mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Умею управлять командой и запускать продукты.</mark></p>
-
-                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Опыт работы</p>
-                        <p style="font-weight:600;">Product Manager — TechCorp</p>
-                        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">2021 — настоящее время</p>
-                        <p><mark style="background:#FEE2E2;padding:0.1em 0.3em;border-radius:3px;">Управлял продуктом. Работал с командой разработки. Запускал новые функции.</mark></p>
-                    </div>
-                </div>
-                <div class="card diff-panel" style="border-left:3px solid var(--success);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-weight:600;color:var(--success);">Оптимизировано</span>
-                        <span class="badge badge-green">87%</span>
-                    </div>
-                    <div style="font-size:0.9rem;line-height:1.8;">
-                        <p style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">Александр Петров</p>
-                        <p style="color:var(--text-main);margin-bottom:1rem;"><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Senior Product Manager | B2C & B2B SaaS | Agile & Data-Driven</mark></p>
-
-                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">О себе</p>
-                        <p style="margin-bottom:1rem;"><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Product Manager с 5+ годами опыта в B2C и B2B SaaS. Руководил кросс-функциональными командами до 12 человек. Увеличил ключевые метрики продукта на 40% через A/B тестирование и data-driven подход. Опыт работы с SQL, Amplitude, Jira и методологиями Agile/Scrum.</mark></p>
-
-                        <p style="font-weight:600;color:var(--text-secondary);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Опыт работы</p>
-                        <p style="font-weight:600;">Product Manager — TechCorp</p>
-                        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">2021 — настоящее время</p>
-                        <p><mark style="background:#DCFCE7;padding:0.1em 0.3em;border-radius:3px;">Руководил разработкой B2C-платформы с MAU 500K+. Увеличил конверсию на 35% через оптимизацию воронки на основе A/B тестов. Управлял backlog из 200+ задач в Jira, обеспечивая delivery в срок 95% спринтов.</mark></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Keywords -->
-            <h3 style="font-size:1.1rem;font-weight:600;margin:2rem 0 1rem;">Добавленные ключевые слова</h3>
-            <div class="card" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                <span class="badge" style="background:#DCFCE7;color:#166534;">A/B Testing</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Product Strategy</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">SQL</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Agile/Scrum</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">B2C SaaS</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Data-Driven</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Amplitude</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Cross-functional</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">KPI</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Jira</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Backlog</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">MAU</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Conversion</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Sprint Delivery</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">B2B</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Roadmap</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">User Research</span>
-                <span class="badge" style="background:#DCFCE7;color:#166534;">Metrics</span>
-            </div>
-
-            <div style="display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;">
-                <a href="13-editor.html" class="btn btn-secondary" style="flex:1;min-width:200px;justify-content:center;">
-                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    Редактировать вручную
-                </a>
-                <a href="14-export.html" class="btn btn-primary" style="flex:1;min-width:200px;justify-content:center;">
-                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Экспортировать резюме
-                </a>
-            </div>
         </div>
-        <script>document.write(buildBottomNav(''));</script>
+        <script>document.write(buildBottomNav('resumes'));</script>
     </div>
 </div>
+<style>
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 2rem;
+}
+.modal-container {
+    background: white;
+    border-radius: var(--radius-lg, 16px);
+    width: 100%;
+    max-width: 820px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #F3F4F6;
+    flex-shrink: 0;
+}
+.badge-format {
+    background: #DCFCE7;
+    color: #166534;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+.download-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+}
+.download-btn:hover { background: #F3F4F6; color: var(--primary); }
+.close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+}
+.close-btn:hover { background: #F3F4F6; color: var(--text-main); }
+.modal-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+    flex-shrink: 0;
+}
+.modal-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.modal-tab:hover { color: var(--text-main); }
+.modal-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+}
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    min-height: 0;
+}
+.result-tab-content { display: none; }
+.result-tab-content.active { display: block; }
+.resume-text {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-main);
+}
+.resume-text p { margin-bottom: 0.15rem; }
+.resume-text ul { margin-bottom: 0.5rem; }
+.resume-text li { margin-bottom: 0.35rem; line-height: 1.6; }
+.compare-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.compare-col { min-width: 0; }
+.compare-col:first-child { border-right: 1px solid #E5E7EB; }
+.compare-header {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+}
+.compare-body {
+    padding: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+.compare-body p { margin-bottom: 0.15rem; }
+.diff-removed {
+    background: #FEE2E2;
+    color: #991B1B;
+    text-decoration: line-through;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+}
+.diff-added {
+    background: #DCFCE7;
+    color: #166534;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+}
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1.5rem;
+    border-top: 1px solid #E5E7EB;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    background: #FAFAFA;
+    border-radius: 0 0 16px 16px;
+}
+@media(max-width:768px) {
+    .modal-overlay { padding: 0; }
+    .modal-container { max-height: 100vh; border-radius: 0; }
+    .modal-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    .compare-container { grid-template-columns: 1fr; }
+    .compare-col:first-child { border-right: none; border-bottom: 1px solid #E5E7EB; }
+    .modal-footer { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    .download-btn span { display: none; }
+}
+</style>
+<script>
+function switchResultTab(tabName, btn) {
+    document.querySelectorAll('.result-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btn.classList.add('active');
+}
+</script>
 </body>
 </html>

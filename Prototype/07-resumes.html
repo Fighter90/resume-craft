@@ -18,7 +18,7 @@
             <div class="page-header">
                 <div>
                     <h1>Мои резюме</h1>
-                    <p>Все загруженные и оптимизированные резюме</p>
+                    <p>Управляйте загруженными резюме</p>
                 </div>
                 <a href="08-upload.html" class="btn btn-primary">
                     <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -29,8 +29,11 @@
             <div class="filter-bar">
                 <div style="position:relative;flex:1;min-width:200px;">
                     <svg class="icon-sm" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-tertiary);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input class="input-field" placeholder="Поиск по названию..." style="padding-left:40px;margin:0;">
+                    <input class="input-field" placeholder="Поиск резюме..." style="padding-left:40px;margin:0;">
                 </div>
+                <button class="btn btn-primary" style="width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
                 <select class="input-field select-field" style="width:auto;min-width:150px;margin:0;">
                     <option>Все статусы</option>
                     <option>Оптимизировано</option>
@@ -38,11 +41,11 @@
                     <option>В обработке</option>
                 </select>
                 <select class="input-field select-field" style="width:auto;min-width:160px;margin:0;">
-                    <option>Сначала новые</option>
-                    <option>Сначала старые</option>
-                    <option>По Match Score ↓</option>
+                    <option>По дате (новые)</option>
+                    <option>По дате (старые)</option>
                     <option>По названию A-Z</option>
                 </select>
+                <button class="btn btn-primary btn-sm">Применить</button>
             </div>
 
             <!-- Desktop table -->
@@ -50,13 +53,11 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Название</th>
-                            <th>Вакансия</th>
-                            <th>Статус</th>
-                            <th>Match Score</th>
-                            <th>AI модель</th>
-                            <th>Дата</th>
-                            <th style="text-align:right;">Действия</th>
+                            <th>НАЗВАНИЕ</th>
+                            <th>СТАТУС</th>
+                            <th>ФОРМАТ</th>
+                            <th>ДАТА</th>
+                            <th style="text-align:right;">ДЕЙСТВИЯ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,17 +65,23 @@
                             <td style="font-weight:600;">
                                 <div style="display:flex;align-items:center;gap:0.5rem;">
                                     <svg class="icon-sm" style="color:var(--primary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    Resume_PM_v3.pdf
+                                    <div>
+                                        <div>Senior Software Engineer - QA Test</div>
+                                        <div style="font-size:0.8rem;color:var(--text-tertiary);font-weight:400;">.txt</div>
+                                    </div>
                                 </div>
                             </td>
-                            <td>Senior PM @ Яндекс</td>
                             <td><span class="badge badge-green">Оптимизировано</span></td>
-                            <td><span class="badge badge-green">92%</span></td>
-                            <td>GigaChat Pro</td>
-                            <td style="color:var(--text-secondary);">20 мин назад</td>
+                            <td>TXT</td>
+                            <td style="color:var(--text-secondary);">10.03.2026</td>
                             <td style="text-align:right;">
-                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                                    <a href="12-results.html" class="btn btn-secondary btn-sm">Открыть</a>
+                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;align-items:center;">
+                                    <a href="12-results.html" class="btn btn-ghost btn-sm" title="Просмотр">
+                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    <a href="09-vacancy.html" class="btn btn-ghost btn-sm" title="Оптимизировать" style="color:var(--primary);">
+                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    </a>
                                     <button class="btn btn-ghost btn-sm" title="Скачать">
                                         <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     </button>
@@ -88,17 +95,23 @@
                             <td style="font-weight:600;">
                                 <div style="display:flex;align-items:center;gap:0.5rem;">
                                     <svg class="icon-sm" style="color:var(--primary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    Resume_PM_Tinkoff.pdf
+                                    <div>
+                                        <div>Product Manager — Yandex</div>
+                                        <div style="font-size:0.8rem;color:var(--text-tertiary);font-weight:400;">.pdf</div>
+                                    </div>
                                 </div>
                             </td>
-                            <td>Product Manager @ Тинькофф</td>
                             <td><span class="badge badge-green">Оптимизировано</span></td>
-                            <td><span class="badge badge-green">87%</span></td>
-                            <td>GPT-4o</td>
-                            <td style="color:var(--text-secondary);">2 ч назад</td>
+                            <td>PDF</td>
+                            <td style="color:var(--text-secondary);">08.03.2026</td>
                             <td style="text-align:right;">
-                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                                    <a href="12-results.html" class="btn btn-secondary btn-sm">Открыть</a>
+                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;align-items:center;">
+                                    <a href="12-results.html" class="btn btn-ghost btn-sm" title="Просмотр">
+                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    <a href="09-vacancy.html" class="btn btn-ghost btn-sm" title="Оптимизировать" style="color:var(--primary);">
+                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    </a>
                                     <button class="btn btn-ghost btn-sm" title="Скачать">
                                         <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     </button>
@@ -112,66 +125,24 @@
                             <td style="font-weight:600;">
                                 <div style="display:flex;align-items:center;gap:0.5rem;">
                                     <svg class="icon-sm" style="color:var(--text-tertiary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    Resume_Frontend.docx
+                                    <div>
+                                        <div>Resume_Frontend</div>
+                                        <div style="font-size:0.8rem;color:var(--text-tertiary);font-weight:400;">.docx</div>
+                                    </div>
                                 </div>
                             </td>
-                            <td>—</td>
                             <td><span class="badge badge-gray">Черновик</span></td>
-                            <td><span class="badge badge-gray">—</span></td>
-                            <td>—</td>
-                            <td style="color:var(--text-secondary);">Вчера</td>
+                            <td>DOCX</td>
+                            <td style="color:var(--text-secondary);">07.03.2026</td>
                             <td style="text-align:right;">
-                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                                    <a href="09-vacancy.html" class="btn btn-secondary btn-sm">Оптимизировать</a>
+                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;align-items:center;">
+                                    <a href="12-results.html" class="btn btn-ghost btn-sm" title="Просмотр">
+                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    <a href="09-vacancy.html" class="btn btn-ghost btn-sm" title="Оптимизировать" style="color:var(--primary);">
+                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    </a>
                                     <button class="btn btn-ghost btn-sm" title="Скачать">
-                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    </button>
-                                    <button class="btn btn-ghost btn-sm" title="Удалить" style="color:var(--danger);">
-                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:600;">
-                                <div style="display:flex;align-items:center;gap:0.5rem;">
-                                    <svg class="icon-sm" style="color:var(--primary);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    Resume_Data_Analyst.pdf
-                                </div>
-                            </td>
-                            <td>Data Analyst @ Ozon</td>
-                            <td><span class="badge badge-green">Оптимизировано</span></td>
-                            <td><span class="badge badge-yellow">68%</span></td>
-                            <td>OpenRouter</td>
-                            <td style="color:var(--text-secondary);">3 дня назад</td>
-                            <td style="text-align:right;">
-                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                                    <a href="12-results.html" class="btn btn-secondary btn-sm">Открыть</a>
-                                    <button class="btn btn-ghost btn-sm" title="Скачать">
-                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    </button>
-                                    <button class="btn btn-ghost btn-sm" title="Удалить" style="color:var(--danger);">
-                                        <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:600;">
-                                <div style="display:flex;align-items:center;gap:0.5rem;">
-                                    <svg class="icon-sm" style="color:var(--warning);flex-shrink:0;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    Resume_Fullstack.pdf
-                                </div>
-                            </td>
-                            <td>Fullstack Dev @ SberTech</td>
-                            <td><span class="badge badge-yellow">В обработке</span></td>
-                            <td><span class="badge badge-gray">—</span></td>
-                            <td>GigaChat Pro</td>
-                            <td style="color:var(--text-secondary);">3 дня назад</td>
-                            <td style="text-align:right;">
-                                <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
-                                    <a href="11-processing.html" class="btn btn-secondary btn-sm">Статус</a>
-                                    <button class="btn btn-ghost btn-sm" title="Скачать" disabled>
                                         <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     </button>
                                     <button class="btn btn-ghost btn-sm" title="Удалить" style="color:var(--danger);">
@@ -189,68 +160,31 @@
                 <a href="12-results.html" class="card card-hover" style="display:flex;flex-direction:column;gap:0.75rem;">
                     <div style="display:flex;justify-content:space-between;align-items:start;">
                         <span class="badge badge-green">Оптимизировано</span>
-                        <span style="color:var(--text-tertiary);font-size:0.8rem;">20 мин назад</span>
+                        <span style="color:var(--text-tertiary);font-size:0.8rem;">10.03.2026</span>
                     </div>
-                    <div style="font-weight:600;">Resume_PM_v3.pdf</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">Senior PM @ Яндекс</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <span class="badge badge-green">92%</span>
-                        <span style="font-size:0.8rem;color:var(--text-secondary);">GigaChat Pro</span>
-                    </div>
+                    <div style="font-weight:600;">Senior Software Engineer - QA Test</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">TXT</div>
                 </a>
                 <a href="12-results.html" class="card card-hover" style="display:flex;flex-direction:column;gap:0.75rem;">
                     <div style="display:flex;justify-content:space-between;align-items:start;">
                         <span class="badge badge-green">Оптимизировано</span>
-                        <span style="color:var(--text-tertiary);font-size:0.8rem;">2 ч назад</span>
+                        <span style="color:var(--text-tertiary);font-size:0.8rem;">08.03.2026</span>
                     </div>
-                    <div style="font-weight:600;">Resume_PM_Tinkoff.pdf</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">Product Manager @ Тинькофф</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <span class="badge badge-green">87%</span>
-                        <span style="font-size:0.8rem;color:var(--text-secondary);">GPT-4o</span>
-                    </div>
+                    <div style="font-weight:600;">Product Manager — Yandex</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">PDF</div>
                 </a>
                 <div class="card" style="display:flex;flex-direction:column;gap:0.75rem;">
                     <div style="display:flex;justify-content:space-between;align-items:start;">
                         <span class="badge badge-gray">Черновик</span>
-                        <span style="color:var(--text-tertiary);font-size:0.8rem;">Вчера</span>
+                        <span style="color:var(--text-tertiary);font-size:0.8rem;">07.03.2026</span>
                     </div>
-                    <div style="font-weight:600;">Resume_Frontend.docx</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">Не оптимизировано</div>
-                    <a href="09-vacancy.html" class="btn btn-secondary btn-sm" style="align-self:flex-start;">Оптимизировать</a>
+                    <div style="font-weight:600;">Resume_Frontend</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);">DOCX</div>
                 </div>
-                <a href="12-results.html" class="card card-hover" style="display:flex;flex-direction:column;gap:0.75rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:start;">
-                        <span class="badge badge-green">Оптимизировано</span>
-                        <span style="color:var(--text-tertiary);font-size:0.8rem;">3 дня назад</span>
-                    </div>
-                    <div style="font-weight:600;">Resume_Data_Analyst.pdf</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">Data Analyst @ Ozon</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <span class="badge badge-yellow">68%</span>
-                        <span style="font-size:0.8rem;color:var(--text-secondary);">OpenRouter</span>
-                    </div>
-                </a>
-                <a href="11-processing.html" class="card card-hover" style="display:flex;flex-direction:column;gap:0.75rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:start;">
-                        <span class="badge badge-yellow">В обработке</span>
-                        <span style="color:var(--text-tertiary);font-size:0.8rem;">3 дня назад</span>
-                    </div>
-                    <div style="font-weight:600;">Resume_Fullstack.pdf</div>
-                    <div style="font-size:0.85rem;color:var(--text-secondary);">Fullstack Dev @ SberTech</div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                        <span class="badge badge-gray">—</span>
-                        <span style="font-size:0.8rem;color:var(--text-secondary);">GigaChat Pro</span>
-                    </div>
-                </a>
             </div>
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;font-size:0.85rem;color:var(--text-secondary);">
-                <span>Показано 5 из 12 резюме</span>
-                <div style="display:flex;gap:0.5rem;">
-                    <button class="btn btn-secondary btn-sm" disabled>&larr; Назад</button>
-                    <button class="btn btn-secondary btn-sm">Далее &rarr;</button>
-                </div>
+            <div style="margin-top:1rem;font-size:0.85rem;color:var(--text-secondary);">
+                Показано 3 из 3
             </div>
         </div>
         <script>document.write(buildBottomNav('resumes'));</script>

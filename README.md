@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.12.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.13.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,8 +12,8 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.12  
-> **Дата:** Март 2026  
+> **Версия:** 1.13
+> **Дата:** Март 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
 
@@ -1086,6 +1086,52 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.13.0 (Март 2026) — QA Retest V30 FINAL: все 5 провайдеров ✅, готово к релизу
+
+**Статус: ГОТОВО К РЕЛИЗУ**
+
+Полный QA retest подтвердил работоспособность всех 5 AI-провайдеров на свежем аккаунте:
+
+| Провайдер | Модель | Match Score | ATS | Время |
+|-----------|--------|-------------|-----|-------|
+| GigaChat Pro | gigachat-pro | +13 (58→71) | B+ | 12 сек |
+| OpenAI | o4-mini-2025-04-16 | +13 (56→69) | B | 29 сек |
+| Anthropic Claude | claude-sonnet-4-6 | +24 (52→76) | B+ | 18 сек |
+| OpenRouter | ai21/jamba-large-1.7 | +18 (52→70) | B+ | 14 сек |
+| Groq | allam-2-7b | +19 (52→71) | B+ | 2 сек |
+
+**Исправленные баги:**
+- ✅ KEY-CHECK-001 (P1 CRITICAL): Optimization engine видит все API-ключи на свежих аккаунтах
+- ✅ MODEL-SELECT-001 (P2 MEDIUM): Dropdown корректно показывает модели выбранного провайдера
+- ✅ NAV-001 (P3 LOW): Навигация полностью работоспособна
+
+**Оставшиеся замечания (не блокируют релиз):**
+- ~~FILE-UPLOAD-001 (P3 LOW)~~: **ИСПРАВЛЕНО** — auth fallback + 401 retry + серверный парсинг ошибок + nginx `client_max_body_size 12m`
+- SCORE-VARIANCE-001 (P4 INFO): Базовый скор ±6 пунктов — **ожидаемое поведение** (алгоритм детерминирован, разница из-за ввода текста)
+
+**Фиксы V30 (patch 1.13.0):**
+
+*Frontend (2 файла):*
+- `api.ts` `uploadResume()`: добавлен `localStorage.getItem('access_token')` fallback, 401→`tryRefreshToken()`→retry, парсинг серверных ошибок вместо generic throw
+- `nginx.conf`: добавлен `client_max_body_size 12m` в `location /api/` (ранее default 1MB блокировал файлы >1MB)
+
+*Backend:*
+- `config.py`: version bump 1.12.0 → 1.13.0
+
+*Тесты V30:*
+- Backend: 10 тестов (scoring determinism ×4, source checks ×4, nginx config ×2)
+- Frontend: 5 тестов (localStorage auth, 401 retry, server error parsing, non-JSON fallback, no Content-Type)
+
+**Документация:**
+- REFERENCES.md: добавлена описательная часть с методологией отбора источников и обоснованием полноты (61 источник)
+- DEPLOYMENT.md: добавлен Groq API в список внешних сервисов и production .env
+- BASELINE.md: обновлён до 5 провайдеров (GigaChat + Anthropic + OpenRouter + OpenAI + Groq)
+- README.md: version bump 1.12 → 1.13, changelog V30
+
+**QA-артефакты:**
+- `qa_results/QA_RETEST_V30_FINAL.md` — финальный отчёт
+- `qa_results/AGENT_FIX_PROMPT_V30.md` — промт для исправления 2 minor-замечаний
 
 ### v1.12.0 (Март 2026) — QA v8: KEY-CHECK-001, NAV-001, isAuthError
 

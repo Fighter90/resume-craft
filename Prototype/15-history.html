@@ -18,172 +18,179 @@
             <div class="page-header">
                 <div>
                     <h1>История оптимизаций</h1>
-                    <p>Хронология всех операций с резюме</p>
+                    <p>Все ваши оптимизации резюме</p>
                 </div>
             </div>
 
-            <!-- Today -->
-            <div class="history-group">
-                <div class="history-date">Сегодня</div>
-                <div class="history-timeline">
-                    <a href="12-results.html" class="history-item card card-hover">
-                        <div class="history-icon" style="background:#DCFCE7;color:var(--success);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div style="display:flex;flex-direction:column;gap:0;">
+                <a href="12-results.html" class="history-row">
+                    <div class="history-row-left">
+                        <div class="history-doc-icon">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Оптимизация завершена</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_PM_v3.pdf &rarr; Senior PM @ Яндекс</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">20 мин назад</span>
-                            </div>
-                            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-                                <span class="badge badge-green">92% Match</span>
-                                <span class="badge badge-gray">GigaChat Pro</span>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="history-item card">
-                        <div class="history-icon" style="background:var(--primary-light);color:var(--primary);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Файл загружен</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_PM_v3.pdf &middot; 245 КБ</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">35 мин назад</span>
-                            </div>
+                        <div>
+                            <div style="font-weight:600;">Оптимизация · groq</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Match: 52% &rarr; 71% · ATS: B+</div>
                         </div>
                     </div>
-                    <a href="12-results.html" class="history-item card card-hover">
-                        <div class="history-icon" style="background:#DCFCE7;color:var(--success);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <div class="history-row-right">
+                        <div style="display:flex;align-items:center;gap:0.35rem;color:var(--text-tertiary);font-size:0.85rem;">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            10.03.2026
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Оптимизация завершена</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_PM_Tinkoff.pdf &rarr; PM @ Тинькофф</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">2 ч назад</span>
-                            </div>
-                            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-                                <span class="badge badge-green">87% Match</span>
-                                <span class="badge badge-gray">GPT-4o</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
+                        <span class="history-open-btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Открыть
+                        </span>
+                    </div>
+                </a>
 
-            <!-- Yesterday -->
-            <div class="history-group">
-                <div class="history-date">Вчера</div>
-                <div class="history-timeline">
-                    <div class="history-item card">
-                        <div class="history-icon" style="background:var(--primary-light);color:var(--primary);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <a href="12-results.html" class="history-row">
+                    <div class="history-row-left">
+                        <div class="history-doc-icon">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Файл загружен</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_Frontend.docx &middot; 312 КБ</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">14:30</span>
-                            </div>
+                        <div>
+                            <div style="font-weight:600;">Оптимизация · openrouter:ai21/jamba-large-1.7</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Match: 52% &rarr; 70% · ATS: B+</div>
                         </div>
                     </div>
-                    <div class="history-item card">
-                        <div class="history-icon" style="background:#DBEAFE;color:#2563EB;">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <div class="history-row-right">
+                        <div style="display:flex;align-items:center;gap:0.35rem;color:var(--text-tertiary);font-size:0.85rem;">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            10.03.2026
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Экспорт PDF</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_PM_Tinkoff_optimized.pdf</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">11:15</span>
-                            </div>
-                        </div>
+                        <span class="history-open-btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Открыть
+                        </span>
                     </div>
-                </div>
-            </div>
+                </a>
 
-            <!-- 3 days ago -->
-            <div class="history-group">
-                <div class="history-date">17 февраля</div>
-                <div class="history-timeline">
-                    <a href="12-results.html" class="history-item card card-hover">
-                        <div class="history-icon" style="background:#FEF3C7;color:var(--warning);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <a href="12-results.html" class="history-row">
+                    <div class="history-row-left">
+                        <div class="history-doc-icon">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Оптимизация завершена</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_Data_Analyst.pdf &rarr; Data Analyst @ Ozon</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">16:45</span>
-                            </div>
-                            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-                                <span class="badge badge-yellow">68% Match</span>
-                                <span class="badge badge-gray">OpenRouter</span>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="history-item card">
-                        <div class="history-icon" style="background:var(--primary-light);color:var(--primary);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Файл загружен</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Resume_Data_Analyst.pdf &middot; 198 КБ</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">16:30</span>
-                            </div>
+                        <div>
+                            <div style="font-weight:600;">Оптимизация · anthropic:claude-sonnet-4-6</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Match: 52% &rarr; 76% · ATS: B+</div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <div class="history-row-right">
+                        <div style="display:flex;align-items:center;gap:0.35rem;color:var(--text-tertiary);font-size:0.85rem;">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            10.03.2026
+                        </div>
+                        <span class="history-open-btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Открыть
+                        </span>
+                    </div>
+                </a>
 
-            <!-- Older -->
-            <div class="history-group">
-                <div class="history-date">12 февраля</div>
-                <div class="history-timeline">
-                    <div class="history-item card">
-                        <div class="history-icon" style="background:#F3F4F6;color:var(--text-secondary);">
-                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <a href="12-results.html" class="history-row">
+                    <div class="history-row-left">
+                        <div class="history-doc-icon">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
-                                <div>
-                                    <div style="font-weight:600;">Аккаунт создан</div>
-                                    <div style="font-size:0.85rem;color:var(--text-secondary);">Добро пожаловать в ResumeCraft!</div>
-                                </div>
-                                <span style="color:var(--text-tertiary);font-size:0.8rem;flex-shrink:0;">10:00</span>
-                            </div>
+                        <div>
+                            <div style="font-weight:600;">Оптимизация · openai:o4-mini-2025-04-16</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Match: 56% &rarr; 69% · ATS: B</div>
                         </div>
                     </div>
-                </div>
+                    <div class="history-row-right">
+                        <div style="display:flex;align-items:center;gap:0.35rem;color:var(--text-tertiary);font-size:0.85rem;">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            10.03.2026
+                        </div>
+                        <span class="history-open-btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Открыть
+                        </span>
+                    </div>
+                </a>
+
+                <a href="12-results.html" class="history-row">
+                    <div class="history-row-left">
+                        <div class="history-doc-icon">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;">Оптимизация · gigachat-pro</div>
+                            <div style="font-size:0.85rem;color:var(--text-secondary);">Match: 58% &rarr; 71% · ATS: B+</div>
+                        </div>
+                    </div>
+                    <div class="history-row-right">
+                        <div style="display:flex;align-items:center;gap:0.35rem;color:var(--text-tertiary);font-size:0.85rem;">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            10.03.2026
+                        </div>
+                        <span class="history-open-btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Открыть
+                        </span>
+                    </div>
+                </a>
             </div>
         </div>
         <script>document.write(buildBottomNav('history'));</script>
     </div>
 </div>
 <style>
-.history-group { margin-bottom: 2rem; }
-.history-date { font-size: 0.85rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; padding-left: 0.5rem; }
-.history-timeline { display: flex; flex-direction: column; gap: 0.75rem; position: relative; padding-left: 1rem; }
-.history-timeline::before { content: ''; position: absolute; left: 1.75rem; top: 1.5rem; bottom: 1.5rem; width: 2px; background: #E5E7EB; }
-.history-item { display: flex; gap: 1rem; align-items: flex-start; position: relative; z-index: 1; }
-.history-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.history-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    transition: background 0.15s;
+    gap: 1rem;
+}
+.history-row:hover { background: #F9FAFB; }
+.history-row-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    flex: 1;
+}
+.history-row-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-shrink: 0;
+}
+.history-doc-icon {
+    width: 40px;
+    height: 40px;
+    background: #EEF2FF;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+.history-open-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    background: white;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.history-row:hover .history-open-btn { border-color: var(--primary); color: var(--primary); }
+@media(max-width:768px) {
+    .history-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .history-row-right { width: 100%; justify-content: space-between; }
+}
 </style>
 </body>
 </html>
