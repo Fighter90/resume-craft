@@ -138,9 +138,16 @@ export default function SettingsProfilePage() {
           <label className="input-label">Email</label>
           <div style={{ position: 'relative' }}>
             <input className="input-field" type="email" value={form.email} onChange={e => onChange('email', e.target.value)} style={{ paddingRight: '7.5rem' }} />
-            <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--success)', fontSize: '0.75rem', background: 'var(--card-bg, #fff)', paddingLeft: 4 }}>
-              <CheckCircle size={14} /> Подтверждён
-            </span>
+            {user?.is_verified !== false && (
+              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--success)', fontSize: '0.75rem', background: 'var(--card-bg, #fff)', paddingLeft: 4 }}>
+                <CheckCircle size={14} /> Подтверждён
+              </span>
+            )}
+            {user?.is_verified === false && (
+              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#F59E0B', fontSize: '0.75rem', background: 'var(--card-bg, #fff)', paddingLeft: 4 }}>
+                ⚠️ Не подтверждён
+              </span>
+            )}
           </div>
         </div>
         <div className="input-group">

@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.9.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.10.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.9  
+> **Версия:** 1.10  
 > **Дата:** Март 2026  
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -166,7 +166,7 @@
 
 | Модель | Качество | Скорость | Доступ |
 |--------|----------|----------|--------|
-| **GigaChat Pro** | 95% | ~12 сек | Все планы |
+| **GigaChat Pro** | 95% | ~12 сек | Все планы † |
 | **Anthropic Claude** | 93% | ~10 сек | Standard+ |
 | **OpenAI GPT-4o** | 92% | ~18 сек | Standard+ |
 | **OpenRouter** ¹ | 90–98% | ~15 сек | Все планы |
@@ -176,6 +176,7 @@ GigaChat Pro — рекомендованная модель: #1 на MERA дл�
 
 > ¹ OpenRouter — мульти-провайдер, доступ к Claude, Gemini, Mistral и др. через единый API.
 > ² Groq — быстрый inference на LPU (Llama, Mixtral, Gemma).
+> † GigaChat требует активную подписку Сбер с положительным балансом.
 > В MVP подключены **5 LLM-провайдеров**: GigaChat Pro, Anthropic Claude, OpenRouter, OpenAI, Groq.
 
 ### 3.6. Экспорт и редактор
@@ -1086,6 +1087,27 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.10.0 (Март 2026) — QA v6: NAV-001 regression fix, email verification consistency
+
+**Frontend (2 исправления):**
+- NAV-001 (REGRESSION): Ссылка «Обновить до Pro →» в sidebar — заменён `NavLink` на `Link`, добавлен CSS `pointer-events: auto; z-index: 2` для гарантии кликабельности
+- EMAIL-VERIFY-001: Статус верификации email на странице профиля теперь динамический — показывает «Подтверждён» ✅ или «Не подтверждён» ⚠️ в зависимости от `user.is_verified`
+
+**Backend:**
+- GIGACHAT-001: Обработка ошибки биллинга GigaChat — подтверждена корректной (русское сообщение, кнопки fallback, слот не расходуется)
+
+**Документация:**
+- README/BASELINE: version bump 1.9 → 1.10
+- Таблица провайдеров: GigaChat помечен `†` (требуется активная подписка Сбер)
+- Changelog V26
+
+**Тесты:**
+- Backend: 15 тестов (email verification consistency, CSS checks, billing error handling)
+- Frontend: 6 тестов (Link vs NavLink, dynamic verification badge, banner consistency)
+
+**Known Issues:**
+- ⚠️ GIGACHAT-001: GigaChat Pro требует пополнения баланса на developers.sber.ru (не баг приложения)
 
 ### v1.9.0 (Март 2026) — QA v5: 6 дефектов, health-check провайдеров, тесты
 

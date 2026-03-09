@@ -95,7 +95,7 @@ export default function AppLayout() {
               {user?.plan === 'pro' ? 'Безлимит' : `${user?.optimizations_used || 0} / ${user?.plan === 'standard' ? 30 : 5} оптимизаций`}
             </div>
             {user?.plan !== 'pro' && (
-              <NavLink to="/app/settings/subscription" className="plan-upgrade">Обновить до Pro →</NavLink>
+              <Link to="/app/settings/subscription" className="plan-upgrade">Обновить до Pro →</Link>
             )}
           </div>
 

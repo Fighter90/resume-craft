@@ -312,7 +312,7 @@ svg { width: 20px; height: 20px; stroke-width: 2; }
 }
 .plan-widget .plan-bar-fill { height: 100%; background: var(--primary); border-radius: 99px; }
 .plan-widget .plan-usage { font-size: 0.75rem; color: var(--text-secondary); }
-.plan-widget .plan-upgrade { color: var(--primary); font-size: 0.8rem; font-weight: 600; margin-top: 0.5rem; cursor: pointer; display: block; }
+.plan-widget .plan-upgrade { color: var(--primary); font-size: 0.8rem; font-weight: 600; margin-top: 0.5rem; cursor: pointer; display: block; text-decoration: none; position: relative; z-index: 2; pointer-events: auto; }
 .user-profile {
     display: flex;
     align-items: center;
