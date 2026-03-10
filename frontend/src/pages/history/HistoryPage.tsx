@@ -18,6 +18,43 @@ function sanitizeErrorMessage(msg: string): string {
   return msg
 }
 
+function titleCaseFromToken(token: string): string {
+  return token
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map(part => part[0].toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function formatModelLabel(rawModelName: unknown): string {
+  if (typeof rawModelName !== 'string' || !rawModelName.trim()) {
+    return 'AI'
+  }
+
+  const model = rawModelName.trim()
+  const [rawProvider, ...rest] = model.split(':')
+  const providerKey = rawProvider.toLowerCase()
+  const providerMap: Record<string, string> = {
+    gigachat: 'GigaChat',
+    'gigachat-pro': 'GigaChat',
+    openai: 'OpenAI',
+    anthropic: 'Anthropic',
+    openrouter: 'OpenRouter',
+    groq: 'Groq',
+  }
+
+  const provider = providerMap[providerKey] ?? titleCaseFromToken(rawProvider)
+  const modelPart = rest.join(':').trim()
+  if (!modelPart) {
+    if (providerKey === 'gigachat-pro') {
+      return 'GigaChat · GigaChat-Pro'
+    }
+    return provider
+  }
+
+  return `${provider} · ${modelPart}`
+}
+
 export default function HistoryPage() {
   const navigate = useNavigate()
   const [history, setHistory] = useState<any[]>([])
@@ -64,7 +101,7 @@ export default function HistoryPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                  Оптимизация · {item.model_name || 'AI'}
+                  Оптимизация · {formatModelLabel(item.model_name)}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                   {item.status === 'completed' ? (

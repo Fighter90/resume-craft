@@ -10,6 +10,8 @@ export default function SettingsProfilePage() {
     firstName: nameParts[0] || '',
     lastName: nameParts.slice(1).join(' ') || '',
     email: user?.email || '',
+    phone: user?.phone || '',
+    city: user?.city || 'Москва',
   })
 
   // Avatar from server (user.avatar_url), with localStorage migration
@@ -26,6 +28,18 @@ export default function SettingsProfilePage() {
   })
 
   const onChange = (key: string, value: string) => setForm({ ...form, [key]: value })
+
+  const handleResendVerification = async () => {
+    setSaveMsg(null)
+    try {
+      const res = await api.resendVerification()
+      setSaveMsg(res.message)
+      setTimeout(() => setSaveMsg(null), 3000)
+    } catch (err) {
+      setSaveMsg(err instanceof Error ? err.message : 'Ошибка отправки письма')
+      setTimeout(() => setSaveMsg(null), 3000)
+    }
+  }
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -51,7 +65,10 @@ export default function SettingsProfilePage() {
       await api.deleteAvatar()
       setAvatarUrl(null)
       await refreshUser()
-    } catch { /* ignore */ }
+    } catch (err) {
+      setSaveMsg(err instanceof Error ? err.message : 'Ошибка удаления аватара')
+      setTimeout(() => setSaveMsg(null), 3000)
+    }
     finally { setAvatarUploading(false) }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
@@ -61,7 +78,12 @@ export default function SettingsProfilePage() {
     setSaveMsg(null)
     try {
       const fullName = `${form.firstName} ${form.lastName}`.trim()
-      await api.updateProfile({ full_name: fullName || undefined, email: form.email || undefined })
+      await api.updateProfile({
+        full_name: fullName || undefined,
+        email: form.email || undefined,
+        phone: form.phone || '',
+        city: form.city || 'Москва',
+      })
       await refreshUser()
       setSaveMsg('Изменения сохранены')
       setTimeout(() => setSaveMsg(null), 3000)
@@ -144,25 +166,37 @@ export default function SettingsProfilePage() {
               </span>
             )}
             {user?.is_verified === false && (
-              <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#F59E0B', fontSize: '0.75rem', background: 'var(--card-bg, #fff)', paddingLeft: 4 }}>
-                ⚠️ Не подтверждён
-              </span>
+              <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'var(--card-bg, #fff)', paddingLeft: 4 }}>
+                <span style={{ color: '#F59E0B', fontSize: '0.75rem' }}>⚠️ Не подтверждён</span>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  style={{ border: 'none', background: 'transparent', color: 'var(--primary)', fontSize: '0.75rem', cursor: 'pointer', padding: 0 }}
+                >
+                  Отправить повторно
+                </button>
+              </div>
             )}
           </div>
         </div>
         <div className="input-group">
           <label className="input-label">Телефон</label>
-          <input className="input-field" placeholder="+7 (___) ___-__-__" disabled style={{ opacity: 0.6 }} title="Функция в разработке" />
+          <input
+            className="input-field"
+            placeholder="+7 (___) ___-__-__"
+            value={form.phone}
+            onChange={e => onChange('phone', e.target.value)}
+          />
         </div>
         <div className="input-group">
           <label className="input-label">Город</label>
-          <select className="input-field select-field" disabled style={{ opacity: 0.6 }}>
-            <option>Москва</option>
-            <option>Санкт-Петербург</option>
-            <option>Новосибирск</option>
-            <option>Екатеринбург</option>
-            <option>Казань</option>
-            <option>Другой</option>
+          <select className="input-field select-field" value={form.city} onChange={e => onChange('city', e.target.value)}>
+            <option value="Москва">Москва</option>
+            <option value="Санкт-Петербург">Санкт-Петербург</option>
+            <option value="Новосибирск">Новосибирск</option>
+            <option value="Екатеринбург">Екатеринбург</option>
+            <option value="Казань">Казань</option>
+            <option value="Другой">Другой</option>
           </select>
         </div>
       </div>

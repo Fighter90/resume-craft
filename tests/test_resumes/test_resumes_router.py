@@ -28,10 +28,12 @@ class TestResumeUpload:
         )
         assert response.status_code == 400
 
+    @patch('app.resumes.service._extract_text', return_value='Parsed resume text')
     @patch('app.resumes.service.file_storage')
     async def test_upload_success(
         self,
         mock_storage: AsyncMock,
+        _mock_extract_text: object,
         auth_client: AsyncClient,
     ) -> None:
         """Успешная загрузка PDF → 201."""
@@ -45,6 +47,36 @@ class TestResumeUpload:
         data = response.json()
         assert data['file_format'] == 'pdf'
         assert data['status'] == 'draft'
+
+
+class TestResumeFromUrl:
+    """Тесты POST /resumes/from-url."""
+
+    async def test_from_url_without_auth(self, client: AsyncClient) -> None:
+        """Без JWT → 401."""
+        response = await client.post('/api/v1/resumes/from-url', json={'url': 'https://hh.ru/resume/abc123'})
+        assert response.status_code == 401
+
+    async def test_from_url_invalid_domain(self, auth_client: AsyncClient) -> None:
+        """Невалидный домен → 400."""
+        response = await auth_client.post(
+            '/api/v1/resumes/from-url',
+            json={'url': 'https://example.com/resume/abc123'},
+        )
+        assert response.status_code == 400
+        assert 'hh.ru' in response.json().get('detail', '')
+
+    async def test_from_url_valid_hh_link_returns_fallback_message(
+        self,
+        auth_client: AsyncClient,
+    ) -> None:
+        """Валидная hh.ru ссылка → 400 с подсказкой ручного ввода (MVP fallback)."""
+        response = await auth_client.post(
+            '/api/v1/resumes/from-url',
+            json={'url': 'https://hh.ru/resume/90d67b47ff01c53bfd0039ed1f36424d765046'},
+        )
+        assert response.status_code == 400
+        assert 'вручную' in response.json().get('detail', '').lower()
 
 
 class TestResumeList:

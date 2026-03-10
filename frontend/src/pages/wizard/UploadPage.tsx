@@ -7,7 +7,24 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const ALLOWED_EXT = ['pdf', 'docx']
 const MAX_SIZE = 10 * 1024 * 1024
+const HH_RESUME_PATTERN = /^https?:\/\/(www\.)?hh\.ru\/resume\/[a-z0-9]+/i
 const PLAN_LIMITS: Record<string, number> = { free: 5, standard: 30, pro: 999 }
+
+function humanizeUploadError(message: string): string {
+  if (/502|bad gateway|upstream/i.test(message)) {
+    return 'Сервис обработки временно недоступен. Повторите попытку через минуту или используйте вкладку «Вставить текст». '
+  }
+  if (/parse|parser|ocr|extract|извлеч/i.test(message)) {
+    return 'Не удалось распознать содержимое файла. Попробуйте другой файл или вставьте текст вручную.'
+  }
+  if (/413|file too large|слишком большой/i.test(message)) {
+    return 'Файл превышает лимит 10 МБ. Загрузите файл меньшего размера.'
+  }
+  if (/unsupported|формат|extension/i.test(message)) {
+    return 'Неподдерживаемый формат файла. Используйте PDF или DOCX.'
+  }
+  return 'Ошибка загрузки файла. Попробуйте снова или вставьте текст вручную.'
+}
 
 export default function UploadPage() {
   const navigate = useNavigate()
@@ -69,7 +86,8 @@ export default function UploadPage() {
       setResumeId(res.id)
       navigate('/app/vacancy')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки файла')
+      const rawMessage = err instanceof Error ? err.message : 'Ошибка загрузки файла'
+      setError(humanizeUploadError(rawMessage))
     } finally {
       setUploading(false)
     }
@@ -99,28 +117,25 @@ export default function UploadPage() {
   }
 
   const handleHhUrlParse = async () => {
-    if (!hhUrl.trim()) return
+    const url = hhUrl.trim()
+    if (!url) {
+      setError('Введите ссылку на резюме')
+      return
+    }
+    if (!HH_RESUME_PATTERN.test(url)) {
+      setError('Введите корректную ссылку на резюме hh.ru')
+      return
+    }
     setUploading(true)
     setError(null)
     try {
       // First try dedicated URL parsing endpoint
-      const res = await api.parseResumeFromUrl(hhUrl.trim())
+      const res = await api.parseResumeFromUrl(url)
       setResumeId(res.id)
       navigate('/app/vacancy')
     } catch {
-      try {
-        // Fallback: create resume from URL via from-text with source_url
-        const res = await api.createResumeFromText({
-          text: '',
-          title: 'Резюме с hh.ru',
-          source_url: hhUrl.trim(),
-        })
-        setResumeId(res.id)
-        navigate('/app/vacancy')
-      } catch {
-        // If both fail, guide user to paste text manually
-        setError('Не удалось автоматически загрузить резюме с hh.ru. Скопируйте текст резюме вручную на вкладке «Вставить текст».')
-      }
+      // If parsing fails, guide user to paste text manually
+      setError('Не удалось автоматически загрузить резюме с hh.ru. Скопируйте текст резюме вручную на вкладке «Вставить текст».')
     } finally {
       setUploading(false)
     }

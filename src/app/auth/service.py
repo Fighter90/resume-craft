@@ -179,6 +179,8 @@ async def update_user(
     user: User,
     full_name: str | None = None,
     email: str | None = None,
+    phone: str | None = None,
+    city: str | None = None,
 ) -> User:
     """Обновление профиля пользователя.
 
@@ -193,6 +195,12 @@ async def update_user(
 
     if full_name is not None:
         user.full_name = full_name
+
+    if phone is not None:
+        user.phone = phone
+
+    if city is not None:
+        user.city = city
 
     await session.flush()
     await session.refresh(user)
@@ -269,6 +277,41 @@ async def soft_delete_account(
         ) from exc
 
     return 'Аккаунт будет удалён через 30 дней. Вы можете отменить удаление, войдя в аккаунт.'
+
+
+async def delete_account(
+    session: AsyncSession,
+    *,
+    user: User,
+    password: str,
+    confirmation: str,
+) -> str:
+    """Полное удаление аккаунта пользователя (GDPR/FZ-152)."""
+    if confirmation != 'УДАЛИТЬ':
+        from app.core.exceptions import AppError
+
+        raise AppError(
+            message='Введите УДАЛИТЬ для подтверждения удаления аккаунта',
+            status_code=400,
+            error_code='DELETE_CONFIRMATION_INVALID',
+        )
+
+    if not verify_password(password, user.hashed_password):
+        raise InvalidCredentials()
+
+    try:
+        await delete_user_account(session, user=user)
+    except Exception as exc:
+        logger.exception('Failed to delete user account %s: %s', user.id, exc)
+        from app.core.exceptions import AppError
+
+        raise AppError(
+            message='Не удалось удалить аккаунт. Попробуйте позже.',
+            status_code=500,
+            error_code='DELETE_ACCOUNT_FAILED',
+        ) from exc
+
+    return 'Аккаунт удалён'
 
 
 async def restore_account(

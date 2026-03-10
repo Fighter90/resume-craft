@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
-from app.core.exceptions import FileTooLarge, ResumeNotFound, UnsupportedFileFormat
+from app.core.exceptions import AppError, FileTooLarge, ResumeNotFound, UnsupportedFileFormat
 from app.core.storage import file_storage
 from app.resumes.models import Resume, ResumeStatus
 from app.resumes.schemas import ResumeUpdateRequest
@@ -75,6 +75,12 @@ async def upload_resume(
 
     # Извлечение текста
     raw_text = _extract_text(content, ext=ext)
+    if ext in {'pdf', 'docx'} and not raw_text:
+        raise AppError(
+            message='Не удалось извлечь текст из файла. Попробуйте другой файл или вставьте текст вручную.',
+            status_code=400,
+            error_code='FILE_PARSE_ERROR',
+        )
 
     resume = Resume(
         user_id=user_id,

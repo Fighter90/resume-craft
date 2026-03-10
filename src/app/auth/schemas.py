@@ -85,6 +85,8 @@ class UserResponse(BaseModel):
     optimizations_used: int
     is_active: bool
     is_verified: bool
+    phone: str | None = None
+    city: str | None = None
     avatar_url: str | None = None
     created_at: datetime
     updated_at: datetime
@@ -103,6 +105,8 @@ class UpdateUserRequest(BaseModel):
 
     full_name: str | None = Field(None, max_length=255, description='Полное имя')
     email: EmailStr | None = Field(None, description='Новый email')
+    phone: str | None = Field(None, max_length=32, description='Телефон')
+    city: str | None = Field(None, max_length=100, description='Город')
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
@@ -136,5 +140,9 @@ class DeleteAccountRequest(BaseModel):
     """Запрос на удаление аккаунта — требует подтверждение паролем."""
 
     password: str = Field(min_length=1, description='Текущий пароль для подтверждения')
+    confirmation: str = Field(
+        min_length=1,
+        description='Подтверждение удаления: введите УДАЛИТЬ',
+    )
 
     model_config = ConfigDict(str_strip_whitespace=True)

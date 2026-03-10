@@ -31,12 +31,13 @@ export default function VacancyPage() {
           parsed.position,
           parsed.target_position,
           parsed.desired_position,
+          parsed.current_position,
+          parsed.job_title,
+          parsed.extracted_position,
           parsed.title,
         ].find((v): v is string => typeof v === 'string' && v.trim().length > 0)
 
-        const fromTitle = typeof resume.title === 'string' ? resume.title : ''
-        const normalizedTitle = fromTitle.replace(/\.(pdf|docx)$/i, '').trim()
-        const defaultTitle = (fromParsed || normalizedTitle).trim()
+        const defaultTitle = (fromParsed || '').trim()
         if (defaultTitle) {
           setManualTitle(defaultTitle)
         }

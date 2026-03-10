@@ -176,7 +176,7 @@ export default function HelpPage() {
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
           {[
-            { name: 'Free', price: '0 ₽', features: ['5 оптимизаций/мес', 'Все модели', 'PDF/DOCX экспорт'] },
+            { name: 'Free', price: '0 ₽', features: ['5 оптимизаций/мес', 'Все модели', 'Экспорт DOCX, PDF и TXT'] },
             { name: 'Standard', price: '490 ₽/мес', features: ['30 оптимизаций/мес', 'Приоритетная обработка', 'История оптимизаций'] },
             { name: 'Pro', price: '1 490 ₽/мес', features: ['Безлимит', 'API-доступ', 'Персональная поддержка'] },
           ].map((plan, i) => (

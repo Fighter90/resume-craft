@@ -88,7 +88,8 @@ export class ApiClient {
   async getMe() {
     return this.request<{
       id: string; email: string; full_name: string | null;
-      plan: 'free' | 'standard' | 'pro'; optimizations_used: number; is_active: boolean
+      plan: 'free' | 'standard' | 'pro'; optimizations_used: number; is_active: boolean;
+      is_verified?: boolean; avatar_url?: string | null; phone?: string | null; city?: string | null;
     }>('GET', '/auth/me')
   }
 
@@ -233,10 +234,11 @@ export class ApiClient {
     return this.request<void>('POST', '/auth/logout', { refresh_token: refreshToken })
   }
 
-  async updateProfile(data: { full_name?: string; email?: string }) {
+  async updateProfile(data: { full_name?: string; email?: string; phone?: string; city?: string }) {
     return this.request<{
       id: string; email: string; full_name: string | null;
-      plan: 'free' | 'standard' | 'pro'; optimizations_used: number; is_active: boolean
+      plan: 'free' | 'standard' | 'pro'; optimizations_used: number; is_active: boolean;
+      is_verified?: boolean; avatar_url?: string | null; phone?: string | null; city?: string | null;
     }>('PUT', '/auth/me', data)
   }
 
@@ -280,8 +282,12 @@ export class ApiClient {
     )
   }
 
-  async deleteAccount(password: string) {
-    return this.request<{ message: string }>('DELETE', '/auth/me', { password })
+  async deleteAccount(password: string, confirmation: string) {
+    return this.request<{ message: string }>('DELETE', '/auth/me', { password, confirmation })
+  }
+
+  async resendVerification() {
+    return this.request<{ message: string }>('POST', '/auth/resend-verification')
   }
 
   // --- Avatar API ---

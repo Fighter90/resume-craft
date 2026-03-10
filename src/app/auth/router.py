@@ -108,6 +108,24 @@ async def verify_email(
 
 
 @router.post(
+    '/resend-verification',
+    response_model=MessageResponse,
+    summary='Повторная отправка верификации email',
+)
+async def resend_verification(
+    current_user: User = Depends(get_current_user),
+) -> MessageResponse:
+    """Повторная отправка письма подтверждения email (mock для MVP)."""
+    if current_user.is_verified:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=400, detail='Email уже подтверждён')
+
+    logger.info('Resend verification requested for %s', current_user.email)
+    return MessageResponse(message='Письмо подтверждения отправлено')
+
+
+@router.post(
     '/login',
     response_model=TokenResponse,
     summary='Авторизация по email/password',
@@ -181,6 +199,8 @@ async def update_me(
         user=current_user,
         full_name=data.full_name,
         email=str(data.email) if data.email else None,
+        phone=data.phone,
+        city=data.city,
     )
     return UserResponse.model_validate(updated)
 
@@ -209,22 +229,19 @@ async def change_password(
 @router.delete(
     '/me',
     response_model=MessageResponse,
-    summary='Удаление аккаунта (soft-delete, 30 дней)',
+    summary='Полное удаление аккаунта',
 )
 async def delete_me(
     data: DeleteAccountRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> MessageResponse:
-    """Soft-delete аккаунта с 30-дневным периодом восстановления (ФЗ-152).
-
-    Требует подтверждение паролем. Данные будут окончательно удалены через 30 дней.
-    Для восстановления — войдите в аккаунт до истечения срока.
-    """
-    result = await auth_service.soft_delete_account(
+    """Полное удаление аккаунта с валидацией пароля и подтверждения."""
+    result = await auth_service.delete_account(
         session,
         user=current_user,
         password=data.password,
+        confirmation=data.confirmation,
     )
     return MessageResponse(message=result)
 

@@ -64,6 +64,14 @@ class ResumeFromTextRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
 
+class ResumeFromUrlRequest(BaseModel):
+    """Импорт резюме по ссылке hh.ru."""
+
+    url: str = Field(min_length=1, max_length=500, description='Ссылка на резюме hh.ru')
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+
 class ResumeUpdateRequest(BaseModel):
     """Обновление метаданных резюме."""
 

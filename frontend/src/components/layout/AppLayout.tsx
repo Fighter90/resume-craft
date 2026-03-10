@@ -148,7 +148,15 @@ export default function AppLayout() {
               aria-label="Меню профиля"
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setProfileMenuOpen(!profileMenuOpen) }}
             >
-              <div className="user-avatar">{initials}</div>
+              <div className="user-avatar" style={{ overflow: 'hidden' }}>
+                {user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt="Аватар"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : initials}
+              </div>
               <div className="user-info">
                 <div className="user-name">{user?.full_name || 'Пользователь'}</div>
                 <div className="user-email">{user?.email || 'demo@resumecraft.ru'}</div>

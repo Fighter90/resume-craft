@@ -9,6 +9,9 @@ interface User {
   optimizations_used: number
   is_active: boolean
   is_verified?: boolean
+  avatar_url?: string | null
+  phone?: string | null
+  city?: string | null
 }
 
 interface AuthContextType {

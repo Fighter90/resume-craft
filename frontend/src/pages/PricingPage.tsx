@@ -12,7 +12,7 @@ export default function PricingPage() {
       features: [
         '5 оптимизаций/мес',
         'Все AI-модели (BYOK)',
-        'DOCX экспорт',
+        'Экспорт DOCX, PDF и TXT',
         '1 шаблон (Minimal)',
         'Поиск hh.ru',
         'Email поддержка',
@@ -28,7 +28,7 @@ export default function PricingPage() {
       features: [
         '30 оптимизаций/мес',
         'Все AI-модели (BYOK)',
-        'PDF + DOCX',
+        'Экспорт DOCX, PDF и TXT',
         '3 шаблона',
         'Поиск hh.ru',
         'Email + чат',
@@ -45,7 +45,7 @@ export default function PricingPage() {
       features: [
         'Безлимит оптимизаций',
         'Все AI-модели (BYOK) + API-доступ',
-        'Все форматы + hh.ru',
+        'Экспорт DOCX, PDF и TXT + hh.ru',
         'Все шаблоны + кастомные',
         'API доступ',
         'Приоритет 24/7',

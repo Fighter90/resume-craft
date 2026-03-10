@@ -13,6 +13,7 @@ from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.resumes import service as resume_service
 from app.resumes.schemas import (
+    ResumeFromUrlRequest,
     ResumeFromTextRequest,
     ResumeListResponse,
     ResumeResponse,
@@ -63,6 +64,44 @@ async def create_from_text(
         source_url=data.source_url,
     )
     return ResumeUploadResponse.model_validate(resume)
+
+
+@router.post(
+    '/from-url',
+    response_model=ResumeUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary='Импорт резюме по ссылке hh.ru',
+)
+async def create_from_url(
+    data: ResumeFromUrlRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> ResumeUploadResponse:
+    """Создание резюме по ссылке hh.ru.
+
+    В MVP выполняется валидация URL и возвращается понятная ошибка с инструкцией,
+    если автоматический парсинг недоступен.
+    """
+    import re
+
+    from fastapi import HTTPException
+
+    normalized_url = data.url.strip()
+    hh_resume_pattern = re.compile(r'^https?://(www\.)?hh\.ru/resume/[a-z0-9]+', re.IGNORECASE)
+    if not hh_resume_pattern.match(normalized_url):
+        raise HTTPException(
+            status_code=400,
+            detail='Поддерживаются только ссылки на резюме hh.ru (формат: hh.ru/resume/...)',
+        )
+
+    raise HTTPException(
+        status_code=400,
+        detail=(
+            'Не удалось автоматически загрузить резюме с hh.ru. '
+            'Скопируйте текст резюме вручную на вкладке «Вставить текст». '
+            'Некоторые резюме закрыты настройками приватности hh.ru.'
+        ),
+    )
 
 
 @router.get(

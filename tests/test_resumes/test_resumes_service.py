@@ -170,10 +170,12 @@ class TestUploadResume:
         with pytest.raises(UnsupportedFileFormat):
             await upload_resume(session, user_id=test_user.id, file=file)
 
+    @patch('app.resumes.service._extract_text', return_value='Parsed PDF text')
     @patch('app.resumes.service.file_storage')
     async def test_upload_success(
         self,
         mock_storage: AsyncMock,
+        _mock_extract_text: object,
         session: AsyncSession,
         test_user: User,
     ) -> None:
