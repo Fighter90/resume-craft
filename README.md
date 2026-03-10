@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.17
+> **Версия:** 1.18.0
 > **Дата:** Март 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -1101,20 +1101,7 @@ pip-audit
 
 ## Changelog
 
-### v1.18.0 (Март 2026) — QA V33: P0 Blocker — Client-Side Key Check Removed
-
-**Bug Fixes:**
-
-- **KEY-CHECK-001 (P0 BLOCKER):** убрана клиентская блокировка загрузки подмоделей по флагу `available` в `ModelsPage`. Backend — единственный источник истины для API-ключей.
-- **VACANCY-PLACEHOLDER-001 (P3):** поле "Название должности" на `/app/vacancy` теперь напрямую предзаполняется из резюме (`setManualTitle(defaultTitle)`).
-- **GROQ-CASE-001 (P4):** добавлен `_provider_to_display_name` маппинг для корректного отображения "Groq" в ошибках для любых groq-моделей.
-
-**Тесты:**
-
-- +4 backend-теста (`test_v33_fixes.py`), +2 frontend-теста (`fixes-v33.test.tsx`)
-- Backend: **951 collected**, Frontend: **579 тестов**, Всего: **1530**
-
-### v1.17.0 (Март 2026) — QA V32: Limits Reset Endpoint, Pricing Sync, History Counter Clarity
+### v1.18.0 (Март 2026) — QA V32: Limits Reset Endpoint, Pricing Sync, History Counter Clarity
 
 **Bug Fixes & Infra:**
 
