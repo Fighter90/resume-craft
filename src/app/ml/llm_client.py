@@ -60,8 +60,11 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
     if status_code == 400 or '400' in err_str:
         lower_err = err_str.lower()
         auth_keywords = (
-            'auth', 'credential', 'decode',
-            'invalid_client', 'invalid client',
+            'auth',
+            'credential',
+            'decode',
+            'invalid_client',
+            'invalid client',
         )
         if any(kw in lower_err for kw in auth_keywords):
             raise LLMAuthError(provider) from exc

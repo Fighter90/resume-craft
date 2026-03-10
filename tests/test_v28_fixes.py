@@ -303,9 +303,7 @@ class TestRewriterServiceUserKeys:
         src = pathlib.Path('src/app/rewriter/service.py').read_text()
 
         for db_key in ['gigachat', 'openai', 'anthropic', 'openrouter', 'groq']:
-            assert f"'{db_key}'" in src, (
-                f'{db_key} должен быть в _db_providers'
-            )
+            assert f"'{db_key}'" in src, f'{db_key} должен быть в _db_providers'
 
     def test_service_uses_get_user_setting(self) -> None:
         """execute_rewrite использует get_user_setting для получения ключей."""

@@ -87,8 +87,11 @@ class TestHandleLLMError:
             _handle_llm_error(Exception('Request timed out'), provider='test')
 
     def test_generic_error(self) -> None:
-        """Другая ошибка → LLMProviderUnavailable с текстом."""
-        with pytest.raises(LLMProviderUnavailable, match='test: Some weird error'):
+        """Другая ошибка → LLMProviderUnavailable с чистым сообщением."""
+        with pytest.raises(
+            LLMProviderUnavailable,
+            match='test — произошла ошибка, попробуйте позже или выберите другую модель',
+        ):
             _handle_llm_error(Exception('Some weird error'), provider='test')
 
 

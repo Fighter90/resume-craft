@@ -136,12 +136,14 @@ class TestUserKeysRetrieval:
         mock_task.error_message = None
         mock_task.processing_time_ms = None
 
-        session.get = AsyncMock(side_effect=lambda model, pk: {
-            task_id: mock_task,
-            resume_id: MagicMock(raw_text='test', parsed_data=None, status='draft'),
-            vacancy_id: MagicMock(description='Python developer'),
-            user_id: MagicMock(optimizations_used=0),
-        }.get(pk))
+        session.get = AsyncMock(
+            side_effect=lambda model, pk: {
+                task_id: mock_task,
+                resume_id: MagicMock(raw_text='test', parsed_data=None, status='draft'),
+                vacancy_id: MagicMock(description='Python developer'),
+                user_id: MagicMock(optimizations_used=0),
+            }.get(pk)
+        )
 
         session.flush = AsyncMock()
 
@@ -217,13 +219,16 @@ class TestUserKeysRetrieval:
         mock_task.processing_time_ms = None
 
         session.get = AsyncMock(
-            side_effect=lambda model, pk: mock_task if pk == task_id
-            else MagicMock(
-                description='test vacancy',
-                raw_text='test',
-                parsed_data=None,
-                status='draft',
-                optimizations_used=0,
+            side_effect=lambda model, pk: (
+                mock_task
+                if pk == task_id
+                else MagicMock(
+                    description='test vacancy',
+                    raw_text='test',
+                    parsed_data=None,
+                    status='draft',
+                    optimizations_used=0,
+                )
             ),
         )
         session.flush = AsyncMock()
@@ -275,8 +280,7 @@ class TestHandleLlmErrorSanitized:
         from app.ml.llm_client import _handle_llm_error
 
         exc = Exception(
-            "Error code: 400 - {'error': {'message':"
-            " \"Unsupported parameter: 'max_tokens'\"}}"
+            "Error code: 400 - {'error': {'message': \"Unsupported parameter: 'max_tokens'\"}}"
         )
         exc.status_code = 400  # type: ignore[attr-defined]
 
@@ -371,13 +375,16 @@ class TestExecuteRewriteErrorFormat:
         mock_task.processing_time_ms = None
 
         session.get = AsyncMock(
-            side_effect=lambda model, pk: mock_task if pk == task_id
-            else MagicMock(
-                description='vacancy',
-                raw_text='text',
-                parsed_data=None,
-                status='draft',
-                optimizations_used=0,
+            side_effect=lambda model, pk: (
+                mock_task
+                if pk == task_id
+                else MagicMock(
+                    description='vacancy',
+                    raw_text='text',
+                    parsed_data=None,
+                    status='draft',
+                    optimizations_used=0,
+                )
             ),
         )
         session.flush = AsyncMock()
