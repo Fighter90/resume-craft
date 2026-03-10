@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+from app.admin.router import router as admin_router
 from app.auth.router import router as auth_router
 from app.core.config import get_settings
 from app.core.exceptions import AppError
@@ -116,6 +117,7 @@ def create_app() -> FastAPI:
     app.include_router(export_router, prefix=api_prefix)
     app.include_router(models_router, prefix=api_prefix)
     app.include_router(settings_router, prefix=api_prefix)
+    app.include_router(admin_router, prefix=api_prefix)
 
     # --- Static files: uploads (avatars, etc.) ---
     from pathlib import Path

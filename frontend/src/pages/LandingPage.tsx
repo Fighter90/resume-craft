@@ -142,9 +142,50 @@ export default function LandingPage() {
           </p>
           <div className="pricing-grid">
             {[
-              { name: 'Free', price: '0 ₽', period: 'навсегда', desc: 'Для знакомства', features: ['5 оптимизаций/мес', 'OpenRouter', 'DOCX экспорт', '1 шаблон', 'Поиск hh.ru'], featured: false },
-              { name: 'Standard', price: '490 ₽', period: '/мес', desc: 'Для активного поиска', features: ['30 оптимизаций/мес', 'GigaChat Pro + Claude', 'PDF + DOCX', '3 шаблона', 'Email + чат'], year: '3 990 ₽/год (−32%)', featured: true },
-              { name: 'Pro', price: '1 490 ₽', period: '/мес', desc: 'Для профессионалов', features: ['Безлимит оптимизаций', 'Все модели + GPT-4o', 'Все форматы + hh.ru', 'Все шаблоны', 'Приоритет 24/7'], year: '11 990 ₽/год (−33%)', featured: false },
+              {
+                name: 'Free',
+                price: '0 ₽',
+                period: 'навсегда',
+                desc: 'Для знакомства',
+                features: [
+                  '5 оптимизаций/мес',
+                  'Все AI-модели (BYOK)',
+                  'DOCX экспорт',
+                  '1 шаблон',
+                  'Поиск hh.ru',
+                ],
+                featured: false,
+              },
+              {
+                name: 'Standard',
+                price: '490 ₽',
+                period: '/мес',
+                desc: 'Для активного поиска',
+                features: [
+                  '30 оптимизаций/мес',
+                  'Все AI-модели (BYOK)',
+                  'PDF + DOCX',
+                  '3 шаблона',
+                  'Email + чат',
+                ],
+                year: '3 990 ₽/год (−32%)',
+                featured: true,
+              },
+              {
+                name: 'Pro',
+                price: '1 490 ₽',
+                period: '/мес',
+                desc: 'Для профессионалов',
+                features: [
+                  'Безлимит оптимизаций',
+                  'Все AI-модели (BYOK) + API-доступ',
+                  'Все форматы + hh.ru',
+                  'Все шаблоны',
+                  'Приоритет 24/7',
+                ],
+                year: '11 990 ₽/год (−33%)',
+                featured: false,
+              },
             ].map(p => (
               <div key={p.name} className={`card pricing-card${p.featured ? ' featured' : ''}`} style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>
                 {p.featured && <div className="pricing-popular"><span className="badge badge-indigo">Популярный</span></div>}

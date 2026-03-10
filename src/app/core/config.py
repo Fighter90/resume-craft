@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     debug: bool = False
     log_level: str = 'INFO'
     app_name: str = 'ResumeCraft'
-    app_version: str = '1.16.0'
+    app_version: str = '1.17.0'
     api_v1_prefix: str = '/api/v1'
 
     # --- Database ---
@@ -65,6 +65,9 @@ class Settings(BaseSettings):
     # --- File Storage ---
     upload_dir: str = './uploads'
     max_file_size_mb: int = 10
+
+    # --- QA/Admin ---
+    qa_admin_api_key: str = ''
 
     @property
     def max_file_size_bytes(self) -> int:

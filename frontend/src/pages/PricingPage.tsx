@@ -3,9 +3,56 @@ import { Check } from 'lucide-react'
 
 export default function PricingPage() {
   const plans = [
-    { name: 'Free', badge: 'gray', price: '0 ₽', period: 'навсегда', desc: 'Для знакомства с сервисом', features: ['5 оптимизаций/мес', 'OpenRouter', 'DOCX экспорт', '1 шаблон (Minimal)', 'Поиск hh.ru', 'Email поддержка'], featured: false },
-    { name: 'Standard', badge: 'indigo', price: '490 ₽', period: '/мес', desc: 'Для активного поиска работы', features: ['30 оптимизаций/мес', 'GigaChat Pro + Claude', 'PDF + DOCX', '3 шаблона', 'Поиск hh.ru', 'Email + чат'], year: '3 990 ₽/год (−32%)', featured: true },
-    { name: 'Pro', badge: 'green', price: '1 490 ₽', period: '/мес', desc: 'Для профессионалов и рекрутеров', features: ['Безлимит оптимизаций', 'Все модели + GPT-4o', 'Все форматы + hh.ru', 'Все шаблоны + кастомные', 'API доступ', 'Приоритет 24/7'], year: '11 990 ₽/год (−33%)', featured: false },
+    {
+      name: 'Free',
+      badge: 'gray',
+      price: '0 ₽',
+      period: 'навсегда',
+      desc: 'Для знакомства с сервисом',
+      features: [
+        '5 оптимизаций/мес',
+        'Все AI-модели (BYOK)',
+        'DOCX экспорт',
+        '1 шаблон (Minimal)',
+        'Поиск hh.ru',
+        'Email поддержка',
+      ],
+      featured: false,
+    },
+    {
+      name: 'Standard',
+      badge: 'indigo',
+      price: '490 ₽',
+      period: '/мес',
+      desc: 'Для активного поиска работы',
+      features: [
+        '30 оптимизаций/мес',
+        'Все AI-модели (BYOK)',
+        'PDF + DOCX',
+        '3 шаблона',
+        'Поиск hh.ru',
+        'Email + чат',
+      ],
+      year: '3 990 ₽/год (−32%)',
+      featured: true,
+    },
+    {
+      name: 'Pro',
+      badge: 'green',
+      price: '1 490 ₽',
+      period: '/мес',
+      desc: 'Для профессионалов и рекрутеров',
+      features: [
+        'Безлимит оптимизаций',
+        'Все AI-модели (BYOK) + API-доступ',
+        'Все форматы + hh.ru',
+        'Все шаблоны + кастомные',
+        'API доступ',
+        'Приоритет 24/7',
+      ],
+      year: '11 990 ₽/год (−33%)',
+      featured: false,
+    },
   ]
 
   return (

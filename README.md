@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.16.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.17.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.16
+> **Версия:** 1.17
 > **Дата:** Март 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -1100,6 +1100,19 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.17.0 (Март 2026) — QA V32: Limits Reset Endpoint, Pricing Sync, History Counter Clarity
+
+**Bug Fixes & Infra:**
+
+- **QA-LIMIT-001 (INFRA):** добавлен защищённый endpoint `POST /api/v1/admin/reset-optimization-limit` (через `X-Admin-Key`) для QA-сброса лимитов.
+- **PRICING-MISMATCH-001 (P3):** тарифы синхронизированы между Landing, Pricing и Settings/Subscription; единая формулировка `Все AI-модели (BYOK)`.
+- **HISTORY-COUNT-001 (P4 INFO):** на dashboard добавлена явная метрика `Успешных: X из Y`.
+
+**Тесты:**
+
+- +4 backend-теста (`test_v32_fixes.py`), +2 frontend-теста (`fixes-v32.test.tsx`)
+- Backend: **951 collected** (без integration-LLM), Frontend: **579 тестов**, Всего: **1530**
 
 ### v1.16.0 (Март 2026) — QA V33: P0 KEY-CHECK Fix For New Accounts
 

@@ -7,6 +7,26 @@
 
 ---
 
+## [1.17.0] — 2026-03
+
+### Added
+- **QA-LIMIT-001 (INFRA):** Добавлен защищённый endpoint `POST /api/v1/admin/reset-optimization-limit` для QA-сброса счётчика оптимизаций.
+	Endpoint активен только при заданном `qa_admin_api_key` и требует заголовок `X-Admin-Key`.
+
+### Fixed
+- **PRICING-MISMATCH-001 (P3):** Синхронизированы тарифные тексты на `Landing`, `Pricing` и `Settings/Subscription`.
+	Free/Standard/Pro теперь единообразно используют формулировку `Все AI-модели (BYOK)`.
+- **HISTORY-COUNT-001 (P4 INFO):** На dashboard добавлена явная подпись `Успешных: X из Y` для исключения двусмысленности метрики.
+
+### Tests
+- 4 backend-теста (`test_v32_fixes.py`) на admin endpoint, pricing consistency и dashboard counters.
+- 2 frontend-теста (`fixes-v32.test.tsx`) на BYOK-тексты и счётчик `успешных из попыток`.
+
+### Changed
+- Синхронизированы версии до `1.17.0`: `config.py`, `pyproject.toml`, `frontend/package.json`, `README`.
+
+---
+
 ## [1.16.0] — 2026-03
 
 ### Fixed

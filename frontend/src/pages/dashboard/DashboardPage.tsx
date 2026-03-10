@@ -30,6 +30,7 @@ export default function DashboardPage() {
   }, [])
 
   const totalResumes = resumes.length
+  const totalAttempts = history.length
   const totalOptimizations = history.filter((h: any) => h.status === 'completed').length
   const scored = history.filter((h: any) => h.match_score_after != null && h.match_score_after > 0)
   const avgScoreRaw = scored.length > 0
@@ -75,6 +76,14 @@ export default function DashboardPage() {
           <div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Оптимизаций</div>
             <div style={{ fontSize: '2rem', fontWeight: 700 }}>{loading ? '—' : totalOptimizations}</div>
+            {!loading && (
+              <div
+                title="Успешных оптимизаций из всех попыток"
+                style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}
+              >
+                Успешных: {totalOptimizations} из {totalAttempts}
+              </div>
+            )}
           </div>
           <div className="stat-icon" style={{ background: 'var(--success-light)', color: 'var(--success)' }}>
             <TrendingUp size={24} />
