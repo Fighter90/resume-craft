@@ -33,7 +33,7 @@ class TestResumeUpload:
     async def test_upload_success(
         self,
         mock_storage: AsyncMock,
-            _mock_extract_text: object,  # noqa: PT019
+        _mock_extract_text: object,  # noqa: PT019
         auth_client: AsyncClient,
     ) -> None:
         """Успешная загрузка PDF → 201."""
@@ -54,7 +54,9 @@ class TestResumeFromUrl:
 
     async def test_from_url_without_auth(self, client: AsyncClient) -> None:
         """Без JWT → 401."""
-        response = await client.post('/api/v1/resumes/from-url', json={'url': 'https://hh.ru/resume/abc123'})
+        response = await client.post(
+            '/api/v1/resumes/from-url', json={'url': 'https://hh.ru/resume/abc123'}
+        )
         assert response.status_code == 401
 
     async def test_from_url_invalid_domain(self, auth_client: AsyncClient) -> None:

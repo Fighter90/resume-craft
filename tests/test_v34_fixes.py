@@ -68,7 +68,7 @@ class TestAccountDeletion:
         response_data = response.json()
         message_lower = response_data['message'].lower()
         # Проверяем, что в сообщении есть упоминание подтверждения
-        assert ('удалить' in message_lower or 'подтверждени' in message_lower)
+        assert 'удалить' in message_lower or 'подтверждени' in message_lower
 
     async def test_delete_account_wrong_password(
         self,
