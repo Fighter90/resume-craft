@@ -212,10 +212,11 @@ class TestSoftDeleteErrorHandling:
         response = await auth_client.request(
             'DELETE',
             '/api/v1/auth/me',
-            json={'password': 'WrongPassword123'},
+            json={'password': 'WrongPassword123', 'confirmation': 'УДАЛИТЬ'},
         )
         # Должен быть JSON, не HTML
         assert response.headers.get('content-type', '').startswith('application/json')
+        # После V34: требуется password + confirmation
         assert response.status_code in (400, 401, 403)
 
     async def test_delete_account_correct_password_returns_json(
@@ -226,7 +227,7 @@ class TestSoftDeleteErrorHandling:
         response = await auth_client.request(
             'DELETE',
             '/api/v1/auth/me',
-            json={'password': 'TestPass123'},
+            json={'password': 'TestPass123', 'confirmation': 'УДАЛИТЬ'},
         )
         assert response.headers.get('content-type', '').startswith('application/json')
 
