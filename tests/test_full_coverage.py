@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 
-import os
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -97,7 +96,6 @@ class TestParseLoginDataDirect:
         """Ветка elif: multipart/form-data content-type."""
         from app.auth.router import _parse_login_data
 
-        boundary = b'----boundary123'
         body = (
             b'------boundary123\r\n'
             b'Content-Disposition: form-data; name="username"\r\n\r\n'
@@ -394,12 +392,12 @@ class TestFetchGroqModels:
             ]
         }
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_response
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _fetch_groq_models('gsk_test_key')
 
@@ -412,12 +410,12 @@ class TestFetchGroqModels:
         """Ошибка запроса → fallback-модели."""
         from app.ml.router import _fetch_groq_models
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = httpx.ConnectError('Network error')
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _fetch_groq_models('gsk_test_key')
 
@@ -433,19 +431,19 @@ class TestPingGigachat:
 
     async def test_ping_success(self) -> None:
         """Успешный пинг → ok."""
-        from app.ml.router import _ping_gigachat
 
-        with patch('app.ml.router.GigaChat', create=True) as MockGC:
+        with (
+            patch('app.ml.router.GigaChat', create=True) as mock_gc_cls,
+            patch.dict('sys.modules', {'gigachat': MagicMock()}),
+            patch('app.ml.router._ping_gigachat') as mock_ping,
+        ):
             mock_gc = MagicMock()
             mock_gc.get_models.return_value = []
-            MockGC.return_value = mock_gc
+            mock_gc_cls.return_value = mock_gc
 
-            # Patch import inside function
-            with patch.dict('sys.modules', {'gigachat': MagicMock()}):
-                with patch('app.ml.router._ping_gigachat') as mock_ping:
-                    mock_ping.return_value = {'status': 'ok', 'message': 'Доступен'}
-                    result = await mock_ping('creds')
-                    assert result['status'] == 'ok'
+            mock_ping.return_value = {'status': 'ok', 'message': 'Доступен'}
+            result = await mock_ping('creds')
+            assert result['status'] == 'ok'
 
     async def test_ping_billing_error(self) -> None:
         """billing error → billing_error status."""
@@ -497,12 +495,12 @@ class TestPingOpenAI:
         mock_response.status_code = 200
         mock_response.raise_for_status = MagicMock()
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_response
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openai('sk-test')
         assert result['status'] == 'ok'
@@ -514,12 +512,12 @@ class TestPingOpenAI:
         mock_resp.status_code = 401
         exc = httpx.HTTPStatusError('401', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openai('bad-key')
         assert result['status'] == 'auth_error'
@@ -531,12 +529,12 @@ class TestPingOpenAI:
         mock_resp.status_code = 500
         exc = httpx.HTTPStatusError('500', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openai('sk-test')
         assert result['status'] == 'error'
@@ -544,12 +542,12 @@ class TestPingOpenAI:
     async def test_ping_generic_exception(self) -> None:
         from app.ml.router import _ping_openai
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = Exception('Network down')
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openai('sk-test')
         assert result['status'] == 'error'
@@ -565,12 +563,12 @@ class TestPingAnthropic:
         mock_response.status_code = 200
         mock_response.raise_for_status = MagicMock()
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_response
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_anthropic('sk-ant-test')
         assert result['status'] == 'ok'
@@ -582,12 +580,12 @@ class TestPingAnthropic:
         mock_resp.status_code = 401
         exc = httpx.HTTPStatusError('401', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_anthropic('bad-key')
         assert result['status'] == 'auth_error'
@@ -599,12 +597,12 @@ class TestPingAnthropic:
         mock_resp.status_code = 503
         exc = httpx.HTTPStatusError('503', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_anthropic('key')
         assert result['status'] == 'error'
@@ -612,12 +610,12 @@ class TestPingAnthropic:
     async def test_ping_generic_exception(self) -> None:
         from app.ml.router import _ping_anthropic
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = Exception('Timeout')
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_anthropic('key')
         assert result['status'] == 'error'
@@ -633,12 +631,12 @@ class TestPingOpenRouter:
         mock_response.status_code = 200
         mock_response.raise_for_status = MagicMock()
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_response
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openrouter('sk-or-test')
         assert result['status'] == 'ok'
@@ -650,12 +648,12 @@ class TestPingOpenRouter:
         mock_resp.status_code = 401
         exc = httpx.HTTPStatusError('401', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openrouter('bad-key')
         assert result['status'] == 'auth_error'
@@ -667,12 +665,12 @@ class TestPingOpenRouter:
         mock_resp.status_code = 502
         exc = httpx.HTTPStatusError('502', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openrouter('key')
         assert result['status'] == 'error'
@@ -680,12 +678,12 @@ class TestPingOpenRouter:
     async def test_ping_generic_exception(self) -> None:
         from app.ml.router import _ping_openrouter
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = Exception('DNS error')
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_openrouter('key')
         assert result['status'] == 'error'
@@ -701,12 +699,12 @@ class TestPingGroq:
         mock_response.status_code = 200
         mock_response.raise_for_status = MagicMock()
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_response
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_groq('gsk-test')
         assert result['status'] == 'ok'
@@ -718,12 +716,12 @@ class TestPingGroq:
         mock_resp.status_code = 401
         exc = httpx.HTTPStatusError('401', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_groq('bad-key')
         assert result['status'] == 'auth_error'
@@ -735,12 +733,12 @@ class TestPingGroq:
         mock_resp.status_code = 500
         exc = httpx.HTTPStatusError('500', request=MagicMock(), response=mock_resp)
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = exc
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_groq('key')
         assert result['status'] == 'error'
@@ -748,12 +746,12 @@ class TestPingGroq:
     async def test_ping_generic_exception(self) -> None:
         from app.ml.router import _ping_groq
 
-        with patch('app.ml.router.httpx.AsyncClient') as MockClient:
+        with patch('app.ml.router.httpx.AsyncClient') as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.side_effect = Exception('Connection refused')
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
             mock_client.__aexit__ = AsyncMock(return_value=False)
-            MockClient.return_value = mock_client
+            mock_client_cls.return_value = mock_client
 
             result = await _ping_groq('key')
         assert result['status'] == 'error'
@@ -1015,7 +1013,6 @@ class TestRewriterServiceAliases:
 
     async def test_user_keys_aliases_populated(self) -> None:
         """Если key_val найден для db_key, алиасы также заполняются."""
-        from app.settings.service import get_user_setting
 
         # Тестируем логику напрямую: когда get_user_setting возвращает ключ для 'gigachat',
         # алиасы 'gigachat-pro' и 'gigachat-lite' должны быть заполнены
@@ -1306,8 +1303,8 @@ class TestRewriterServiceRunRewriteAliases:
 
     async def test_run_rewrite_with_user_keys(self, session, test_user) -> None:  # type: ignore[no-untyped-def]
         """run_rewrite с пользовательскими ключами → alias loop выполняется."""
-        from app.rewriter.models import RewriteHistory, RewriteStatus
         from app.resumes.models import Resume
+        from app.rewriter.models import RewriteHistory, RewriteStatus
         from app.vacancies.models import Vacancy
 
         # Создаём необходимые данные
@@ -1386,11 +1383,11 @@ class TestRewriterServiceRunRewriteAliases:
         )
 
         with (
-            patch('app.rewriter.service.LLMClientFactory') as MockFactory,
+            patch('app.rewriter.service.LLMClientFactory') as mock_factory_cls,
             patch('app.rewriter.service.sanitize_for_llm', side_effect=lambda x: x),
             patch('app.rewriter.service.calculate_match_score', return_value=0.5),
         ):
-            MockFactory.create_with_fallback.return_value = mock_llm
+            mock_factory_cls.create_with_fallback.return_value = mock_llm
 
             from app.rewriter.service import execute_rewrite
 
