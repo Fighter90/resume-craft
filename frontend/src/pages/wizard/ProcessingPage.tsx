@@ -27,8 +27,11 @@ function isAuthError(msg: string): boolean {
 }
 
 function friendlyError(msg: string): string {
-  if (/провайдер all|provider all|unavailable/i.test(msg)) {
+  if (/провайдер all|provider all/i.test(msg)) {
     return 'Ни один LLM-провайдер не настроен. Перейдите в настройки AI и добавьте API-ключ хотя бы для одного провайдера (OpenAI, Anthropic, OpenRouter или GigaChat).'
+  }
+  if (/api-ключ.*не настроен|не настроен.*api-ключ/i.test(msg)) {
+    return msg.split('.')[0] + '. Перейдите в настройки AI и проверьте ключ.'
   }
   if (/insufficient.?balance|недостаточно средств|quota.?exceeded/i.test(msg)) {
     return 'Недостаточно средств на балансе провайдера. Пополните баланс аккаунта поставщика или выберите другую модель.'
@@ -38,6 +41,16 @@ function friendlyError(msg: string): string {
   }
   if (/rate.?limit|429|too many/i.test(msg)) {
     return 'Превышен лимит запросов к модели. Подождите минуту и попробуйте снова, или выберите другую модель.'
+  }
+  // HISTORY-RAW-ERROR-001: strip raw URLs, HTTP codes, JSON from LLM errors
+  if (/URL\(|https?:\/\/|{.*error.*}|status_code|b'|\\x/i.test(msg)) {
+    return 'Произошла ошибка при обращении к AI-провайдеру. Попробуйте позже или выберите другую модель.'
+  }
+  if (/max_tokens|max_completion_tokens|unsupported parameter/i.test(msg)) {
+    return 'Ошибка параметров запроса к AI-модели. Попробуйте выбрать другую модель.'
+  }
+  if (/временно недоступен/i.test(msg)) {
+    return 'AI-провайдер временно недоступен. Попробуйте позже или выберите другую модель.'
   }
   return msg
 }

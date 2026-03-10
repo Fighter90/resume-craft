@@ -203,7 +203,7 @@ export default function UploadPage() {
                 <span className="btn btn-secondary">Выбрать файл</span>
               </>
             )}
-            <input id="file-input" type="file" accept=".pdf,.docx" onChange={handleFileChange} style={{ display: 'none' }} />
+            <input id="file-input" type="file" accept=".pdf,.docx" onChange={handleFileChange} style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }} />
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>

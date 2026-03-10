@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.14.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.15.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.14
+> **Версия:** 1.15
 > **Дата:** Март 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -1100,6 +1100,19 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.15.0 (Март 2026) — QA V31: KEY-CHECK-001 Critical Fix, Error Sanitization, File Upload Fix
+
+**Bug Fixes:**
+
+- **KEY-CHECK-001** (P1 CRITICAL): Celery worker — свежий `create_async_engine` на каждую задачу, рефакторинг маппинга API-ключей
+- **HISTORY-RAW-ERROR-001** (P2 MEDIUM): Санитизация ошибок LLM — сырые URL/JSON/HTTP-коды больше не попадают в UI
+- **FILE-UPLOAD-001** (P3 LOW): File input скрыт через `opacity: 0` вместо `display: none` (исправление для WebKit)
+
+**Тесты:**
+
+- +15 backend-тестов (`test_v31_fixes.py`), +17 frontend-тестов (`fixes-v31.test.tsx`)
+- Backend: **834 unit-тестов**, Frontend: **575 тестов**, Всего: **1522**
 
 ### v1.14.0 (Март 2026) — 100% Backend Coverage, 558 Frontend Tests, Documentation Refresh
 

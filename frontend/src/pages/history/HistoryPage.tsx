@@ -5,6 +5,19 @@ import { api } from '../../services/api'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+/** HISTORY-RAW-ERROR-001: strip raw URLs, HTTP codes, JSON from error messages */
+function sanitizeErrorMessage(msg: string): string {
+  if (/api-ключ.*не настроен/i.test(msg)) return msg.split('.')[0]
+  if (/провайдер all|provider all/i.test(msg)) return 'Нет доступных AI-провайдеров'
+  if (/URL\(|https?:\/\/|{.*error.*}|status_code|b'|\\x/i.test(msg)) return 'Ошибка AI-провайдера'
+  if (/max_tokens|max_completion_tokens|unsupported parameter/i.test(msg)) return 'Ошибка параметров запроса'
+  if (/недостаточно средств|billing|quota/i.test(msg)) return 'Недостаточно средств у провайдера'
+  if (/rate.?limit|429|too many/i.test(msg)) return 'Превышен лимит запросов'
+  if (/временно недоступен/i.test(msg)) return 'AI-провайдер временно недоступен'
+  if (msg.length > 80) return msg.slice(0, 77) + '...'
+  return msg
+}
+
 export default function HistoryPage() {
   const navigate = useNavigate()
   const [history, setHistory] = useState<any[]>([])
@@ -57,7 +70,7 @@ export default function HistoryPage() {
                   {item.status === 'completed' ? (
                     <>Match: {Math.round((item.match_score_before || 0) <= 1 ? (item.match_score_before || 0) * 100 : (item.match_score_before || 0))}% → {Math.round((item.match_score_after || 0) <= 1 ? (item.match_score_after || 0) * 100 : (item.match_score_after || 0))}% · ATS: {item.ats_rating || '—'}</>
                   ) : item.status === 'failed' ? (
-                    <span style={{ color: 'var(--error)' }}>Ошибка: {item.error_message || 'Неизвестная ошибка'}</span>
+                    <span style={{ color: 'var(--error)' }}>⚠️ {sanitizeErrorMessage(item.error_message || 'Неизвестная ошибка')}</span>
                   ) : (
                     <span>Статус: {item.status}</span>
                   )}

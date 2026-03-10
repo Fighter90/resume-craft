@@ -7,6 +7,27 @@
 
 ---
 
+## [1.15.0] — 2026-03
+
+### Fixed
+- **KEY-CHECK-001** (P1 CRITICAL): Celery worker теперь создаёт свежий `create_async_engine` на каждую задачу вместо переиспользования глобального engine с потенциально stale asyncpg connection pool. Рефакторинг `_db_providers` маппинга API-ключей в `service.py` для корректного извлечения всех провайдеров.
+- **HISTORY-RAW-ERROR-001** (P2 MEDIUM): Санитизация ошибок LLM — сырые URL, HTTP-коды, JSON-тела больше не попадают в UI. Добавлены `sanitizeErrorMessage()` (HistoryPage), расширен `friendlyError()` (ProcessingPage), улучшен `_handle_llm_error()` (backend).
+- **FILE-UPLOAD-001** (P3 LOW): File input теперь скрыт через `opacity: 0` + `position: absolute` вместо `display: none`, что устраняет блокировку `.click()` в WebKit/Safari.
+
+### Added
+- 15 backend-тестов (`test_v31_fixes.py`): Celery fresh engine, user key retrieval, error sanitization, LLM factory fallback
+- 17 frontend-тестов (`fixes-v31.test.tsx`): friendlyError, sanitizeErrorMessage, isAuthError, file input opacity
+
+### Changed
+- Backend unit-тестов: 819 → 834 (+ обновлены 4 существующих теста)
+- Frontend тестов: 558 → 575
+- Всего тестов: 1490 → 1522
+
+### Notes
+- **SCORE-VARIANCE-001** (P4 INFO): Подтверждено как ожидаемое поведение (±6 пунктов, детерминизм ≤1% при фиксированном seed). Документировано в V30.
+
+---
+
 ## [1.14.0] — 2026-03
 
 ### Added

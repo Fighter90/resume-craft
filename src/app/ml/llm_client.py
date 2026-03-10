@@ -20,6 +20,9 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
     err_str = str(exc)
     status_code: int | None = getattr(exc, 'status_code', None)
 
+    # Логируем полную ошибку для отладки, пользователю показываем чистое сообщение
+    logger.error('LLM error from %s: status=%s, error=%s', provider, status_code, err_str[:500])
+
     # 401 — невалидный ключ
     if status_code == 401 or '401' in err_str or 'Unauthorized' in err_str:
         raise LLMAuthError(provider) from exc
@@ -52,8 +55,24 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
     if 'timeout' in err_str.lower() or 'timed out' in err_str.lower():
         raise LLMProviderUnavailable(f'{provider} — таймаут запроса, попробуйте позже') from exc
 
-    # Другая ошибка — пробросим с контекстом
-    raise LLMProviderUnavailable(f'{provider}: {err_str[:200]}') from exc
+    # 400 — ошибка параметров или авторизации (Authorization header)
+    # HISTORY-RAW-ERROR-001: user-friendly сообщение вместо raw
+    if status_code == 400 or '400' in err_str:
+        lower_err = err_str.lower()
+        auth_keywords = (
+            'auth', 'credential', 'decode',
+            'invalid_client', 'invalid client',
+        )
+        if any(kw in lower_err for kw in auth_keywords):
+            raise LLMAuthError(provider) from exc
+        raise LLMProviderUnavailable(
+            f'{provider} — ошибка параметров запроса, попробуйте другую модель'
+        ) from exc
+
+    # HISTORY-RAW-ERROR-001: Catch-all с чистым сообщением (без raw данных)
+    raise LLMProviderUnavailable(
+        f'{provider} — произошла ошибка, попробуйте позже или выберите другую модель'
+    ) from exc
 
 
 class BaseLLMClient(ABC):

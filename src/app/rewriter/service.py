@@ -136,32 +136,32 @@ async def execute_rewrite(
         from app.settings.service import get_user_setting
 
         user_keys: dict[str, str] = {}
-        # Маппинг провайдера для поиска ключа в БД
-        _provider_key_map: dict[str, str] = {
-            'gigachat-pro': 'gigachat',
-            'gigachat-lite': 'gigachat',
-            'openai': 'openai',
-            'gpt-4o-mini': 'openai',
-            'gpt-4o': 'openai',
-            'anthropic': 'anthropic',
-            'claude-sonnet': 'anthropic',
-            'claude-haiku': 'anthropic',
-            'openrouter': 'openrouter',
-            'groq': 'groq',
+        # KEY-CHECK-001: Единый набор DB-ключей для запроса (без дублей)
+        _db_providers: list[str] = ['gigachat', 'openai', 'anthropic', 'openrouter', 'groq']
+        # Маппинг DB-ключа → список provider-имён для фабрики
+        _db_key_to_providers: dict[str, list[str]] = {
+            'gigachat': ['gigachat-pro', 'gigachat-lite'],
+            'openai': ['openai', 'gpt-4o-mini', 'gpt-4o'],
+            'anthropic': ['anthropic', 'claude-sonnet', 'claude-haiku'],
+            'openrouter': ['openrouter'],
+            'groq': ['groq'],
         }
-        for prov_name, db_key in _provider_key_map.items():
-            if db_key not in user_keys:
-                key_val = await get_user_setting(
-                    session,
-                    user_id=task.user_id,
-                    provider=db_key,
-                )
-                if key_val:
+
+        for db_key in _db_providers:
+            key_val = await get_user_setting(
+                session,
+                user_id=task.user_id,
+                provider=db_key,
+            )
+            if key_val:
+                for prov_name in _db_key_to_providers.get(db_key, []):
                     user_keys[prov_name] = key_val
-                    # Также добавить для группы (напр. 'gigachat-pro' → 'gigachat-lite')
-                    for alias, alias_key in _provider_key_map.items():
-                        if alias_key == db_key and alias not in user_keys:
-                            user_keys[alias] = key_val
+
+        logger.info(
+            'Rewrite %s: user_keys found for providers: %s',
+            task_id,
+            list(user_keys.keys()) if user_keys else '(none)',
+        )
 
         llm_client = LLMClientFactory.create_with_fallback(
             preferred=provider_name,

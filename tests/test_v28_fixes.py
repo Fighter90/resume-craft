@@ -105,11 +105,11 @@ class TestGroqInRouterMapping:
         assert "'groq': 'groq_api_key'" in src, 'groq должен быть в _model_to_env_field маппинге'
 
     def test_groq_in_service_provider_key_map(self) -> None:
-        """groq есть в _provider_key_map в rewriter/service.py."""
+        """groq есть в _db_providers и _db_key_to_providers в rewriter/service.py."""
         import pathlib
 
         src = pathlib.Path('src/app/rewriter/service.py').read_text()
-        assert "'groq': 'groq'" in src, 'groq должен быть в _provider_key_map в service.py'
+        assert "'groq'" in src, 'groq должен быть в _db_providers в service.py'
 
     def test_groq_in_llm_factory_provider_key_fields(self) -> None:
         """groq есть в _PROVIDER_KEY_FIELDS в llm_factory.py."""
@@ -297,20 +297,14 @@ class TestRewriterServiceUserKeys:
     """KEY-CHECK-001: Сервис оптимизации корректно получает ключи пользователя."""
 
     def test_service_provider_key_map_complete(self) -> None:
-        """_provider_key_map содержит все 5 провайдеров."""
+        """_db_providers и _db_key_to_providers содержат все 5 провайдеров."""
         import pathlib
 
         src = pathlib.Path('src/app/rewriter/service.py').read_text()
 
-        for provider, db_key in [
-            ('gigachat-pro', 'gigachat'),
-            ('openai', 'openai'),
-            ('anthropic', 'anthropic'),
-            ('openrouter', 'openrouter'),
-            ('groq', 'groq'),
-        ]:
-            assert f"'{provider}': '{db_key}'" in src, (
-                f'{provider} → {db_key} должен быть в _provider_key_map'
+        for db_key in ['gigachat', 'openai', 'anthropic', 'openrouter', 'groq']:
+            assert f"'{db_key}'" in src, (
+                f'{db_key} должен быть в _db_providers'
             )
 
     def test_service_uses_get_user_setting(self) -> None:

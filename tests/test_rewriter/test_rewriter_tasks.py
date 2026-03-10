@@ -14,10 +14,25 @@ class TestRunRewrite:
     """Тесты _run_rewrite() (async helper for Celery)."""
 
     @patch('app.rewriter.tasks.rewrite_service')
-    @patch('app.rewriter.tasks.get_session_factory')
-    async def test_success(self, mock_factory: MagicMock, mock_service: MagicMock) -> None:
+    @patch('app.rewriter.tasks._get_engine_kwargs', return_value={})
+    @patch('app.rewriter.tasks.get_settings')
+    @patch('app.rewriter.tasks.async_sessionmaker')
+    @patch('app.rewriter.tasks.create_async_engine')
+    async def test_success(
+        self,
+        mock_engine_ctor: MagicMock,
+        mock_factory_ctor: MagicMock,
+        mock_settings: MagicMock,
+        mock_kwargs: MagicMock,
+        mock_service: MagicMock,
+    ) -> None:
         """Успешная оптимизация в async-контексте."""
         task_id = uuid4()
+        mock_settings.return_value = MagicMock(database_url='sqlite+aiosqlite://')
+
+        mock_engine = MagicMock()
+        mock_engine.dispose = AsyncMock()
+        mock_engine_ctor.return_value = mock_engine
 
         mock_task = MagicMock()
         mock_task.status.value = 'completed'
@@ -26,37 +41,47 @@ class TestRunRewrite:
         mock_session.__aenter__ = AsyncMock(return_value=mock_session)
         mock_session.__aexit__ = AsyncMock(return_value=False)
 
-        mock_factory_instance = MagicMock()
-        mock_factory_instance.return_value = mock_session
-        mock_factory.return_value = mock_factory_instance
+        mock_factory_ctor.return_value = MagicMock(return_value=mock_session)
 
         mock_service.execute_rewrite = AsyncMock(return_value=mock_task)
 
         result = await _run_rewrite(task_id)
         assert result == 'completed'
+        mock_engine.dispose.assert_awaited_once()
 
     @patch('app.rewriter.tasks.rewrite_service')
-    @patch('app.rewriter.tasks.get_session_factory')
+    @patch('app.rewriter.tasks._get_engine_kwargs', return_value={})
+    @patch('app.rewriter.tasks.get_settings')
+    @patch('app.rewriter.tasks.async_sessionmaker')
+    @patch('app.rewriter.tasks.create_async_engine')
     async def test_failure_rollback(
         self,
-        mock_factory: MagicMock,
+        mock_engine_ctor: MagicMock,
+        mock_factory_ctor: MagicMock,
+        mock_settings: MagicMock,
+        mock_kwargs: MagicMock,
         mock_service: MagicMock,
     ) -> None:
-        """Ошибка → rollback."""
+        """Ошибка → rollback + engine disposed."""
         task_id = uuid4()
+        mock_settings.return_value = MagicMock(database_url='sqlite+aiosqlite://')
+
+        mock_engine = MagicMock()
+        mock_engine.dispose = AsyncMock()
+        mock_engine_ctor.return_value = mock_engine
 
         mock_session = AsyncMock()
         mock_session.__aenter__ = AsyncMock(return_value=mock_session)
         mock_session.__aexit__ = AsyncMock(return_value=False)
 
-        mock_factory_instance = MagicMock()
-        mock_factory_instance.return_value = mock_session
-        mock_factory.return_value = mock_factory_instance
+        mock_factory_ctor.return_value = MagicMock(return_value=mock_session)
 
         mock_service.execute_rewrite = AsyncMock(side_effect=RuntimeError('boom'))
 
         with pytest.raises(RuntimeError, match='boom'):
             await _run_rewrite(task_id)
+
+        mock_engine.dispose.assert_awaited_once()
 
         mock_session.rollback.assert_called_once()
 
