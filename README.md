@@ -1101,6 +1101,25 @@ pip-audit
 
 ## Changelog
 
+### v1.19.0 (10 марта 2026) — QA V34: 15 Fixes (P1-P4), Profile Persistence, hh.ru Resume URL
+
+**Ключевые исправления:**
+
+- **ACCOUNT-DELETE-500 (P1):** `DELETE /api/v1/auth/me` теперь требует `password + confirmation: "УДАЛИТЬ"` и корректно выполняет каскадное удаление данных.
+- **PROFILE-PHONE-SAVE / PROFILE-CITY-SAVE (P2):** поля `phone` и `city` сохраняются в БД и обрабатываются через `PUT /api/v1/auth/me`.
+- **HH-RESUME-LINK-405 (P2):** добавлен `POST /api/v1/resumes/from-url` с валидацией hh.ru URL и fallback-сообщением при невозможности парсинга.
+- **PDF-PARSE-502 (P2):** ошибки парсинга PDF/DOCX возвращаются как user-friendly `400`, а не `502`.
+- **PROFILE-EMAIL-VERIFY (P3):** добавлен `POST /api/v1/auth/resend-verification` для повторной отправки письма подтверждения.
+- **P4 UI/UX fixes:** исправлены формат истории моделей, валидация формы удаления, отображение аватара, autofill для смены пароля.
+
+**Тесты и качество:**
+
+- Добавлен набор интеграционных тестов `tests/test_v34_fixes.py`.
+- Обновлены тесты `test_resumes_router.py`, `test_resumes_service.py`, `test_v20_fixes.py` под новый контракт удаления аккаунта.
+- Версия синхронизирована до `1.19.0` во всех ключевых точках проекта.
+
+Подробности: `CHANGELOG.md`.
+
 ### v1.18.0 (Март 2026) — QA V32: Limits Reset Endpoint, Pricing Sync, History Counter Clarity
 
 **Bug Fixes & Infra:**
