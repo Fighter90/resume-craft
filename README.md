@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.19.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.20.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,8 +12,8 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.19.0 (V34)
-> **Дата:** 10 марта 2026
+> **Версия:** 1.20.0 (V35)
+> **Дата:** 11 марта 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
 
@@ -1100,6 +1100,26 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.20.0 (11 марта 2026) — QA V35: Full Regression Round, Stability Improvements
+
+**Подтверждённые исправления (по итогам QA #33):**
+
+- **ACCOUNT-DELETE-500 (P1):** удаление аккаунта работает стабильно в production, GDPR-flow подтверждён.
+- **PROFILE-PHONE-SAVE / PROFILE-CITY-SAVE (P2):** телефон и город сохраняются и читаются после перезагрузки профиля.
+- **PROFILE-EMAIL-VERIFY (P3):** подтверждён доступ к повторной отправке письма через кнопку "Отправить повторно".
+- Подтверждена работоспособность всех 5 AI-провайдеров: `GigaChat`, `OpenAI`, `Anthropic`, `OpenRouter`, `Groq`.
+- Подтверждён экспорт в `DOCX`, `PDF`, `TXT`.
+
+**Known issues (перенесены в следующий фикс-пакет):**
+
+- `AVATAR-DELETE-503 (P2)` — удаление аватара периодически возвращает `503`.
+- `PROFILE-AVATAR-SIDEBAR (P4)` — sidebar не всегда отображает avatar URL.
+- `DELETE-FORM-NO-VALIDATION-MSG (P4)` — нет явных сообщений валидации формы удаления.
+- `SECURITY-AUTOFILL (P4)` — автозаполнение полей пароля в security settings.
+- `PHONE-MASK-FORMAT (P4 NEW)` — отображаются сырые цифры вместо форматированного номера.
+
+Подробности: `qa_results/33_FULL_REGRESSION_V35.md` и `qa_results/AGENT_FIX_PROMPT_V35.md`.
 
 ### v1.19.0 (10 марта 2026) — QA V34: 15 Fixes (P1-P4), Profile Persistence, hh.ru Resume URL
 

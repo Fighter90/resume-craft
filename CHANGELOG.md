@@ -7,6 +7,27 @@
 
 ---
 
+## [1.20.0] — 2026-03-11 (V35 — QA Report #33 Full Regression)
+
+### Verified
+- Подтверждена стабильная работа full flow оптимизации для 5 провайдеров: `GigaChat`, `OpenAI`, `Anthropic`, `OpenRouter`, `Groq`.
+- Подтверждён корректный экспорт в форматах `DOCX`, `PDF`, `TXT`.
+- Подтверждено исправление `ACCOUNT-DELETE-500 (P1)`: удаление аккаунта выполняется успешно.
+- Подтверждено исправление `PROFILE-PHONE-SAVE (P2)` и `PROFILE-CITY-SAVE (P2)`.
+- Подтверждено исправление `PROFILE-EMAIL-VERIFY (P3)` (кнопка повторной отправки письма отображается).
+
+### Known Issues
+- **AVATAR-DELETE-503 (P2):** `DELETE /api/v1/auth/me/avatar` периодически возвращает `503 Service Unavailable`.
+- **PROFILE-AVATAR-SIDEBAR (P4):** в sidebar могут отображаться инициалы вместо загруженного аватара.
+- **DELETE-FORM-NO-VALIDATION-MSG (P4):** отсутствуют явные сообщения клиентской валидации в форме удаления аккаунта.
+- **SECURITY-AUTOFILL (P4):** поля смены/подтверждения пароля подвержены browser autofill.
+- **PHONE-MASK-FORMAT (P4 NEW):** телефон отображается как сырые цифры без маскировки.
+
+### Notes
+- Полная регрессия V35: 28 тестов, 20 `PASS`, 1 `PARTIAL`, 7 `FAIL`.
+- Непротестированные в этом раунде кейсы: `HH-RESUME-LINK-405`, `PDF-PARSE-502`, `VACANCY-TITLE-002`, `PRICING-FORMAT-001`, `HH-RESUME-LINK-VALIDATION`, `GROQ-CASE-002`, `HISTORY-MODEL-FORMAT-001`.
+- Детали: `qa_results/33_FULL_REGRESSION_V35.md`, `qa_results/AGENT_FIX_PROMPT_V35.md`.
+
 ## [1.19.0] — 2026-03-10 (V34 — QA Reports #30-32)
 
 ### Fixed — Критичные (P1-P2)
