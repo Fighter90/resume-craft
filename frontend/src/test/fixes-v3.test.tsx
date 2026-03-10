@@ -74,6 +74,7 @@ const mockCreateVacancyFromUrl = vi.fn()
 const mockCreateVacancyManual = vi.fn()
 const mockGetModels = vi.fn()
 const mockGetSubModels = vi.fn()
+const mockGetSelectedModel = vi.fn()
 const mockStartRewrite = vi.fn()
 const mockGetRewriteStatus = vi.fn()
 const mockGetRewriteResult = vi.fn()
@@ -91,6 +92,7 @@ vi.mock('../services/api', () => ({
     createVacancyManual: (...a: any[]) => mockCreateVacancyManual(...a),
     getModels: (...a: any[]) => mockGetModels(...a),
     getSubModels: (...a: any[]) => mockGetSubModels(...a),
+    getSelectedModel: (...a: any[]) => mockGetSelectedModel(...a),
     startRewrite: (...a: any[]) => mockStartRewrite(...a),
     getRewriteStatus: (...a: any[]) => mockGetRewriteStatus(...a),
     getRewriteResult: (...a: any[]) => mockGetRewriteResult(...a),
@@ -149,6 +151,7 @@ beforeEach(() => {
   mockCreateVacancyManual.mockResolvedValue({ id: 'vac-manual' })
   mockGetModels.mockResolvedValue(mockModels)
   mockGetSubModels.mockResolvedValue(mockSubModels)
+  mockGetSelectedModel.mockResolvedValue({ model: '' })
   mockStartRewrite.mockResolvedValue({ task_id: 'task-123' })
   mockGetRewriteStatus.mockResolvedValue({ status: 'processing', step: 'analyzing', progress: 50 })
   mockGetRewriteResult.mockResolvedValue({ id: 'result-1', status: 'completed' })
@@ -357,10 +360,15 @@ describe('ResumesPage (v3)', () => {
     await waitFor(() => {
       expect(screen.getAllByText('React Dev').length).toBeGreaterThan(0)
     })
+    // Click download button to open dropdown menu for draft resume
     const downloadButtons = document.querySelectorAll('[title="Скачать"]')
     expect(downloadButtons.length).toBeGreaterThanOrEqual(3)
-    // Click download on second resume (draft) — should try downloadResumeFile
-    fireEvent.click(downloadButtons[1])
+    fireEvent.click(downloadButtons[2]) // React Dev (draft) — click to open menu
+    // Click "Скачать оригинал" in dropdown
+    await waitFor(() => {
+      expect(screen.getByText(/Скачать оригинал/)).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByText(/Скачать оригинал/))
     await waitFor(() => {
       expect(mockDownloadResumeFile).toHaveBeenCalled()
     })
@@ -371,24 +379,35 @@ describe('ResumesPage (v3)', () => {
     await waitFor(() => {
       expect(screen.getAllByText('Python Dev').length).toBeGreaterThan(0)
     })
-    // Resumes are sorted by date (newest first): Data Scientist, Python Dev, React Dev
-    // Desktop table download buttons: index 0=Data Scientist(processing), 1=Python Dev(optimized), 2=React Dev(draft)
+    // Click download button to open format dropdown for optimized resume (Python Dev)
     const downloadButtons = document.querySelectorAll('.resumes-desktop-table [title="Скачать"]')
     fireEvent.click(downloadButtons[1]) // Python Dev (optimized)
+    await waitFor(() => {
+      expect(screen.getByText(/Скачать DOCX/)).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByText(/Скачать DOCX/))
     await waitFor(() => {
       expect(mockGetRewriteHistory).toHaveBeenCalled()
     })
   })
 
-  it('deletes a resume with confirmation', async () => {
+  it('deletes a resume with confirmation modal', async () => {
     renderWithRouter(<ResumesPage />, { route: '/app/resumes' })
     await waitFor(() => {
       expect(screen.getAllByText('Python Dev').length).toBeGreaterThan(0)
     })
-    // Sorted by date: index 0=res-3, 1=res-1, 2=res-2
+    // Click delete button for Python Dev (shows modal)
     const deleteButtons = document.querySelectorAll('.resumes-desktop-table [title="Удалить"]')
-    fireEvent.click(deleteButtons[1]) // res-1: Python Dev
-    expect(window.confirm).toHaveBeenCalled()
+    fireEvent.click(deleteButtons[1]) // Python Dev (res-1)
+    // Confirm in modal by clicking "Удалить" button inside modal
+    await waitFor(() => {
+      expect(screen.getByText('Удалить резюме?')).toBeInTheDocument()
+    })
+    const modalDeleteBtn = screen.getAllByText('Удалить').find(el => {
+      const btn = el.closest('button')
+      return btn && btn.style.background?.includes('var(--danger)')
+    })
+    if (modalDeleteBtn) fireEvent.click(modalDeleteBtn.closest('button')!)
     await waitFor(() => {
       expect(mockDeleteResume).toHaveBeenCalledWith('res-1')
     })
@@ -582,14 +601,13 @@ describe('ModelsPage (v3)', () => {
     })
   })
 
-  it('uses default model from localStorage ai_settings', async () => {
-    localStorage.setItem('ai_settings', JSON.stringify({ model: 'openai', apiKeys: { openai: 'test-key' } }))
+  it('uses default model from server getSelectedModel', async () => {
+    mockGetSelectedModel.mockResolvedValue({ model: 'openai' })
     renderWithRouter(<ModelsPage />, { route: '/app/models' })
     await waitFor(() => {
       expect(screen.getAllByText('OpenAI').length).toBeGreaterThan(0)
     })
-    // The default model is set to 'openai' from settings in initial state
-    // After server models load w/ availability, it may reselect first available
+    // The default model is set to 'openai' from server
     // Verify getSubModels is called for 'openai' (meaning it was selected)
     await waitFor(() => {
       expect(mockGetSubModels).toHaveBeenCalledWith('openai')

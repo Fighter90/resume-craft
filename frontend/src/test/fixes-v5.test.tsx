@@ -536,7 +536,7 @@ describe('ProcessingPage v5 error handling', () => {
       { route: '/app/processing' }
     )
     await waitFor(() => {
-      expect(screen.getByText(/тарификации/)).toBeDefined()
+      expect(screen.getByText(/тарифный план/)).toBeDefined()
     })
   })
 

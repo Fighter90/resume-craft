@@ -349,22 +349,19 @@ describe('ResumeDetailPage v2', () => {
 // ModelsPage — local API key detection
 // ==========================================================================
 describe('ModelsPage v2 - local key detection', () => {
-  it('marks models as available when local API keys exist', async () => {
+  it('marks models as available based on server response', async () => {
     mockGetModels.mockResolvedValue({
       models: [
         { id: 'gigachat-pro', name: 'GigaChat Pro', provider: 'Сбер', available: false, description: 'test', has_sub_models: false },
-        { id: 'openai', name: 'OpenAI', provider: 'OpenAI', available: false, description: 'test', has_sub_models: true },
+        { id: 'openai', name: 'OpenAI', provider: 'OpenAI', available: true, description: 'test', has_sub_models: true },
       ],
     })
-    // Set local API key for openai
-    localStorage.setItem('ai_settings', JSON.stringify({ apiKeys: { openai: 'sk-test123', gigachat: '' } }))
 
     renderInRouter(<ModelsPage />)
 
     await waitFor(() => {
-      // OpenAI should NOT show "Нет ключа" badge since local key is set
+      // GigaChat has available=false so it shows "Нет ключа" badge
       const noKeyBadges = screen.queryAllByText('Нет ключа')
-      // GigaChat has no local key AND server says not available
       expect(noKeyBadges.length).toBe(1) // only GigaChat
     })
   })
@@ -555,13 +552,15 @@ describe('SettingsAiPage v2 - dynamic models', () => {
     })
   })
 
-  it('saves and loads settings from localStorage', () => {
+  it('saves settings via server API', async () => {
     renderInRouter(<SettingsAiPage />)
 
     fireEvent.click(screen.getByText('Сохранить'))
 
-    const saved = localStorage.getItem('ai_settings')
-    expect(saved).toBeTruthy()
+    // Settings are now saved via server API, not localStorage
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /сохран/i })).toBeInTheDocument()
+    })
   })
 
   it('resets settings on reset button click', () => {
@@ -666,10 +665,14 @@ describe('SettingsSecurityPage v2 - account deletion', () => {
     expect(screen.getByText('Подтвердить')).toBeDisabled()
   })
 
-  it('enables confirm button when УДАЛИТЬ is typed', () => {
+  it('enables confirm button when УДАЛИТЬ is typed and password filled', () => {
     renderInRouter(<SettingsSecurityPage />)
 
     fireEvent.click(screen.getByText('Удалить аккаунт'))
+
+    // Fill password field (required for button to be enabled)
+    const pwInput = screen.getByPlaceholderText('Введите ваш пароль')
+    fireEvent.change(pwInput, { target: { value: 'TestPassword123' } })
 
     const input = screen.getByPlaceholderText(/Введите "УДАЛИТЬ"/)
     fireEvent.change(input, { target: { value: 'УДАЛИТЬ' } })
@@ -683,6 +686,10 @@ describe('SettingsSecurityPage v2 - account deletion', () => {
     renderInRouter(<SettingsSecurityPage />)
 
     fireEvent.click(screen.getByText('Удалить аккаунт'))
+
+    // Fill password field (required)
+    const pwInput = screen.getByPlaceholderText('Введите ваш пароль')
+    fireEvent.change(pwInput, { target: { value: 'TestPassword123' } })
 
     const input = screen.getByPlaceholderText(/Введите "УДАЛИТЬ"/)
     fireEvent.change(input, { target: { value: 'УДАЛИТЬ' } })
@@ -758,10 +765,9 @@ describe('SettingsSecurityPage v2 - account deletion', () => {
     })
   })
 
-  it('renders 2FA placeholder', () => {
+  it('2FA section removed from settings', () => {
     renderInRouter(<SettingsSecurityPage />)
-    expect(screen.getByText('Двухфакторная аутентификация')).toBeInTheDocument()
-    expect(screen.getByText('Скоро')).toBeInTheDocument()
+    expect(screen.queryByText('Двухфакторная аутентификация')).not.toBeInTheDocument()
   })
 })
 

@@ -48,11 +48,13 @@ class TestScoreVarianceDeterminism:
         from app.ml.scoring import calculate_match_score_detailed
 
         first = calculate_match_score_detailed(
-            resume_text=self.RESUME, vacancy_text=self.VACANCY,
+            resume_text=self.RESUME,
+            vacancy_text=self.VACANCY,
         )
         for _ in range(50):
             current = calculate_match_score_detailed(
-                resume_text=self.RESUME, vacancy_text=self.VACANCY,
+                resume_text=self.RESUME,
+                vacancy_text=self.VACANCY,
             )
             assert current == first, f'Расхождение: {current} != {first}'
 
@@ -61,12 +63,14 @@ class TestScoreVarianceDeterminism:
         from app.ml.scoring import calculate_match_score
 
         score_normal = calculate_match_score(
-            resume_text=self.RESUME, vacancy_text=self.VACANCY,
+            resume_text=self.RESUME,
+            vacancy_text=self.VACANCY,
         )
         # Добавляем лишние пробелы и переносы строк
         resume_extra_ws = self.RESUME.replace(' ', '  ').replace('\n', '\n\n')
         score_extra_ws = calculate_match_score(
-            resume_text=resume_extra_ws, vacancy_text=self.VACANCY,
+            resume_text=resume_extra_ws,
+            vacancy_text=self.VACANCY,
         )
         # Score может отличаться — это ОК, но оба вызова должны быть ≥ 0
         assert score_normal >= 0.0
@@ -122,7 +126,7 @@ class TestFileUploadSourceChecks:
         """uploadResume НЕ ставит Content-Type (FormData формирует boundary автоматически)."""
         # Внутри uploadResume headers не должен содержать Content-Type
         # Проверяем, что используется только Authorization
-        upload_section = self.source[self.source.index('uploadResume'):]
+        upload_section = self.source[self.source.index('uploadResume') :]
         upload_end = upload_section.index('searchVacancies')  # следующий метод
         upload_code = upload_section[:upload_end]
         assert 'Content-Type' not in upload_code, (

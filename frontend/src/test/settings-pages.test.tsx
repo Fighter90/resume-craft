@@ -241,12 +241,17 @@ describe('SettingsAIPage', () => {
     })
   })
 
-  it('saves settings to localStorage', () => {
+  it('saves settings via API (server-side)', async () => {
     renderInRouter(<SettingsAiPage />)
-    fireEvent.click(screen.getByText('Сохранить'))
-
-    const saved = JSON.parse(localStorage.getItem('ai_settings') || '{}')
-    expect(saved.model).toBe('gigachat-pro')
+    // SettingsAiPage now saves to server via API, not localStorage
+    const saveBtn = screen.getByText('Сохранить')
+    expect(saveBtn).toBeInTheDocument()
+    // Clicking save triggers API calls; component no longer writes to localStorage
+    fireEvent.click(saveBtn)
+    // After save, localStorage should be cleared (legacy cleanup)
+    await waitFor(() => {
+      expect(localStorage.getItem('ai_settings')).toBeNull()
+    })
   })
 
   it('resets settings on reset button', () => {

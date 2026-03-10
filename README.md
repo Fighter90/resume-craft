@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.13.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.14.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.13
+> **Версия:** 1.14
 > **Дата:** Март 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -355,7 +355,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (525 тестов) |
+| **Vitest + Testing Library** | Тесты frontend (558 тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitHub Actions** | CI/CD (lint, test, build, deploy) |
@@ -440,7 +440,14 @@ tests/                     # Зеркалирует src/app/
 ├── test_e2e_browser.py    # 38 тестов (Playwright E2E)
 ├── test_acceptance.py     # 52 теста (приёмочные)
 ├── test_v17_fixes.py      # 50 тестов (покрытие v1.7 правок)
-└── test_v20_fixes.py      # 30+ тестов (покрытие v1.8 правок)
+├── test_v20_fixes.py      # 34 теста (покрытие v1.8 правок)
+├── test_v23_fixes.py      # 30 тестов (покрытие v1.9 правок)
+├── test_v24_fixes.py      # 25 тестов (покрытие v1.9 правок)
+├── test_v26_fixes.py      # 13 тестов (покрытие v1.10 правок)
+├── test_v27_fixes.py      # 36 тестов (покрытие v1.11 правок)
+├── test_v28_fixes.py      # 27 тестов (покрытие v1.12 правок)
+├── test_v30_fixes.py      # 10 тестов (покрытие v1.13 правок)
+└── test_full_coverage.py  # 66 тестов (100% покрытие)
 
 alembic/                   # Миграции PostgreSQL
 
@@ -458,7 +465,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 23 page components (+PrivacyPage, TermsPage, AboutPage)
-    └── test/              # 525 тестов (Vitest + Testing Library)
+    └── test/              # 558 тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -948,13 +955,13 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 578 (pytest + pytest-asyncio) |
+| **Backend тестов (unit)** | 819 (pytest + pytest-asyncio) |
 | **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
 | **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
 | **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 525 (Vitest + @testing-library/react) |
-| **Всего тестов** | **1216** |
-| **Backend покрытие** | 100% (1722 statements, 0 uncovered) |
+| **Frontend тестов** | 558 (Vitest + @testing-library/react) |
+| **Всего тестов** | **1490** |
+| **Backend покрытие** | 100% (2540 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
 ### 17.2. Запуск тестов
@@ -994,7 +1001,14 @@ cd frontend && npm run test:watch
 | `test_e2e_browser` | 38 | E2E: Playwright browser-тесты |
 | `test_acceptance` | 52 | Приёмочные тесты |
 | `test_v17_fixes` | 50 | Покрытие v1.7 правок |
-| `test_v20_fixes` | 30+ | Покрытие v1.8 правок: аватар, o-series, dropdown z-index |
+| `test_v20_fixes` | 34 | Покрытие v1.8 правок: аватар, o-series, dropdown z-index |
+| `test_v23_fixes` | 30 | Покрытие v1.9 правок: health-check, Claude parser, Groq |
+| `test_v24_fixes` | 25 | Покрытие v1.9 правок: LLM health, avatar initials |
+| `test_v26_fixes` | 13 | Покрытие v1.10: NAV regression, email verification |
+| `test_v27_fixes` | 36 | Покрытие v1.11: RESET-001, o-series regex |
+| `test_v28_fixes` | 27 | Покрытие v1.12: KEY-CHECK-001, commit before delay |
+| `test_v30_fixes` | 10 | Покрытие v1.13: scoring determinism, nginx config |
+| `test_full_coverage` | 66 | 100% покрытие: все непокрытые строки |
 
 ### 17.4. Инструменты проверки качества
 
@@ -1086,6 +1100,45 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.14.0 (Март 2026) — 100% Backend Coverage, 558 Frontend Tests, Documentation Refresh
+
+**Backend тесты: 100% покрытие (2540/2540 statements)**
+
+- +66 новых тестов (`test_full_coverage.py`): покрытие всех непокрытых строк
+  - AnthropicClient edge cases, _handle_llm_error branches, create_from_text/url, execute_rewrite_task
+  - Celery preload, database engine cleanup, seed data, lifespan events
+  - Storage edge cases, config validation, encryption corner cases
+- Backend: **819 unit-тестов passed** (было 578), **90 skipped** (integration LLM)
+- Coverage: **2540 statements, 0 uncovered** (было 1722)
+
+**Frontend тесты: 558 тестов (все passing)**
+
+- Исправлены 32 сломанных теста в 6 файлах:
+  - `pages.test.tsx`: адаптация к миграции localStorage→server API, password requirements
+  - `fixes-v2.test.tsx`: обновление mock-структур для серверных ответов
+  - `fixes-v3.test.tsx`: актуализация под текущие компоненты
+  - `fixes-v5.test.tsx`: исправление model count assertions
+  - `qa-fixes.test.tsx`: обновление текстовых проверок
+  - `settings-pages.test.tsx`: удаление 2FA-тестов, адаптация к AI-настройкам
+- Добавлен `@vitest/coverage-v8` для coverage-отчётов
+
+**Качество кода:**
+
+- `ruff format --check .` — 0 ошибок (124 файла)
+- Форматирование: `test_v30_fixes.py`, `test_full_coverage.py`
+
+**Версионирование:**
+
+- `pyproject.toml`: 0.1.0 → 1.14.0 (синхронизация с app_version)
+- `frontend/package.json`: 0.0.0 → 1.14.0
+- Все 4 источника версии синхронизированы: config.py, pyproject.toml, package.json, README badge
+
+**Документация:**
+
+- README.md: обновлены метрики тестов (819 unit, 558 frontend, 1490 всего, 2540 statements)
+- README.md: обновлена структура тестов (добавлены v23–v30, test_full_coverage)
+- Создан CHANGELOG.md с полной историей версий
 
 ### v1.13.0 (Март 2026) — QA Retest V30 FINAL: все 5 провайдеров ✅, готово к релизу
 

@@ -120,6 +120,10 @@ describe('Security page — no alert() (UI-006)', () => {
     // Open delete section
     fireEvent.click(screen.getByText('Удалить аккаунт'))
 
+    // Fill in password (required for button to be enabled)
+    const pwInput = screen.getByPlaceholderText('Введите ваш пароль')
+    fireEvent.change(pwInput, { target: { value: 'TestPassword123' } })
+
     // Type confirmation
     const input = screen.getByPlaceholderText(/УДАЛИТЬ/)
     fireEvent.change(input, { target: { value: 'УДАЛИТЬ' } })
