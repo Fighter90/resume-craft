@@ -77,7 +77,10 @@ async def upload_resume(
     raw_text = _extract_text(content, ext=ext)
     if ext in {'pdf', 'docx'} and not raw_text:
         raise AppError(
-            message='Не удалось извлечь текст из файла. Попробуйте другой файл или вставьте текст вручную.',
+            message=(
+                'Не удалось извлечь текст из файла. '
+                'Попробуйте другой файл или вставьте текст вручную.'
+            ),
             status_code=400,
             error_code='FILE_PARSE_ERROR',
         )

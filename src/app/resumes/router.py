@@ -13,8 +13,8 @@ from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.resumes import service as resume_service
 from app.resumes.schemas import (
-    ResumeFromUrlRequest,
     ResumeFromTextRequest,
+    ResumeFromUrlRequest,
     ResumeListResponse,
     ResumeResponse,
     ResumeUpdateRequest,

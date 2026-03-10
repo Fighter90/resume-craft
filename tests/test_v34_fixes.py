@@ -13,14 +13,13 @@ from __future__ import annotations
 import io
 from http import HTTPStatus
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
 
 from app.auth.models import User
-from app.auth.schemas import DeleteAccountRequest
 from app.resumes.models import Resume
 
 if TYPE_CHECKING:

@@ -33,7 +33,7 @@ class TestResumeUpload:
     async def test_upload_success(
         self,
         mock_storage: AsyncMock,
-        _mock_extract_text: object,
+            _mock_extract_text: object,  # noqa: PT019
         auth_client: AsyncClient,
     ) -> None:
         """Успешная загрузка PDF → 201."""

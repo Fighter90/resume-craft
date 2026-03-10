@@ -175,7 +175,7 @@ class TestUploadResume:
     async def test_upload_success(
         self,
         mock_storage: AsyncMock,
-        _mock_extract_text: object,
+            _mock_extract_text: object,  # noqa: PT019
         session: AsyncSession,
         test_user: User,
     ) -> None:
