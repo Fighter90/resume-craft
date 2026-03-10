@@ -138,6 +138,8 @@ describe('SettingsProfilePage', () => {
       expect(mockUpdateProfile).toHaveBeenCalledWith({
         full_name: 'Иван Петров',
         email: 'test@example.com',
+        phone: '',
+        city: 'Москва',
       })
     })
     await waitFor(() => {
@@ -160,6 +162,23 @@ describe('SettingsProfilePage', () => {
     renderInRouter(<SettingsProfilePage />)
     expect(screen.getByText('Телефон')).toBeInTheDocument()
     expect(screen.getByText('Город')).toBeInTheDocument()
+  })
+
+  it('formats phone with mask and saves digits only', async () => {
+    renderInRouter(<SettingsProfilePage />)
+
+    const phoneInput = screen.getByPlaceholderText('+7 (___) ___-__-__')
+    fireEvent.change(phoneInput, { target: { value: '9161234567' } })
+
+    expect(phoneInput).toHaveValue('+7 (916) 123-45-67')
+
+    fireEvent.click(screen.getByText('Сохранить изменения'))
+
+    await waitFor(() => {
+      expect(mockUpdateProfile).toHaveBeenCalledWith(
+        expect.objectContaining({ phone: '9161234567' }),
+      )
+    })
   })
 })
 
@@ -314,5 +333,28 @@ describe('SettingsSecurityPage', () => {
     renderInRouter(<SettingsSecurityPage />)
     expect(screen.getByText('Опасная зона')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Удалить аккаунт' })).toBeInTheDocument()
+  })
+
+  it('shows validation message on empty delete form submit', async () => {
+    renderInRouter(<SettingsSecurityPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Удалить аккаунт' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Подтвердить' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Введите текущий пароль')).toBeInTheDocument()
+    })
+  })
+
+  it('sets safe autocomplete attributes for password inputs', () => {
+    renderInRouter(<SettingsSecurityPage />)
+
+    const passwordInputs = screen.getAllByPlaceholderText('••••••••') as HTMLInputElement[]
+    expect(passwordInputs[0]).toHaveAttribute('autocomplete', 'off')
+    expect(passwordInputs[1]).toHaveAttribute('autocomplete', 'new-password')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Удалить аккаунт' }))
+    const deletePassword = screen.getByPlaceholderText('Введите ваш пароль')
+    expect(deletePassword).toHaveAttribute('autocomplete', 'new-password')
   })
 })

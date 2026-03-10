@@ -20,7 +20,7 @@ export default function SettingsSecurityPage() {
 
   const handleDeleteAccount = async () => {
     if (!deletePassword.trim()) {
-      setDeleteError('Введите пароль')
+      setDeleteError('Введите текущий пароль')
       return
     }
     if (deleteConfirm !== 'УДАЛИТЬ') {
@@ -86,19 +86,22 @@ export default function SettingsSecurityPage() {
         <div className="input-group" style={{ marginBottom: '1rem' }}>
           <label className="input-label">Текущий пароль</label>
           <input className="input-field" type="password" placeholder="••••••••"
-            autoComplete="current-password"
+            autoComplete="off"
+            name="current-password-change"
             value={pwForm.current} onChange={e => handlePwChange('current', e.target.value)} />
         </div>
         <div className="input-group" style={{ marginBottom: '1rem' }}>
           <label className="input-label">Новый пароль</label>
           <input className="input-field" type="password" placeholder="Мин. 8 символов, цифра + буква"
             autoComplete="new-password"
+            name="new-password-change"
             value={pwForm.newPw} onChange={e => handlePwChange('newPw', e.target.value)} />
         </div>
         <div className="input-group" style={{ marginBottom: '1rem' }}>
           <label className="input-label">Подтвердите пароль</label>
           <input className="input-field" type="password" placeholder="••••••••"
             autoComplete="new-password"
+            name="confirm-password-change"
             value={pwForm.confirm} onChange={e => handlePwChange('confirm', e.target.value)} />
         </div>
         <button className="btn btn-primary" onClick={handlePwSubmit} disabled={pwLoading}>
@@ -129,13 +132,15 @@ export default function SettingsSecurityPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <input className="input-field" type="password" placeholder="Введите ваш пароль"
-              autoComplete="current-password"
+              autoComplete="new-password"
+              name="delete-account-password"
               value={deletePassword} onChange={e => setDeletePassword(e.target.value)} />
             <input className="input-field" placeholder='Введите "УДАЛИТЬ" для подтверждения'
               autoComplete="off"
+              name="delete-account-confirmation"
               value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn" style={{ background: 'var(--danger)', color: '#fff' }} disabled={deleteConfirm !== 'УДАЛИТЬ' || !deletePassword || deleteLoading} onClick={handleDeleteAccount}>
+              <button className="btn" style={{ background: 'var(--danger)', color: '#fff' }} disabled={deleteLoading} onClick={handleDeleteAccount}>
                 {deleteLoading ? <><Loader size={16} className="spin" /> Удаление...</> : 'Подтвердить'}</button>
               <button className="btn btn-secondary" onClick={() => { setShowDelete(false); setDeleteConfirm(''); setDeletePassword('') }}>Отмена</button>
             </div>

@@ -7,6 +7,22 @@
 
 ---
 
+## [1.21.0] — 2026-03-11 (V35.1 — Regression Fix Pack)
+
+### Fixed
+- **AVATAR-DELETE-503 (P2):** усилена устойчивость `DELETE /api/v1/auth/me/avatar` — ошибки storage backend не приводят к падению запроса, очистка `avatar_url` выполняется безопасно.
+- **PROFILE-AVATAR-SIDEBAR (P4):** добавлен явный `commit/refresh` в avatar-flow (upload/delete), что улучшает консистентность отображения аватара в sidebar после операций.
+- **DELETE-FORM-NO-VALIDATION-MSG (P4):** в форме удаления аккаунта показываются валидационные сообщения при пустых полях.
+- **SECURITY-AUTOFILL (P4):** обновлены `autocomplete/name` атрибуты полей смены и подтверждения пароля.
+- **PHONE-MASK-FORMAT (P4 NEW):** реализована маска отображения телефона в профиле и нормализация значения при сохранении.
+
+### Tests
+- Frontend: обновлены `frontend/src/test/settings-pages.test.tsx` (добавлены проверки маски телефона, валидации удаления, autocomplete-атрибутов).
+- Backend smoke: подтверждены кейсы удаления аватара и `POST /resumes/from-url`.
+
+### Changed
+- Версия синхронизирована до `1.21.0`: `src/app/core/config.py`, `pyproject.toml`, `frontend/package.json`, `README.md`, `BASELINE.md`.
+
 ## [1.20.0] — 2026-03-11 (V35 — QA Report #33 Full Regression)
 
 ### Verified

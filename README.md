@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.20.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.21.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.20.0 (V35)
+> **Версия:** 1.21.0 (V35.1)
 > **Дата:** 11 марта 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -1100,6 +1100,23 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.21.0 (11 марта 2026) — V35.1: Regression Fix Pack
+
+**Исправления дефектов V35:**
+
+- **AVATAR-DELETE-503 (P2):** усилена устойчивость `DELETE /api/v1/auth/me/avatar` при ошибках storage backend (graceful fallback + корректная очистка `avatar_url`).
+- **PROFILE-AVATAR-SIDEBAR (P4):** улучшена консистентность отображения аватара после upload/delete через явный `commit/refresh` в avatar-flow и синхронизацию UI-состояния профиля.
+- **DELETE-FORM-NO-VALIDATION-MSG (P4):** форма удаления аккаунта теперь показывает явные сообщения валидации при пустом пароле/подтверждении.
+- **SECURITY-AUTOFILL (P4):** ужесточены `autocomplete/name` атрибуты в полях смены/удаления пароля для снижения нежелательного browser autofill.
+- **PHONE-MASK-FORMAT (P4 NEW):** добавлено форматирование номера в профиле (`+7 (XXX) XXX-XX-XX`) и нормализация до цифр при сохранении.
+
+**Проверки:**
+
+- Backend: `pytest tests/test_v34_fixes.py::TestAvatarDeletionGraceful tests/test_resumes/test_resumes_router.py::TestResumeFromUrl -q`.
+- Frontend: `vitest run src/test/settings-pages.test.tsx` (добавлены/актуализированы кейсы под V35.1).
+
+Подробности: `CHANGELOG.md`.
 
 ### v1.20.0 (11 марта 2026) — QA V35: Full Regression Round, Stability Improvements
 

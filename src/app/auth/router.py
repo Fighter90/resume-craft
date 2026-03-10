@@ -266,6 +266,13 @@ AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB
 AVATAR_ALLOWED_TYPES: frozenset[str] = frozenset({'image/jpeg', 'image/png', 'image/webp'})
 
 
+def _extract_storage_path(avatar_url: str) -> str:
+    """Преобразование avatar_url в относительный путь для storage backend."""
+    if '/uploads/' in avatar_url:
+        return avatar_url.split('/uploads/', 1)[-1]
+    return avatar_url.lstrip('/')
+
+
 @router.post(
     '/me/avatar',
     response_model=MessageResponse,
@@ -313,7 +320,8 @@ async def upload_avatar(
     avatar_url = f'{settings.api_v1_prefix}/uploads/{relative_path}'
 
     current_user.avatar_url = avatar_url
-    await session.flush()
+    await session.commit()
+    await session.refresh(current_user)
 
     return MessageResponse(message=avatar_url)
 
@@ -328,20 +336,41 @@ async def delete_avatar(
     session: AsyncSession = Depends(get_session),
 ) -> Response:
     """Удаление аватара пользователя."""
-    from app.core.storage import file_storage
-
     if current_user.avatar_url:
+        file_storage = None
         try:
-            old_path = current_user.avatar_url.split('/uploads/', 1)[-1]
-            await file_storage.delete(old_path)
+            from app.core.storage import file_storage as storage_backend
+
+            file_storage = storage_backend
         except Exception:
             logger.warning(
-                'Failed to delete avatar file for user %s',
+                'Storage backend unavailable while deleting avatar for user %s',
                 current_user.id,
                 exc_info=True,
             )
 
-    current_user.avatar_url = None
-    await session.flush()
+        if file_storage is not None:
+            try:
+                old_path = _extract_storage_path(current_user.avatar_url)
+                if old_path:
+                    await file_storage.delete(old_path)
+            except Exception:
+                logger.warning(
+                    'Failed to delete avatar file for user %s',
+                    current_user.id,
+                    exc_info=True,
+                )
+
+    try:
+        current_user.avatar_url = None
+        await session.commit()
+        await session.refresh(current_user)
+    except Exception:
+        logger.warning(
+            'Failed to clear avatar_url in DB for user %s',
+            current_user.id,
+            exc_info=True,
+        )
+        raise
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

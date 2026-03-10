@@ -1,16 +1,56 @@
-import { useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Camera, Save, Upload, Trash2, CheckCircle, Loader } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
 
 export default function SettingsProfilePage() {
   const { user, refreshUser } = useAuth()
+
+  const formatPhoneForView = (rawPhone: string): string => {
+    const digitsOnly = rawPhone.replace(/\D/g, '')
+    const normalized = digitsOnly.length === 11 && /^[78]/.test(digitsOnly)
+      ? digitsOnly.slice(1)
+      : digitsOnly
+    const digits = normalized.slice(0, 10)
+
+    if (!digits) {
+      return ''
+    }
+
+    let masked = '+7'
+    masked += ` (${digits.slice(0, 3)}`
+    if (digits.length >= 3) {
+      masked += ')'
+    }
+    if (digits.length > 3) {
+      masked += ` ${digits.slice(3, 6)}`
+    }
+    if (digits.length > 6) {
+      masked += `-${digits.slice(6, 8)}`
+    }
+    if (digits.length > 8) {
+      masked += `-${digits.slice(8, 10)}`
+    }
+    return masked
+  }
+
+  const normalizePhoneForSave = (rawPhone: string): string => {
+    const digitsOnly = rawPhone.replace(/\D/g, '')
+    if (digitsOnly.length === 11 && /^[78]/.test(digitsOnly)) {
+      return digitsOnly.slice(1)
+    }
+    if (digitsOnly.length === 10) {
+      return digitsOnly
+    }
+    return rawPhone.trim()
+  }
+
   const nameParts = (user?.full_name || '').split(' ')
   const [form, setForm] = useState({
     firstName: nameParts[0] || '',
     lastName: nameParts.slice(1).join(' ') || '',
     email: user?.email || '',
-    phone: user?.phone || '',
+    phone: formatPhoneForView(user?.phone || ''),
     city: user?.city || 'Москва',
   })
 
@@ -20,6 +60,18 @@ export default function SettingsProfilePage() {
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const userNameParts = (user?.full_name || '').split(' ')
+    setForm({
+      firstName: userNameParts[0] || '',
+      lastName: userNameParts.slice(1).join(' ') || '',
+      email: user?.email || '',
+      phone: formatPhoneForView(user?.phone || ''),
+      city: user?.city || 'Москва',
+    })
+    setAvatarUrl(user?.avatar_url || null)
+  }, [user?.avatar_url, user?.city, user?.email, user?.full_name, user?.phone])
 
   // Migrate old localStorage avatar on mount (one-time)
   useState(() => {
@@ -81,7 +133,7 @@ export default function SettingsProfilePage() {
       await api.updateProfile({
         full_name: fullName || undefined,
         email: form.email || undefined,
-        phone: form.phone || '',
+        phone: normalizePhoneForSave(form.phone),
         city: form.city || 'Москва',
       })
       await refreshUser()
@@ -185,7 +237,7 @@ export default function SettingsProfilePage() {
             className="input-field"
             placeholder="+7 (___) ___-__-__"
             value={form.phone}
-            onChange={e => onChange('phone', e.target.value)}
+            onChange={e => onChange('phone', formatPhoneForView(e.target.value))}
           />
         </div>
         <div className="input-group">
