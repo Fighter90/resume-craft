@@ -73,6 +73,18 @@ async def create_rewrite(
         'openrouter': 'openrouter_api_key',
         'groq': 'groq_api_key',
     }
+    _model_to_display_name: dict[str, str] = {
+        'gigachat-pro': 'GigaChat',
+        'gigachat-lite': 'GigaChat',
+        'openai': 'OpenAI',
+        'gpt-4o-mini': 'OpenAI',
+        'gpt-4o': 'OpenAI',
+        'anthropic': 'Anthropic Claude',
+        'claude-sonnet': 'Anthropic Claude',
+        'claude-haiku': 'Anthropic Claude',
+        'openrouter': 'OpenRouter',
+        'groq': 'Groq',
+    }
 
     db_provider = _model_to_db_provider.get(data.model, data.model)
     user_key = await get_user_setting(
@@ -87,9 +99,11 @@ async def create_rewrite(
     if not user_key and not (env_key and env_key.strip()):
         from fastapi import HTTPException
 
+        display_name = _model_to_display_name.get(data.model, data.model)
+
         raise HTTPException(
             status_code=400,
-            detail=f'API-ключ для {data.model} не настроен. '
+            detail=f'API-ключ для {display_name} не настроен. '
             f'Перейдите в Настройки → AI-модели для настройки.',
         )
 

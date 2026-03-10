@@ -191,6 +191,7 @@ class LLMAuthError(AppError):
             'gpt-4o-mini': 'OpenAI',
             'anthropic': 'Anthropic Claude',
             'openrouter': 'OpenRouter',
+            'groq': 'Groq',
         }
         name = provider_names.get(provider, provider)
         super().__init__(

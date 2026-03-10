@@ -7,6 +7,22 @@
 
 ---
 
+## [1.16.0] — 2026-03
+
+### Fixed
+- **KEY-CHECK-001** (P0 BLOCKER): Убрана client-side pre-check блокировка запуска оптимизации в `ModelsPage`. Запрос на `/api/v1/rewrite` теперь отправляется всегда; проверка API-ключа выполняется на backend.
+- **VACANCY-PLACEHOLDER-001** (P3): На странице вакансии поле "Название должности" теперь предзаполняется из данных загруженного резюме (`parsed_data.position/target_position/desired_position` или `resume.title`).
+- **GROQ-CASE-001** (P4): Унифицировано отображение названия провайдера в ошибках: `Groq` вместо `groq`.
+
+### Added
+- 4 backend-теста (`test_v33_fixes.py`) для проверки V33-фиксов.
+- 2 frontend-теста (`fixes-v33.test.tsx`) для проверки отсутствия client-side блокировки и prefill на VacancyPage.
+
+### Changed
+- Синхронизированы версии до `1.16.0`: `config.py`, `pyproject.toml`, `frontend/package.json`, `README`.
+
+---
+
 ## [1.15.0] — 2026-03
 
 ### Fixed

@@ -10,7 +10,7 @@ import { useWizard } from '../../contexts/WizardContext'
 export default function VacancyPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { setVacancyId, setResumeId } = useWizard()
+  const { resumeId, setVacancyId, setResumeId } = useWizard()
   const [tab, setTab] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -19,6 +19,34 @@ export default function VacancyPage() {
     const rid = searchParams.get('resumeId')
     if (rid) setResumeId(rid)
   }, [searchParams, setResumeId])
+
+  // VACANCY-PLACEHOLDER-001: prefill manual title from resume metadata.
+  useEffect(() => {
+    const loadResumeTitle = async () => {
+      if (!resumeId) return
+      try {
+        const resume = await api.getResume(resumeId)
+        const parsed = (resume.parsed_data ?? {}) as Record<string, unknown>
+        const fromParsed = [
+          parsed.position,
+          parsed.target_position,
+          parsed.desired_position,
+          parsed.title,
+        ].find((v): v is string => typeof v === 'string' && v.trim().length > 0)
+
+        const fromTitle = typeof resume.title === 'string' ? resume.title : ''
+        const normalizedTitle = fromTitle.replace(/\.(pdf|docx)$/i, '').trim()
+        const defaultTitle = (fromParsed || normalizedTitle).trim()
+        if (defaultTitle) {
+          setManualTitle(prev => (prev.trim() ? prev : defaultTitle))
+        }
+      } catch {
+        // Silent fallback: user can still enter title manually.
+      }
+    }
+
+    void loadResumeTitle()
+  }, [resumeId])
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('')

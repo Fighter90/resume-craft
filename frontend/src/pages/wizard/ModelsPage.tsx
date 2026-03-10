@@ -180,10 +180,8 @@ export default function ModelsPage() {
       setError('Сначала загрузите резюме и выберите вакансию')
       return
     }
-    if (selectedModel && !selectedModel.available) {
-      setError(`API-ключ для ${selectedModel.name} не настроен. Выберите другую модель или настройте ключ в Настройках AI.`)
-      return
-    }
+    // V33 KEY-CHECK-001: do not block optimization on client-side key checks.
+    // Always send request to backend; backend is source of truth for API key presence.
     setLoading(true)
     setError(null)
     try {
@@ -329,7 +327,7 @@ export default function ModelsPage() {
       )}
 
       <button onClick={handleStart} className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }}
-        disabled={loading || !!(selectedModel && !selectedModel.available)}>
+        disabled={loading}>
         {loading ? <><Loader size={16} className="spin" /> Запуск...</> : 'Начать оптимизацию'}
       </button>
       {error && (

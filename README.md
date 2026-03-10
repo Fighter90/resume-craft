@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.15.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.16.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.15
+> **Версия:** 1.16
 > **Дата:** Март 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -1100,6 +1100,19 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.16.0 (Март 2026) — QA V33: P0 KEY-CHECK Fix For New Accounts
+
+**Bug Fixes:**
+
+- **KEY-CHECK-001 (P0 BLOCKER):** убран client-side pre-check API-ключа в `ModelsPage`; запуск оптимизации теперь всегда идёт через backend.
+- **VACANCY-PLACEHOLDER-001 (P3):** на `/app/vacancy` поле "Название должности" предзаполняется из данных резюме.
+- **GROQ-CASE-001 (P4):** ошибки показывают корректное имя провайдера `Groq`.
+
+**Тесты:**
+
+- +4 backend-теста (`test_v33_fixes.py`), +2 frontend-теста (`fixes-v33.test.tsx`)
+- Backend: **951 collected** (без integration-LLM в CI), Frontend: **577 тестов**, Всего: **1528**
 
 ### v1.15.0 (Март 2026) — QA V31: KEY-CHECK-001 Critical Fix, Error Sanitization, File Upload Fix
 
