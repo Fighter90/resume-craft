@@ -7,6 +7,26 @@
 
 ---
 
+## [1.18.0] — 2026-03-10
+
+### Fixed
+- **KEY-CHECK-001** (P0 BLOCKER): Убрана клиентская блокировка загрузки подмоделей по флагу `available` в `ModelsPage.tsx`.
+	Теперь даже если frontend-состояние показывает `available=false`, подмодели запрашиваются с backend.
+	Backend остаётся единственным источником истины для проверки API-ключей.
+- **VACANCY-PLACEHOLDER-001** (P3): На странице `/app/vacancy` (таб «Ввести вручную») поле "Название должности" теперь напрямую предзаполняется значением из резюме.
+	Используется `setManualTitle(defaultTitle)` вместо fallback-проверки, что устраняет ситуацию с пустым value при видимом placeholder.
+- **GROQ-CASE-001** (P4): Добавлен маппинг `_provider_to_display_name` в `rewriter/router.py` для корректного отображения "Groq" в ошибках.
+	Теперь даже для submodel-ов groq (например `llama-3.3-70b-versatile`) показывается "API-ключ для Groq не настроен" вместо lowercase провайдера.
+
+### Added
+- 4 backend-теста (`test_v33_fixes.py`) с проверкой display_name маппинга и отсутствия блокировок.
+- 2 frontend-теста (`fixes-v33.test.tsx`) на отсутствие `|| !selectedModel.available` в useEffect и прямое присвоение `setManualTitle(defaultTitle)`.
+
+### Changed
+- Синхронизированы версии до `1.18.0`: `config.py`, `pyproject.toml`, `frontend/package.json`, `README`.
+
+---
+
 ## [1.17.0] — 2026-03
 
 ### Added

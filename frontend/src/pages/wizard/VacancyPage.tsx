@@ -38,7 +38,7 @@ export default function VacancyPage() {
         const normalizedTitle = fromTitle.replace(/\.(pdf|docx)$/i, '').trim()
         const defaultTitle = (fromParsed || normalizedTitle).trim()
         if (defaultTitle) {
-          setManualTitle(prev => (prev.trim() ? prev : defaultTitle))
+          setManualTitle(defaultTitle)
         }
       } catch {
         // Silent fallback: user can still enter title manually.

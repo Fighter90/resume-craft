@@ -141,7 +141,7 @@ export default function ModelsPage() {
   // Загрузка подмоделей при выборе провайдера с has_sub_models
   useEffect(() => {
     const selectedModel = models.find(m => m.id === selected)
-    if (!selectedModel?.has_sub_models || !selectedModel.available) {
+    if (!selectedModel?.has_sub_models) {
       setSubModels([])
       setSubModel('')
       return

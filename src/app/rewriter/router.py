@@ -85,6 +85,13 @@ async def create_rewrite(
         'openrouter': 'OpenRouter',
         'groq': 'Groq',
     }
+    _provider_to_display_name: dict[str, str] = {
+        'gigachat': 'GigaChat',
+        'openai': 'OpenAI',
+        'anthropic': 'Anthropic Claude',
+        'openrouter': 'OpenRouter',
+        'groq': 'Groq',
+    }
 
     db_provider = _model_to_db_provider.get(data.model, data.model)
     user_key = await get_user_setting(
@@ -99,7 +106,10 @@ async def create_rewrite(
     if not user_key and not (env_key and env_key.strip()):
         from fastapi import HTTPException
 
-        display_name = _model_to_display_name.get(data.model, data.model)
+        display_name = _model_to_display_name.get(
+            data.model,
+            _provider_to_display_name.get(db_provider, data.model),
+        )
 
         raise HTTPException(
             status_code=400,

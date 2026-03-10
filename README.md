@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.17.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.18.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -1100,6 +1100,19 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.18.0 (Март 2026) — QA V33: P0 Blocker — Client-Side Key Check Removed
+
+**Bug Fixes:**
+
+- **KEY-CHECK-001 (P0 BLOCKER):** убрана клиентская блокировка загрузки подмоделей по флагу `available` в `ModelsPage`. Backend — единственный источник истины для API-ключей.
+- **VACANCY-PLACEHOLDER-001 (P3):** поле "Название должности" на `/app/vacancy` теперь напрямую предзаполняется из резюме (`setManualTitle(defaultTitle)`).
+- **GROQ-CASE-001 (P4):** добавлен `_provider_to_display_name` маппинг для корректного отображения "Groq" в ошибках для любых groq-моделей.
+
+**Тесты:**
+
+- +4 backend-теста (`test_v33_fixes.py`), +2 frontend-теста (`fixes-v33.test.tsx`)
+- Backend: **951 collected**, Frontend: **579 тестов**, Всего: **1530**
 
 ### v1.17.0 (Март 2026) — QA V32: Limits Reset Endpoint, Pricing Sync, History Counter Clarity
 
