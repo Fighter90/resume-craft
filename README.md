@@ -340,13 +340,13 @@ Export ←── Results ←── Processing ←── Vacancy
 | Технология | Назначение |
 |-----------|------------|
 | **GigaChat SDK** | Интеграция с GigaChat API (Сбер) |
-| **openai** (SDK) | OpenAI, OpenRouter — единый SDK |
+| **openai** (SDK) | OpenAI, OpenRouter и Groq через OpenAI-совместимый API |
 | **PyMuPDF** (fitz) | Извлечение текста из PDF (AGPL 3.0) |
 | **python-docx** | Чтение и создание DOCX |
 | **reportlab** | Генерация PDF (≥4.0) |
 | **anthropic** (SDK) | Интеграция с Anthropic Claude |
 | **sentence-transformers** | Генерация эмбеддингов |
-| **pytesseract** | OCR для сканов |
+| **pytesseract + Pillow** (optional) | OCR fallback для сканов при отдельной установке |
 
 ### 6.3. Frontend и DevOps
 
@@ -355,7 +355,7 @@ Export ←── Results ←── Processing ←── Vacancy
 | **HTML5 / CSS3 / JS** | Прототип (20 экранов) |
 | **React 19 + TypeScript** | SPA Frontend |
 | **Vite 6** | Сборка frontend |
-| **Vitest + Testing Library** | Тесты frontend (558 тестов) |
+| **Vitest + Testing Library** | Тесты frontend (580+ тестов) |
 | **Docker + Compose** | Контейнеризация, 7 сервисов |
 | **Nginx** 1.27 | Serving SPA + API proxy |
 | **GitHub Actions** | CI/CD (lint, test, build, deploy) |
@@ -465,7 +465,7 @@ frontend/                  # React SPA Frontend
     ├── styles/            # CSS из Prototype/ + app.css
     ├── components/layout/ # AppLayout, PublicLayout, CenteredLayout
     ├── pages/             # 23 page components (+PrivacyPage, TermsPage, AboutPage)
-    └── test/              # 558 тестов (Vitest + Testing Library)
+    └── test/              # 580+ тестов (Vitest + Testing Library)
 
 Prototype/                 # 20 HTML-прототипов (все реализованы в React SPA)
 ```
@@ -526,8 +526,8 @@ Prototype/                 # 20 HTML-прототипов (все реализо
 | POST | `/auth/login` | ❌ | Вход → access (30 мин) + refresh (30 дней) |
 | POST | `/auth/refresh` | 🔄 | Обновление access-токена |
 | POST | `/auth/logout` | ✅ | Выход |
-| POST | `/auth/password-reset` | ❌ | Запрос сброса пароля |
 | GET | `/auth/verify/{token}` | ❌ | Подтверждение email по токену |
+| POST | `/auth/resend-verification` | ✅ | Повторная отправка письма подтверждения |
 
 > ² 2FA подключается в Phase 2.
 
@@ -667,17 +667,12 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
 |----------|:-----------:|------------|
 | `GET /vacancies` | ❌ | Поиск вакансий |
 | `GET /vacancies/{id}` | ❌ | Детали вакансии |
-| `GET /dictionaries` | ❌ | Справочники |
-| `GET /professional_roles` | ❌ | Профессиональные роли |
-| `GET /areas` | ❌ | Регионы и города |
-| `GET /resumes/mine` | ✅ OAuth | Резюме пользователя на hh.ru |
-| `PUT /resumes/{id}` | ✅ OAuth | Публикация на hh.ru (Pro) |
 
 ### 10.3. OAuth 2.0
 
-- **Анонимный** — поиск вакансий, справочники (80% функционала MVP)
-- **Соискатель** (scope `user:write`) — публикация резюме на hh.ru (Pro-тариф)
-- Регистрация приложения на **dev.hh.ru**
+- **Текущий MVP** использует только анонимный режим hh.ru API для поиска и получения деталей вакансий
+- **Соискательский OAuth** (scope `user:write`) рассматривается как future enhancement для публикации резюме на hh.ru
+- Регистрация приложения на **dev.hh.ru** потребуется при переходе к OAuth-сценарию
 
 ### 10.4. Ограничения и fallback
 
@@ -693,23 +688,23 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
 
 Мультипровайдерная архитектура (Strategy Pattern) с единым интерфейсом `BaseLLMProvider`:
 
-| Характеристика | GigaChat Pro | Claude Sonnet 4 | GPT-4o-mini | OpenRouter (100+ моделей) |
-|----------------|-------------|-----------------|------------|--------------------------|
-| Контекст | 32K tokens | 200K tokens | 128K tokens | Зависит от модели |
-| Цена input | ~$1.2/1M tok | $3.00/1M tok | $0.15/1M tok | Зависит от модели |
-| Скорость | ~12 сек | ~10 сек | ~18 сек | Зависит от модели |
-| Русский язык | ✅ #1 MERA | ✅ Отлично | ⚠️ Хорошо | Зависит от модели |
-| Данные в РФ | ✅ | ❌ | ❌ | ❌ |
-| Лимиты | По тарифу Сбера | По тарифу Anthropic | По тарифу OpenAI | По тарифу OpenRouter |
+| Характеристика | GigaChat Pro | Claude Sonnet 4 | GPT-4o-mini | OpenRouter (100+ моделей) | Groq |
+|----------------|-------------|-----------------|------------|--------------------------|------|
+| Контекст | 32K tokens | 200K tokens | 128K tokens | Зависит от модели | Зависит от модели |
+| Цена input | ~$1.2/1M tok | $3.00/1M tok | $0.15/1M tok | Зависит от модели | Зависит от модели |
+| Скорость | ~12 сек | ~10 сек | ~18 сек | Зависит от модели | ~3 сек |
+| Русский язык | ✅ #1 MERA | ✅ Отлично | ⚠️ Хорошо | Зависит от модели | ⚠️ Зависит от модели |
+| Данные в РФ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Лимиты | По тарифу Сбера | По тарифу Anthropic | По тарифу OpenAI | По тарифу OpenRouter | По тарифу Groq |
 
-**5 LLM-провайдеров** в MVP: GigaChat Pro, Anthropic Claude, OpenRouter (100+ моделей), OpenAI, Groq. Для OpenAI, Anthropic, OpenRouter и Groq реализован 2-ступенчатый выбор модели с динамической загрузкой доступных суб-моделей через API.
+**5 LLM-провайдеров** в MVP: GigaChat Pro, Anthropic Claude, OpenRouter (100+ моделей), OpenAI и Groq. Для OpenAI, Anthropic, OpenRouter и Groq реализован 2-ступенчатый выбор модели с динамической загрузкой доступных суб-моделей через API.
 
 ### 11.2. Match Score
 
 Расчёт как взвешенная комбинация: Keywords (40%) + Experience (25%) + Structure (20%) + Readability (15%). Компоненты совпадают с UI (12-results.html).
 
-- **Keywords** — TF-IDF токенизация, пересечение множеств
-- **Experience** — skills overlap × 0.6 + cosine similarity эмбеддингов × 0.4
+- **Keywords** — токенизация, фильтрация стоп-слов и пересечение множеств
+- **Experience** — token-based cosine similarity по тексту резюме и вакансии
 - **Structure** — наличие обязательных секций, длина, формат
 - **Readability** — качество формулировок, наличие метрик
 
@@ -717,7 +712,7 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
 
 Системный промпт содержит 5 блоков: роль эксперта, правила (не выдумывать факты, формула «Действие + Результат + Метрика»), формат JSON-ответа, ограничения, контекст вакансии. Каждый ответ LLM проходит Pydantic-валидацию с retry до 3 попыток.
 
-### 11.4. Fallback-стратегия
+### 11.4. Fallback-стратегия (будет реализована в следующей версии релиза)
 
 ```
 1. GigaChat Pro (основная)
@@ -726,9 +721,11 @@ curl http://localhost:8000/api/v1/rewrite/<task_id>/status \
    ↓ если недоступен
 3. OpenRouter (100+ моделей)
    ↓ если недоступен
-4. OpenAI GPT-4o
+4. Groq
    ↓ если недоступен
-5. Ошибка: «Все LLM-провайдеры временно недоступны»
+5. OpenAI GPT-4o
+  ↓ если недоступен
+6. Ошибка: «Все LLM-провайдеры временно недоступны»
 ```
 
 Fallback автоматический с уведомлением пользователя. JSON-парсер LLM-ответов включает многоуровневую коррекцию: `strict=False` → regex-исправление пропущенных запятых → regex-извлечение `{...}`.
@@ -955,12 +952,9 @@ docker compose down -v
 
 | Метрика | Значение |
 |---------|----------|
-| **Backend тестов (unit)** | 819 (pytest + pytest-asyncio) |
-| **Backend тестов (acceptance)** | 52 (приёмочные, BASE_URL) |
-| **Backend тестов (integration)** | 23 (реальные LLM API: GigaChat, Anthropic, OpenRouter, OpenAI) |
-| **Backend тестов (E2E)** | 38 (Playwright) |
-| **Frontend тестов** | 558 (Vitest + @testing-library/react) |
-| **Всего тестов** | **1490** |
+| **Backend тестов** | 950+ (pytest + pytest-asyncio, acceptance, integration, E2E) |
+| **Frontend тестов** | 580+ (Vitest + @testing-library/react) |
+| **Всего тестов** | **1500+** |
 | **Backend покрытие** | 100% (2540 statements, 0 uncovered) |
 | **БД в тестах** | SQLite (aiosqlite, in-memory) |
 
@@ -992,7 +986,7 @@ cd frontend && npm run test:watch
 | `test_vacancies/` | 55 | hh.ru клиент, from-url, manual, CRUD, retry, таймауты, HTTP-ошибки, hh детали |
 | `test_rewriter/` | 40 | Celery tasks, pipeline, статусы, история, LLM retry |
 | `test_export/` | 38 | DOCX/PDF/TXT-генерация, структурированные/plain данные, Content-Disposition |
-| `test_ml/` | 96 | LLM-клиенты (4 провайдера), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация |
+| `test_ml/` | 96 | LLM-клиенты (5 провайдеров), фабрика, роутер моделей, парсер, скоринг, эмбеддинги, санитизация |
 | `test_core/` | 81 | Config, security, database, storage, exceptions, dependencies, encryption |
 | `test_main*` | 7 | Middleware, error handlers, lifespan, health |
 | `test_coverage_gaps` | 22 | Edge-cases: scoring, embedding fallback, export |
@@ -1007,6 +1001,10 @@ cd frontend && npm run test:watch
 | `test_v26_fixes` | 13 | Покрытие v1.10: NAV regression, email verification |
 | `test_v27_fixes` | 36 | Покрытие v1.11: RESET-001, o-series regex |
 | `test_v28_fixes` | 27 | Покрытие v1.12: KEY-CHECK-001, commit before delay |
+| `test_v31_fixes` | 15 | Покрытие регрессионных исправлений v31 |
+| `test_v32_fixes` | 4 | Покрытие регрессионных исправлений v32 |
+| `test_v33_fixes` | 4 | Покрытие регрессионных исправлений v33 |
+| `test_v34_fixes` | 18 | Покрытие регрессионных исправлений v34 |
 | `test_v30_fixes` | 10 | Покрытие v1.13: scoring determinism, nginx config |
 | `test_full_coverage` | 66 | 100% покрытие: все непокрытые строки |
 

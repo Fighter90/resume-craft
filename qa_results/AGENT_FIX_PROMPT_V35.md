@@ -13,17 +13,17 @@
 | # | Приоритет | ID | Описание | Тип | Статус V35 |
 |---|-----------|-----|----------|-----|------------|
 | 1 | 🔴 P2 | AVATAR-DELETE-503 | Удаление аватара → 503 | BUG (не исправлен с V34) | ❌ CONFIRMED |
-| 2 | 🔴 P2 | HH-RESUME-LINK-405 | Загрузка резюме по ссылке hh.ru → 405 | BUG (не тестировалось V35) | ⏸ NOT RETESTED |
+| 2 | 🔴 P2 | HH-RESUME-LINK-405 | Загрузка резюме по ссылке hh.ru → 400 (парсинг не работает) | BUG (частично исправлен V35) | ⚠️ PARTIAL FIX |
 | 3 | 🔴 P2 | PDF-PARSE-502 | Большие PDF → 502 Bad Gateway | BUG (не тестировалось V35) | ⏸ NOT RETESTED |
 | 4 | 🟡 P3 | VACANCY-TITLE-002 | Автозаполнение должности из имени резюме | BUG (не тестировалось V35) | ⏸ NOT RETESTED |
-| 5 | 🟡 P3 | PRICING-FORMAT-001 | Расхождение описания форматов экспорта | CONTENT (не тестировалось V35) | ⏸ NOT RETESTED |
+| ~~5~~ | ~~🟡 P3~~ | ~~PRICING-FORMAT-001~~ | ~~Расхождение описания форматов экспорта~~ | ~~CONTENT~~ | ✅ **FIXED V35** |
 | 6 | 🟢 P4 | PROFILE-AVATAR-SIDEBAR | Sidebar не показывает аватар | BUG (не исправлен с V34) | ❌ CONFIRMED |
 | 7 | 🟢 P4 | DELETE-FORM-NO-VALIDATION-MSG | Нет валидации формы удаления аккаунта | BUG (не исправлен с V34) | ❌ CONFIRMED |
 | 8 | 🟢 P4 | SECURITY-AUTOFILL | Автозаполнение пароля браузером | BUG (не исправлен с V34) | ❌ CONFIRMED |
 | 9 | 🟢 P4 | PHONE-MASK-FORMAT | Маска телефона не форматирует цифры | BUG (новый V35) | ❌ NEW |
-| 10 | 🟢 P4 | HH-RESUME-LINK-VALIDATION | Нет клиентской валидации URL hh.ru | BUG (не тестировалось V35) | ⏸ NOT RETESTED |
-| 11 | 🟢 P4 | GROQ-CASE-002 | "groq" в нижнем регистре в истории | BUG (не тестировалось V35) | ⏸ NOT RETESTED |
-| 12 | 🟢 P4 | HISTORY-MODEL-FORMAT-001 | Неконсистентный формат наименований | BUG (не тестировалось V35) | ⏸ NOT RETESTED |
+| ~~10~~ | ~~🟢 P4~~ | ~~HH-RESUME-LINK-VALIDATION~~ | ~~Нет клиентской валидации URL hh.ru~~ | ~~BUG~~ | ✅ **FIXED V35** |
+| 11 | 🟢 P4 | GROQ-CASE-002 | "groq" в нижнем регистре в истории | BUG (не удалось воспроизвести) | ⏸ CANNOT VERIFY |
+| ~~12~~ | ~~🟢 P4~~ | ~~HISTORY-MODEL-FORMAT-001~~ | ~~Неконсистентный формат наименований~~ | ~~BUG~~ | ✅ **FIXED V35** |
 
 ---
 
@@ -35,6 +35,9 @@
 | PROFILE-PHONE-SAVE | P2 | Телефон не сохранялся | ❌ Пустой → ✅ Сохраняется |
 | PROFILE-CITY-SAVE | P2 | Город не сохранялся | ❌ Москва → ✅ СПб |
 | PROFILE-EMAIL-VERIFY | P3 | Нет кнопки подтверждения email | ❌ Нет кнопки → ✅ "Отправить повторно" |
+| PRICING-FORMAT-001 | P3 | Расхождение форматов экспорта | ❌ Разные описания → ✅ "DOCX, PDF и TXT" везде |
+| HH-RESUME-LINK-VALIDATION | P4 | Нет валидации URL hh.ru | ❌ Нет валидации → ✅ "Введите корректную ссылку" |
+| HISTORY-MODEL-FORMAT-001 | P4 | Неконсистентный формат истории | ❌ Разнородный → ✅ "Provider · Model" |
 
 ---
 
@@ -108,11 +111,11 @@ async def delete_avatar(
 
 ---
 
-## 🔴 ДЕФЕКТ 2 — HH-RESUME-LINK-405 (P2): Загрузка резюме по ссылке hh.ru → 405
+## 🔴 ДЕФЕКТ 2 — HH-RESUME-LINK-405 (P2): Парсинг hh.ru не работает (⚠️ частично исправлен)
 
 ### Проблема
 
-На странице `/app/upload` (вкладка "Ссылка hh.ru") endpoint `POST /api/v1/resumes/from-url` возвращает **405 Method Not Allowed**. Вкладка полностью нефункциональна.
+На странице `/app/upload` (вкладка "Ссылка hh.ru") endpoint `POST /api/v1/resumes/from-url` теперь существует (V34: 405 → V35: 400), но парсинг страницы hh.ru не работает — сервер возвращает **400 Bad Request**. Фронтенд показывает пользователю сообщение об ошибке с предложением скопировать текст вручную (UX улучшен).
 
 ### Воспроизведение
 
@@ -120,8 +123,9 @@ async def delete_avatar(
 1. Перейти на /app/upload → вкладка "Ссылка hh.ru"
 2. Ввести: https://hh.ru/resume/90d67b47ff01c53bfd0039ed1f36424d765046
 3. Нажать "Загрузить резюме"
-4. РЕЗУЛЬТАТ: "Не удалось автоматически загрузить резюме с hh.ru"
-5. Network: POST /api/v1/resumes/from-url → 405
+4. РЕЗУЛЬТАТ: POST /api/v1/resumes/from-url → 400 Bad Request
+5. Фронтенд: Сообщение об ошибке с fallback-предложением (вставить текст вручную)
+6. ОЖИДАНИЕ: Резюме загружено автоматически
 ```
 
 ### Рекомендации
@@ -267,21 +271,9 @@ setVacancyTitle(resumeData?.extractedPosition || resumeData?.detected_title || '
 
 ---
 
-## 🟡 ДЕФЕКТ 5 — PRICING-FORMAT-001 (P3): Расхождение форматов экспорта
+## ~~🟡 ДЕФЕКТ 5 — PRICING-FORMAT-001 (P3): ✅ ИСПРАВЛЕН В V35~~
 
-### Проблема
-
-Разные страницы по-разному описывают форматы экспорта:
-- Лендинг (/#pricing): "DOCX"
-- Справка: "PDF/DOCX"
-- Фактически доступны: **DOCX + PDF + TXT**
-
-### Рекомендация
-
-Унифицировать описание на всех страницах:
-- `/#pricing` → "Экспорт: DOCX, PDF, TXT"
-- `/app/help` → "Экспорт: DOCX, PDF, TXT"
-- `/app/settings/subscription` → "Экспорт: DOCX, PDF, TXT"
+> **Подтверждено 11.03.2026:** Все страницы (лендинг /#pricing, справка /app/help) теперь показывают единообразное "DOCX, PDF и TXT". Баг закрыт.
 
 ---
 
@@ -466,39 +458,21 @@ const savePhone = phone.replace(/\D/g, ''); // "+7 (916) 123-45-67" → "7916123
 
 ---
 
-## 🟢 ДЕФЕКТ 10 — HH-RESUME-LINK-VALIDATION (P4): Нет валидации URL
+## ~~🟢 ДЕФЕКТ 10 — HH-RESUME-LINK-VALIDATION (P4): ✅ ИСПРАВЛЕН В V35~~
 
-### Проблема
-
-Вкладка "Ссылка hh.ru" принимает любой URL без проверки.
-
-### Рекомендации
-
-```typescript
-const HH_RESUME_PATTERN = /^https?:\/\/(www\.)?hh\.ru\/resume\/[a-f0-9]+/i;
-
-const handleSubmit = () => {
-  if (!url.trim()) {
-    showError('Введите ссылку на резюме');
-    return;
-  }
-  if (!HH_RESUME_PATTERN.test(url)) {
-    showError('Введите корректную ссылку на резюме hh.ru');
-    return;
-  }
-  submitUrl(url);
-};
-```
+> **Подтверждено 11.03.2026:** Клиентская валидация URL теперь работает. Пустое поле не отправляется, невалидный URL (google.com) показывает "Введите корректную ссылку на резюме hh.ru". Баг закрыт.
 
 ---
 
-## 🟢 ДЕФЕКТ 11 — GROQ-CASE-002 (P4): "groq" в нижнем регистре
+## 🟢 ДЕФЕКТ 11 — GROQ-CASE-002 (P4): "groq" в нижнем регистре (⏸ не удалось воспроизвести)
 
 ### Проблема
 
 В истории оптимизаций: "Оптимизация · groq" вместо "Оптимизация · Groq".
 
-### Рекомендация
+> **Примечание 11.03.2026:** Не удалось воспроизвести — на доступных аккаунтах (test@example.com, test_new@example.com) нет записей Groq в истории. Все существующие записи используют корректный формат "Provider · Model" с правильным регистром. Возможно, уже исправлен вместе с HISTORY-MODEL-FORMAT-001.
+
+### Рекомендация (на случай если баг всё ещё актуален)
 
 ```typescript
 const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
@@ -514,46 +488,27 @@ const displayName = PROVIDER_DISPLAY_NAMES[provider] || provider;
 
 ---
 
-## 🟢 ДЕФЕКТ 12 — HISTORY-MODEL-FORMAT-001 (P4): Неконсистентный формат
+## ~~🟢 ДЕФЕКТ 12 — HISTORY-MODEL-FORMAT-001 (P4): ✅ ИСПРАВЛЕН В V35~~
 
-### Проблема
-
-В истории разные форматы: `openrouter:ai21/jamba-large-1.7`, `groq` (без модели), `gigachat-pro` (без провайдера).
-
-### Рекомендация
-
-Унифицировать: **"Provider · Model"** для всех записей:
-- "GigaChat · GigaChat-Pro"
-- "OpenAI · o4-mini-2025-04-16"
-- "Anthropic · Claude Sonnet 4.6"
-- "OpenRouter · AI21: Jamba Large 1.7"
-- "Groq · allam-2-7b"
-
-```typescript
-function formatHistoryEntry(provider: string, model: string): string {
-  const providerName = PROVIDER_DISPLAY_NAMES[provider] || provider;
-  return model ? `${providerName} · ${model}` : providerName;
-}
-```
+> **Подтверждено 11.03.2026:** Формат записей в истории унифицирован — все записи используют "Оптимизация · Provider · Model" с корректным регистром. Баг закрыт.
 
 ---
 
-## СВОДНАЯ ТАБЛИЦА
+## СВОДНАЯ ТАБЛИЦА (актуальных дефектов)
 
-| # | ID | P | Описание | Компонент | Сложность | С версии |
-|---|----|---|----------|-----------|-----------|----------|
-| 1 | AVATAR-DELETE-503 | **P2** | Удаление аватара → 503 | Backend/Storage | Средняя | V34 |
-| 2 | HH-RESUME-LINK-405 | **P2** | Загрузка резюме по ссылке → 405 | Backend | Средняя | V34 |
-| 3 | PDF-PARSE-502 | **P2** | PDF > 100 КБ → 502 | Backend/Nginx | Средняя | V34 |
-| 4 | VACANCY-TITLE-002 | P3 | Автозаполнение должности | Frontend | Лёгкая | V34 |
-| 5 | PRICING-FORMAT-001 | P3 | Расхождение форматов | Content | Лёгкая | V34 |
-| 6 | PROFILE-AVATAR-SIDEBAR | P4 | Sidebar без аватара | Frontend | Лёгкая | V34 |
-| 7 | DELETE-FORM-NO-VALIDATION-MSG | P4 | Нет валидации удаления | Frontend | Лёгкая | V34 |
-| 8 | SECURITY-AUTOFILL | P4 | Автозаполнение паролей | Frontend | Лёгкая | V34 |
-| 9 | PHONE-MASK-FORMAT | P4 | Маска телефона | Frontend | Лёгкая | **V35 NEW** |
-| 10 | HH-RESUME-LINK-VALIDATION | P4 | Нет валидации URL | Frontend | Лёгкая | V34 |
-| 11 | GROQ-CASE-002 | P4 | "groq" lowercase | Frontend | Лёгкая | V34 |
-| 12 | HISTORY-MODEL-FORMAT-001 | P4 | Формат истории | Frontend/Backend | Лёгкая | V34 |
+| # | ID | P | Описание | Компонент | Сложность | С версии | Статус V35 |
+|---|----|---|----------|-----------|-----------|----------|------------|
+| 1 | AVATAR-DELETE-503 | **P2** | Удаление аватара → 503 | Backend/Storage | Средняя | V34 | ❌ Confirmed |
+| 2 | HH-RESUME-LINK-405 | **P2** | Парсинг hh.ru → 400 (endpoint есть, парсинг нет) | Backend | Средняя | V34 | ⚠️ Partial |
+| 3 | PDF-PARSE-502 | **P2** | PDF > 100 КБ → 502 | Backend/Nginx | Средняя | V34 | ⏸ Untested |
+| 4 | VACANCY-TITLE-002 | P3 | Автозаполнение должности | Frontend | Лёгкая | V34 | ⏸ Untested |
+| 5 | PROFILE-AVATAR-SIDEBAR | P4 | Sidebar без аватара | Frontend | Лёгкая | V34 | ❌ Confirmed |
+| 6 | DELETE-FORM-NO-VALIDATION-MSG | P4 | Нет валидации удаления | Frontend | Лёгкая | V34 | ❌ Confirmed |
+| 7 | SECURITY-AUTOFILL | P4 | Автозаполнение паролей | Frontend | Лёгкая | V34 | ❌ Confirmed |
+| 8 | PHONE-MASK-FORMAT | P4 | Маска телефона | Frontend | Лёгкая | **V35 NEW** | ❌ New |
+| 9 | GROQ-CASE-002 | P4 | "groq" lowercase | Frontend | Лёгкая | V34 | ⏸ Cannot verify |
+
+**Исправлены в V35:** PRICING-FORMAT-001 (P3), HH-RESUME-LINK-VALIDATION (P4), HISTORY-MODEL-FORMAT-001 (P4)
 
 ---
 
@@ -562,24 +517,21 @@ function formatHistoryEntry(provider: string, model: string): string {
 ### Спринт 1 — P2 Backend (1–2 дня)
 
 1. **AVATAR-DELETE-503** — Реализовать/починить DELETE /api/v1/auth/me/avatar. Проверить nginx проксирование DELETE-запросов и доступность storage.
-2. **HH-RESUME-LINK-405** — Реализовать POST /api/v1/resumes/from-url ИЛИ скрыть вкладку "Ссылка hh.ru".
+2. **HH-RESUME-LINK-405** — Починить парсинг hh.ru страницы (endpoint работает, но парсинг возвращает 400). Или временно скрыть вкладку "Ссылка hh.ru" с feature flag.
 3. **PDF-PARSE-502** — Увеличить nginx таймауты (proxy_read_timeout 60s), добавить client_max_body_size 10M, обернуть PDF-парсинг в try/except.
 
 ### Спринт 2 — P3 UX (0.5 дня)
 
 4. **VACANCY-TITLE-002** — Использовать extractedPosition вместо name для автозаполнения должности.
-5. **PRICING-FORMAT-001** — Обновить текст на лендинге и в справке: "DOCX, PDF, TXT".
 
 ### Спринт 3 — P4 Косметика (0.5 дня)
 
-6–12. Все P4 — одним коммитом:
+5–9. Все P4 — одним коммитом:
 - PROFILE-AVATAR-SIDEBAR: Подписать sidebar на обновление avatarUrl
 - DELETE-FORM-NO-VALIDATION-MSG: Добавить клиентскую валидацию
 - SECURITY-AUTOFILL: Добавить autocomplete="new-password"
 - PHONE-MASK-FORMAT: Применить маску при загрузке значения
-- HH-RESUME-LINK-VALIDATION: Добавить regex-валидацию URL
-- GROQ-CASE-002: Использовать маппинг display_name
-- HISTORY-MODEL-FORMAT-001: Унифицировать формат "Provider · Model"
+- GROQ-CASE-002: Проверить маппинг display_name для Groq (возможно уже исправлен)
 
 ---
 
@@ -600,13 +552,14 @@ function formatHistoryEntry(provider: string, model: string): string {
 ### Прогресс V35
 
 - **Критических (P1) багов: 0** (ACCOUNT-DELETE-500 исправлен!)
-- **Высоких (P2) багов: 3** (AVATAR-DELETE, HH-LINK, PDF-PARSE)
-- **Средних (P3): 2**
-- **Низких (P4): 7** (включая 1 новый)
-- **Всего: 12 замечаний** (было 15 в V34, 4 исправлены, 1 новый)
+- **Высоких (P2) багов: 3** (AVATAR-DELETE-503, HH-RESUME-LINK-405 partial, PDF-PARSE-502 untested)
+- **Средних (P3): 1** (VACANCY-TITLE-002 untested)
+- **Низких (P4): 5** (4 confirmed + 1 cannot verify)
+- **Всего активных: 9 замечаний** (было 15 в V34 → 7 исправлены, 1 новый)
+- **Исправлено в V35: 7 из 15 багов V34** + 3 дополнительно подтверждены 11.03.2026
 
 ---
 
-*Промт для исправлений создан: 10.03.2026*
-*Основан на: QA Report #33 + регрессия FINAL_FIX_PROMPT_V34*
+*Промт для исправлений создан: 10.03.2026, обновлён: 11.03.2026*
+*Основан на: QA Report #33 + регрессия FINAL_FIX_PROMPT_V34 + дотестирование 11.03.2026*
 *Предыдущие промты: AGENT_FIX_PROMPT_V34.md, FINAL_FIX_PROMPT_V34.md*

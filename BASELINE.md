@@ -25,9 +25,8 @@
 14. [Тестирование](#14-тестирование)
 15. [Инфраструктура и деплой](#15-инфраструктура-и-деплой)
 16. [Критерии приёмки](#16-критерии-приёмки)
-17. [Ресурсы и сроки](#17-ресурсы-и-сроки)
-18. [Управление рисками](#18-управление-рисками)
-19. [Границы MVP](#19-границы-mvp)
+17. [Управление рисками](#17-управление-рисками)
+18. [Границы MVP](#18-границы-mvp)
 
 ---
 
@@ -71,6 +70,7 @@ Upload (PDF/DOCX) → Parse → Match with Vacancy → AI Rewrite → Score → 
 
 **Реализовано сверх начального плана:**
 - ✅ PDF-экспорт (reportlab) и TXT-экспорт
+- ✅ Шаблон экспорта Minimal
 - ✅ Email-верификация (JWT 24ч токен)
 - ✅ GPT-4o через OpenAI SDK
 - ✅ OpenRouter (100+ моделей)
@@ -648,9 +648,9 @@ class RewriteResult(BaseModel):
 BASE_URL: /api/v1
 
 Auth:
-  POST   /auth/register          → 201 Created
+  POST   /auth/register          → 201 Created (rate limit 3/min)
   GET    /auth/verify/{token}    → 200 OK (email-верификация)
-  POST   /auth/login             → 200 OK
+  POST   /auth/login             → 200 OK (rate limit 5/min)
   POST   /auth/refresh           → 200 OK
   POST   /auth/logout            → 204 No Content
   GET    /auth/me                → 200 OK (профиль текущего пользователя)
@@ -992,7 +992,7 @@ def create_access_token(user_id: UUID, *, secret: str, expires_minutes: int = 30
         "sub": str(user_id),
         "exp": datetime.now(tz=UTC) + timedelta(minutes=expires_minutes),
         "type": "access",
-        "jti": str(uuid4()),  # уникальный ID токена для инвалидации
+    "jti": str(uuid4()),  # резерв для будущей инвалидации токенов через blacklist
     }
     return jwt.encode(payload, secret, algorithm="HS256")
 ```
@@ -1019,7 +1019,7 @@ def validate_upload(file: UploadFile) -> None:
 ### 13.3. Защита API
 
 - **CORS:** ограничение `allowed_origins`, `allow_methods` (GET/POST/PUT/DELETE/OPTIONS/PATCH), `allow_headers` (Authorization/Content-Type/Accept/X-Request-ID)
-- **Rate Limiting:** запланирован для Phase 2 (Redis, 10 req/сек на пользователя, 5 попыток/мин на login)
+- **Rate Limiting:** SlowAPI уже используется: register 3/min, login 5/min, rewrite 10/hour
 - **Input Validation:** Pydantic-схемы на всех эндпоинтах
 - **Secrets:** .env + .gitignore
 - **AI Security:** санитизация пользовательского ввода перед отправкой в LLM (`sanitize_for_llm`)
@@ -1138,6 +1138,12 @@ services:
       rabbitmq: {condition: service_healthy}
     volumes: [uploads:/data/uploads]
     command: uvicorn src.app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   celery-worker:
     build: .
@@ -1188,7 +1194,7 @@ volumes:
   uploads:
 ```
 
-### 15.2. Деплой для защиты
+### 15.2. Локальный деплой (Docker Compose)
 
 ```
 Docker Desktop → docker compose up -d
@@ -1231,45 +1237,10 @@ Docker Desktop → docker compose up -d
 | Ruff warnings | 0 | **0** ✅ |
 | mypy errors | 0 | **0** ✅ |
 | Тестов всего | — | **1216** (691 backend + 525 frontend) ✅ |
-| API response (CRUD) | < 200 мс | — |
-| Оптимизация (Anthropic Claude) | < 15 сек | — |
-| Match Score improvement | +20%+ для 80% тестов | — |
 
 ---
 
-## 17. Ресурсы и сроки
-
-### 17.1. Timeline
-
-```
-Неделя 1–2: Фундамент
-  Auth, Database, Migrations, Docker, Local FS
-
-Неделя 3–4: Core Pipeline
-  Resume upload + parsing, Vacancy module, Embeddings
-
-Неделя 5–6: AI Rewriting
-  Celery pipeline, GigaChat + Anthropic + OpenRouter + OpenAI + Groq, Match Score, ATS, Diff
-
-Неделя 7: Export + React SPA
-  DOCX export, React SPA UI, E2E testing
-
-Неделя 8: Polish
-  Bug fixes, coverage 70%+, docs, demo preparation
-```
-
-### 17.2. Зависимости
-
-| Зависимость | Срок |
-|-------------|------|
-| GigaChat API ключ (developers.sber.ru) | Неделя 1 |
-| Anthropic API ключ (console.anthropic.com) | Неделя 1 |
-| hh.ru App регистрация (dev.hh.ru) | Неделя 1 |
-| Тестовые резюме (10+) | Неделя 3 |
-
----
-
-## 18. Управление рисками
+## 17. Управление рисками
 
 | Риск | Вероятность | Влияние | Митигация |
 |------|-----------|---------|-----------|
@@ -1287,9 +1258,9 @@ Docker Desktop → docker compose up -d
 
 ---
 
-## 19. Границы MVP
+## 18. Границы MVP
 
-### 19.1. В объёме (In Scope)
+### 18.1. В объёме (In Scope)
 
 | Компонент | Объём |
 |-----------|-------|
@@ -1304,7 +1275,7 @@ Docker Desktop → docker compose up -d
 | Инфраструктура | Docker Compose (7 сервисов), PostgreSQL + pgvector, Redis, RabbitMQ, Local FS |
 | Тестирование | Unit + Integration + E2E + Frontend, **1216 тестов**, 100% backend coverage |
 
-### 19.2. Вне объёма (Out of Scope → Future)
+### 18.2. Вне объёма (Out of Scope → Future)
 
 | Компонент | Фаза |
 |-----------|------|
