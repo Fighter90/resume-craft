@@ -191,10 +191,12 @@ export default function SettingsProfilePage() {
               onClick={() => fileInputRef.current?.click()}>
               <Upload size={12} /> {avatarUploading ? 'Загрузка...' : 'Загрузить фото'}
             </button>
-            <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', color: 'var(--danger)' }}
-              onClick={handleRemovePhoto} disabled={!avatarUrl || avatarUploading}>
-              <Trash2 size={12} /> Удалить
-            </button>
+            {avatarUrl && (
+              <button className="btn btn-ghost btn-sm" style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', color: 'var(--danger)' }}
+                onClick={handleRemovePhoto} disabled={avatarUploading}>
+                <Trash2 size={12} /> Удалить
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -65,7 +65,7 @@ async def create_rewrite_task(
 
     # Сохраняем sub-model в model_name (provider:model_id)
     effective_model = model_name
-    if model_name in ('openai', 'anthropic', 'openrouter') and sub_model:
+    if model_name in ('openai', 'anthropic', 'openrouter', 'groq') and sub_model:
         effective_model = f'{model_name}:{sub_model}'
 
     task = RewriteHistory(

@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.21.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.22.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,8 +12,8 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.21.0 (V35.1)
-> **Дата:** 11 марта 2026
+> **Версия:** 1.22.0 (V37)
+> **Дата:** 13 марта 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
 
@@ -447,6 +447,7 @@ tests/                     # Зеркалирует src/app/
 ├── test_v27_fixes.py      # 36 тестов (покрытие v1.11 правок)
 ├── test_v28_fixes.py      # 27 тестов (покрытие v1.12 правок)
 ├── test_v30_fixes.py      # 10 тестов (покрытие v1.13 правок)
+├── test_v37_fixes.py      # 14 тестов (покрытие v1.22 правок)
 └── test_full_coverage.py  # 66 тестов (100% покрытие)
 
 alembic/                   # Миграции PostgreSQL
@@ -1098,6 +1099,20 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.22.0 (13 марта 2026) — V37: Focus Group Improvements
+
+**Исправления по итогам обратной связи от фокус-группы:**
+
+- **AVATAR-DELETE-503 (P2):** исправлена обработка ошибок в `DELETE /api/v1/auth/me/avatar` — при сбое БД выполняется rollback и возвращается JSON-ответ с сообщением вместо необработанного исключения.
+- **VACANCY-URL-500 (P3):** добавлена серверная валидация URL вакансии — невалидный URL теперь возвращает 400 с понятным сообщением вместо 500.
+- **GROQ-MODEL-NAME-HISTORY (P4):** провайдер Groq добавлен в условие сохранения sub-model — в истории отображается полное имя модели.
+- **SECURITY-AUTOFILL (P4):** исправлены `autocomplete` атрибуты полей паролей на странице безопасности.
+- **AVATAR-DELETE-BTN-UX (P4):** кнопка «Удалить» аватар скрыта, если аватар не загружен.
+
+**Тесты:** 14 новых тестов (`test_v37_fixes.py`).
+
+Подробности: `CHANGELOG.md`, `IMPROVEMENTS.md`, `TESTS.md`.
 
 ### v1.21.0 (11 марта 2026) — V35.1: Regression Fix Pack
 

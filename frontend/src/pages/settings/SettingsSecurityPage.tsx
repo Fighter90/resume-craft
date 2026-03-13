@@ -86,7 +86,7 @@ export default function SettingsSecurityPage() {
         <div className="input-group" style={{ marginBottom: '1rem' }}>
           <label className="input-label">Текущий пароль</label>
           <input className="input-field" type="password" placeholder="••••••••"
-            autoComplete="off"
+            autoComplete="current-password"
             name="current-password-change"
             value={pwForm.current} onChange={e => handlePwChange('current', e.target.value)} />
         </div>
@@ -132,7 +132,7 @@ export default function SettingsSecurityPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <input className="input-field" type="password" placeholder="Введите ваш пароль"
-              autoComplete="new-password"
+              autoComplete="current-password"
               name="delete-account-password"
               value={deletePassword} onChange={e => setDeletePassword(e.target.value)} />
             <input className="input-field" placeholder='Введите "УДАЛИТЬ" для подтверждения'

@@ -4,6 +4,7 @@ import logging
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Request, Response, UploadFile, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import service as auth_service
@@ -366,11 +367,15 @@ async def delete_avatar(
         await session.commit()
         await session.refresh(current_user)
     except Exception:
+        await session.rollback()
         logger.warning(
             'Failed to clear avatar_url in DB for user %s',
             current_user.id,
             exc_info=True,
         )
-        raise
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={'detail': 'Не удалось удалить аватар. Попробуйте позже.'},
+        )
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

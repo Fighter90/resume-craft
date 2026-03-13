@@ -7,6 +7,25 @@
 
 ---
 
+## [1.22.0] — 2026-03-13 (V37 — QA V36 Fix Pack + Focus Group Improvements)
+
+### Fixed
+- **AVATAR-DELETE-503 (P2):** исправлена обработка ошибок в `DELETE /api/v1/auth/me/avatar` — при сбое БД выполняется rollback и возвращается JSON-ответ с сообщением вместо необработанного исключения (503/500).
+- **VACANCY-URL-500 (P3):** добавлена серверная валидация URL перед парсингом в `POST /api/v1/vacancies/from-url` — невалидный URL теперь возвращает 400 с сообщением «Введите корректную ссылку на вакансию hh.ru» вместо 500.
+- **GROQ-MODEL-NAME-HISTORY (P4):** провайдер Groq добавлен в условие сохранения sub-model — в истории теперь отображается полное имя модели (например, `groq:allam-2-7b`).
+- **SECURITY-AUTOFILL (P4):** поле «Текущий пароль» получило `autocomplete="current-password"` (было `"off"`), поле пароля при удалении аккаунта — `"current-password"` (было `"new-password"`).
+- **AVATAR-DELETE-BTN-UX (P4):** кнопка «Удалить» аватар скрыта, если аватар не загружен (ранее — disabled).
+
+### Added
+- `tests/test_v37_fixes.py` — 14 тестов на все исправления V37 (avatar delete error handling, vacancy URL validation, Groq model name saving).
+
+### Changed
+- `TESTS.md` — переработан как итоговый документ результатов технического и пользовательского тестирования.
+- `IMPROVEMENTS.md` — переработан как документ результатов внедрения улучшений по итогам фокус-группы с backlog на следующую версию.
+- Версия обновлена до `1.22.0` во всех ключевых файлах.
+
+---
+
 ## [1.21.0] — 2026-03-11 (V35.1 — Regression Fix Pack)
 
 ### Fixed
