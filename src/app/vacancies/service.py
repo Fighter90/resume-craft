@@ -129,7 +129,7 @@ async def create_from_url(
             'Введите корректную ссылку на вакансию hh.ru (например, https://hh.ru/vacancy/123456)',
             status_code=400,
             error_code='INVALID_VACANCY_URL',
-        )
+        ) from None
 
     client = HHClient()
     try:

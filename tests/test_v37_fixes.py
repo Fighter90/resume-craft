@@ -22,7 +22,6 @@ from httpx import AsyncClient
 from app.auth.models import User
 from app.core.exceptions import AppError
 from app.resumes.models import Resume
-from app.rewriter.models import RewriteHistory, RewriteStatus
 from app.rewriter.service import create_rewrite_task
 from app.vacancies.models import Vacancy
 from app.vacancies.service import create_from_url
@@ -60,8 +59,10 @@ class TestAvatarDelete503:
         mock_storage = MagicMock()
         mock_storage.delete = AsyncMock()
 
-        with patch('app.auth.router.storage_backend', mock_storage, create=True):
-            with patch('app.core.storage.file_storage', mock_storage):
+        with (
+            patch('app.auth.router.storage_backend', mock_storage, create=True),
+            patch('app.core.storage.file_storage', mock_storage),
+        ):
                 response = await auth_client.delete('/api/v1/auth/me/avatar')
 
         assert response.status_code == HTTPStatus.NO_CONTENT
@@ -149,7 +150,7 @@ class TestVacancyUrl500:
         """Валидный hh.ru URL → не 400 (может быть 201 или 502 от API hh.ru)."""
         with patch(
             'app.vacancies.service.HHClient'
-        ) as MockClient:
+        ) as mock_client_cls:
             mock_instance = AsyncMock()
             mock_instance.get_vacancy = AsyncMock(return_value={
                 'id': '12345',
@@ -163,7 +164,7 @@ class TestVacancyUrl500:
                 'alternate_url': 'https://hh.ru/vacancy/12345',
             })
             mock_instance.close = AsyncMock()
-            MockClient.return_value = mock_instance
+            mock_client_cls.return_value = mock_instance
 
             response = await auth_client.post(
                 '/api/v1/vacancies/from-url',
