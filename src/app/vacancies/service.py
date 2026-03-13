@@ -125,6 +125,7 @@ async def create_from_url(
         vacancy_id = extract_hh_vacancy_id(url)
     except ValueError:
         from app.core.exceptions import AppError
+
         raise AppError(
             'Введите корректную ссылку на вакансию hh.ru (например, https://hh.ru/vacancy/123456)',
             status_code=400,

@@ -63,7 +63,7 @@ class TestAvatarDelete503:
             patch('app.auth.router.storage_backend', mock_storage, create=True),
             patch('app.core.storage.file_storage', mock_storage),
         ):
-                response = await auth_client.delete('/api/v1/auth/me/avatar')
+            response = await auth_client.delete('/api/v1/auth/me/avatar')
 
         assert response.status_code == HTTPStatus.NO_CONTENT
 
@@ -148,21 +148,21 @@ class TestVacancyUrl500:
         auth_client: AsyncClient,
     ) -> None:
         """Валидный hh.ru URL → не 400 (может быть 201 или 502 от API hh.ru)."""
-        with patch(
-            'app.vacancies.service.HHClient'
-        ) as mock_client_cls:
+        with patch('app.vacancies.service.HHClient') as mock_client_cls:
             mock_instance = AsyncMock()
-            mock_instance.get_vacancy = AsyncMock(return_value={
-                'id': '12345',
-                'name': 'Test Vacancy',
-                'employer': {'name': 'Test'},
-                'area': {'name': 'Москва'},
-                'salary': None,
-                'experience': {'name': '1-3'},
-                'description': 'Описание',
-                'key_skills': [],
-                'alternate_url': 'https://hh.ru/vacancy/12345',
-            })
+            mock_instance.get_vacancy = AsyncMock(
+                return_value={
+                    'id': '12345',
+                    'name': 'Test Vacancy',
+                    'employer': {'name': 'Test'},
+                    'area': {'name': 'Москва'},
+                    'salary': None,
+                    'experience': {'name': '1-3'},
+                    'description': 'Описание',
+                    'key_skills': [],
+                    'alternate_url': 'https://hh.ru/vacancy/12345',
+                }
+            )
             mock_instance.close = AsyncMock()
             mock_client_cls.return_value = mock_instance
 
