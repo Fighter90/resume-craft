@@ -247,7 +247,7 @@ class TestDeleteMe:
     """Тесты DELETE /auth/me (полное удаление с паролем и подтверждением)."""
 
     async def test_delete_account_success(self, auth_client: AsyncClient) -> None:
-        """Полное удаление аккаунта с подтверждением → 200."""
+        """Soft-delete аккаунта с подтверждением → 200."""
         response = await auth_client.request(
             'DELETE',
             '/api/v1/auth/me',
@@ -255,7 +255,7 @@ class TestDeleteMe:
         )
         assert response.status_code == 200
         data = response.json()
-        assert 'Аккаунт удалён' in data['message']
+        assert '30 дней' in data['message']
 
     async def test_delete_no_password(self, auth_client: AsyncClient) -> None:
         """DELETE без пароля → 422."""

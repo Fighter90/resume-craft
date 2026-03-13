@@ -37,9 +37,11 @@ export default function VacancyPage() {
           parsed.title,
         ].find((v): v is string => typeof v === 'string' && v.trim().length > 0)
 
-        const defaultTitle = (fromParsed || '').trim()
+        const resumeTitle = typeof resume.title === 'string' ? resume.title.trim() : ''
+        const defaultTitle = (fromParsed || resumeTitle || '').trim()
         if (defaultTitle) {
           setManualTitle(defaultTitle)
+          setSearchQuery(defaultTitle)
         }
       } catch {
         // Silent fallback: user can still enter title manually.

@@ -68,17 +68,17 @@ class User(UUIDMixin, TimestampMixin, Base):
     resumes: Mapped[list[Resume]] = relationship(
         back_populates='user',
         cascade='all, delete-orphan',
-        lazy='selectin',
+        lazy='noload',
     )
     vacancies: Mapped[list[Vacancy]] = relationship(
         back_populates='user',
         cascade='all, delete-orphan',
-        lazy='selectin',
+        lazy='noload',
     )
     rewrite_history: Mapped[list[RewriteHistory]] = relationship(
         back_populates='user',
         cascade='all, delete-orphan',
-        lazy='selectin',
+        lazy='noload',
     )
 
     @property

@@ -7,6 +7,23 @@
 
 ---
 
+## [1.23.0] — 2026-03-13 (V39 — Systemic 503 Fix + Soft-Delete + UX Improvements)
+
+### Fixed
+- **PASSWORD-CHANGE-503 / AVATAR-DELETE-503 / LOGOUT-503 (P1-P3):** устранена корневая причина паттерна 503 — убраны явные `session.commit()` + `session.refresh()` из обработчиков avatar upload/delete; зависимость `get_session()` теперь единственная точка commit. Связи User model изменены на `lazy='noload'` (было `selectin`), что устраняет загрузку всех резюме/вакансий/истории при каждом запросе с авторизацией.
+- **ACCOUNT-DELETE-HARD-vs-SOFT (P2):** `DELETE /api/v1/auth/me` теперь выполняет soft-delete с 30-дневным grace period (было — необратимое удаление). Пользователь может восстановить аккаунт, просто войдя в систему. UI текст соответствует реальному поведению.
+- **VACANCY-URL-OBJECT-ERROR (P3):** frontend API-клиент теперь корректно извлекает текст ошибки из JSON-ответов — `extractErrorMessage()` предотвращает отображение `[object Object]` при нестандартных форматах ошибок.
+- **VACANCY-TITLE-002 (P3):** автозаполнение должности в форме вакансии теперь использует `resume.title` (имя файла) как fallback, если `parsed_data` не содержит позицию. Также предзаполняется поле поиска.
+
+### Changed
+- Nginx: добавлены `proxy_buffering on`, `proxy_http_version 1.1`, `proxy_send_timeout 120s` для стабильности reverse-proxy.
+- Версия обновлена до `1.23.0` во всех ключевых файлах.
+
+### Added
+- `tests/test_v39_fixes.py` — 13 тестов: password change 204, avatar delete flush-only, soft-delete с восстановлением, logout 204, noload relationships.
+
+---
+
 ## [1.22.0] — 2026-03-13 (V37 — QA V36 Fix Pack + Focus Group Improvements)
 
 ### Fixed

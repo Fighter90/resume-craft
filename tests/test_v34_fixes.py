@@ -40,18 +40,19 @@ class TestAccountDeletion:
         test_user: User,
         session: AsyncSession,
     ) -> None:
-        """Удаление аккаунта с правильным паролем и подтверждением → 204."""
+        """Soft-delete аккаунта с правильным паролем и подтверждением → 200."""
         response = await auth_client.request(
             'DELETE',
             '/api/v1/auth/me',
             json={'password': 'TestPass123', 'confirmation': 'УДАЛИТЬ'},
         )
         assert response.status_code == HTTPStatus.OK
+        assert '30 дней' in response.json()['message']
 
-        # Проверить, что пользователь удалён из БД
-        stmt = select(User).where(User.id == test_user.id)
-        result = await session.execute(stmt)
-        assert result.scalar_one_or_none() is None
+        # Проверить, что пользователь помечен для удаления (soft-delete)
+        await session.refresh(test_user)
+        assert test_user.deleted_at is not None
+        assert test_user.scheduled_deletion is not None
 
     async def test_delete_account_wrong_confirmation(
         self,
@@ -82,27 +83,27 @@ class TestAccountDeletion:
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    async def test_delete_account_cascades_resumes(
+    async def test_delete_account_soft_deletes_preserves_data(
         self,
         auth_client: AsyncClient,
         test_user: User,
         session: AsyncSession,
     ) -> None:
-        """Удаление аккаунта каскадно удаляет связанные резюме."""
+        """Soft-delete аккаунта НЕ удаляет связанные резюме (grace period)."""
         # Создать резюме
         resume = Resume(
             user_id=test_user.id,
             title='Test Resume',
             file_path='/uploads/test.pdf',
             file_format='pdf',
-            file_size_bytes=1024,  # Добавлено обязательное поле
+            file_size_bytes=1024,
             raw_text='Test content',
             status='draft',
         )
         session.add(resume)
         await session.commit()
 
-        # Удалить аккаунт
+        # Soft-delete аккаунт
         response = await auth_client.request(
             'DELETE',
             '/api/v1/auth/me',
@@ -110,10 +111,10 @@ class TestAccountDeletion:
         )
         assert response.status_code == HTTPStatus.OK
 
-        # Проверить, что резюме тоже удалено
+        # Проверить, что резюме НЕ удалено (soft-delete сохраняет данные)
         stmt = select(Resume).where(Resume.id == resume.id)
         result = await session.execute(stmt)
-        assert result.scalar_one_or_none() is None
+        assert result.scalar_one_or_none() is not None
 
 
 # ============================================================================
@@ -402,18 +403,21 @@ class TestV34IntegrationFlow:
         )
         assert resume_response.status_code == HTTPStatus.CREATED
 
-        # 4. Удаление аккаунта (P1: ACCOUNT-DELETE-500)
+        # 4. Soft-delete аккаунта (P1: ACCOUNT-DELETE-500 → soft-delete V39)
         delete_response = await client.request(
             'DELETE',
             '/api/v1/auth/me',
             json={'password': 'TestPass123', 'confirmation': 'УДАЛИТЬ'},
         )
         assert delete_response.status_code == HTTPStatus.OK
+        assert '30 дней' in delete_response.json()['message']
 
-        # Проверить, что пользователь удалён
+        # Проверить, что пользователь помечен для удаления (soft-delete)
         stmt = select(User).where(User.email == 'v34test@example.com')
         result = await session.execute(stmt)
-        assert result.scalar_one_or_none() is None
+        user = result.scalar_one_or_none()
+        assert user is not None
+        assert user.deleted_at is not None
 
 
 # ============================================================================

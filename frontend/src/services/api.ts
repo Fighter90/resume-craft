@@ -20,6 +20,11 @@ export class ApiClient {
     return h
   }
 
+  private static extractErrorMessage(err: Record<string, unknown>, fallback: string): string {
+    const raw = err.message || err.detail || fallback
+    return typeof raw === 'string' ? raw : JSON.stringify(raw)
+  }
+
   private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
     const res = await fetch(`${API_BASE}${path}`, {
       method,
@@ -39,7 +44,7 @@ export class ApiClient {
         })
         if (!retry.ok) {
           const err = await retry.json().catch(() => ({ message: retry.statusText }))
-          throw new Error(err.message || err.detail || retry.statusText)
+          throw new Error(ApiClient.extractErrorMessage(err, retry.statusText))
         }
         if (retry.status === 204) return undefined as T
         return retry.json()
@@ -48,7 +53,7 @@ export class ApiClient {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: res.statusText }))
-      throw new Error(err.message || err.detail || res.statusText)
+      throw new Error(ApiClient.extractErrorMessage(err, res.statusText))
     }
     if (res.status === 204) return undefined as T
     return res.json()
@@ -126,7 +131,7 @@ export class ApiClient {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: res.statusText }))
-      throw new Error(err.message || err.detail || 'Ошибка загрузки файла')
+      throw new Error(ApiClient.extractErrorMessage(err, 'Ошибка загрузки файла'))
     }
     return res.json()
   }
@@ -302,7 +307,7 @@ export class ApiClient {
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: res.statusText }))
-      throw new Error(err.message || err.detail || res.statusText)
+      throw new Error(ApiClient.extractErrorMessage(err, res.statusText))
     }
     return res.json()
   }

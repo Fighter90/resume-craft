@@ -4,7 +4,6 @@ import logging
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Request, Response, UploadFile, status
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import service as auth_service
@@ -230,19 +229,30 @@ async def change_password(
 @router.delete(
     '/me',
     response_model=MessageResponse,
-    summary='Полное удаление аккаунта',
+    summary='Soft-delete аккаунта (30 дней на восстановление)',
 )
 async def delete_me(
     data: DeleteAccountRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> MessageResponse:
-    """Полное удаление аккаунта с валидацией пароля и подтверждения."""
-    result = await auth_service.delete_account(
+    """Soft-delete аккаунта: помечает для удаления через 30 дней.
+
+    Восстановить аккаунт можно просто войдя в систему.
+    """
+    if data.confirmation != 'УДАЛИТЬ':
+        from app.core.exceptions import AppError
+
+        raise AppError(
+            message='Введите УДАЛИТЬ для подтверждения удаления аккаунта',
+            status_code=400,
+            error_code='DELETE_CONFIRMATION_INVALID',
+        )
+
+    result = await auth_service.soft_delete_account(
         session,
         user=current_user,
         password=data.password,
-        confirmation=data.confirmation,
     )
     return MessageResponse(message=result)
 
@@ -321,8 +331,7 @@ async def upload_avatar(
     avatar_url = f'{settings.api_v1_prefix}/uploads/{relative_path}'
 
     current_user.avatar_url = avatar_url
-    await session.commit()
-    await session.refresh(current_user)
+    await session.flush()
 
     return MessageResponse(message=avatar_url)
 
@@ -362,20 +371,7 @@ async def delete_avatar(
                     exc_info=True,
                 )
 
-    try:
-        current_user.avatar_url = None
-        await session.commit()
-        await session.refresh(current_user)
-    except Exception:
-        await session.rollback()
-        logger.warning(
-            'Failed to clear avatar_url in DB for user %s',
-            current_user.id,
-            exc_info=True,
-        )
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={'detail': 'Не удалось удалить аватар. Попробуйте позже.'},
-        )
+    current_user.avatar_url = None
+    await session.flush()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

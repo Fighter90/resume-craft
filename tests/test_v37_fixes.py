@@ -67,30 +67,24 @@ class TestAvatarDelete503:
 
         assert response.status_code == HTTPStatus.NO_CONTENT
 
-    async def test_delete_avatar_db_error_returns_500_json(
+    async def test_delete_avatar_storage_error_still_returns_204(
         self,
         auth_client: AsyncClient,
         test_user: User,
         session: AsyncSession,
     ) -> None:
-        """Ошибка БД при удалении аватара → 500 с JSON-сообщением, не 503."""
+        """Ошибка storage при удалении файла → 204 (flush-only, DB очищена)."""
         test_user.avatar_url = '/uploads/test-avatar.png'
         await session.flush()
 
         mock_storage = MagicMock()
-        mock_storage.delete = AsyncMock()
+        mock_storage.delete = AsyncMock(side_effect=OSError('Storage error'))
 
-        with (
-            patch('app.core.storage.file_storage', mock_storage),
-            patch.object(session, 'commit', side_effect=Exception('DB connection lost')),
-        ):
+        with patch('app.core.storage.file_storage', mock_storage):
             response = await auth_client.delete('/api/v1/auth/me/avatar')
 
-        # Не 503, а 500 с JSON-телом
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        data = response.json()
-        assert 'detail' in data
-        assert 'аватар' in data['detail'].lower() or 'удалить' in data['detail'].lower()
+        # Storage-ошибка логируется, но avatar_url очищается → 204
+        assert response.status_code == HTTPStatus.NO_CONTENT
 
     async def test_delete_avatar_storage_error_still_clears_db(
         self,

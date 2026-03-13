@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.22.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.23.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,7 +12,7 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.22.0 (V37)
+> **Версия:** 1.23.0 (V39)
 > **Дата:** 13 марта 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
@@ -448,6 +448,7 @@ tests/                     # Зеркалирует src/app/
 ├── test_v28_fixes.py      # 27 тестов (покрытие v1.12 правок)
 ├── test_v30_fixes.py      # 10 тестов (покрытие v1.13 правок)
 ├── test_v37_fixes.py      # 14 тестов (покрытие v1.22 правок)
+├── test_v39_fixes.py      # 13 тестов (покрытие v1.23 правок)
 └── test_full_coverage.py  # 66 тестов (100% покрытие)
 
 alembic/                   # Миграции PostgreSQL
@@ -1099,6 +1100,19 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.23.0 (13 марта 2026) — V39: Systemic 503 Fix + Soft-Delete
+
+**Системное исправление паттерна 503 и новые фичи:**
+
+- **PASSWORD-CHANGE-503 / AVATAR-DELETE-503 / LOGOUT-503 (P1-P3):** устранена корневая причина — убраны двойные commit из обработчиков, связи User model переведены на `lazy='noload'` (было `selectin`).
+- **ACCOUNT-DELETE-HARD-vs-SOFT (P2):** `DELETE /me` теперь выполняет soft-delete с 30-дневным grace period. Вход восстанавливает аккаунт.
+- **VACANCY-URL-OBJECT-ERROR (P3):** frontend корректно извлекает текст ошибки вместо `[object Object]`.
+- **VACANCY-TITLE-002 (P3):** автозаполнение должности из имени файла резюме + предзаполнение поиска.
+
+**Тесты:** 13 новых тестов (`test_v39_fixes.py`). Всего: 927 passed.
+
+Подробности: `CHANGELOG.md`.
 
 ### v1.22.0 (13 марта 2026) — V37: Focus Group Improvements
 
