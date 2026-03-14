@@ -223,6 +223,10 @@ async def change_password(
         current_password=data.current_password,
         new_password=data.new_password,
     )
+    # V42-FIX: Explicit commit before response to prevent 503
+    # (get_session commits after response is sent; Nginx proxy_buffering
+    # sees abnormal close if cleanup fails → 503)
+    await session.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -254,6 +258,8 @@ async def delete_me(
         user=current_user,
         password=data.password,
     )
+    # V42-FIX: Explicit commit before response to prevent 500/503
+    await session.commit()
     return MessageResponse(message=result)
 
 
@@ -332,6 +338,8 @@ async def upload_avatar(
 
     current_user.avatar_url = avatar_url
     await session.flush()
+    # V42-FIX: Explicit commit before response to prevent 503
+    await session.commit()
 
     return MessageResponse(message=avatar_url)
 
@@ -373,5 +381,7 @@ async def delete_avatar(
 
     current_user.avatar_url = None
     await session.flush()
+    # V42-FIX: Explicit commit before response to prevent 503
+    await session.commit()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -45,6 +45,17 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
             f'{provider} — превышен лимит запросов, попробуйте позже'
         ) from exc
 
+    # 404 — модель не найдена (V42-FIX: GROQ-ALLAM-502)
+    if status_code == 404 or 'not found' in err_str.lower() or 'model_not_found' in err_str.lower():
+        from app.core.exceptions import AppError
+
+        raise AppError(
+            message=f'Модель недоступна у провайдера {provider}',
+            status_code=400,
+            error_code='LLM_MODEL_NOT_FOUND',
+            detail='Выбранная модель не найдена или снята с поддержки. Выберите другую модель.',
+        ) from exc
+
     # 5xx — сервер провайдера
     if status_code and status_code >= 500:
         raise LLMProviderUnavailable(

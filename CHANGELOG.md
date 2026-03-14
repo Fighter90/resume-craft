@@ -7,6 +7,23 @@
 
 ---
 
+## [1.24.0] — 2026-03-13 (V42 — Explicit Commit Fix + Model Validation + UX)
+
+### Fixed
+- **PASSWORD-CHANGE-503 (P1):** устранена корневая причина 503 — добавлен явный `session.commit()` ПЕРЕД отправкой Response(204). Ранее commit происходил в `get_session()` dependency cleanup ПОСЛЕ отправки ответа; при ошибке cleanup Nginx proxy_buffering видел обрыв соединения → 503.
+- **AVATAR-DELETE-503 / AVATAR-UPLOAD-503 (P2):** аналогичный fix — explicit commit before response в `delete_avatar` и `upload_avatar`.
+- **ACCOUNT-DELETE-500-REGRESSION (P1):** добавлен explicit commit в `delete_me` handler после `soft_delete_account()`. Устраняет 500 при commit в dependency cleanup.
+- **GROQ-ALLAM-502 (P2):** добавлен обработчик 404 (model not found) в `_handle_llm_error()` — несуществующая модель теперь возвращает 400 с сообщением «Модель недоступна» вместо 502/503.
+- **VACANCY-TITLE-002 (P3):** frontend фильтрует filename-like значения (e.g. `resume.pdf`) из `resume.title` при автозаполнении должности — regex `/\.\w{2,5}$/` обнуляет строку, содержащую расширение файла.
+
+### Added
+- `tests/test_v42_fixes.py` — 24 теста: password change 204 (4 кейса), avatar delete/upload (4 кейса), account delete soft-delete (8 кейсов включая restore), Groq model validation (4 кейса), logout regression (2 кейса), noload regression (2 кейса).
+
+### Changed
+- Версия обновлена до `1.24.0` во всех ключевых файлах.
+
+---
+
 ## [1.23.0] — 2026-03-13 (V39 — Systemic 503 Fix + Soft-Delete + UX Improvements)
 
 ### Fixed

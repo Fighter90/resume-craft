@@ -37,7 +37,9 @@ export default function VacancyPage() {
           parsed.title,
         ].find((v): v is string => typeof v === 'string' && v.trim().length > 0)
 
-        const resumeTitle = typeof resume.title === 'string' ? resume.title.trim() : ''
+        // V42-FIX: VACANCY-TITLE-002 — filter filename-like values (e.g. "resume.pdf")
+        let resumeTitle = typeof resume.title === 'string' ? resume.title.trim() : ''
+        if (/\.\w{2,5}$/.test(resumeTitle)) resumeTitle = ''
         const defaultTitle = (fromParsed || resumeTitle || '').trim()
         if (defaultTitle) {
           setManualTitle(defaultTitle)
