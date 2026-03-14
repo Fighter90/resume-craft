@@ -58,9 +58,7 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
         'model is not available',
         'no such model',
     )
-    is_model_err = status_code == 404 or any(
-        kw in lower for kw in model_keywords
-    )
+    is_model_err = status_code == 404 or any(kw in lower for kw in model_keywords)
     if is_model_err:
         from app.core.exceptions import AppError
 
