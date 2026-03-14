@@ -40,7 +40,17 @@ export default function VacancyPage() {
         // V42-FIX: VACANCY-TITLE-002 — filter filename-like values (e.g. "resume.pdf")
         let resumeTitle = typeof resume.title === 'string' ? resume.title.trim() : ''
         if (/\.\w{2,5}$/.test(resumeTitle)) resumeTitle = ''
-        const defaultTitle = (fromParsed || resumeTitle || '').trim()
+
+        // V43-FIX: VACANCY-TITLE-002 — extract position from raw_text as fallback
+        let fromText = ''
+        if (!fromParsed && !resumeTitle) {
+          const raw = typeof resume.raw_text === 'string' ? resume.raw_text : ''
+          // Common Russian resume patterns: "Должность: ...", "Желаемая должность: ..."
+          const posMatch = raw.match(/(?:желаемая\s+)?должность[:\s—–-]+([^\n]{3,80})/i)
+            || raw.match(/(?:позиция|position)[:\s—–-]+([^\n]{3,80})/i)
+          if (posMatch) fromText = posMatch[1].trim()
+        }
+        const defaultTitle = (fromParsed || resumeTitle || fromText || '').trim()
         if (defaultTitle) {
           setManualTitle(defaultTitle)
           setSearchQuery(defaultTitle)

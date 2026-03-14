@@ -259,7 +259,19 @@ async def delete_me(
         password=data.password,
     )
     # V42-FIX: Explicit commit before response to prevent 500/503
-    await session.commit()
+    # V43-FIX: Wrap commit in try/except — raw SQLAlchemy errors
+    # must not leak as INTERNAL_ERROR
+    try:
+        await session.commit()
+    except Exception as exc:
+        from app.core.exceptions import AppError
+
+        logger.exception('Commit failed in delete_me: %s', exc)
+        raise AppError(
+            message='Не удалось удалить аккаунт. Попробуйте позже.',
+            status_code=500,
+            error_code='DELETE_ACCOUNT_FAILED',
+        ) from exc
     return MessageResponse(message=result)
 
 

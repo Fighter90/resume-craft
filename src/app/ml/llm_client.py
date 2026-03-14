@@ -45,9 +45,23 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
             f'{provider} — превышен лимит запросов, попробуйте позже'
         ) from exc
 
-    # 404 — модель не найдена (V42-FIX: GROQ-ALLAM-502)
+    # 404 / model-not-found (V42-FIX + V43-FIX: GROQ-ALLAM-502)
+    # Groq returns 400 (not 404) for invalid models, so also check
+    # model-related keywords regardless of status code.
     lower = err_str.lower()
-    if status_code == 404 or 'not found' in lower or 'model_not_found' in lower:
+    model_keywords = (
+        'model not found',
+        'model_not_found',
+        'does not exist',
+        'invalid model',
+        'model not active',
+        'model is not available',
+        'no such model',
+    )
+    is_model_err = status_code == 404 or any(
+        kw in lower for kw in model_keywords
+    )
+    if is_model_err:
         from app.core.exceptions import AppError
 
         raise AppError(

@@ -1,6 +1,6 @@
 # ResumeCraft — AI-реврайтер резюме для российского рынка труда
 
-![Version](https://img.shields.io/badge/version-1.24.0-blueviolet)
+![Version](https://img.shields.io/badge/version-1.25.0-blueviolet)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/framework-FastAPI-009688)
 ![PostgreSQL](https://img.shields.io/badge/database-PostgreSQL_16-336791)
@@ -12,8 +12,8 @@
 **Интеллектуальный сервис оптимизации резюме под конкретные вакансии российского рынка труда.**
 Интеграция с HeadHunter API · Мультимодельная AI-архитектура · ATS-оптимизация · Match Score · Мультиформатный экспорт
 
-> **Версия:** 1.24.0 (V42)
-> **Дата:** 13 марта 2026
+> **Версия:** 1.25.0 (V43)
+> **Дата:** 14 марта 2026
 > **Проект:** ResumeCraft — AI-реврайтер резюме для российского рынка труда  
 > **Лицензия:** GPL-3.0 (обусловлена зависимостью от PyMuPDF, AGPL 3.0)
 
@@ -1100,6 +1100,19 @@ pip-audit
 ---
 
 ## Changelog
+
+### v1.25.0 (14 марта 2026) — V43: Delete Account Fix + Model Detection + UX
+
+**Устранение оставшихся дефектов из QA Report #39 (V42):**
+
+- **ACCOUNT-DELETE-500-REGRESSION (P1):** `session.commit()` в `delete_me` handler обёрнут в try/except — raw SQLAlchemy ошибки теперь возвращают `DELETE_ACCOUNT_FAILED`, а не `INTERNAL_ERROR`.
+- **GROQ-ALLAM-502 (P2):** расширена детекция model-not-found — обрабатываются `does not exist`, `invalid model`, `model not active`, `no such model` (Groq возвращает 400, не 404).
+- **VACANCY-TITLE-002 (P3):** извлечение должности из `raw_text` резюме (паттерны «Должность:», «Позиция:») как fallback.
+- **URL-VALIDATION-RAW-JSON (P3):** Pydantic validation arrays в ошибках отображаются как читаемые сообщения, а не raw JSON.
+
+**Тесты:** 27 новых тестов (`test_v43_fixes.py`).
+
+Подробности: `CHANGELOG.md`.
 
 ### v1.24.0 (13 марта 2026) — V42: Explicit Commit Fix + Model Validation
 

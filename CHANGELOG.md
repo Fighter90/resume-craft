@@ -7,6 +7,25 @@
 
 ---
 
+## [1.25.0] — 2026-03-14 (V43 — Delete Account Fix + Model Detection + UX)
+
+### Fixed
+
+- **ACCOUNT-DELETE-500-REGRESSION (P1):** `session.commit()` в `delete_me` handler обёрнут в try/except — raw SQLAlchemy ошибки теперь перехватываются и возвращают `AppError(500, DELETE_ACCOUNT_FAILED)` вместо generic `INTERNAL_ERROR`.
+- **GROQ-ALLAM-502 (P2):** расширена детекция model-not-found в `_handle_llm_error()` — добавлены паттерны `does not exist`, `invalid model`, `model not active`, `model is not available`, `no such model`. Groq возвращает 400 (не 404) для несуществующих моделей — теперь обрабатывается корректно.
+- **VACANCY-TITLE-002 (P3):** добавлено извлечение должности из `raw_text` резюме через regex-паттерны («Должность:», «Желаемая должность:», «Позиция:», «Position:») как fallback, если `parsed_data` и `title` не содержат позицию.
+- **URL-VALIDATION-RAW-JSON (P3):** `ApiClient.extractErrorMessage()` теперь обрабатывает Pydantic validation error arrays — извлекает `.msg` из каждого элемента вместо `JSON.stringify()` массива.
+
+### Added
+
+- `tests/test_v43_fixes.py` — 27 тестов: account delete с commit fix (8 кейсов), model-not-found broadened (11 кейсов), URL validation (2 кейса), regression suite (6 кейсов).
+
+### Changed
+
+- Версия обновлена до `1.25.0` во всех ключевых файлах.
+
+---
+
 ## [1.24.0] — 2026-03-13 (V42 — Explicit Commit Fix + Model Validation + UX)
 
 ### Fixed

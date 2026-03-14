@@ -22,7 +22,16 @@ export class ApiClient {
 
   private static extractErrorMessage(err: Record<string, unknown>, fallback: string): string {
     const raw = err.message || err.detail || fallback
-    return typeof raw === 'string' ? raw : JSON.stringify(raw)
+    if (typeof raw === 'string') return raw
+    // V43-FIX: Pydantic validation errors come as array of objects —
+    // extract human-readable messages instead of showing raw JSON
+    if (Array.isArray(raw)) {
+      const msgs = raw
+        .map((e: any) => typeof e?.msg === 'string' ? e.msg : null)
+        .filter(Boolean)
+      if (msgs.length > 0) return msgs.join('; ')
+    }
+    return fallback
   }
 
   private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
