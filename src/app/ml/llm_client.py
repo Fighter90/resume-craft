@@ -46,7 +46,8 @@ def _handle_llm_error(exc: Exception, *, provider: str) -> None:
         ) from exc
 
     # 404 — модель не найдена (V42-FIX: GROQ-ALLAM-502)
-    if status_code == 404 or 'not found' in err_str.lower() or 'model_not_found' in err_str.lower():
+    lower = err_str.lower()
+    if status_code == 404 or 'not found' in lower or 'model_not_found' in lower:
         from app.core.exceptions import AppError
 
         raise AppError(

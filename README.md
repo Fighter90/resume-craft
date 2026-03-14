@@ -1101,7 +1101,21 @@ pip-audit
 
 ## Changelog
 
-### v1.24.0 (13 марта 2026) — V39: Systemic 503 Fix + Soft-Delete
+### v1.24.0 (13 марта 2026) — V42: Explicit Commit Fix + Model Validation
+
+**Устранение корневой причины 503/500 и улучшения:**
+
+- **PASSWORD-CHANGE-503 (P1):** explicit `session.commit()` перед отправкой Response(204) — ранее commit в dependency cleanup после ответа вызывал 503 через Nginx proxy_buffering.
+- **AVATAR-DELETE-503 / AVATAR-UPLOAD-503 (P2):** аналогичный fix — explicit commit before response.
+- **ACCOUNT-DELETE-500-REGRESSION (P1):** explicit commit в `delete_me` handler после `soft_delete_account()`.
+- **GROQ-ALLAM-502 (P2):** обработчик 404 model-not-found в `_handle_llm_error()` → 400 с user-friendly сообщением.
+- **VACANCY-TITLE-002 (P3):** фильтрация filename-like значений (e.g. `resume.pdf`) при автозаполнении должности.
+
+**Тесты:** 24 новых теста (`test_v42_fixes.py`). Всего: 951 passed.
+
+Подробности: `CHANGELOG.md`.
+
+### v1.23.0 (13 марта 2026) — V39: Systemic 503 Fix + Soft-Delete
 
 **Системное исправление паттерна 503 и новые фичи:**
 
