@@ -1101,6 +1101,19 @@ pip-audit
 
 ## Changelog
 
+### v1.26.0 (14 марта 2026) — V44: Model Mapping Fix + hh.ru Parser + Delete Hardening
+
+**Устранение регрессий из QA Report #40 (V43):**
+
+- **OPENAI-MODEL-MAPPING / ANTHROPIC-MODEL-MAPPING (P1):** исправлена утечка `subModel` state — при переключении провайдера `subModel` сбрасывается синхронно. Ранее GigaChat-Pro отправлялся OpenAI/Anthropic.
+- **ACCOUNT-DELETE-500-REGRESSION (P1):** `logger` перенесён в начало файла, весь handler обёрнут в try/except для перехвата любых ошибок (flush, commit, FK constraints).
+- **GROQ-ALLAM-502 (P2):** keywords ужесточены — вместо широкого `'not found'` теперь 4 точных паттерна.
+- **HH-RESUME-LINK-400 (P2):** добавлен модуль `hh_parser.py` — парсинг резюме с hh.ru через Playwright (headless browser) с graceful fallback.
+
+**Тесты:** 46 новых тестов (`test_v44_fixes.py`). Всего: 1002 passed.
+
+Подробности: `CHANGELOG.md`.
+
 ### v1.25.0 (14 марта 2026) — V43: Delete Account Fix + Model Detection + UX
 
 **Устранение оставшихся дефектов из QA Report #39 (V42):**
