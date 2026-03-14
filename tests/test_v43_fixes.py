@@ -212,17 +212,18 @@ class TestGroqModelNotFoundBroadened:
         assert exc_info.value.error_code == 'LLM_MODEL_NOT_FOUND'
 
     def test_400_invalid_model(self) -> None:
-        """V43: 400 + 'invalid model' → LLM_MODEL_NOT_FOUND."""
-        from app.core.exceptions import AppError
+        """V44: 400 + 'invalid model' (no model-specific keyword) → LLMProviderUnavailable.
+
+        V44 tightened keywords: 'invalid model' is too broad and was removed.
+        """
+        from app.core.exceptions import LLMProviderUnavailable
         from app.ml.llm_client import _handle_llm_error
 
         exc = Exception('Invalid model specified: allam-2-7b')
         exc.status_code = 400  # type: ignore[attr-defined]
 
-        with pytest.raises(AppError) as exc_info:
+        with pytest.raises(LLMProviderUnavailable):
             _handle_llm_error(exc, provider='groq')
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.error_code == 'LLM_MODEL_NOT_FOUND'
 
     def test_model_not_found_in_message_no_status(self) -> None:
         """'model_not_found' в тексте без status_code → LLM_MODEL_NOT_FOUND."""
@@ -248,15 +249,17 @@ class TestGroqModelNotFoundBroadened:
         assert exc_info.value.error_code == 'LLM_MODEL_NOT_FOUND'
 
     def test_model_not_active(self) -> None:
-        """'model not active' → LLM_MODEL_NOT_FOUND."""
-        from app.core.exceptions import AppError
+        """V44: 'model not active' (removed keyword) → catch-all LLMProviderUnavailable.
+
+        V44 tightened keywords: 'model not active' was removed as too broad.
+        """
+        from app.core.exceptions import LLMProviderUnavailable
         from app.ml.llm_client import _handle_llm_error
 
         exc = Exception('This model not active for inference')
 
-        with pytest.raises(AppError) as exc_info:
+        with pytest.raises(LLMProviderUnavailable):
             _handle_llm_error(exc, provider='groq')
-        assert exc_info.value.error_code == 'LLM_MODEL_NOT_FOUND'
 
     def test_no_such_model(self) -> None:
         """'no such model' → LLM_MODEL_NOT_FOUND."""

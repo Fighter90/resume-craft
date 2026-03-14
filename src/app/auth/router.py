@@ -20,8 +20,10 @@ from app.auth.schemas import (
 )
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
-from app.core.exceptions import UserAlreadyExists
+from app.core.exceptions import AppError, UserAlreadyExists
 from app.core.limiter import limiter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
@@ -245,28 +247,29 @@ async def delete_me(
     Восстановить аккаунт можно просто войдя в систему.
     """
     if data.confirmation != 'УДАЛИТЬ':
-        from app.core.exceptions import AppError
-
         raise AppError(
             message='Введите УДАЛИТЬ для подтверждения удаления аккаунта',
             status_code=400,
             error_code='DELETE_CONFIRMATION_INVALID',
         )
 
-    result = await auth_service.soft_delete_account(
-        session,
-        user=current_user,
-        password=data.password,
-    )
-    # V42-FIX: Explicit commit before response to prevent 500/503
-    # V43-FIX: Wrap commit in try/except — raw SQLAlchemy errors
-    # must not leak as INTERNAL_ERROR
+    # V44-FIX: ACCOUNT-DELETE-500-REGRESSION
+    # Wrap entire soft-delete + commit in try/except to catch ANY error
+    # (flush, commit, FK constraints, etc.) and return DELETE_ACCOUNT_FAILED
+    # instead of leaking INTERNAL_ERROR to the client.
     try:
+        result = await auth_service.soft_delete_account(
+            session,
+            user=current_user,
+            password=data.password,
+        )
+        # V42-FIX: Explicit commit before response to prevent 500/503
         await session.commit()
+    except AppError:
+        # Re-raise known AppErrors (InvalidCredentials, DELETE_ACCOUNT_FAILED from service)
+        raise
     except Exception as exc:
-        from app.core.exceptions import AppError
-
-        logger.exception('Commit failed in delete_me: %s', exc)
+        logger.exception('delete_me failed: %s', exc)
         raise AppError(
             message='Не удалось удалить аккаунт. Попробуйте позже.',
             status_code=500,
@@ -288,8 +291,6 @@ async def restore_me(
     result = await auth_service.restore_account(session, user=current_user)
     return MessageResponse(message=result)
 
-
-logger = logging.getLogger(__name__)
 
 AVATAR_MAX_SIZE: int = 2 * 1024 * 1024  # 2 MB
 AVATAR_ALLOWED_TYPES: frozenset[str] = frozenset({'image/jpeg', 'image/png', 'image/webp'})

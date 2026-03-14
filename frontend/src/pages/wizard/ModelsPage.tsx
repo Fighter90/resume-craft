@@ -147,6 +147,13 @@ export default function ModelsPage() {
       return
     }
 
+    // V44-FIX: OPENAI-MODEL-MAPPING / ANTHROPIC-MODEL-MAPPING
+    // Clear stale subModel IMMEDIATELY when switching providers.
+    // Without this, the old subModel (e.g. 'GigaChat-Pro') persists
+    // during the async fetch and can be sent to the wrong provider.
+    setSubModel('')
+    setSubModels([])
+
     const fetchSubModels = async () => {
       setLoadingSubModels(true)
       try {

@@ -7,6 +7,26 @@
 
 ---
 
+## [1.26.0] — 2026-03-14 (V44 — Model Mapping Fix + hh.ru Parser + Delete Hardening)
+
+### Fixed
+
+- **OPENAI-MODEL-MAPPING / ANTHROPIC-MODEL-MAPPING (P1):** исправлена утечка `subModel` state между провайдерами в `ModelsPage.tsx`. При переключении провайдера `subModel` и `subModels` сбрасываются СИНХРОННО до начала async-загрузки подмоделей. Ранее при быстром переключении с GigaChat на OpenAI отправлялся `sub_model='GigaChat-Pro'` вместо корректной модели.
+- **ACCOUNT-DELETE-500-REGRESSION (P1):** `logger` перенесён в начало `router.py` (был определён после обработчиков). Весь handler `delete_me` обёрнут в try/except с перехватом ANY Exception (не только commit) → `DELETE_ACCOUNT_FAILED`. `AppError` из сервиса (InvalidCredentials) пробрасывается без изменений.
+- **GROQ-ALLAM-502 (P2):** keywords в `_handle_llm_error()` ужесточены: вместо широкого `'not found'` (который ловил «Endpoint not found», «User not found») теперь 4 точных паттерна: `'model not found'`, `'model_not_found'`, `'does not exist'`, `'no such model'`.
+
+### Added
+
+- **HH-RESUME-LINK-400 (P2):** добавлен модуль `resumes/hh_parser.py` — парсинг резюме с hh.ru через Playwright (headless browser). Endpoint `POST /resumes/from-url` автоматически парсит резюме при наличии Playwright, иначе graceful fallback с инструкцией ручного ввода.
+- `tests/test_v44_fixes.py` — 46 тестов: model-not-found tightened (14 кейсов), account delete V44 (10 кейсов), URL validation (2 кейса), hh.ru parser module (5 кейсов), LLM factory mapping (6 кейсов), regression suite (9 кейсов).
+
+### Changed
+
+- Версия обновлена до `1.26.0` во всех ключевых файлах.
+- V43 тесты обновлены: `test_400_invalid_model` и `test_model_not_active` ожидают `LLMProviderUnavailable` вместо `LLM_MODEL_NOT_FOUND` (V44 ужесточил keywords).
+
+---
+
 ## [1.25.0] — 2026-03-14 (V43 — Delete Account Fix + Model Detection + UX)
 
 ### Fixed

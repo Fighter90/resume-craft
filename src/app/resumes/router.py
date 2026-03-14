@@ -79,12 +79,14 @@ async def create_from_url(
 ) -> ResumeUploadResponse:
     """Создание резюме по ссылке hh.ru.
 
-    В MVP выполняется валидация URL и возвращается понятная ошибка с инструкцией,
-    если автоматический парсинг недоступен.
+    V44-FIX: HH-RESUME-LINK-400 — парсинг через Playwright (headless browser).
+    Если Playwright не установлен, возвращает инструкцию копировать текст вручную.
     """
     import re
 
     from fastapi import HTTPException
+
+    from app.resumes import hh_parser
 
     normalized_url = data.url.strip()
     hh_resume_pattern = re.compile(r'^https?://(www\.)?hh\.ru/resume/[a-z0-9]+', re.IGNORECASE)
@@ -94,6 +96,32 @@ async def create_from_url(
             detail='Поддерживаются только ссылки на резюме hh.ru (формат: hh.ru/resume/...)',
         )
 
+    # V44-FIX: Если Playwright доступен — парсим автоматически
+    if hh_parser.is_available():
+        try:
+            parsed = await hh_parser.parse_hh_resume(normalized_url)
+        except Exception:
+            parsed = None  # Fall through to manual instruction
+
+        if parsed is not None:
+            raw_text = str(parsed.get('raw_text', ''))
+            if not raw_text.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail='Не удалось извлечь данные из резюме. '
+                    'Возможно, резюме закрыто настройками приватности hh.ru.',
+                )
+            title = str(parsed.get('position', '')) or 'Резюме с hh.ru'
+            resume = await resume_service.create_from_text(
+                session,
+                user_id=current_user.id,
+                text=raw_text,
+                title=title,
+                source_url=normalized_url,
+            )
+            return ResumeUploadResponse.model_validate(resume)
+
+    # Fallback: Playwright не установлен или не удалось загрузить
     raise HTTPException(
         status_code=400,
         detail=(
