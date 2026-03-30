@@ -3,19 +3,19 @@
 # =============================================================================
 
 # --- Web Framework ---
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
 python-multipart==0.0.20
 
 # --- Validation ---
-pydantic==2.10.5
-pydantic-settings==2.7.1
+pydantic==2.12.5
+pydantic-settings==2.13.1
 email-validator==2.2.0
 
 # --- Database ---
-sqlalchemy[asyncio]==2.0.37
+sqlalchemy[asyncio]==2.0.48
 asyncpg==0.30.0
-alembic==1.14.1
+alembic==1.18.4
 pgvector==0.3.6
 
 # --- Task Queue ---
