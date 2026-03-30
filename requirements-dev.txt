@@ -14,11 +14,11 @@ factory-boy==3.3.1
 Faker==33.1.0
 
 # --- Linting & Typing ---
-ruff==0.8.6
-mypy==1.14.1
+ruff==0.15.8
+mypy==1.19.1
 
 # --- Security ---
-bandit[toml]==1.8.3
+bandit[toml]==1.9.4
 pip-audit==2.7.3
 
 # --- Debug ---
