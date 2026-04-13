@@ -1,7 +1,7 @@
 # ============================================
 # ResumeCraft — Multi-stage Dockerfile
 # ============================================
-FROM mirror.gcr.io/library/python:3.11-slim AS base
+FROM mirror.gcr.io/library/python:3.14.0-slim AS base
 
 # Переменные окружения
 ENV PYTHONDONTWRITEBYTECODE=1 \
