@@ -46,7 +46,7 @@ reportlab>=4.0
 openai==1.59.9
 gigachat==0.1.40
 anthropic>=0.40.0
-sentence-transformers==3.3.1
+sentence-transformers==5.5.1
 
 # --- Logging ---
 structlog==24.4.0
